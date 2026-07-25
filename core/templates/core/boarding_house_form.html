@@ -1,0 +1,77 @@
+{% extends 'core/base.html' %}
+{% block title %}{% if house %}Edit{% else %}Add New{% endif %} Boarding House{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-5">
+        <div class="text-center mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 3rem; height: 3rem; color: var(--terracotta); margin-bottom: 1rem;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3h1.5m-1.5 3h1.5M9 19.5v-3.375c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125V19.5" />
+          </svg>
+          <h2 class="mb-1">{% if house %}Edit{% else %}Add New{% endif %} Boarding House</h2>
+          <p class="text-muted">Fill in the details about your boarding house property</p>
+        </div>
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-md-12 mb-4">
+              <label class="form-label fw-medium" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+              {{ form.name }}
+              {% if form.name.errors %}
+                <div class="text-danger small mt-2">{{ form.name.errors|striptags }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6 mb-4">
+              <label class="form-label fw-medium" for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
+              {{ form.address }}
+              {% if form.address.errors %}
+                <div class="text-danger small mt-2">{{ form.address.errors|striptags }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6 mb-4">
+              <label class="form-label fw-medium" for="{{ form.city.id_for_label }}">{{ form.city.label }}</label>
+              {{ form.city }}
+              {% if form.city.errors %}
+                <div class="text-danger small mt-2">{{ form.city.errors|striptags }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6 mb-4">
+              <label class="form-label fw-medium" for="{{ form.contact_number.id_for_label }}">{{ form.contact_number.label }}</label>
+              {{ form.contact_number }}
+              {% if form.contact_number.errors %}
+                <div class="text-danger small mt-2">{{ form.contact_number.errors|striptags }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6 mb-4">
+              <label class="form-label fw-medium" for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+              {{ form.email }}
+              {% if form.email.errors %}
+                <div class="text-danger small mt-2">{{ form.email.errors|striptags }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-12 mb-4">
+              <label class="form-label fw-medium" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+              {{ form.description }}
+              {% if form.description.errors %}
+                <div class="text-danger small mt-2">{{ form.description.errors|striptags }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-12 mb-4">
+              <label class="form-label fw-medium" for="{{ form.image.id_for_label }}">{{ form.image.label }}</label>
+              {{ form.image }}
+              {% if form.image.errors %}
+                <div class="text-danger small mt-2">{{ form.image.errors|striptags }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="d-flex gap-3">
+            <a href="{% url 'landlord_dashboard' %}" class="btn btn-outline-secondary flex-grow-1">Cancel</a>
+            <button type="submit" class="btn btn-primary flex-grow-1">{% if house %}Update{% else %}Create{% endif %} Boarding House</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

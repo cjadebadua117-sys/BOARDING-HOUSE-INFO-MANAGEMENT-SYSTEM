@@ -1,0 +1,59 @@
+{% extends 'core/base.html' %}
+{% block title %}Available Boarding Houses{% endblock %}
+{% block content %}
+<div class="browse-page">
+<div class="row mb-4">
+  <div class="col-md-12">
+    <h1>Browse Boarding Houses</h1>
+    <form method="get" class="row g-3 browse-filter">
+      <div class="col-sm-2 browse-filter-item">
+        {{ form.price_min.label_tag }}
+        {{ form.price_min }}
+      </div>
+      <div class="col-sm-2 browse-filter-item">
+        {{ form.price_max.label_tag }}
+        {{ form.price_max }}
+      </div>
+      <div class="col-sm-2 browse-filter-item">
+        {{ form.room_type.label_tag }}
+        {{ form.room_type }}
+      </div>
+      <div class="col-sm-2 browse-filter-item">
+        {{ form.amenities.label_tag }}
+        {{ form.amenities }}
+      </div>
+      <div class="col-sm-2 browse-filter-item">
+        {{ form.barangay.label_tag }}
+        {{ form.barangay }}
+      </div>
+      <div class="col-sm-2 browse-filter-item">
+        {{ form.sort.label_tag }}
+        {{ form.sort }}
+      </div>
+      <div class="col-12"><button class="btn btn-primary" type="submit">Filter</button></div>
+    </form>
+  </div>
+</div>
+<div class="row gy-4">
+  {% if boarding_houses %}
+    {% for house in boarding_houses %}
+      <div class="col-md-6">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h3 class="card-title">{{ house.name }}</h3>
+            <p class="text-muted">{{ house.barangay }}, {{ house.address }}</p>
+            <p>{{ house.description|truncatechars:140 }}</p>
+            <p><strong>{{ house.available_rooms.count }} available room(s)</strong></p>
+            <a class="btn btn-primary" href="{% url 'boarding_detail' house.pk %}">View details</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="col-12">
+      <div class="alert alert-warning">No boarding houses match your filters.</div>
+    </div>
+  {% endif %}
+</div>
+</div>
+{% endblock %}

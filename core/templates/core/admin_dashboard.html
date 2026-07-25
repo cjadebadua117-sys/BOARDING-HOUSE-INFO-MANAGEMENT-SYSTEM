@@ -1,0 +1,115 @@
+{% extends "core/base.html" %}
+
+{% block title %}Admin Dashboard - Boarding House Information Management System{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+<div class="mb-5">
+    <h1>Admin Analytics Dashboard</h1>
+    <p class="text-muted">Overview of the Boarding House Information Management System for NLUC Students</p>
+</div>
+
+<div class="dashboard-stats">
+    <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-number">{{ total_students }}</div>
+        <div class="stat-label">Active Students</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🏠</div>
+        <div class="stat-number">{{ total_landlords }}</div>
+        <div class="stat-label">Verified Landlords</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🏘️</div>
+        <div class="stat-number">{{ total_boarding_houses }}</div>
+        <div class="stat-label">Active Listings</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🛏️</div>
+        <div class="stat-number">{{ total_available_rooms }}</div>
+        <div class="stat-label">Available Rooms</div>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h3 class="mb-4">Student Enrollment by Program</h3>
+            {% if program_stats %}
+                {% for stat in program_stats %}
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>{{ stat.program }}</span>
+                    <span class="badge" style="background: var(--terracotta); color: white;">{{ stat.count }} students</span>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">No student data available yet.</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h3 class="mb-4">Most Inquired Listings</h3>
+            {% if top_listings %}
+                {% for listing in top_listings %}
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>{{ listing.room__boarding_house__name }}</span>
+                    <span class="badge" style="background: var(--admin-accent); color: white;">{{ listing.inquiry_count }} inquiries</span>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">No inquiry data available yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="card p-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>Manage Landlords</h3>
+        <a href="{% url 'admin_create_landlord' %}" class="btn btn-primary">Add New Landlord</a>
+    </div>
+    
+    {% if landlords %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Boarding Houses</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for landlord in landlords %}
+                <tr>
+                    <td><a href="{% url 'admin_landlord_detail' landlord.id %}" class="text-decoration-none">{{ landlord.first_name }} {{ landlord.last_name }}</a></td>
+                    <td>{{ landlord.email }}</td>
+                    <td>{{ landlord.phone_number|default:"-" }}</td>
+                    <td><span class="badge" style="background: var(--terracotta); color: white;">{{ landlord.boarding_house_count }}</span></td>
+                    <td>
+                        {% if landlord.is_active %}
+                        <span class="badge badge-available">Active</span>
+                        {% else %}
+                        <span class="badge badge-booked">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'admin_edit_landlord' landlord.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <a href="{% url 'toggle_landlord_active' landlord.id %}" class="btn btn-sm btn-outline-warning" onclick="return confirm('Are you sure you want to toggle this landlord\'s active status?')">Toggle</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <p class="text-muted">No landlord accounts created yet.</p>
+    {% endif %}
+</div>
+</div>
+{% endblock %}

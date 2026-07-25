@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sed \"s/'//g\")",
+      "Bash(read template *)",
+      "Bash([ -f \"./core/templates/$template\" ])",
+      "Bash(python -m py_compile core/views.py)",
+      "Bash(python -m py_compile core/urls.py)",
+      "Bash(python manage.py runserver 0.0.0.0:8000)",
+      "Bash(curl -s http://localhost:8000/)",
+      "Bash(python manage.py shell -c \"from django.contrib.auth import get_user_model; User = get_user_model\\(\\); print\\('Users:', User.objects.count\\(\\)\\); print\\('Superusers:', User.objects.filter\\(is_superuser=True\\).count\\(\\)\\)\")",
+      "Bash(python manage.py shell -c \"from django.contrib.auth import get_user_model; User = get_user_model\\(\\); u = User.first\\(\\); print\\('Username:', u.username\\); print\\('Email:', u.email\\); print\\('Role:', u.role\\); print\\('Is staff:', u.is_staff\\); print\\('Is superuser:', u.is_superuser\\)\")",
+      "Bash(pkill -f \"runserver\")",
+      "Bash(awk NR==313 *)"
+    ]
+  }
+}

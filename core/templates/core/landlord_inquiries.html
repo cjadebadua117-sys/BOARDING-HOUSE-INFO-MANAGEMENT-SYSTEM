@@ -1,0 +1,115 @@
+{% extends 'core/base.html' %}
+{% block title %}Landlord Inquiries{% endblock %}
+{% block content %}
+<div class="row mb-4">
+  <div class="col-md-8">
+    <h1>Student Inquiries</h1>
+    <p>Manage all incoming inquiries from students about your properties.</p>
+  </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row mb-4">
+  <div class="col-md-4">
+    <div class="card shadow-sm border-0 p-4">
+      <div class="d-flex align-items-center">
+        <div class="icon-box" style="background: rgba(59, 130, 246, 0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1.5rem; height: 1.5rem; color: #3b82f6;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a3.375 3.375 0 00-3.375 3.375v.035a.675.675 0 00.235.505l2.035 1.782a.675.675 0 00.834 0l2.035-1.782a.675.675 0 00.235-.505v-.035A3.375 3.375 0 0010.5 12H8.625z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.375 12a3.375 3.375 0 00-3.375 3.375v.035a.675.675 0 00.235.505l2.035 1.782a.675.675 0 00.834 0l2.035-1.782a.675.675 0 00.235-.505v-.035A3.375 3.375 0 0018 12h-2.625z" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="mb-0">{{ inquiries|length }}</h3>
+          <p class="text-muted mb-0 small">Total Inquiries</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card shadow-sm border-0 p-4">
+      <div class="d-flex align-items-center">
+        <div class="icon-box" style="background: rgba(234, 179, 8, 0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1.5rem; height: 1.5rem; color: #ca8a04;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          </svg>
+        </div>
+        <div>
+          {% with new_inquiries=0 %}{% for inquiry in inquiries %}{% if inquiry.status == 'new' %}{% with new_inquiries=new_inquiries|add:1 %}{% endwith %}{% endif %}{% endfor %}
+          <h3 class="mb-0">{{ new_inquiries }}</h3>
+          <p class="text-muted mb-0 small">New Inquiries</p>
+          {% endwith %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card shadow-sm border-0 p-4">
+      <div class="d-flex align-items-center">
+        <div class="icon-box" style="background: rgba(34, 197, 94, 0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1.5rem; height: 1.5rem; color: #16a34a;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-3.227 0A3.744 3.744 0 0115 12.968V7.5l-2.118 2.118A3.745 3.745 0 0012 12.75z" />
+          </svg>
+        </div>
+        <div>
+          {% with resolved=0 %}{% for inquiry in inquiries %}{% if inquiry.status == 'resolved' %}{% with resolved=resolved|add:1 %}{% endwith %}{% endif %}{% endfor %}
+          <h3 class="mb-0">{{ resolved }}</h3>
+          <p class="text-muted mb-0 small">Resolved</p>
+          {% endwith %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Inquiries List -->
+<div class="row">
+  <div class="col-lg-12">
+    {% if inquiries %}
+    <div class="row g-4">
+      {% for inquiry in inquiries %}
+      <div class="col-lg-6">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="d-flex align-items-center">
+                <div class="avatar-circle" style="background: var(--terracotta); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; margin-right: 1rem; flex-shrink: 0;">
+                  {{ inquiry.student.full_name|first|default:inquiry.student.email|first }}
+                </div>
+                <div>
+                  <h5 class="mb-0">{{ inquiry.student.full_name|default:inquiry.student.email }}</h5>
+                  <p class="text-muted small mb-0">{{ inquiry.student.program }}</p>
+                </div>
+              </div>
+              <span class="badge {% if inquiry.status == 'new' %}bg-primary-subtle text-primary-emphasis{% elif inquiry.status == 'in_progress' %}bg-warning-subtle text-warning-emphasis{% else %}bg-success-subtle text-success-emphasis{% endif %}">{{ inquiry.get_status_display }}</span>
+            </div>
+            
+            <div class="mb-3 p-3 bg-light rounded" style="background: var(--cream) !important;">
+              <p class="text-muted small mb-1">Regarding</p>
+              <p class="mb-0">{{ inquiry.room.boarding_house.name }} - {{ inquiry.room.name|default:inquiry.room.room_type }} • ₱{{ inquiry.room.price }}/month</p>
+            </div>
+            
+            <p class="mb-4">{{ inquiry.message|truncatechars:150 }}</p>
+            
+            <div class="d-flex justify-content-between align-items-center">
+              <p class="text-muted small mb-0">Sent {{ inquiry.created_at|date:'M d, Y g:i A' }}</p>
+              <a href="{% url 'landlord_inquiry_thread' inquiry.pk %}" class="btn btn-primary">View Thread</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="card shadow-sm border-0 p-5 text-center">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 4rem; height: 4rem; margin: 0 auto 1.5rem; color: var(--text-muted);">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a3.375 3.375 0 00-3.375 3.375v.035a.675.675 0 00.235.505l2.035 1.782a.675.675 0 00.834 0l2.035-1.782a.675.675 0 00.235-.505v-.035A3.375 3.375 0 0010.5 12H8.625z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.375 12a3.375 3.375 0 00-3.375 3.375v.035a.675.675 0 00.235.505l2.035 1.782a.675.675 0 00.834 0l2.035-1.782a.675.675 0 00.235-.505v-.035A3.375 3.375 0 0018 12h-2.625z" />
+      </svg>
+      <h3 class="h5 mb-2">No inquiries yet</h3>
+      <p class="text-muted mb-0">When students send inquiries about your rooms, they'll appear here.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

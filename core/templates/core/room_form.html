@@ -1,0 +1,68 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-5">
+        <div class="text-center mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 3rem; height: 3rem; color: var(--terracotta); margin-bottom: 1rem;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75" />
+          </svg>
+          <h2 class="mb-1">{{ title }}</h2>
+          <p class="text-muted">{{ house.name }}</p>
+        </div>
+        <form method="post" novalidate>
+          {% csrf_token %}
+          {% for field in form %}
+            {% if field.name == 'is_available' %}
+            <div class="mb-4 p-4 rounded" style="background: var(--cream);">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <label class="form-label fw-medium mb-0">{{ field.label }}</label>
+                  <p class="text-muted small mb-0">Toggle this room's availability for student bookings</p>
+                </div>
+                <label class="toggle-switch">
+                  {{ field }}
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              {% if field.errors %}
+                <div class="text-danger small mt-2">{{ field.errors|striptags }}</div>
+              {% endif %}
+            </div>
+            {% elif field.name == 'amenities' %}
+            <div class="mb-4">
+              <label class="form-label fw-medium">{{ field.label }}</label>
+              <div class="amenity-checkbox-list">
+                {% for checkbox in field %}
+                  <div>
+                    {{ checkbox.tag }}
+                    <label for="{{ checkbox.id_for_label }}" class="amenity-checkbox-label">{{ checkbox.choice_label }}</label>
+                  </div>
+                {% endfor %}
+              </div>
+              {% if field.errors %}
+                <div class="text-danger small mt-2">{{ field.errors|striptags }}</div>
+              {% endif %}
+            </div>
+            {% else %}
+            <div class="mb-4">
+              <label class="form-label fw-medium" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}
+                <div class="text-danger small mt-2">{{ field.errors|striptags }}</div>
+              {% endif %}
+            </div>
+            {% endif %}
+          {% endfor %}
+          <div class="d-flex gap-3">
+            <a href="{% url 'landlord_dashboard' %}" class="btn btn-outline-secondary flex-grow-1">Cancel</a>
+            <button type="submit" class="btn btn-primary flex-grow-1">Save Room</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,435 @@
+{% load static %}
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8" /> <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <title>{% block title %}Boarding House Information Management System{% endblock %}</title> <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous"> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"> <style> :root { --terracotta: #C46A3E; --terracotta-dark: #8B4513; --terracotta-light: #D48B5E; --cream: #FDF8F3; --cream-strong: #F5EBE0; --beige: #E6D5C3; --warm-green: #6B8F71; --muted-terracotta: #A67C62; --text-dark: #2D2626; --text-muted: #6B5B4F; --surface: #FFFFFF; --shadow-soft: 0 4px 20px rgba(45, 38, 38, 0.08); --shadow-hover: 0 12px 40px rgba(196, 106, 62, 0.15); } * { box-sizing: border-box; } body { background: var(--cream); color: var(--text-dark); font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; line-height: 1.6; } h1, h2, h3, h4, h5, h6 { font-family: 'Quicksand', sans-serif; font-weight: 700; color: var(--text-dark); } .navbar { background: linear-gradient(135deg, var(--terracotta) 0%, var(--terracotta-dark) 100%) !important; padding: 1rem 0; box-shadow: 0 2px 20px rgba(139, 69, 19, 0.2); } .navbar .container { max-width: 1280px; } .navbar-brand { font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 1.25rem; color: #fff !important; letter-spacing: -0.02em; } .navbar-brand:hover { color: var(--cream-strong) !important; } .nav-link { color: rgba(255,255,255,0.9) !important; font-weight: 500; transition: color 0.2s ease; } .nav-link:hover { color: #fff !important; } .auth-bar { display: flex; gap: 1rem; align-items: center; margin-left: auto; } .auth-bar .btn { border-radius: 9999px; padding: 0.5rem 1.25rem; font-weight: 600; transition: all 0.2s ease; } .btn-outline-light { border-color: rgba(255,255,255,0.7); } .btn-outline-light:hover { background: rgba(255,255,255,0.1); border-color: #fff; } .card { border: none; border-radius: 16px; background: var(--surface); box-shadow: var(--shadow-soft); overflow: hidden; transition: all 0.3s ease; } .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); } .card-img-top { height: 220px; object-fit: cover; } .badge { border-radius: 9999px; padding: 0.375rem 0.875rem; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.02em; } .badge-available { background-color: var(--warm-green); color: white; } .badge-booked { background-color: var(--muted-terracotta); color: white; } .btn-primary { background-color: var(--terracotta); border-color: var(--terracotta); border-radius: 9999px; padding: 0.75rem 1.75rem; font-weight: 600; transition: all 0.2s ease; } .btn-primary:hover { background-color: var(--terracotta-dark); border-color: var(--terracotta-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(196, 106, 62, 0.3); } .btn-outline-primary { color: var(--terracotta); border-color: var(--terracotta); border-radius: 9999px; padding: 0.75rem 1.75rem; font-weight: 600; transition: all 0.2s ease; } .btn-outline-primary:hover { background-color: var(--terracotta); border-color: var(--terracotta); color: white; } .auth-shell { display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; border-radius: 24px; max-width: 900px; margin: 2rem auto; box-shadow: var(--shadow-hover); } .auth-panel { 
+    background: linear-gradient(135deg, rgba(196, 106, 62, 0.95) 0%, rgba(139, 69, 19, 0.98) 100%), 
+                url('{% static "images/dmmmsu-campus.jpg" %}');
+    background-size: cover;
+    background-position: center;
+    color: #fff; 
+    padding: 3.5rem; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+} .auth-panel h2 { font-size: 2.25rem; color: #fff; margin-bottom: 1rem; } .auth-form { padding: 3.5rem; background: var(--surface); } .auth-form .form-control { border-radius: 12px; border: 2px solid var(--beige); padding: 0.875rem 1.25rem; font-size: 1rem; transition: all 0.2s ease; background: var(--cream); } .auth-form .form-control:focus { border-color: var(--terracotta); box-shadow: 0 0 0 4px rgba(196, 106, 62, 0.1); outline: none; } /* Form field styling - stacked labels with consistent alignment */
+.form-group, .mb-3 {
+    margin-bottom: 1.5rem !important;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    text-align: left;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+}
+
+.auth-form .form-label {
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    width: 100% !important;
+    padding: 0.875rem 1.25rem;
+    border-radius: 12px;
+    border: 2px solid var(--beige);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background: var(--cream);
+}
+
+.auth-form .form-control {
+    border-radius: 12px;
+    border: 2px solid var(--beige);
+    padding: 0.875rem 1.25rem;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background: var(--cream);
+}
+
+.form-control:focus {
+    border-color: var(--terracotta);
+    box-shadow: 0 0 0 4px rgba(196, 106, 62, 0.1);
+    outline: none;
+}
+
+.auth-form .form-control:focus {
+    border-color: var(--terracotta);
+    box-shadow: 0 0 0 4px rgba(196, 106, 62, 0.1);
+    outline: none;
+}
+
+.browse-filter .form-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.browse-filter .form-control,
+.browse-filter .form-select {
+    min-height: 3.5rem;
+    padding: 0.875rem 1.25rem;
+    border-radius: 12px;
+    border: 2px solid var(--beige);
+    font-size: 1rem;
+    background: var(--cream);
+    transition: all 0.2s ease;
+}
+
+.browse-filter .form-control:focus,
+.browse-filter .form-select:focus {
+    border-color: var(--terracotta);
+    box-shadow: 0 0 0 4px rgba(196, 106, 62, 0.1);
+    outline: none;
+}
+
+.browse-filter-item {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ensure filter inputs and selects share the same size across the row */
+.browse-filter-item .form-control,
+.browse-filter-item .form-select {
+    width: 100%;
+}
+
+/* Keep the filter row balanced at larger breakpoints */
+@media (min-width: 768px) {
+    .browse-filter .browse-filter-item {
+        padding-right: 0.5rem;
+        padding-left: 0.5rem;
+    }
+}
+
+/* Style all input, select, and textarea elements within form groups to ensure they look like form-control even without the filter */
+.mb-3 input, .mb-3 select, .mb-3 textarea,
+.form-group input, .form-group select, .form-group textarea {
+    width: 100% !important;
+    padding: 0.875rem 1.25rem;
+    border-radius: 12px;
+    border: 2px solid var(--beige);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background: var(--cream);
+}
+
+.mb-3 input:focus, .mb-3 select:focus, .mb-3 textarea:focus,
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--terracotta);
+    box-shadow: 0 0 0 4px rgba(196, 106, 62, 0.1);
+    outline: none;
+}
+
+/* Ensure submit buttons match input width */
+.btn-primary, .btn[type="submit"] {
+    width: 100% !important;
+    margin-top: 0.5rem;
+}
+
+/* Fix for all form templates including admin/landlord forms */
+form .btn-primary {
+    width: 100% !important;
+    border-radius: 9999px;
+    padding: 0.875rem 1.75rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+} .hero-section { padding: 5rem 0; text-align: center; background: linear-gradient(180deg, var(--cream-strong) 0%, var(--cream) 100%); margin: -1.5rem -12px 3rem -12px; border-radius: 0 0 40px 40px; } .hero-section h1 { font-size: 3rem; margin-bottom: 1rem; line-height: 1.2; } .hero-tagline { font-size: 1.5rem; color: var(--terracotta); font-weight: 600; margin-bottom: 1.5rem; } .hero-subtext { font-size: 1.125rem; color: var(--text-muted); max-width: 600px; margin: 0 auto 2rem; } .dashboard-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; } .stat-card { padding: 2rem; border-radius: 20px; background: var(--surface); box-shadow: var(--shadow-soft); text-align: center; } .stat-number { font-size: 3rem; font-weight: 700; font-family: 'Quicksand', sans-serif; color: var(--terracotta); } .stat-label { font-size: 1rem; color: var(--text-muted); font-weight: 500; } .inquiry-thread { display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 2rem; } .message-bubble { max-width: 75%; padding: 1.25rem 1.5rem; border-radius: 20px; position: relative; } .message-student { background: var(--cream-strong); align-self: flex-start; border-bottom-left-radius: 4px; } .message-landlord { background: var(--terracotta); color: white; align-self: flex-end; border-bottom-right-radius: 4px; } .message-meta { font-size: 0.8rem; opacity: 0.8; margin-top: 0.5rem; } .filter-section { background: var(--surface); padding: 2rem; border-radius: 20px; margin-bottom: 2rem; box-shadow: var(--shadow-soft); } .empty-state { text-align: center; padding: 4rem 2rem; } .empty-state h3 { margin-bottom: 1rem; color: var(--text-muted); } .empty-state p { color: var(--text-muted); max-width: 400px; margin: 0 auto; } @media (max-width: 992px) { .auth-shell { grid-template-columns: 1fr; margin: 1rem; } .auth-panel { padding: 2rem 2rem 1.5rem 2rem; min-height: auto; } .auth-panel .auth-identity { margin-bottom: 0.5rem; } .auth-panel h2 { font-size: 1.75rem; margin-bottom: 0.5rem; } .auth-panel p { font-size: 0.9rem; margin-bottom: 0; } .auth-form { padding: 2rem; } .hero-section h1 { font-size: 2rem; } .navbar-brand { font-size: 1rem; } .auth-bar { gap: 0.5rem; } .auth-bar .btn { padding: 0.375rem 0.875rem; font-size: 0.875rem; } .card-img-top { height: 180px; } } @media (max-width: 576px) { .hero-section { padding: 3rem 1rem; } .hero-section h1 { font-size: 1.75rem; } .hero-tagline { font-size: 1.125rem; } .message-bubble { max-width: 90%; } } .navbar-toggler { border-color: rgba(255,255,255,0.5); } .navbar-toggler-icon { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.85%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"); } .container { max-width: 1200px; } .alert { border-radius: 12px; border: none; padding: 1rem 1.25rem; } .alert-success { background: rgba(107, 143, 113, 0.15); border-left: 4px solid var(--warm-green); color: #2d5a35; } .alert-danger { background: rgba(196, 106, 62, 0.15); border-left: 4px solid var(--terracotta); color: #8B4513; } .alert-info { background: rgba(196, 106, 62, 0.1); border-left: 4px solid var(--terracotta-light); color: var(--text-dark); } .price-tag { font-size: 1.5rem; font-weight: 700; font-family: 'Quicksand', sans-serif; color: var(--terracotta); } .listing-card .card-body { padding: 1.5rem; } .listing-card .card-title { font-size: 1.25rem; margin-bottom: 0.5rem; } .amenity-tag { display: inline-block; padding: 0.25rem 0.75rem; background: var(--cream-strong); border-radius: 9999px; font-size: 0.75rem; margin-right: 0.5rem; margin-bottom: 0.5rem; color: var(--text-muted); font-weight: 500; }
+
+/* Password visibility toggle styling */
+.password-input-container {
+    position: relative;
+    width: 100%;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.password-toggle:hover {
+    color: var(--terracotta);
+}
+
+.password-toggle svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+/* Custom checkbox styling for Remember Me */
+.custom-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.custom-checkbox input[type="checkbox"] {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    min-width: 1.25rem !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 2px solid var(--beige);
+    border-radius: 6px;
+    background: var(--cream);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    flex-shrink: 0;
+    transform: none !important;
+}
+
+.custom-checkbox input[type="checkbox"]:checked {
+    background: var(--terracotta);
+    border-color: var(--terracotta);
+}
+
+.custom-checkbox input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    color: white;
+    font-size: 0.75rem;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.custom-checkbox label {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    margin: 0;
+}
+
+.forgot-password {
+    font-size: 0.875rem;
+    color: var(--terracotta);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.forgot-password:hover {
+    color: var(--terracotta-dark);
+    text-decoration: underline;
+}
+
+/* Toggle switch styling for room availability */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .3s;
+    border-radius: 24px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+    background-color: var(--terracotta);
+}
+
+input:focus + .toggle-slider {
+    box-shadow: 0 0 1px var(--terracotta);
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(24px);
+}
+
+/* Amenity checkbox styling */
+.amenity-checkbox-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.amenity-checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background-color: var(--cream);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 0.25rem;
+}
+
+.amenity-checkbox-label:hover {
+    background-color: rgba(196, 104, 62, 0.1);
+}
+
+.amenity-checkbox-input:checked + .amenity-checkbox-label {
+    background-color: var(--terracotta);
+    color: white;
+}
+
+.amenity-checkbox-input {
+    display: none;
+}
+</style> </head> <body> <nav class="navbar navbar-expand-lg navbar-dark"> <div class="container"> <a class="navbar-brand" href="{% url 'home' %}">BHIMS</a> <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"> <span class="navbar-toggler-icon"></span> </button> <div class="collapse navbar-collapse" id="navbarNav"> <div class="auth-bar w-100 justify-content-end">
+                {% if request.user.is_authenticated %}
+                    <!-- ONLY SHOW BROWSE TO LOGGED IN USERS (vanishes if not logged in) -->
+                    <a class="nav-link" href="/listings/">Browse</a>
+                    <!-- Show role-specific links only if role matches -->
+                    {% if request.user.role == 'student' %}
+                        <a class="nav-link" href="{% url 'profile' %}">My Profile</a>
+                        <a class="nav-link" href="/students/inquiries/">My Inquiries</a>
+                    {% elif request.user.role == 'landlord' %}
+                        <a class="nav-link" href="{% url 'profile' %}">My Profile</a>
+                        <a class="nav-link" href="/landlords/dashboard/">Dashboard</a>
+                        <a class="nav-link" href="/landlords/boarding-houses/">My Boarding Houses</a>
+                        <a class="nav-link" href="/landlords/inquiries/">Inquiries</a>
+                    {% elif request.user.role == 'admin' %}
+                        <a class="nav-link" href="/admin/dashboard/">Admin Dashboard</a>
+                        <a class="nav-link" href="/admin/landlords/">Landlord Accounts</a>
+                        <a class="nav-link" href="/admin/analytics/">Analytics</a>
+                    {% endif %}
+                    <a class="btn btn-outline-light btn-sm" href="/logout/">Logout</a>
+                {% else %}
+                    <!-- ONLY SHOW THESE TO LOGGED OUT USERS - Browse is hidden here -->
+                    <!-- 3 items total: Student Login, Landlord Login, Sign Up (button) -->
+                    <a class="nav-link" href="/students/login/">Student Login</a>
+                    <a class="nav-link" href="/landlords/login/">Landlord Login</a>
+                    <a class="btn btn-outline-light btn-sm" href="/students/register/">Sign Up</a>
+                {% endif %} </div> </div> </div> </nav> <div class="container mb-5"> {% if messages %} <div class="mb-4"> {% for message in messages %} <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div> {% endfor %} </div> {% endif %} {% block content %}{% endblock %} </div> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+<!-- Password visibility toggle JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Find all password fields
+    const passwordFields = document.querySelectorAll('input[type="password"]');
+    
+    passwordFields.forEach(field => {
+        // Create container
+        const container = document.createElement('div');
+        container.className = 'password-input-container';
+        
+        // Wrap the field in the container
+        field.parentNode.insertBefore(container, field);
+        container.appendChild(field);
+        
+        // Create toggle button
+        const toggleBtn = document.createElement('button');
+        toggleBtn.type = 'button';
+        toggleBtn.className = 'password-toggle';
+        toggleBtn.setAttribute('aria-label', 'Toggle password visibility');
+        
+        // Initial eye icon (password hidden)
+        toggleBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+        `;
+        
+        container.appendChild(toggleBtn);
+        
+        // Toggle functionality
+        toggleBtn.addEventListener('click', function() {
+            const isPassword = field.type === 'password';
+            field.type = isPassword ? 'text' : 'password';
+            
+            // Toggle icon
+            if (isPassword) {
+                // Show eye-slash when password is visible
+                toggleBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.992 0 1.958-.112 2.897-.328m-2.334-1.277A4.5 4.5 0 008.875 13.13m9.152 3.644L18.642 15m-3.902-2.925A4.5 4.5 0 0015.126 10.87m-9.152-3.644L5.358 9M9.823 6.533A10.477 10.477 0 0112 4.5c4.638 0 8.573 3.007 9.963 7.178a1.012 1.012 0 010 .638C20.577 16.49 16.64 19.5 12 19.5c-.992 0-1.958-.112-2.897-.328M9.823 6.533L5.358 9m4.465-2.467l4.566 6.652" />
+                    </svg>
+                `;
+            } else {
+                // Show eye when password is hidden
+                toggleBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                `;
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>
+<style>
+/* BHIMS visual identity refinements */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700&family=Urbanist:wght@600;700&display=swap');
+body { font-family: 'Inter', sans-serif; }
+h1, h2, h3, h4, h5, h6 { font-family: 'Urbanist', sans-serif; }
+.navbar-brand { font-family: 'Montserrat', sans-serif; }
+:root { --landlord-accent: #8B4513; --admin-accent: #2D2626; --browse-top: #FFFDFC; --browse-bottom: #F5EBE0; }
+.browse-page { background: linear-gradient(180deg, var(--browse-top) 0%, var(--browse-bottom) 100%); }
+.landlord-page { --terracotta: var(--landlord-accent); --terracotta-light: #A85D32; }
+.badge-landlord-available { background: var(--landlord-accent); color: #fff; }
+.admin-page { background: #F3F4F6; --terracotta: var(--admin-accent); --terracotta-dark: #1F1B1B; --terracotta-light: #4A4141; --cream: #F3F4F6; }
+.admin-page .navbar { background: linear-gradient(135deg, var(--terracotta-dark) 0%, var(--admin-accent) 100%) !important; }
+.admin-page .stat-number { color: var(--admin-accent); }
+.admin-page .badge-available { background-color: var(--admin-accent); }
+.admin-page .btn-outline-warning { color: var(--admin-accent); border-color: var(--admin-accent); }
+.admin-page .btn-outline-warning:hover { color: #fff; background: var(--admin-accent); border-color: var(--admin-accent); }
+.auth-panel { position: relative; isolation: isolate; background-image: linear-gradient(135deg, rgba(196, 106, 62, .88) 0%, rgba(45, 38, 38, .94) 100%), url('/static/core/images/dmmmsu-campus.jpg'); background-size: cover; background-position: center; }
+.auth-panel > * { position: relative; z-index: 1; }
+.auth-identity { text-align: center; margin-bottom: 2.25rem; }
+.auth-identity__name { display: block; color: #fff; font-family: 'Quicksand', sans-serif; font-size: clamp(2.4rem, 5vw, 3.6rem); font-weight: 700; line-height: 1; letter-spacing: -.04em; }
+.auth-identity__system { display: block; margin-top: .6rem; color: rgba(255,255,255,.84); font-size: .95rem; font-weight: 500; line-height: 1.35; }
+.auth-identity__location { display: block; margin-top: .45rem; color: #fff; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.auth-panel .eyebrow { color: rgba(255,255,255,.86); }
+.auth-panel h2, .auth-panel > p:last-child { text-align: center; }
+.detail-hero-copy { position: relative; padding: .85rem 1rem; background: rgba(255,255,255,.88); border-radius: 12px; }
+.detail-hero-copy h1, .detail-hero-copy .price-tag { margin-bottom: 0; }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    ['browse-page', 'landlord-page', 'admin-page'].forEach(function (theme) {
+        if (document.querySelector('.' + theme)) document.body.classList.add(theme);
+    });
+});</script>

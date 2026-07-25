@@ -1,0 +1,54 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ boarding_house.name }}{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card shadow-sm mb-4 detail-hero-copy">
+      <div class="card-body">
+        <h1>{{ boarding_house.name }}</h1>
+        <p class="text-muted">{{ boarding_house.barangay }}, {{ boarding_house.address }}</p>
+        <p>{{ boarding_house.description }}</p>
+      </div>
+    </div>
+    {% if boarding_house.get_photo_list %}
+      <div class="mb-4">
+        <h4>Photos</h4>
+        <div class="row g-3">
+          {% for photo in boarding_house.get_photo_list %}
+            <div class="col-md-4"><img src="{{ photo }}" class="img-fluid rounded" alt="Photo"></div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h4 class="mb-3">Available Rooms</h4>
+        {% if available_rooms %}
+          <div class="list-group">
+            {% for room in available_rooms %}
+              <div class="list-group-item mb-3">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <h5>{{ room.name|default:room.room_type }}</h5>
+                    <p class="mb-1">Type: {{ room.room_type }} · Capacity: {{ room.capacity }}</p>
+                    <p><strong>₱{{ room.price }}</strong></p>
+                    {% if room.get_amenity_list %}
+                      <p>Amenities: {{ room.get_amenity_list|join:', ' }}</p>
+                    {% endif %}
+                  </div>
+                  <div>
+                    <span class="badge available-badge">Available</span>
+                  </div>
+                </div>
+                <a class="btn btn-secondary mt-2" href="{% url 'send_inquiry' room.pk %}">Send Inquiry</a>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="alert alert-warning">No available rooms are currently listed for this boarding house.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

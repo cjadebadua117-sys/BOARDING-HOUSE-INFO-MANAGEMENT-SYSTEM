@@ -1,0 +1,42 @@
+{% extends "core/base.html" %}
+
+{% block title %}Landlord Account Created - BHIMS{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card shadow-sm border-success">
+      <div class="card-header bg-success text-white">
+        <h2 class="mb-0">✅ Landlord Account Created Successfully</h2>
+      </div>
+      <div class="card-body p-5">
+        <p class="lead mb-4">Please share these login credentials with the landlord:</p>
+        
+        <div class="bg-light p-4 rounded mb-4">
+          <div class="row mb-3">
+            <div class="col-md-4 fw-bold">Full Name:</div>
+            <div class="col-md-8">{{ landlord_name }}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-4 fw-bold">Login Email:</div>
+            <div class="col-md-8">{{ landlord_email }}</div>
+          </div>
+          <div class="row">
+            <div class="col-md-4 fw-bold">Temporary Password:</div>
+            <div class="col-md-8"><code class="bg-dark text-white px-2 py-1 rounded">{{ landlord_password }}</code></div>
+          </div>
+        </div>
+
+        <div class="alert alert-warning">
+          <strong>Note:</strong> The landlord will be prompted to change their password on their first login.
+        </div>
+
+        <div class="d-grid gap-2 mt-4">
+          <a href="{% url 'admin_dashboard' %}" class="btn btn-primary">Return to Admin Dashboard</a>
+          <a href="{% url 'admin_create_landlord' %}" class="btn btn-outline-secondary">Create Another Landlord</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

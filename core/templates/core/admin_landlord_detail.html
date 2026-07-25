@@ -1,0 +1,85 @@
+{% extends 'core/base.html' %}
+{% block title %}Landlord Details - Boarding House Information Management System{% endblock %}
+{% block content %}
+<div class="admin-page">
+<div class="mb-4">
+    <h1>Landlord Details</h1>
+    <a href="{% url 'admin_landlord_list' %}" class="btn btn-outline-primary mb-3">← Back to Landlord List</a>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card p-4">
+            <h5 class="mb-3">Account Information</h1>
+            <p><strong>Name:</strong> {{ landlord.FullName }}</p>
+            <p><strong>Email:</strong> {{ landlord.AccountID.email }}</p>
+            <p><strong>Phone:</strong> {{ landlord.ContactNumber }}</p>
+            <p><strong>Address:</strong> {{ landlord.Address }}</p>
+            <p><strong>Account Status:</strong>
+                <span class="badge {% if landlord.AccountID.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                    {{ landlord.AccountID.is_active|yesno:"Active,Inactive" }}
+                </span>
+            </p>
+            <p><strong>Member Since:</strong> {{ landlord.AccountID.date_joined|date:"M d, Y" }}</p>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card p-4">
+            <h5 class="mb-3">Verification Status</h1>
+            <div class="mb-4">
+                <span class="badge
+                    {% if landlord.VerifiedStatus == 'Verified' %}bg-success
+                    {% elif landlord.VerifiedStatus == 'Rejected' %}bg-danger
+                    {% else %}bg-warning text-dark{% endif %}">
+                    {{ landlord.get_VerifiedStatus_display }}
+                </span>
+            </div>
+
+            {% if landlord.VerifiedStatus == 'Pending' %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4">
+                <a href="{% url 'verify_landlord' landlord.pk %}" class="btn btn-success me-2">Verify</a>
+                <a href="{% url 'reject_landlord' landlord.pk %}" class="btn btn-outline-danger">Reject</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="card p-4 mt-4">
+            <h5 class="mb-3">Boarding Houses</h1>
+            {% if landlord.boarding_houses.exists %}
+            <div class="list-group">
+                {% for house in landlord.boarding_houses.all %}
+                <div class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">{{ house.HouseName }}</h6>
+                        <small class="text-muted">{{ house.get_Barangay_display }}</small>
+                    </div>
+                    <p class="mb-1">{{ house.Address }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-{{ 'success' if house.Status == 'Available' else 'warning' if house.Status == 'Full' else 'secondary' }}">
+                            {{ house.get_Status_display }}
+                        </span>
+                        <a href="{% url 'landlord_boarding_house_detail' house.pk %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted">This landlord has not created any boarding houses yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{% url 'admin_edit_landlord' landlord.pk %}" class="btn btn-primary me-2">Edit Landlord</a>
+    <a href="{% url 'toggle_landlord_active' landlord.pk %}" class="btn btn-outline-secondary">
+        {% if landlord.AccountID.is_active %}
+            Deactivate Account
+        {% else %}
+            Activate Account
+        {% endif %}
+    </a>
+</div>
+</div>
+{% endblock %}

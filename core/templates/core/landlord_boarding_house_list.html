@@ -1,0 +1,75 @@
+{% extends 'core/base.html' %}
+{% block title %}My Boarding Houses - Boarding House Information Management System{% endblock %}
+{% block content %}
+<div class="landlord-page">
+<div class="row mb-4">
+  <div class="col-md-8">
+    <h1>My Boarding Houses</h1>
+    <p>Manage your boarding houses and rooms.</p>
+  </div>
+  <div class="col-md-4 text-end">
+    <a href="{% url 'boarding_house_create' %}" class="btn btn-primary">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+      Add New Boarding House
+    </a>
+  </div>
+</div>
+
+{% if houses %}
+<div class="row g-4">
+  {% for house in houses %}
+  <div class="col-lg-4">
+    <div class="card h-100 border-0 shadow-sm h-100">
+      {% if house.photos.first %}
+      <div class="ratio ratio-16x9">
+        <img src="{{ house.photos.first.image.url }}" class="card-img-top object-cover" alt="{{ house.HouseName }}">
+      </div>
+      {% else %}
+      <div class="ratio ratio-16x9 bg-light">
+        <div class="d-flex align-items-center justify-content-center h-100">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 3rem; height: 3rem; color: var(--text-muted);">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 6h14M5 10h14a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2z" />
+          </svg>
+        </div>
+      </div>
+      {% endif %}
+      <div class="card-body p-4">
+        <h3 class="h5 mb-2">{{ house.HouseName }}</h3>
+        <p class="text-muted mb-2">{{ house.get_Barangay_display }}, {{ house.Address }}</p>
+
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <span class="badge bg-{{ 'success' if house.Status == 'Available' else 'warning' if house.Status == 'Full' else 'secondary' }} me-2">
+              {{ house.get_Status_display }}
+            </span>
+            <span class="text-muted">Rooms: {{ house.rooms.count }}</span>
+          </div>
+          <a href="{% url 'landlord_boarding_house_detail' house.pk %}" class="btn btn-sm btn-outline-primary">Manage</a>
+        </div>
+
+        {% if house.rooms.exists %}
+        <div class="mt-3">
+          <h6 class="mb-2">Available Rooms: {{ house.available_rooms.count }}</h6>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card p-5 text-center">
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 4rem; height: 4rem; margin: 0 auto 1.5rem; color: var(--text-muted);">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3" />
+    <path stroke-linecap="round" stroke-linejoin="round" d="M5 6h14M5 10h14a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2z" />
+  </svg>
+  <h3 class="h5 mb-2">You haven't created any boarding houses yet</h3>
+  <p class="text-muted mb-4">Create your first boarding house to start managing rooms and receiving inquiries from students.</p>
+  <a href="{% url 'boarding_house_create' %}" class="btn btn-primary">Create Your First Boarding House</a>
+</div>
+{% endif %}
+</div>
+{% endblock %}

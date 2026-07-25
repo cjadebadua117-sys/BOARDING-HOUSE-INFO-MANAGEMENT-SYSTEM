@@ -1,0 +1,35 @@
+{% extends 'core/base.html' %}
+{% block title %}Edit Landlord - Boarding House Information Management System{% endblock %}
+{% block content %}
+<div class="admin-page">
+<div class="mb-4">
+    <h1>Edit Landlord</h1>
+    <a href="{% url 'admin_landlord_detail' landlord.id %}" class="btn btn-outline-secondary mb-3">← Back to Landlord Details</a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card p-4">
+            <div class="card-header">
+                <h5 class="mb-0">Edit Landlord Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                          <div class="text-danger small mt-2">{{ field.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary w-100">Update Landlord</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "core/base.html" %}
+
+{% block title %}Home - Boarding House Information Management System{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="container">
+        <h1>Your Home Away From Home, Near NLUC.</h1>
+        <p class="hero-subtext">Discover carefully vetted boarding houses in Bacnotan, La Union, specifically for NLUC (Don Mariano Marcos Memorial State University – North La Union Campus) students. Browse available rooms, connect with landlords, and secure your accommodation with ease.</p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{% url 'listing_list' %}" class="btn btn-primary btn-lg">Browse Listings</a>
+            <a href="{% url 'student_register' %}" class="btn btn-outline-primary btn-lg">Create Student Account</a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="card h-100 p-4">
+            <div class="h3 mb-3" style="color: var(--terracotta);"><i class="bi bi-search"></i></div>
+            <h3>Browse Listings</h3>
+            <p class="text-muted">Filter by price, room type, and amenities to find the perfect boarding house that fits your needs and budget.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 p-4">
+            <div class="h3 mb-3" style="color: var(--terracotta);"><i class="bi bi-chat-left-text"></i></div>
+            <h3>Connect Directly</h3>
+            <p class="text-muted">Send inquiries directly to landlords through our built-in messaging system. Keep all communication in one place.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 p-4">
+            <div class="h3 mb-3" style="color: var(--terracotta);"><i class="bi bi-check-circle"></i></div>
+            <h3>Verified Listings</h3>
+            <p class="text-muted">All boarding houses are verified and managed by our admin team to ensure quality and safety for all students.</p>
+        </div>
+    </div>
+</div>
+
+<div class="text-center">
+    <a href="{% url 'listing_list' %}" class="btn btn-primary btn-lg">View All Available Boarding Houses →</a>
+</div>
+{% endblock %}

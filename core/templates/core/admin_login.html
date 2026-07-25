@@ -1,0 +1,40 @@
+{% extends 'core/base.html' %}
+{% block title %}Admin Login - Boarding House Information Management System{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-xl-10">
+    <div class="auth-shell card shadow-sm border-0">
+      <div class="auth-panel">
+        <div class="auth-identity" aria-label="BHIMS identity">
+          <span class="auth-identity__name">BHIMS</span>
+          <span class="auth-identity__system">Boarding House Information Management System</span>
+          <span class="auth-identity__location">DMMMSU · NLUC Bacnotan, La Union</span>
+        </div>
+        <p class="eyebrow mb-3">Welcome back</p>
+        <h2 class="fw-bold mb-3">Sign in to your admin account</h2>
+        <p class="mb-0">Manage landlord accounts, view analytics, and oversee the boarding house system.</p>
+      </div>
+      <div class="auth-form">
+        <h3 class="fw-bold mb-3">Admin Login</h3>
+        <form method="post" novalidate>
+          {% csrf_token %}
+          {% for field in form %}
+            <div class="mb-3">
+              <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}
+                <div class="text-danger small mt-2">{{ field.errors|striptags }}</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+          {% include 'core/includes/login_form_footer.html' %}
+          <button type="submit" class="btn btn-primary w-100 mb-3">Login</button>
+        </form>
+        <p class="mt-3 mb-0 text-center">
+          Don't have an account? Contact the system administrator.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

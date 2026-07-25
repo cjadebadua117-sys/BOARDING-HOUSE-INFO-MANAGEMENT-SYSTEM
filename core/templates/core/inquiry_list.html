@@ -1,0 +1,26 @@
+{% extends 'core/base.html' %}
+{% block title %}My Inquiries{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-lg-10">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h1 class="mb-3">My Inquiries</h1>
+        {% if inquiries %}
+          <div class="list-group">
+            {% for inquiry in inquiries %}
+              <div class="list-group-item mb-3">
+                <h5>{{ inquiry.room.boarding_house.name }} · {{ inquiry.room.name|default:inquiry.room.room_type }}</h5>
+                <p class="mb-1">Message: {{ inquiry.message }}</p>
+                <p class="mb-1 text-muted">Status: {{ inquiry.get_status_display }} · Sent {{ inquiry.created_at|date:'M d, Y H:i' }}</p>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="alert alert-info">You have no inquiries yet.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

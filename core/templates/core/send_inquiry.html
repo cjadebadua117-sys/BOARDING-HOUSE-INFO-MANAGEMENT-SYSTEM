@@ -1,0 +1,19 @@
+{% extends 'core/base.html' %}
+{% block title %}Send Inquiry{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h2 class="card-title">Inquiry for {{ room.name|default:room.room_type }}</h2>
+        <p class="text-muted">{{ room.boarding_house.name }} · ₱{{ room.price }}</p>
+        <form method="post" novalidate>
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button type="submit" class="btn btn-primary">Send Inquiry</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,335 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    :root {
+        --bhims-terracotta: #c1592a;
+        --bhims-terracotta-deep: #8c4a2f;
+        --bhims-cream: #f7ede3;
+        --bhims-cream-light: #fdf6f0;
+        --bhims-text: #3a2a20;
+        --bhims-text-muted: #8a7566;
+        --bhims-border: #e8d6c5;
+    }
+    .profile-page-wrap { min-height: 80vh; display: flex; justify-content: center; align-items: flex-start; padding: 48px 20px; background: linear-gradient(to bottom, var(--bhims-cream-light), var(--bhims-cream)); }
+    .profile-card { background: #ffffff; width: 100%; max-width: 920px; border-radius: 24px; border: 1px solid var(--bhims-border); display: flex; overflow: hidden; box-shadow: 0 20px 45px rgba(140, 74, 47, 0.12); position: relative; }
+    .profile-role-bar { position: absolute; top: 0; left: 0; bottom: 0; width: 6px; background: {% if is_landlord %}var(--bhims-terracotta-deep){% else %}var(--bhims-terracotta){% endif %}; }
+    .profile-sidebar { flex: 1; background: var(--bhims-cream-light); padding: 44px 36px; display: flex; flex-direction: column; align-items: center; border-right: 1px solid var(--bhims-border); text-align: center; }
+    .avatar-ring { width: 140px; height: 140px; border-radius: 50%; padding: 4px; background: linear-gradient(135deg, {% if is_landlord %}var(--bhims-terracotta-deep){% else %}var(--bhims-terracotta){% endif %}, #e8b48f); margin-bottom: 16px; cursor: pointer; position: relative; }
+    .avatar-ring img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid #ffffff; background: var(--bhims-cream); display: block; }
+    .avatar-initial-fallback { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #ffffff; background: var(--bhims-terracotta); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: 700; }
+    .avatar-hint { font-size: 11px; color: var(--bhims-text-muted); background: #ffffff; border: 1px solid var(--bhims-border); border-radius: 999px; padding: 4px 12px; margin-top: -14px; position: relative; z-index: 2; }
+    .role-badge { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; padding: 6px 16px; border-radius: 100px; background: {% if is_landlord %}rgba(140, 74, 47, 0.1){% else %}rgba(193, 89, 42, 0.1){% endif %}; color: {% if is_landlord %}var(--bhims-terracotta-deep){% else %}var(--bhims-terracotta){% endif %}; margin-top: 14px; }
+    .sidebar-stat { margin-top: 24px; font-size: 13px; color: var(--bhims-text-muted); }
+    .sidebar-stat strong { display: block; font-size: 22px; color: var(--bhims-text); font-weight: 800; }
+    .profile-main { flex: 2; padding: 44px 48px; }
+    .profile-header h1 { font-size: 28px; font-weight: 800; color: var(--bhims-text); margin: 0 0 4px; }
+    .profile-header span { color: var(--bhims-text-muted); font-size: 14px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 28px; margin-top: 32px; }
+    .data-cell label { display: block; font-size: 10px; font-weight: 700; color: var(--bhims-text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .data-cell p.readonly-value { font-size: 15px; color: var(--bhims-text); font-weight: 600; margin: 0; padding: 10px 0; }
+    .bhims-input, .bhims-textarea, select.bhims-input { width: 100%; padding: 10px 12px; border: 1px solid var(--bhims-border); border-radius: 10px; color: var(--bhims-text); background: var(--bhims-cream-light); font-size: 14px; font-family: inherit; }
+    .bhims-input:focus, .bhims-textarea:focus { outline: none; border-color: var(--bhims-terracotta); box-shadow: 0 0 0 3px rgba(193, 89, 42, 0.15); }
+    .bhims-input:disabled { background: #f2ece5; color: var(--bhims-text-muted); cursor: not-allowed; }
+    .field-errors { color: #c0392b; font-size: 12px; margin-top: 4px; min-height: 14px; }
+    .locked-note { margin-top: 28px; padding: 14px 16px; background: var(--bhims-cream-light); border: 1px dashed var(--bhims-border); border-radius: 12px; font-size: 13px; color: var(--bhims-text-muted); }
+    .btn-row { margin-top: 34px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-bhims { display: inline-flex; align-items: center; gap: 8px; border: none; padding: 11px 22px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 14px; cursor: pointer; }
+    .btn-bhims.primary { background: {% if is_landlord %}var(--bhims-terracotta-deep){% else %}var(--bhims-terracotta){% endif %}; color: #ffffff; }
+    .btn-bhims.secondary { background: #ffffff; color: var(--bhims-text); border: 1px solid var(--bhims-border); }
+    .btn-bhims:disabled { opacity: 0.6; cursor: not-allowed; }
+    .password-section { margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--bhims-border); }
+    .password-section h3 { font-size: 16px; font-weight: 800; color: var(--bhims-text); margin: 0 0 16px; }
+    .password-grid { display: grid; grid-template-columns: 1fr; gap: 16px; max-width: 360px; }
+    #bhims-toast { position: fixed; bottom: 24px; right: 24px; background: #ffffff; border: 1px solid var(--bhims-border); border-left: 4px solid var(--bhims-terracotta); border-radius: 10px; padding: 14px 18px; box-shadow: 0 10px 30px rgba(140,74,47,0.15); font-size: 14px; color: var(--bhims-text); display: none; z-index: 9999; max-width: 320px; }
+    #bhims-toast.error { border-left-color: #c0392b; }
+    #bhims-toast.show { display: block; }
+    .cropper-modal { position: fixed; inset: 0; background: rgba(58, 42, 32, 0.55); display: none; align-items: center; justify-content: center; z-index: 99999; padding: 20px; }
+    .cropper-modal.open { display: flex; }
+    .cropper-panel { width: min(92vw, 480px); background: #ffffff; border-radius: 16px; padding: 20px; box-shadow: 0 20px 45px rgba(0,0,0,0.25); }
+    .cropper-panel h3 { margin: 0 0 12px; font-size: 16px; color: var(--bhims-text); }
+    .cropper-stage { width: 100%; height: min(60vh, 380px); background: #f2ece5; border-radius: 10px; overflow: hidden; }
+    .cropper-stage img { max-width: 100%; display: block; }
+    .cropper-actions { margin-top: 16px; display: flex; gap: 10px; justify-content: flex-end; }
+    @media (max-width: 720px) {
+        .profile-card { flex-direction: column; }
+        .profile-sidebar { border-right: none; border-bottom: 1px solid var(--bhims-border); }
+        .info-grid { grid-template-columns: 1fr; }
+        .profile-main { padding: 32px 24px; }
+    }
+</style>
+
+<div class="profile-page-wrap">
+    <div class="profile-card">
+        <div class="profile-role-bar"></div>
+        <div class="profile-sidebar">
+            <div class="avatar-ring" id="avatar-trigger" title="Click to change photo">
+                {% if user.profile_picture %}
+                    <img src="{{ user.profile_picture.url }}" alt="Profile photo" id="avatar-image">
+                {% else %}
+                    <div class="avatar-initial-fallback" id="avatar-image">{{ user.first_name|default:user.username|first|upper }}</div>
+                {% endif %}
+            </div>
+            <span class="avatar-hint">Click photo to change</span>
+            <input type="file" id="avatar-file-input" accept="image/*" style="display:none;">
+            <div class="role-badge">{% if is_landlord %}Landlord{% else %}Student{% endif %}</div>
+            {% if is_landlord %}
+            <div class="sidebar-stat">
+                <strong>{{ boarding_house_count }}</strong>
+                Boarding House{{ boarding_house_count|pluralize }} Managed
+            </div>
+            {% endif %}
+        </div>
+        <div class="profile-main">
+            <div class="profile-header">
+                <h1>My Profile</h1>
+                <span>{% if is_landlord %}Manage your password and photo. Contact Admin to update account details.{% else %}Keep your information up to date.{% endif %}</span>
+            </div>
+
+            {% if is_student %}
+            <form id="profile-edit-form">
+                <div class="info-grid">
+                    <div class="data-cell">
+                        <label>Email (not editable)</label>
+                        <p class="readonly-value">{{ user.email }}</p>
+                    </div>
+                    <div class="data-cell">
+                        <label>Student ID (not editable)</label>
+                        <p class="readonly-value">{{ user.student_id }}</p>
+                    </div>
+                    <div class="data-cell">
+                        <label>First Name</label>
+                        <input class="bhims-input" name="first_name" value="{{ user.first_name }}">
+                        <div class="field-errors" data-error-for="first_name"></div>
+                    </div>
+                    <div class="data-cell">
+                        <label>Last Name</label>
+                        <input class="bhims-input" name="last_name" value="{{ user.last_name }}">
+                        <div class="field-errors" data-error-for="last_name"></div>
+                    </div>
+                    <div class="data-cell">
+                        <label>Program</label>
+                        <select class="bhims-input" name="program">
+                            <option value="CE" {% if user.program == 'CE' %}selected{% endif %}>College of Education</option>
+                            <option value="CA" {% if user.program == 'CA' %}selected{% endif %}>College of Agriculture</option>
+                            <option value="CAS" {% if user.program == 'CAS' %}selected{% endif %}>College of Arts and Sciences</option>
+                            <option value="CVM" {% if user.program == 'CVM' %}selected{% endif %}>College of Veterinary Medicine</option>
+                            <option value="CAFF" {% if user.program == 'CAFF' %}selected{% endif %}>College of Agroforestry & Forestry</option>
+                            <option value="IABM" {% if user.program == 'IABM' %}selected{% endif %}>Institute of Agribusiness Management</option>
+                            <option value="CIS" {% if user.program == 'CIS' %}selected{% endif %}>College of Information Systems</option>
+                            <option value="IES" {% if user.program == 'IES' %}selected{% endif %}>Institute of Environmental Studies</option>
+                            <option value="IABE" {% if user.program == 'IABE' %}selected{% endif %}>Institute of Agricultural & Biosystems Engineering</option>
+                            <option value="OTHER" {% if user.program == 'OTHER' %}selected{% endif %}>Other</option>
+                        </select>
+                        <div class="field-errors" data-error-for="program"></div>
+                    </div>
+                    <div class="data-cell">
+                        <label>Phone Number</label>
+                        <input class="bhims-input" name="phone_number" value="{{ user.phone_number|default:'' }}">
+                        <div class="field-errors" data-error-for="phone_number"></div>
+                    </div>
+                    <div class="data-cell" style="grid-column: 1 / -1;">
+                        <label>Bio</label>
+                        <textarea class="bhims-input bhims-textarea" name="bio" rows="3" maxlength="300">{{ user.bio|default:'' }}</textarea>
+                        <div class="field-errors" data-error-for="bio"></div>
+                    </div>
+                </div>
+                <div class="btn-row">
+                    <button type="submit" class="btn-bhims primary" id="save-profile-btn">Save Changes</button>
+                </div>
+            </form>
+            {% endif %}
+
+            {% if is_landlord %}
+            <div class="info-grid">
+                <div class="data-cell">
+                    <label>Full Name</label>
+                    <p class="readonly-value">{{ user.first_name }} {{ user.last_name }}</p>
+                </div>
+                <div class="data-cell">
+                    <label>Email</label>
+                    <p class="readonly-value">{{ user.email }}</p>
+                </div>
+                <div class="data-cell">
+                    <label>Phone Number</label>
+                    <p class="readonly-value">{{ user.phone_number|default:"Not provided" }}</p>
+                </div>
+            </div>
+            <div class="locked-note">
+                Your name, email, and contact info are managed by the Admin. If any of this information needs to change, please contact your Admin.
+            </div>
+            {% endif %}
+
+            <div class="password-section">
+                <h3>Change Password</h3>
+                <form id="password-form" class="password-grid">
+                    <div class="data-cell">
+                        <label>Current Password</label>
+                        <input class="bhims-input" type="password" name="old_password" required>
+                        <div class="field-errors" data-error-for="old_password"></div>
+                    </div>
+                    <div class="data-cell">
+                        <label>New Password</label>
+                        <input class="bhims-input" type="password" name="new_password1" required>
+                        <div class="field-errors" data-error-for="new_password1"></div>
+                    </div>
+                    <div class="data-cell">
+                        <label>Confirm New Password</label>
+                        <input class="bhims-input" type="password" name="new_password2" required>
+                        <div class="field-errors" data-error-for="new_password2"></div>
+                    </div>
+                    <div class="btn-row" style="margin-top:8px;">
+                        <button type="submit" class="btn-bhims primary" id="save-password-btn">Update Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="cropper-modal" id="cropper-modal">
+    <div class="cropper-panel">
+        <h3>Adjust Your Photo</h3>
+        <div class="cropper-stage"><img id="cropper-image" src=""></div>
+        <div class="cropper-actions">
+            <button type="button" class="btn-bhims secondary" id="cropper-cancel">Cancel</button>
+            <button type="button" class="btn-bhims primary" id="cropper-save">Save Photo</button>
+        </div>
+    </div>
+</div>
+
+<div id="bhims-toast"></div>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+<script>
+(function () {
+    const csrfToken = '{{ csrf_token }}';
+    function getToast() { return document.getElementById('bhims-toast'); }
+    function showToast(message, isError) {
+        const t = getToast();
+        t.textContent = message;
+        t.className = isError ? 'show error' : 'show';
+        setTimeout(() => { t.className = ''; }, 3500);
+    }
+    function clearErrors(form) { form.querySelectorAll('.field-errors').forEach(el => el.textContent = ''); }
+    function applyErrors(form, errors) {
+        if (!errors) return;
+        Object.keys(errors).forEach(key => {
+            const el = form.querySelector(`[data-error-for="${key}"]`);
+            if (el) el.textContent = Array.isArray(errors[key]) ? errors[key].map(e => e.message || e).join(' ') : errors[key];
+        });
+    }
+    const profileForm = document.getElementById('profile-edit-form');
+    if (profileForm) {
+        profileForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            clearErrors(profileForm);
+            const btn = document.getElementById('save-profile-btn');
+            btn.disabled = true;
+            const payload = {
+                first_name: profileForm.first_name.value,
+                last_name: profileForm.last_name.value,
+                program: profileForm.program.value,
+                phone_number: profileForm.phone_number.value,
+                bio: profileForm.bio.value,
+            };
+            fetch("{% url 'update_profile' %}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+                body: JSON.stringify(payload),
+            })
+            .then(res => res.json().then(data => ({ ok: res.ok, data })))
+            .then(({ ok, data }) => {
+                if (!ok || !data.success) { showToast(data.message || 'Could not save changes.', true); applyErrors(profileForm, data.errors); return; }
+                showToast(data.message || 'Profile updated.');
+            })
+            .catch(() => showToast('Something went wrong.', true))
+            .finally(() => { btn.disabled = false; });
+        });
+    }
+    const passwordForm = document.getElementById('password-form');
+    passwordForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        clearErrors(passwordForm);
+        const btn = document.getElementById('save-password-btn');
+        btn.disabled = true;
+        const payload = {
+            old_password: passwordForm.old_password.value,
+            new_password1: passwordForm.new_password1.value,
+            new_password2: passwordForm.new_password2.value,
+        };
+        fetch("{% url 'change_password' %}", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+            body: JSON.stringify(payload),
+        })
+        .then(res => res.json().then(data => ({ ok: res.ok, data })))
+        .then(({ ok, data }) => {
+            if (!ok || !data.success) { showToast(data.message || 'Could not change password.', true); applyErrors(passwordForm, data.errors); return; }
+            showToast(data.message || 'Password changed.');
+            passwordForm.reset();
+        })
+        .catch(() => showToast('Something went wrong.', true))
+        .finally(() => { btn.disabled = false; });
+    });
+    const avatarTrigger = document.getElementById('avatar-trigger');
+    const avatarInput = document.getElementById('avatar-file-input');
+    const avatarImage = document.getElementById('avatar-image');
+    const cropperModal = document.getElementById('cropper-modal');
+    const cropperImage = document.getElementById('cropper-image');
+    const cropperCancel = document.getElementById('cropper-cancel');
+    const cropperSave = document.getElementById('cropper-save');
+    let cropper = null;
+    avatarTrigger.addEventListener('click', () => avatarInput.click());
+    avatarInput.addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (!file || !file.type.startsWith('image/')) { showToast('Please select an image file.', true); return; }
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+            cropperImage.src = ev.target.result;
+            cropperModal.classList.add('open');
+            if (cropper) cropper.destroy();
+            cropper = new Cropper(cropperImage, { aspectRatio: 1, viewMode: 1, autoCropArea: 0.9, background: false });
+        };
+        reader.readAsDataURL(file);
+    });
+    cropperCancel.addEventListener('click', function () {
+        cropperModal.classList.remove('open');
+        if (cropper) { cropper.destroy(); cropper = null; }
+        avatarInput.value = '';
+    });
+    cropperSave.addEventListener('click', function () {
+        if (!cropper) return;
+        cropper.getCroppedCanvas({ width: 500, height: 500 }).toBlob(function (blob) {
+            const formData = new FormData();
+            formData.append('profile_picture', blob, 'profile-picture.jpg');
+            fetch("{% url 'upload_profile_picture' %}", {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrfToken },
+                body: formData,
+            })
+            .then(res => res.json().then(data => ({ ok: res.ok, data })))
+            .then(({ ok, data }) => {
+                if (!ok || !data.success) { showToast(data.message || 'Upload failed.', true); return; }
+                if (avatarImage.tagName === 'IMG') {
+                    avatarImage.src = data.image_url + '?t=' + Date.now();
+                } else {
+                    const img = document.createElement('img');
+                    img.id = 'avatar-image';
+                    img.src = data.image_url + '?t=' + Date.now();
+                    avatarImage.replaceWith(img);
+                }
+                showToast('Profile picture updated.');
+                cropperModal.classList.remove('open');
+                cropper.destroy();
+                cropper = null;
+                avatarInput.value = '';
+            })
+            .catch(() => showToast('Upload failed.', true));
+        }, 'image/jpeg', 0.92);
+    });
+})();
+</script>
+{% endblock %}
