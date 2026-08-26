@@ -1,111 +1,109 @@
-{% extends 'core/base.html' %}
-{% block title %}Landlord Accounts - Boarding House Information Management System{% endblock %}
-{% block content %}
+{% extends 'core/app_base.html' %}
+{% block title %}Manage Landlords - BHIMS Admin{% endblock %}
+
+{% block extra_css %}
+{% include 'core/includes/admin_styles.html' %}
+{% endblock %}
+
+{% block app_content %}
 <div class="admin-page">
-<div class="mb-4">
-    <h1>Landlord Accounts</h1>
-    <p class="text-muted">Manage landlord accounts and verification status.</p>
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <a href="{% url 'admin_create_landlord' %}" class="btn btn-primary">Add New Landlord</a>
-        <form method="get" class="d-flex">
-            <input type="text" name="search" class="form-control me-2" placeholder="Search landlords..." value="{{ request.GET.search }}">
-            <button type="submit" class="btn btn-outline-secondary">Search</button>
-        </form>
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Admin</div>
+            <h1>Manage Landlords</h1>
+            <p>Manage landlord accounts.</p>
+        </div>
+        <div class="d-inline-flex gap-2">
+            <form method="get" class="d-flex" role="search">
+                <input type="text" name="search" class="form-control me-2" style="border-radius: var(--bhims-radius-sm);" placeholder="Search landlords..." aria-label="Search landlords" value="{{ request.GET.search }}">
+                <button type="submit" class="btn btn-uppercase btn-primary" style="padding: 0.375rem 1.4rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </form>
+            <a href="{% url 'admin_create_landlord' %}" class="btn btn-uppercase btn-primary" style="padding: 0.375rem 1.4rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <i class="bi bi-person-plus"></i> Add Landlord
+            </a>
+        </div>
     </div>
-</div>
 
-{% if landlords %}
-<div class="table-responsive">
-    <table class="table table-hover align-middle">
-        <thead class="table-light">
-            <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Boarding Houses</th>
-                <th>Verification Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for landlord in landlords %}
-            <tr>
-                <td>
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <!-- Using initials as fallback since we don't have profile pictures yet -->
-                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
-                                 style="width: 36px; height: 36px; font-size: 0.9rem;">
-                                {{ landlord.FamilyName|first }}{{ landlord.GivenName|first }}
+    {% if landlords %}
+    <div class="admin-table-wrap">
+        <div class="table-responsive">
+            <table class="table admin-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Boarding Houses</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for landlord in landlords %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                     style="width: 38px; height: 38px; font-size: var(--fs-sm); font-weight: 700; background: var(--bhims-terracotta);">
+                                    {{ landlord.full_name|first|default:landlord.username|first|upper }}
+                                </div>
+                                <div class="ms-3">
+                                    <a href="{% url 'admin_landlord_detail' landlord.id %}" class="text-decoration-none fw-medium" style="color: var(--bhims-text);">{{ landlord.full_name|default:landlord.username }}</a>
+                                    <small class="text-muted d-block">@{{ landlord.username }}</small>
+                                </div>
                             </div>
-                        </div>
-                        <div class="ms-2">
-                            <a href="{% url 'admin_landlord_detail' landlord.id %}" class="text-decoration-none fw-medium">{{ landlord.FullName }}</a>
-                            <small class="text-muted">@{{ landlord.AccountID.username }}</small>
-                        </div>
-                    </div>
-                </td>
-                <td>{{ landlord.AccountID.email }}</td>
-                <td>{{ landlord.ContactNumber }}</td>
-                <td>{{ landlord.boarding_houses.count }}</td>
-                <td>
-                    {% if landlord.VerifiedStatus == 'Verified' %}
-                        <span class="badge bg-success">Verified</span>
-                    {% elif landlord.VerifiedStatus == 'Rejected' %}
-                        <span class="badge bg-danger">Rejected</span>
-                    {% else %}
-                        <span class="badge bg-warning text-dark">Pending</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <div class="btn-group btn-group-sm">
-                        <a href="{% url 'admin_landlord_detail' landlord.id %}" class="btn btn-outline-primary">View</a>
-                        {% if landlord.VerifiedStatus != 'Verified' %}
-                        <a href="{% url 'verify_landlord' landlord.id %}" class="btn btn-outline-success">Verify</a>
-                        <a href="{% url 'reject_landlord' landlord.id %}" class="btn btn-outline-danger">Reject</a>
-                        {% endif %}
-                    </div>
-                </td>
-            </tr>
+                        </td>
+                        <td>{{ landlord.email }}</td>
+                        <td>{{ landlord.phone_number|default:"—" }}</td>
+                        <td><span class="pill pill-approved">{{ landlord.boarding_houses.count }}</span></td>
+                        <td class="text-end">
+                            <div class="d-inline-flex gap-2">
+                                <a href="{% url 'admin_landlord_detail' landlord.id %}" class="btn btn-uppercase btn-primary btn-sm">View</a>
+                                <form method="post" action="{% url 'admin_delete_landlord' landlord.id %}" class="d-inline"
+                                      onsubmit="return confirm('Delete this landlord account? This will also remove all of their boarding houses and data.')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-uppercase btn-danger btn-sm">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav aria-label="Landlords pages" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ request.GET.search }}">&laquo;</a></li>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                {% if page_obj.number == num %}
+                <span class="page-link">{{ num }}</span>
+                {% else %}
+                <a class="page-link" href="?page={{ num }}&search={{ request.GET.search }}">{{ num }}</a>
+                {% endif %}
+            </li>
             {% endfor %}
-        </tbody>
-    </table>
-</div>
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ request.GET.search }}">&raquo;</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
 
-{% if is_paginated %}
-<nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center">
-        {% if page_obj.has_previous %}
-        <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
-            </a>
-        </li>
-        {% endif %}
-
-        {% for num in paginator.page_range %}
-        {% if page_obj.number == num %}
-        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-        <li class="page-item"><a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ num }}</a></li>
-        {% endif %}
-        {% endfor %}
-
-        {% if page_obj.has_next %}
-        <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
-            </a>
-        </li>
-        {% endif %}
-    </ul>
-</nav>
-{% endif %}
-
-{% else %}
-<div class="alert alert-info">
-    No landlord accounts found. <a href="{% url 'admin_create_landlord' %}" class="alert-link">Add one</a> to get started.
-</div>
-{% endif %}
+    {% else %}
+    <div class="admin-table-wrap">
+        <div class="empty-state">
+            <i class="bi bi-people"></i>
+            <p class="mb-0 fw-semibold" style="color: var(--bhims-text);">No landlord accounts found</p>
+            <p class="mb-0"><a href="{% url 'admin_create_landlord' %}">Add a landlord</a> to get started.</p>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

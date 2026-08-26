@@ -1,59 +1,341 @@
-{% extends 'core/base.html' %}
+{% extends 'core/app_base.html' %}
 {% block title %}Available Boarding Houses{% endblock %}
-{% block content %}
+
+{% block extra_css %}
+<style>
+    .browse-page {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* ---- Filter card ---- */
+    .filter-card {
+        background: var(--bhims-cream-light);
+        border: 1px solid var(--bhims-border);
+        border-radius: var(--bhims-radius);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        padding: 1.75rem;
+        margin-bottom: 2.25rem;
+    }
+    .filter-card .form-label {
+        font-weight: 600;
+        color: var(--bhims-text);
+        font-size: var(--fs-sm);
+        margin-bottom: 0.4rem;
+    }
+    .filter-reset {
+        display: inline-flex; align-items: center; text-decoration: none;
+        padding: 11px 22px; border-radius: 10px; border: 1px solid var(--bhims-border);
+        background: #ffffff; color: #3a2a20; font-weight: 700; font-size: 14px; cursor: pointer;
+    }
+
+    /* ---- Listing grid ---- */
+    .listing-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .listing-card {
+        background: var(--bhims-cream-light);
+        border: 1px solid var(--bhims-border);
+        border-radius: var(--bhims-radius);
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        display: flex;
+        flex-direction: column;
+    }
+    .listing-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 16px rgba(58, 42, 32, 0.09);
+    }
+
+    .card-image {
+        height: 220px;
+        background: var(--bhims-paper-sunken);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--bhims-terracotta);
+        position: relative;
+        overflow: hidden;
+    }
+    .card-image img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+        background: var(--bhims-cream-light);
+    }
+    .no-photo {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--bhims-text-muted);
+    }
+    .no-photo i {
+        font-size: 2.2rem;
+        color: var(--bhims-ink-line-strong);
+    }
+    .no-photo span {
+        font-size: var(--fs-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .card-title {
+        font-family: var(--font-display);
+        font-weight: 700;
+        color: var(--bhims-text);
+        font-size: var(--fs-2xl);
+        margin-bottom: 0.5rem;
+    }
+
+    .card-location {
+        display: flex;
+        align-items: center;
+        color: var(--bhims-text-muted);
+        font-size: var(--fs-md);
+        margin-bottom: 0.9rem;
+    }
+    .card-location i {
+        margin-right: 0.5rem;
+        color: var(--bhims-terracotta);
+    }
+
+    .meta-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.9rem;
+    }
+    .room-type-pill,
+    .price-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: var(--bhims-icon-tint);
+        color: var(--bhims-text);
+        padding: 0.4rem 0.9rem;
+        border-radius: 9999px;
+        font-size: var(--fs-sm);
+        font-weight: 600;
+    }
+    .price-pill {
+        background: var(--bhims-text);
+        color: #fff;
+    }
+
+    .card-description {
+        color: var(--bhims-text-muted);
+        font-size: var(--fs-md);
+        line-height: 1.6;
+        margin-bottom: 1.25rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        flex: 1;
+    }
+
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--bhims-border);
+    }
+
+    .availability-badge {
+        background-color: var(--bhims-badge-verified-bg);
+        color: var(--bhims-badge-verified);
+        padding: 0.4rem 0.9rem;
+        border-radius: 9999px;
+        font-size: var(--fs-sm);
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .btn-view-details {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        background-color: var(--bhims-terracotta);
+        color: #fff;
+        border: none;
+        border-radius: var(--bhims-radius-sm);
+        padding: 0.55rem 1.4rem;
+        font-weight: 600;
+        font-size: var(--fs-sm);
+        text-decoration: none;
+        white-space: nowrap;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+    .btn-view-details:hover {
+        background-color: var(--bhims-terracotta-hover);
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+    /* ---- Empty state ---- */
+    .empty-state {
+        grid-column: 1 / -1;
+        background: var(--bhims-cream-light);
+        border: 1px dashed var(--bhims-border);
+        border-radius: var(--bhims-radius);
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+    .empty-state i {
+        font-size: 3rem;
+        color: var(--bhims-terracotta);
+        margin-bottom: 1.25rem;
+        display: block;
+    }
+    .empty-state h3 {
+        font-family: var(--font-display);
+        font-weight: 700;
+        color: var(--bhims-text);
+        font-size: var(--fs-2xl);
+        margin-bottom: 0.75rem;
+    }
+    .empty-state p {
+        color: var(--bhims-text-muted);
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+        .listing-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block app_content %}
 <div class="browse-page">
-<div class="row mb-4">
-  <div class="col-md-12">
-    <h1>Browse Boarding Houses</h1>
-    <form method="get" class="row g-3 browse-filter">
-      <div class="col-sm-2 browse-filter-item">
-        {{ form.price_min.label_tag }}
-        {{ form.price_min }}
-      </div>
-      <div class="col-sm-2 browse-filter-item">
-        {{ form.price_max.label_tag }}
-        {{ form.price_max }}
-      </div>
-      <div class="col-sm-2 browse-filter-item">
-        {{ form.room_type.label_tag }}
-        {{ form.room_type }}
-      </div>
-      <div class="col-sm-2 browse-filter-item">
-        {{ form.amenities.label_tag }}
-        {{ form.amenities }}
-      </div>
-      <div class="col-sm-2 browse-filter-item">
-        {{ form.barangay.label_tag }}
-        {{ form.barangay }}
-      </div>
-      <div class="col-sm-2 browse-filter-item">
-        {{ form.sort.label_tag }}
-        {{ form.sort }}
-      </div>
-      <div class="col-12"><button class="btn btn-primary" type="submit">Filter</button></div>
-    </form>
-  </div>
-</div>
-<div class="row gy-4">
-  {% if boarding_houses %}
-    {% for house in boarding_houses %}
-      <div class="col-md-6">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body">
-            <h3 class="card-title">{{ house.name }}</h3>
-            <p class="text-muted">{{ house.barangay }}, {{ house.address }}</p>
-            <p>{{ house.description|truncatechars:140 }}</p>
-            <p><strong>{{ house.available_rooms.count }} available room(s)</strong></p>
-            <a class="btn btn-primary" href="{% url 'boarding_detail' house.pk %}">View details</a>
-          </div>
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Browse Listings</p>
+            <h1>Boarding Houses Near NLUC</h1>
+            <p>
+                {% if request.user.is_authenticated %}Welcome back, {{ request.user.last_name|default:request.user.username }}! {% endif %}
+                Discover available accommodations near DMMMSU-NLUC Bacnotan, tailored for student life.
+            </p>
         </div>
-      </div>
-    {% endfor %}
-  {% else %}
-    <div class="col-12">
-      <div class="alert alert-warning">No boarding houses match your filters.</div>
+        {% if request.user.is_authenticated %}
+            {% if request.user.role == 'student' %}
+            <a href="{% url 'student_inquiry_list' %}" class="create-btn"><i class="bi bi-chat-dots"></i> My Inquiries</a>
+            {% elif request.user.role == 'landlord' %}
+            <a href="{% url 'landlord_boarding_house_list' %}" class="create-btn"><i class="bi bi-buildings"></i> My Boarding Houses</a>
+            {% else %}
+            <a href="{% url 'admin_dashboard' %}" class="create-btn"><i class="bi bi-speedometer2"></i> Admin Dashboard</a>
+            {% endif %}
+        {% else %}
+        <a href="{% url 'student_register' %}" class="create-btn"><i class="bi bi-person-plus"></i> Create an Account</a>
+        {% endif %}
     </div>
-  {% endif %}
-</div>
+
+    <div class="filter-card">
+        <form method="get" class="row g-4">
+            <div class="col-md-4 col-lg-3">
+                <label for="{{ form.price_min.id_for_label }}" class="form-label">{{ form.price_min.label }}</label>
+                {{ form.price_min }}
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <label for="{{ form.price_max.id_for_label }}" class="form-label">{{ form.price_max.label }}</label>
+                {{ form.price_max }}
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <label for="{{ form.room_type.id_for_label }}" class="form-label">{{ form.room_type.label }}</label>
+                {{ form.room_type }}
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <label for="{{ form.barangay.id_for_label }}" class="form-label">{{ form.barangay.label }}</label>
+                {{ form.barangay }}
+            </div>
+            <div class="col-md-5">
+                <label for="{{ form.amenities.id_for_label }}" class="form-label">{{ form.amenities.label }}</label>
+                {{ form.amenities }}
+            </div>
+            <div class="col-md-3">
+                <label for="{{ form.sort.id_for_label }}" class="form-label">{{ form.sort.label }}</label>
+                {{ form.sort }}
+            </div>
+            <div class="col-md-4 d-flex align-items-end gap-2">
+                <button type="submit" class="btn-bhims">Apply Filters</button>
+                <a href="{% url 'listing_list' %}" class="filter-reset" style="border-width: 1px;">Reset</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="listing-grid">
+        {% if houses %}
+            {% for house in houses %}
+                <article class="listing-card">
+                    <div class="card-image">
+                        {% if house.image_ok %}
+                            <img src="{{ house.image.url }}" alt="{{ house.name }}" loading="lazy" decoding="async">
+                        {% else %}
+                            <div class="no-photo" aria-label="No photo available">
+                                <i class="bi bi-house-door"></i>
+                                <span>No photo yet</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <h2 class="h3 card-title">{{ house.name }}</h2>
+                        <p class="card-location">
+                            <i class="bi bi-geo-alt"></i>
+                            {{ house.barangay_display }}, {{ house.address }}
+                        </p>
+                        <div class="meta-row">
+                            {% with first_room=house.rooms.all|first %}
+                            <span class="room-type-pill"><i class="bi bi-grid-1x2"></i> {{ first_room.room_type|default:"Standard" }}</span>
+                            {% endwith %}
+                            <span class="price-pill">
+                                {% if house.min_price %}
+                                <i class="bi bi-cash"></i> ₱ {{ house.min_price|floatformat:0 }}
+                                {% else %}
+                                Price on request
+                                {% endif %}
+                            </span>
+                        </div>
+                        <p class="card-description">{{ house.description|truncatechars:160 }}</p>
+                        <div class="card-footer">
+                            {% if house.available_rooms_count %}
+                            <span class="availability-badge"><i class="bi bi-check-circle"></i> {{ house.available_rooms_count }} Room{{ house.available_rooms_count|pluralize }} Available</span>
+                            {% else %}
+                            <span class="availability-badge" style="background:#f3e3d3;color:#a84c23;"><i class="bi bi-slash-circle"></i> Full</span>
+                            {% endif %}
+                            <a href="{% url 'boarding_detail' house.pk %}" class="btn-view-details">View Details <i class="bi bi-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <i class="bi bi-search"></i>
+                <h2 class="h3">No boarding houses match your filters.</h2>
+                <p>Try widening your search or resetting the filters to see more available boarding houses near the campus.</p>
+                <a href="{% url 'listing_list' %}" class="btn btn-primary mt-2">Clear All Filters</a>
+            </div>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

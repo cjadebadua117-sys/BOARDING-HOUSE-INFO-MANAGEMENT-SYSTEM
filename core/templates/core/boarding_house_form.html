@@ -1,6 +1,6 @@
-{% extends 'core/base.html' %}
+{% extends 'core/app_base.html' %}
 {% block title %}{% if house %}Edit{% else %}Add New{% endif %} Boarding House{% endblock %}
-{% block content %}
+{% block app_content %}
 <div class="row justify-content-center">
   <div class="col-lg-8">
     <div class="card shadow-sm border-0">
@@ -12,7 +12,7 @@
           <h2 class="mb-1">{% if house %}Edit{% else %}Add New{% endif %} Boarding House</h2>
           <p class="text-muted">Fill in the details about your boarding house property</p>
         </div>
-        <form method="post" novalidate>
+        <form method="post" novalidate data-validate enctype="multipart/form-data">
           {% csrf_token %}
           <div class="row">
             <div class="col-md-12 mb-4">
@@ -22,7 +22,7 @@
                 <div class="text-danger small mt-2">{{ form.name.errors|striptags }}</div>
               {% endif %}
             </div>
-            <div class="col-md-6 mb-4">
+            <div class="col-md-12 mb-4">
               <label class="form-label fw-medium" for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
               {{ form.address }}
               {% if form.address.errors %}
@@ -30,43 +30,47 @@
               {% endif %}
             </div>
             <div class="col-md-6 mb-4">
-              <label class="form-label fw-medium" for="{{ form.city.id_for_label }}">{{ form.city.label }}</label>
-              {{ form.city }}
-              {% if form.city.errors %}
-                <div class="text-danger small mt-2">{{ form.city.errors|striptags }}</div>
+              <label class="form-label fw-medium" for="{{ form.barangay.id_for_label }}">{{ form.barangay.label }}</label>
+              {{ form.barangay }}
+              {% if form.barangay.errors %}
+                <div class="text-danger small mt-2">{{ form.barangay.errors|striptags }}</div>
               {% endif %}
             </div>
             <div class="col-md-6 mb-4">
-              <label class="form-label fw-medium" for="{{ form.contact_number.id_for_label }}">{{ form.contact_number.label }}</label>
-              {{ form.contact_number }}
-              {% if form.contact_number.errors %}
-                <div class="text-danger small mt-2">{{ form.contact_number.errors|striptags }}</div>
+              <label class="form-label fw-medium" for="{{ form.price.id_for_label }}">{{ form.price.label }}</label>
+              <div class="input-group">
+                <span class="input-group-text">₱</span>
+                {{ form.price }}
+              </div>
+              {% if form.price.errors %}
+                <div class="text-danger small mt-2">{{ form.price.errors|striptags }}</div>
               {% endif %}
             </div>
             <div class="col-md-6 mb-4">
-              <label class="form-label fw-medium" for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
-              {{ form.email }}
-              {% if form.email.errors %}
-                <div class="text-danger small mt-2">{{ form.email.errors|striptags }}</div>
+              <label class="form-label fw-medium" for="{{ form.gender_allowed.id_for_label }}">{{ form.gender_allowed.label }}</label>
+              {{ form.gender_allowed }}
+              {% if form.gender_allowed.errors %}
+                <div class="text-danger small mt-2">{{ form.gender_allowed.errors|striptags }}</div>
               {% endif %}
             </div>
-            <div class="col-md-12 mb-4">
-              <label class="form-label fw-medium" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
-              {{ form.description }}
-              {% if form.description.errors %}
-                <div class="text-danger small mt-2">{{ form.description.errors|striptags }}</div>
-              {% endif %}
-            </div>
-            <div class="col-md-12 mb-4">
+            <div class="col-md-6 mb-4">
               <label class="form-label fw-medium" for="{{ form.image.id_for_label }}">{{ form.image.label }}</label>
               {{ form.image }}
               {% if form.image.errors %}
                 <div class="text-danger small mt-2">{{ form.image.errors|striptags }}</div>
               {% endif %}
             </div>
+            <div class="col-md-12 mb-4">
+              <label class="form-label fw-medium" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+              {{ form.description }}
+              <div class="form-text">{{ form.description.help_text }}</div>
+              {% if form.description.errors %}
+                <div class="text-danger small mt-2">{{ form.description.errors|striptags }}</div>
+              {% endif %}
+            </div>
           </div>
           <div class="d-flex gap-3">
-            <a href="{% url 'landlord_dashboard' %}" class="btn btn-outline-secondary flex-grow-1">Cancel</a>
+            <a href="{% url 'landlord_dashboard' %}" class="btn btn-outline-primary flex-grow-1">Cancel</a>
             <button type="submit" class="btn btn-primary flex-grow-1">{% if house %}Update{% else %}Create{% endif %} Boarding House</button>
           </div>
         </form>

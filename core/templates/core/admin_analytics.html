@@ -1,167 +1,163 @@
-{% extends 'core/base.html' %}
-{% block title %}Analytics - Boarding House Information Management System{% endblock %}
-{% block content %}
+{% extends 'core/app_base.html' %}
+{% load static %}
+{% block title %}Analytics - BHIMS Admin{% endblock %}
+
+{% block extra_css %}
+{% include 'core/includes/admin_styles.html' %}
+{% endblock %}
+
+{% block app_content %}
 <div class="admin-page analytics-page">
-<div class="mb-4">
-    <h1>System Analytics</h1>
-    <p class="text-muted">Overview of key metrics and trends for the boarding house management system.</p>
-</div>
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Admin</div>
+            <h1>Analytics</h1>
+            <p>Key metrics and trends for the boarding house management system.</p>
+        </div>
+    </div>
 
-<!-- Stats Cards -->
-<div class="row g-4 mb-5">
-    <div class="col-md-3">
-        <div class="card p-4">
-            <div class="d-flex align-items-center">
-                <div class="icon-box" style="background: rgba(107, 143, 113, 0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1.5rem; height: 1.5rem; color: var(--warm-green);">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3v1.453c0 .086.013.17.038.248a12.04 12.04 0 011.058 3.045A11.95 11.95 0 0112 15.75a11.95 11.95 0 01-1.196-.328A12.04 12.04 0 012.25 4.693c.025-.078.038-.162.038-.248V3m13.5 0H3.75C2.452 3 1.5 3.948 1.5 5.25v9.566c0 .738.294 1.446.795 1.947A10.491 10.491 0.001 11.5 12c1.433-.014 2.838-.283 4.148-.795.5-.5 0.795-1.209 0.795-1.947V5.25C22.5 3.948 21.552 3 20.25 3h3z" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="mb-0">{{ total_students }}</h3>
-                    <p class="text-muted mb-0 small">Total Students</p>
-                </div>
+    <div class="stat-grid">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-people"></i></div>
+            <div>
+                <div class="stat-number" data-count="{{ total_students }}">{{ total_students }}</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-person-badge"></i></div>
+            <div>
+                <div class="stat-number" data-count="{{ total_landlords }}">{{ total_landlords }}</div>
+                <div class="stat-label">Total Landlords</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-buildings"></i></div>
+            <div>
+                <div class="stat-number" data-count="{{ total_boarding_houses }}">{{ total_boarding_houses }}</div>
+                <div class="stat-label">Total Boarding Houses</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-calendar-check"></i></div>
+            <div>
+                <div class="stat-number" data-count="{{ total_bookings }}">{{ total_bookings }}</div>
+                <div class="stat-label">Total Bookings</div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card p-4">
-            <div class="d-flex align-items-center">
-                <div class="icon-box" style="background: rgba(139, 69, 19, 0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1.5rem; height: 1.5rem; color: var(--landlord-accent);">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m2 0a2 2 0 100-4 2 2 0 000 4zm-6 4a2 2 0 100-4 2 2 0 000 4zm6-4a2 2 0 100-4 2 2 0 000 4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="mb-0">{{ total_landlords }}</h3>
-                    <p class="text-muted mb-0 small">Total Landlords</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card p-4">
-            <div class="d-flex align-items-center">
-                <div class="icon-box" style="background: rgba(107, 143, 113, 0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1.5rem; height: 1.5rem; color: var(--warm-green);">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 7h10a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2v-9a2 2 0 012-2zm0 0h10v9H3V7z" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="mb-0">{{ total_boarding_houses }}</h3>
-                    <p class="text-muted mb-0 small">Total Boarding Houses</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card p-4">
-            <div class="d-flex align-items-center">
-                <div class="icon-box" style="background: rgba(196, 106, 62, 0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1.5rem; height: 1.5rem; color: var(--terracotta);">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m2 0a2 2 0 100-4 2 2 0 000 4zm-6 4a2 2 0 100-4 2 2 0 000 4zm6-4a2 2 0 100-4 2 2 0 000 4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="mb-0">{{ total_bookings }}</h3>
-                    <p class="text-muted mb-0 small">Total Bookings</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Charts Section -->
-<div class="row g-4 mb-5">
-    <div class="col-md-6">
-        <div class="card p-4">
-            <h5 class="mb-4">Monthly Registrations (Last 6 Months)</h5>
-            <div id="registrationChart" style="height: 200px;"></div>
-            <p class="text-muted mt-2 mb-0 small">
-                Shows the number of new student and landlord registrations per month over the last 6 months.
-            </p>
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="admin-table-wrap p-4">
+                <h2 class="h5 mb-4 fw-bold" style="color: var(--bhims-text);">Monthly Registrations (Last 6 Months)</h2>
+                <div style="height: 200px;"><canvas id="registrationChart"></canvas></div>
+                <p class="text-muted mt-2 mb-0 small">
+                    Shows the number of new student and landlord registrations per month over the last 6 months.
+                </p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="admin-table-wrap p-4">
+                <h2 class="h5 mb-4 fw-bold" style="color: var(--bhims-text);">Boarding House Status Distribution</h2>
+                <div style="height: 200px;"><canvas id="statusChart"></canvas></div>
+                <p class="text-muted mt-2 mb-0 small">
+                    Distribution of boarding houses by their current status (Available, Full, Unavailable).
+                </p>
+            </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="card p-4">
-            <h5 class="mb-4">Boarding House Status Distribution</h5>
-            <div id="statusChart" style="height: 200px;"></div>
-            <p class="text-muted mt-2 mb-0 small">
-                Distribution of boarding houses by their current status (Available, Full, Unavailable).
-            </p>
-        </div>
-    </div>
-</div>
 
-<!-- Recent Activity -->
-<div class="row">
-    <div class="col-md-8">
-        <div class="card p-4">
-            <h5 class="mb-4">Recent Activity</h5>
-            <div class="list-group">
+    <div class="row g-4">
+        <div class="col-md-8">
+            <div class="admin-table-wrap">
+                <div class="p-4" style="border-bottom: 1px solid var(--bhims-border);">
+                    <h2 class="h5 mb-0 fw-bold" style="color: var(--bhims-text);">Recent Activity</h2>
+                </div>
                 {% if recent_activities %}
-                {% for activity in recent_activities %}
-                <div class="list-group-item">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h6 class="mb-1">{{ activity.description }}</h6>
-                        <small class="text-muted">{{ activity.timestamp|date:"M d, H:i" }}</small>
+                <div class="list-group list-group-flush">
+                    {% for activity in recent_activities %}
+                    <div class="list-group-item" style="background: transparent; border-color: var(--bhims-border);">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h3 class="h6 mb-1">{{ activity.description }}</h3>
+                            <small class="text-muted">{{ activity.timestamp|date:"M d, H:i" }}</small>
+                        </div>
+                        <p class="mb-0" style="color: var(--bhims-text-muted);">{{ activity.details }}</p>
                     </div>
-                    <p class="mb-0">{{ activity.details }}</p>
+                    {% endfor %}
                 </div>
-                {% endfor %}
                 {% else %}
-                <div class="list-group-item">
-                    No recent activity found.
+                <div class="empty-state">
+                    <i class="bi bi-clock-history"></i>
+                    <p class="mb-0">No recent activity found.</p>
                 </div>
                 {% endif %}
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card p-4">
-            <h5 class="mb-4">Quick Actions</h5>
-            <div class="list-group">
-                <a href="{% url 'admin_create_landlord' %}" class="list-group-item list-group-item-action">
-                    <i class="bi bi-person-plus"></i> Add New Landlord
-                </a>
-                <a href="{% url 'admin_dashboard' %}" class="list-group-item list-group-item-action">
-                    <i class="bi bi-speedometer2"></i> Go to Dashboard
-                </a>
-                <a href="{% url 'admin_landlord_list' %}" class="list-group-item list-group-item-action">
-                    <i class="bi bi-people"></i> Manage Landlords
-                </a>
+        <div class="col-md-4">
+            <div class="admin-table-wrap p-4">
+                <h2 class="h5 mb-4 fw-bold" style="color: var(--bhims-text);">Quick Actions</h2>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'admin_pending_listings' %}" class="btn btn-uppercase btn-primary">
+                        <i class="bi bi-hourglass-split"></i> Review Listings
+                    </a>
+                    <a href="{% url 'admin_create_landlord' %}" class="btn btn-uppercase btn-primary">
+                        <i class="bi bi-person-plus"></i> Add Landlord
+                    </a>
+                    <a href="{% url 'admin_landlord_list' %}" class="btn btn-uppercase btn-outline-primary">
+                        <i class="bi bi-people"></i> Manage Landlords
+                    </a>
+                    <a href="{% url 'admin_dashboard' %}" class="btn btn-uppercase btn-outline-primary">
+                        <i class="bi bi-speedometer2"></i> Go to Dashboard
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 </div>
-</div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'vendor/chart.umd.min.js' %}"></script>
 <script>
-// Chart.js would go here in a real implementation
 document.addEventListener('DOMContentLoaded', function() {
-    // Sample data for demonstration
     const registrationCtx = document.getElementById('registrationChart').getContext('2d');
     new Chart(registrationCtx, {
         type: 'line',
         data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            labels: {{ chart_labels|safe }},
             datasets: [{
                 label: 'Students',
-                data: [12, 19, 15, 25, 22, 30],
-                borderColor: 'var(--warm-green)',
-                tension: 0.1
+                data: {{ student_data|safe }},
+                borderColor: '#6f8a3c',
+                backgroundColor: '#6f8a3c',
+                tension: 0.35,
+                borderWidth: 2,
+                pointRadius: 3,
+                pointHoverRadius: 5,
+                fill: false
             }, {
                 label: 'Landlords',
-                data: [5, 8, 6, 12, 9, 15],
-                borderColor: 'var(--landlord-accent)',
-                tension: 0.1
+                data: {{ landlord_data|safe }},
+                borderColor: '#c1592a',
+                backgroundColor: '#c1592a',
+                tension: 0.35,
+                borderWidth: 2,
+                pointRadius: 3,
+                pointHoverRadius: 5,
+                fill: false
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { color: '#3a2a20', boxWidth: 14 } }
+            },
+            scales: {
+                x: { ticks: { color: '#7a6555' }, grid: { display: false } },
+                y: { beginAtZero: true, ticks: { color: '#7a6555', precision: 0 }, grid: { color: 'rgba(58,42,32,0.08)' } }
+            }
         }
     });
 
@@ -171,19 +167,24 @@ document.addEventListener('DOMContentLoaded', function() {
         data: {
             labels: ['Available', 'Full', 'Unavailable'],
             datasets: [{
-                data: [65, 25, 10],
-                backgroundColor: [
-                    'var(--warm-green)',
-                    'var(--muted-terracotta)',
-                    'var(--terracotta)'
-                ]
+                data: {{ status_data|safe }},
+                backgroundColor: ['#6f8a3c', '#c98a2d', '#c1592a'],
+                borderColor: '#fdfaf3',
+                borderWidth: 2,
+                hoverOffset: 6
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false
+            maintainAspectRatio: false,
+            cutout: '62%',
+            plugins: {
+                legend: { position: 'bottom', labels: { color: '#3a2a20', boxWidth: 14 } }
+            }
         }
     });
 });
 </script>
 {% endblock %}
+
+

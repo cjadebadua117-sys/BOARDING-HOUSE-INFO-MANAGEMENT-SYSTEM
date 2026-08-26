@@ -1,0 +1,165 @@
+{% extends 'core/app_base.html' %}
+{% block title %}Edit Barangays - BHIMS Admin{% endblock %}
+
+{% block extra_css %}
+{% include 'core/includes/admin_styles.html' %}
+{% endblock %}
+
+{% block app_content %}
+<div class="admin-page">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Admin</div>
+            <h1>Edit Barangays</h1>
+            <p>Manage Bacnotan barangays and their distance from the NLUC campus.</p>
+        </div>
+        <button type="button" class="btn btn-uppercase btn-primary" onclick="bhimsOpenAdd()">
+            <i class="bi bi-plus-lg"></i> Add Barangay
+        </button>
+    </div>
+
+    {% if barangay_data %}
+    <div class="admin-table-wrap">
+        <div class="table-responsive">
+            <table class="table admin-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Barangay</th>
+                        <th>Distance from Campus</th>
+                        <th>Active Listings</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for barangay, count in barangay_data %}
+                    <tr>
+                        <td class="fw-semibold" style="color: var(--bhims-text);">{{ barangay.name }}</td>
+                        <td>{{ barangay.distance_from_campus|default:"—" }}</td>
+                        <td><span class="pill pill-approved">{{ count }}</span></td>
+                        <td class="text-end">
+                            <div class="d-inline-flex gap-2">
+                                <button type="button" class="btn btn-uppercase btn-primary btn-sm"
+                                        onclick="bhimsOpenEdit('{{ barangay.pk }}', '{{ barangay.name|escapejs }}', '{{ barangay.distance_from_campus|escapejs }}')">
+                                    Edit
+                                </button>
+                                <form method="post" action="{% url 'admin_barangay_delete' barangay.pk %}" class="d-inline"
+                                      onsubmit="return confirm('Remove the barangay \'{{ barangay.name }}\'?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-uppercase btn-danger btn-sm">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="admin-table-wrap">
+        <div class="empty-state">
+            <i class="bi bi-map"></i>
+            <p class="mb-0 fw-semibold" style="color: var(--bhims-text);">No barangays added yet</p>
+            <p class="mb-0">Add your first barangay using the button above.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Right slide-in modal -->
+<div class="modal fade modal-slide" id="bhimsBarangayModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" style="margin: 0 0 0 auto; max-width: 480px;">
+        <div class="modal-content">
+            <div class="modal-header" style="border-bottom: 1px solid var(--bhims-border); background: var(--bhims-icon-tint); border-radius: 16px 0 0 0;">
+                <h2 class="h5 modal-title" id="bhimsModalTitle" style="font-family: var(--font-display); font-weight: 800; color: var(--bhims-text);">Add Barangay</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="padding: 2rem;">
+
+                <!-- Add form -->
+                <form id="bhimsAddForm" method="post" action="{% url 'admin_barangay_list' %}" novalidate>
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors|striptags }}</div>{% endif %}
+                    </div>
+                    {% endfor %}
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-uppercase btn-primary">Save Barangay</button>
+                    </div>
+                </form>
+
+                <!-- Edit form (hidden unless the server re-opened it with errors) -->
+                <form id="bhimsEditForm" method="post" action="{% if editing_id %}{% url 'admin_barangay_edit' editing_id %}{% endif %}" novalidate {% if not editing_id %}style="display: none;"{% endif %}>
+                    {% csrf_token %}
+                    {% with f=edit_form|default:form %}
+                    {% for field in f %}
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors|striptags }}</div>{% endif %}
+                    </div>
+                    {% endfor %}
+                    {% endwith %}
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-uppercase btn-primary">Update Barangay</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var addForm = document.getElementById('bhimsAddForm');
+    var editForm = document.getElementById('bhimsEditForm');
+    var modalEl = document.getElementById('bhimsBarangayModal');
+    var EDIT_URL = '{% url 'admin_barangay_edit' 999999 %}';
+
+    function modal() {
+        return bootstrap.Modal.getOrCreateInstance(modalEl);
+    }
+    function switchForm(edit) {
+        if (!addForm || !editForm) return;
+        addForm.style.display = edit ? 'none' : 'block';
+        editForm.style.display = edit ? 'block' : 'none';
+    }
+
+    window.bhimsOpenAdd = function () {
+        if (addForm) addForm.reset();
+        switchForm(false);
+        document.getElementById('bhimsModalTitle').textContent = 'Add Barangay';
+        modal().show();
+    };
+
+    window.bhimsOpenEdit = function (id, name, distance) {
+        switchForm(true);
+        editForm.action = EDIT_URL.replace('999999', id);
+        editForm.querySelector('#edit_id_name').value = name;
+        editForm.querySelector('#edit_id_distance_from_campus').value = distance;
+        document.getElementById('bhimsModalTitle').textContent = 'Edit Barangay';
+        modal().show();
+    };
+
+    // Re-open the add modal when the server rejects an addition (validation errors)
+    {% if add_error %}
+    switchForm(false);
+    document.getElementById('bhimsModalTitle').textContent = 'Add Barangay';
+    modal().show();
+    {% endif %}
+
+    // Re-open the edit modal when the server rejects an edit (validation errors)
+    {% if edit_form and editing_id %}
+    switchForm(true);
+    document.getElementById('bhimsModalTitle').textContent = 'Edit Barangay';
+    modal().show();
+    {% endif %}
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,82 @@
+%% BHIMS - Entity Relationship Diagram
+%% Render: npx @mermaid-js/mermaid-cli -i bhims_erd.mmd -o bhims_erd.png -b white -s 2.5
+erDiagram
+    USER ||--o{ BOARDING_HOUSE : "manages"
+    BOARDING_HOUSE ||--|{ ROOM : "contains"
+    ROOM ||--o{ ROOM_PHOTO : "has"
+    ROOM }o--o{ AMENITY : "offers"
+    USER ||--o{ INQUIRY : "sends"
+    ROOM ||--o{ INQUIRY : "receives"
+    INQUIRY ||--o{ INQUIRY_MESSAGE : "contains"
+    USER ||--o{ INQUIRY_MESSAGE : "posts"
+    USER ||--o{ BOOKING : "requests"
+    ROOM ||--o{ BOOKING : "is booked in"
+    USER ||--o{ USER_REPORT : "files"
+    USER ||--o{ USER_REPORT : "is reported in"
+
+    USER {
+        int id PK
+        string username
+        string role "student / landlord / admin"
+        string full_name
+        string email
+        string program "college or K-12"
+        string program_custom "grade level / course"
+        boolean is_active
+    }
+    BOARDING_HOUSE {
+        int id PK
+        int landlord_id FK
+        string name
+        string barangay
+        string address
+        text description
+        string approval_status
+    }
+    ROOM {
+        int id PK
+        int boarding_house_id FK
+        string room_type
+        decimal price_per_month
+        int capacity
+        boolean is_available
+    }
+    AMENITY {
+        int id PK
+        string name
+    }
+    ROOM_PHOTO {
+        int id PK
+        int room_id FK
+        image image
+    }
+    INQUIRY {
+        int id PK
+        int student_id FK
+        int room_id FK
+        string status
+        datetime created_at
+    }
+    INQUIRY_MESSAGE {
+        int id PK
+        int inquiry_id FK
+        int sender_id FK
+        text body
+        datetime sent_at
+    }
+    BOOKING {
+        int id PK
+        int student_id FK
+        int room_id FK
+        string status "pending / approved / declined"
+        datetime created_at
+    }
+    USER_REPORT {
+        int id PK
+        int reporter_id FK
+        int reported_user_id FK
+        string reason
+        text details
+        string status "pending / resolved / dismissed"
+        datetime resolved_at
+    }

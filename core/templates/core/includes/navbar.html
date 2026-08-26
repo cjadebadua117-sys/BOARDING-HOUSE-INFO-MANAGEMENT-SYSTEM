@@ -1,0 +1,37 @@
+{% load static %}
+<!-- FIGMA HEADER IMPLEMENTATION - Pure flexbox to override Bootstrap -->
+<header class="bhims-topbar" style="background: var(--bhims-paper-raised) !important; width: 100% !important; position: sticky !important; top: 0 !important; z-index: 9999 !important; box-shadow: 0 2px 14px rgba(58, 42, 32, 0.10) !important; padding: 0.5rem 0 !important; margin: 0 !important; height: auto !important; min-height: 0 !important; max-height: none !important; overflow: visible !important;">
+  <style>
+    .bhims-brand-link:focus-visible { outline: 2px solid rgba(193, 89, 42, 0.65); outline-offset: -2px; border-radius: 10px; }
+  </style>
+  <div style="max-width: 1140px !important; margin: 0 auto !important; padding: 0 2rem !important; display: flex !important; align-items: center !important; justify-content: space-between !important;">
+
+    <!-- Left: Logo & Brand -->
+      <a href="{% url 'home' %}" class="bhims-brand-link" style="display: flex !important; align-items: center !important; text-decoration: none !important;">
+        <img src="{% static 'core/images/bhims-logo.png' %}?v=8" alt="BHIMS logo" style="height: 48px !important; width: auto !important; display: block !important; border-radius: 12px !important; flex-shrink: 0 !important; margin: 0 !important; padding: 0 !important; vertical-align: middle !important;">
+      </a>
+
+
+
+    <!-- Right: Auth Links -->
+    <div style="display: flex !important; gap: 1.5rem !important; align-items: center !important;">
+      {% if not request.user.is_authenticated %}
+        <a href="/students/login/" style="color: var(--bhims-text) !important; font-weight: 500 !important; text-decoration: none !important; font-size: 1rem !important;">Student Login</a>
+        <a href="/landlords/login/" style="color: var(--bhims-text) !important; font-weight: 500 !important; text-decoration: none !important; font-size: 1rem !important;">Landlord Login</a>
+      {% else %}
+        {% if request.user.role == 'student' %}
+          <a href="{% url 'student_dashboard' %}" style="color: var(--bhims-text) !important; font-weight: 500 !important; text-decoration: none !important; font-size: 1rem !important;">My Dashboard</a>
+        {% elif request.user.role == 'landlord' %}
+          <a href="{% url 'landlord_dashboard' %}" style="color: var(--bhims-text) !important; font-weight: 500 !important; text-decoration: none !important; font-size: 1rem !important;">Landlord Dashboard</a>
+        {% elif request.user.role == 'admin' %}
+          <a href="/admin/dashboard/" style="color: var(--bhims-text) !important; font-weight: 500 !important; text-decoration: none !important; font-size: 1rem !important;">Admin Dashboard</a>
+        {% endif %}
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" style="background: var(--bhims-terracotta) !important; color: #FFFFFF !important; border: 1px solid var(--bhims-terracotta-deep) !important; border-radius: var(--bhims-radius-sm) !important; padding: 0.6rem 1.75rem !important; font-weight: 600 !important; cursor: pointer; font-size: 1rem !important; box-shadow: 0 1px 2px rgba(58, 42, 32, 0.12) !important;">Logout</button>
+        </form>
+      {% endif %}
+    </div>
+
+  </div>
+</header>

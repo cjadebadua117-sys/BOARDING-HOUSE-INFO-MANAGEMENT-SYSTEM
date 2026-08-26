@@ -1,35 +1,44 @@
-{% extends "core/base.html" %}
+{% extends "core/app_base.html" %}
 
 {% block title %}My Inquiries - Boarding House Information Management System{% endblock %}
 
-{% block content %}
+{% block app_content %}
 <style>
     .available-badge {
-        background-color: rgba(107, 143, 113, 0.15);
-        color: #2d5a35;
-        border-left: 4px solid var(--warm-green);
+        background-color: rgba(193, 89, 42, 0.12);
+        color: var(--bhims-terracotta);
+        border-left: 4px solid var(--bhims-terracotta);
         border-radius: 12px;
         padding: 0.5rem 1rem;
         font-weight: 600;
-        font-size: 0.875rem;
+        font-size: var(--fs-sm);
     }
     .pending-badge {
-        background-color: rgba(196, 106, 62, 0.15);
-        color: #8B4513;
-        border-left: 4px solid var(--terracotta);
+        background-color: rgba(154, 106, 31, 0.12);
+        color: var(--bhims-badge-pending);
+        border-left: 4px solid var(--bhims-badge-pending);
         border-radius: 12px;
         padding: 0.5rem 1rem;
         font-weight: 600;
-        font-size: 0.875rem;
+        font-size: var(--fs-sm);
+    }
+    .closed-badge {
+        background-color: rgba(90, 74, 60, 0.10);
+        color: #6b5a49;
+        border-left: 4px solid #8a7761;
+        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        font-size: var(--fs-sm);
     }
     .declined-badge {
-        background-color: rgba(220, 53, 69, 0.15);
-        color: #721c24;
-        border-left: 4px solid #dc3545;
+        background-color: rgba(179, 64, 42, 0.12);
+        color: var(--bhims-badge-rejected);
+        border-left: 4px solid var(--bhims-badge-rejected);
         border-radius: 12px;
         padding: 0.5rem 1rem;
         font-weight: 600;
-        font-size: 0.875rem;
+        font-size: var(--fs-sm);
     }
     .inquiry-card {
         border-radius: 20px;
@@ -42,17 +51,28 @@
         box-shadow: var(--shadow-hover);
         transform: translateY(-2px);
     }
+    .empty-state-wrapper {
+        min-height: 50vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
     .empty-state {
         text-align: center;
-        padding: 4rem 2rem;
+        padding: 3rem;
+        max-width: 720px;
+        margin: 2rem auto;
+        border-radius: 24px;
+        background: var(--surface);
+        box-shadow: var(--shadow-soft);
     }
     .empty-state h3 {
         margin-bottom: 1rem;
-        color: var(--text-muted);
+        color: var(--text-dark);
     }
     .empty-state p {
         color: var(--text-muted);
-        max-width: 400px;
+        max-width: 520px;
         margin: 0 auto 2rem auto;
     }
 </style>
@@ -71,8 +91,8 @@
                         <div class="card inquiry-card h-100">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <h5 class="card-title mb-0">{{ inquiry.room.boarding_house.name }}</h5>
-                                    <span class="{% if inquiry.status == 'read' %}available-badge{% else %}pending-badge{% endif %}">
+                                    <h2 class="h5 card-title mb-0">{{ inquiry.room.boarding_house.name }}</h2>
+                                    <span class="{% if inquiry.status == 'pending' %}pending-badge{% elif inquiry.status == 'open' %}available-badge{% else %}closed-badge{% endif %}">
                                         {{ inquiry.get_status_display }}
                                     </span>
                                 </div>
@@ -85,7 +105,7 @@
                                 
                                 <div class="d-flex justify-content-between align-items-center">
                                     <small class="text-muted">
-                                        Last updated: {{ inquiry.updated_at|date:"M j, Y g:i A" }}
+                                        Last updated: {{ inquiry.last_activity|date:"M j, Y g:i A" }}
                                     </small>
                                     <a href="{% url 'student_inquiry_thread' inquiry.pk %}" class="btn btn-primary btn-sm">View Conversation</a>
                                 </div>
@@ -95,15 +115,19 @@
                 {% endfor %}
             </div>
         {% else %}
-            <div class="empty-state">
-                <div class="mb-4">
-                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="var(--beige)" stroke-width="1.5">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                    </svg>
+            <div class="row justify-content-center empty-state-wrapper">
+                <div class="col-lg-8">
+                    <div class="empty-state">
+                        <div class="mb-4">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="var(--beige)" stroke-width="1.5">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                        </div>
+                        <h2 class="h3">You haven't inquired about any boarding houses yet</h2>
+                        <p>Start exploring available boarding houses and send inquiries to landlords to find your perfect home.</p>
+                        <a href="{% url 'listing_list' %}" class="btn btn-primary">Browse Boarding Houses</a>
+                    </div>
                 </div>
-                <h3>You haven't inquired about any boarding houses yet</h3>
-                <p>Start exploring available boarding houses and send inquiries to landlords to find your perfect home.</p>
-                <a href="{% url 'listing_list' %}" class="btn btn-primary">Browse Boarding Houses</a>
             </div>
         {% endif %}
     </div>

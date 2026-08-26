@@ -7,10 +7,11 @@ from .models import BoardingHouse, Room, User
 class StudentRegistrationFlowTests(TestCase):
     def test_registration_rejects_invalid_gmail_and_student_id(self):
         form = StudentRegistrationForm(data={
+            'username': 'juan',
             'full_name': 'Juan dela Cruz',
             'email': 'juan@yahoo.com',
             'student_id': '24102731',
-            'program': 'BSIT',
+            'program': 'CIS',
             'password1': 'StrongPass123',
             'password2': 'StrongPass123',
         })
@@ -29,16 +30,20 @@ class StudentRegistrationFlowTests(TestCase):
         )
 
         form = StudentRegistrationForm(data={
+            'username': 'another',
             'full_name': 'Another Student',
             'email': 'existing@gmail.com',
             'student_id': '241-0273-1',
-            'program': 'BSIT',
+            'program': 'CIS',
             'password1': 'StrongPass123',
             'password2': 'StrongPass123',
         })
         self.assertFalse(form.is_valid())
         self.assertIn('A student account with this Gmail address already exists.', form.errors['email'])
-        self.assertIn('This Student ID is already registered.', form.errors['student_id'])
+        self.assertTrue(
+            any('already exists' in err for err in form.errors.get('student_id', [])),
+            f'Expected duplicate student ID error, got: {form.errors.get("student_id")}',
+        )
 
 
 class BrowsePageTests(TestCase):
@@ -48,12 +53,58 @@ class BrowsePageTests(TestCase):
             name='Warm Home',
             address='123 Main Street',
             barangay='Naguilian',
+            status=BoardingHouse.Status.APPROVED,
             description='A cozy place for students',
         )
-        Room.objects.create(boarding_house=house, room_type='Single', price=2500, capacity=1, is_available=True)
+        Room.objects.create(boarding_house=house, room_type='Single', monthly_rate=2500, capacity=1, is_available=True)
 
         response = self.client.get('/listings/?barangay=Naguilian')
-        self.assertContains(response, 'Price Range')
-        self.assertContains(response, 'Room Type')
-        self.assertContains(response, 'Amenities')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Price min')
+        self.assertContains(response, 'Price max')
+        self.assertContains(response, 'Room type')
         self.assertContains(response, 'Barangay')
+        self.assertContains(response, 'Amenities')
+
+
+class ListingPriceValidationTests(TestCase):
+    """Listing forms must reject non-positive prices and invalid capacities."""
+
+    def setUp(self):
+        self.landlord = User.objects.create_user(
+            email='landlord@gmail.com',
+            password='LandlordPass123',
+            role=User.Role.LANDLORD,
+            full_name='Landlord',
+            username='landlord@gmail.com',
+        )
+
+    def test_house_rejects_negative_price(self):
+        from .forms import BoardingHouseForm
+        form = BoardingHouseForm(data={
+            'name': 'Cheap House',
+            'address': 'Somewhere',
+            'barangay': 'Sapilang',
+            'price': '-9999',
+            'gender_allowed': 'both',
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('price', form.errors)
+
+    def test_room_rejects_negative_rate_and_zero_capacity(self):
+        from .forms import RoomForm
+        house = BoardingHouse.objects.create(
+            owner=self.landlord,
+            name='Rate Test House',
+            address='Somewhere',
+            barangay='Sapilang',
+            status=BoardingHouse.Status.APPROVED,
+        )
+        form = RoomForm(data={
+            'room_type': 'Bedspace',
+            'monthly_rate': '-500',
+            'capacity': '0',
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('monthly_rate', form.errors)
+        self.assertIn('capacity', form.errors)

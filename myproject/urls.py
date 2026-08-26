@@ -14,11 +14,15 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import os
+
 from django.contrib import admin
 from django.urls import include, path
 from django.contrib.auth import views as auth_views
 from django.conf import settings
-from django.conf.urls.static import static
+
+handler404 = 'core.views.handler404'
+handler500 = 'core.views.handler500'
 
 urlpatterns = [
     path('', include('core.urls')),
@@ -38,5 +42,29 @@ urlpatterns = [
     ), name='password_reset_complete'),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Serve user-uploaded media and static files from Django.
+# NOTE: In production behind nginx/Apache, let the web server serve these
+# directories instead and remove this block.
+# We call the serve views directly because django.conf.urls.static.static()
+# silently serves nothing when DEBUG=False.
+from django.contrib.staticfiles import finders
+from django.http import Http404
+from django.urls import re_path
+from django.views.static import serve as _serve_file
+
+
+def serve_static(request, path):
+    # Resolve via the staticfiles finders so app-level static dirs work
+    # even before `collectstatic` has been run.
+    absolute_path = finders.find(path)
+    if not absolute_path:
+        raise Http404(f'{path!r} could not be found')
+    document_root, relative_path = os.path.split(absolute_path)
+    return _serve_file(request, relative_path, document_root=document_root)
+
+
+urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', _serve_file,
+            {'document_root': settings.MEDIA_ROOT}),
+    re_path(r'^static/(?P<path>.*)$', serve_static),
+]

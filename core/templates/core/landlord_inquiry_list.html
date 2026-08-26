@@ -1,24 +1,33 @@
-{% extends 'core/base.html' %}
+{% extends 'core/app_base.html' %}
 {% block title %}Inquiries - Boarding House Information Management System{% endblock %}
-{% block content %}
+{% block app_content %}
 <style>
     .available-badge {
-        background-color: rgba(107, 143, 113, 0.15);
-        color: #2d5a35;
-        border-left: 4px solid var(--warm-green);
+        background-color: rgba(193, 89, 42, 0.12);
+        color: var(--bhims-terracotta);
+        border-left: 4px solid var(--bhims-terracotta);
         border-radius: 12px;
         padding: 0.5rem 1rem;
         font-weight: 600;
-        font-size: 0.875rem;
+        font-size: var(--fs-sm);
     }
     .pending-badge {
-        background-color: rgba(196, 106, 62, 0.15);
-        color: #8B4513;
-        border-left: 4px solid var(--terracotta);
+        background-color: rgba(154, 106, 31, 0.12);
+        color: var(--bhims-badge-pending);
+        border-left: 4px solid var(--bhims-badge-pending);
         border-radius: 12px;
         padding: 0.5rem 1rem;
         font-weight: 600;
-        font-size: 0.875rem;
+        font-size: var(--fs-sm);
+    }
+    .rejected-badge {
+        background-color: rgba(179, 38, 30, 0.12);
+        color: #b3261e;
+        border-left: 4px solid #b3261e;
+        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        font-size: var(--fs-sm);
     }
     .inquiry-card {
         border-radius: 20px;
@@ -44,6 +53,27 @@
         max-width: 400px;
         margin: 0 auto 2rem auto;
     }
+    .new-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        background: var(--bhims-terracotta);
+        color: #fff;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        border-radius: 999px;
+        padding: 0.18rem 0.6rem;
+        vertical-align: middle;
+        box-shadow: 0 2px 8px rgba(193, 89, 42, 0.35);
+    }
+    @media (prefers-reduced-motion: no-preference) {
+        .new-chip { animation: newChipPop 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        @keyframes newChipPop {
+            from { opacity: 0; transform: scale(0.6); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    }
 </style>
 
 <div class="row justify-content-center">
@@ -60,9 +90,12 @@
                     <div class="card inquiry-card h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start mb-3">
-                                <h5 class="card-title mb-0">{{ inquiry.student.AccountID.email }}</h5>
-                                <span class="{% if inquiry.is_read %}available-badge{% else %}pending-badge{% endif %}">
-                                    {% if inquiry.is_read %}Read{% else %}New{% endif %}
+                                <h2 class="h5 card-title mb-0">
+                                    {{ inquiry.student.full_name|default:inquiry.student.email }}
+                                    {% if inquiry.pk in new_inquiry_ids %}<span class="new-chip">NEW</span>{% endif %}
+                                </h2>
+                                <span class="{% if inquiry.status == 'pending' %}pending-badge{% elif inquiry.status == 'rejected' %}rejected-badge{% else %}available-badge{% endif %}">
+                                    {{ inquiry.get_status_display }}
                                 </span>
                             </div>
 
@@ -74,12 +107,13 @@
 
                             <div class="d-flex justify-content-between align-items-center">
                                 <small class="text-muted">
-                                    {{ inquiry.timestamp|date:"M j, Y g:i A" }}
+                                    {{ inquiry.created_at|date:"M j, Y g:i A" }}
                                 </small>
                                 <a href="{% url 'landlord_inquiry_thread' inquiry.pk %}" class="btn btn-primary btn-sm">View Conversation</a>
                             </div>
                         </div>
                     </div>
+                </div>
                 {% endfor %}
             </div>
         {% else %}
@@ -89,9 +123,9 @@
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                     </svg>
                 </div>
-                <h3>You haven't received any inquiries yet</h3>
+                <h2 class="h3">You haven't received any inquiries yet</h2>
                 <p>When students send inquiries about your rooms, they'll appear here.</p>
-                <a href="{% url 'listing_list' %}" class="btn btn-primary">Browse Available Rooms</a>
+                <a href="{% url 'boarding_house_create' %}" class="btn btn-primary">Add a Boarding House</a>
             </div>
         {% endif %}
     </div>

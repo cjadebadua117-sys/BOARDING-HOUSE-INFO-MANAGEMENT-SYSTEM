@@ -1,0 +1,111 @@
+{% extends 'core/app_base.html' %}
+{% block title %}Manage Students - BHIMS Admin{% endblock %}
+
+{% block extra_css %}
+{% include 'core/includes/admin_styles.html' %}
+{% endblock %}
+
+{% block app_content %}
+<div class="admin-page">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Admin</div>
+            <h1>Manage Students</h1>
+            <p>Manage student accounts.</p>
+        </div>
+        <form method="get" class="d-flex" role="search">
+            <input type="text" name="search" class="form-control me-2" style="border-radius: var(--bhims-radius-sm);" placeholder="Search students..." aria-label="Search students" value="{{ request.GET.search }}">
+            <button type="submit" class="btn btn-uppercase btn-primary" style="padding: 0.375rem 1.4rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <i class="bi bi-search"></i> Search
+            </button>
+        </form>
+    </div>
+
+    {% if students %}
+    <div class="admin-table-wrap">
+        <div class="table-responsive">
+            <table class="table admin-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Student ID</th>
+                        <th>Email</th>
+                        <th>Program</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                     style="width: 38px; height: 38px; font-size: var(--fs-sm); font-weight: 700; background: var(--bhims-terracotta);">
+                                    {{ student.full_name|first|default:student.username|first|upper }}
+                                </div>
+                                <div class="ms-3">
+                                    <span class="fw-medium" style="color: var(--bhims-text);">{{ student.full_name|default:student.username }}</span>
+                                    <small class="text-muted d-block">@{{ student.username }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ student.student_id|default:"—" }}</td>
+                        <td>{{ student.email }}</td>
+                        <td>{{ student.get_program_display|default:"—" }}{% if student.program_custom %} — {{ student.program_custom }}{% endif %}</td>
+                        <td>
+                            {% if student.is_active %}
+                            <span class="pill pill-approved">Active</span>
+                            {% else %}
+                            <span class="pill pill-rejected">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="d-inline-flex gap-2">
+                                <form method="post" action="{% url 'admin_delete_student' student.id %}" class="d-inline"
+                                      onsubmit="return confirm('Delete this student account? All of their data will also be removed.')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-uppercase btn-danger btn-sm">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav aria-label="Students pages" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ request.GET.search }}">&laquo;</a></li>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                {% if page_obj.number == num %}
+                <span class="page-link">{{ num }}</span>
+                {% else %}
+                <a class="page-link" href="?page={{ num }}&search={{ request.GET.search }}">{{ num }}</a>
+                {% endif %}
+            </li>
+            {% endfor %}
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ request.GET.search }}">&raquo;</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="admin-table-wrap">
+        <div class="empty-state">
+            <i class="bi bi-people"></i>
+            <p class="mb-0 fw-semibold" style="color: var(--bhims-text);">No student accounts found</p>
+            <p class="mb-0">Students register through the student sign-up page.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

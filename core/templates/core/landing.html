@@ -1,44 +1,451 @@
 {% extends "core/base.html" %}
+{% load static %}
 
-{% block title %}Home - Boarding House Information Management System{% endblock %}
+{% block title %}Home - BHIMS NLUC Bacnotan{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ---- Landing hero ---- */
+    .landing-hero {
+        width: 100%;
+        min-height: calc(100vh - 72px);
+        background:
+            repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.022) 0 1px, transparent 1px 9px),
+            linear-gradient(to top, rgba(30, 21, 15, 0.92) 0%, rgba(51, 36, 26, 0.70) 48%, rgba(51, 36, 26, 0.42) 100%),
+            url('{% static 'core/images/dmmmsu-campus.jpg' %}') center / cover no-repeat;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        margin: 0;
+        padding: 4rem 2rem;
+    }
+    .landing-hero-inner {
+        max-width: 1140px;
+        width: 100%;
+        margin: 0 auto;
+    }
+    .landing-kicker {
+        color: var(--bhims-terracotta);
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        font-size: var(--fs-sm);
+        margin-bottom: 1.5rem;
+    }
+    .landing-title {
+        font-family: var(--font-display);
+        font-size: 3.5rem;
+        font-weight: 800;
+        line-height: 1.1;
+        color: #FFFFFF;
+        max-width: 700px;
+        margin-bottom: 1.5rem;
+    }
+    .landing-sub {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: var(--fs-xl);
+        max-width: 600px;
+        line-height: 1.7;
+        margin-bottom: 2.5rem;
+    }
+    .landing-actions {
+        display: flex;
+        gap: 1.25rem;
+        flex-wrap: wrap;
+    }
+    .landing-btn {
+        border-radius: var(--bhims-radius-sm);
+        padding: 0.9rem 2.25rem;
+        font-weight: 600;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+    .landing-btn-primary {
+        background: var(--bhims-terracotta);
+        color: #FFFFFF;
+        border: none;
+    }
+    .landing-btn-primary:hover {
+        background: var(--bhims-terracotta-hover);
+        color: #FFFFFF;
+        transform: translateY(-1px);
+    }
+    .landing-btn-outline {
+        background: transparent;
+        color: #FFFFFF;
+        border: 2px solid #FFFFFF;
+    }
+    .landing-btn-outline:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: #FFFFFF;
+        transform: translateY(-1px);
+    }
+
+    /* ---- Shared landing sections ---- */
+    .landing-section {
+        width: 100%;
+        padding: 6rem 2rem;
+        margin: 0;
+    }
+    .landing-section-tinted {
+        background: var(--bhims-paper-sunken);
+    }
+    .landing-section-inner {
+        max-width: 1140px;
+        width: 100%;
+        margin: 0 auto;
+    }
+    .landing-section-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+    .landing-section-kicker {
+        color: var(--bhims-terracotta);
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        font-size: var(--fs-sm);
+        margin-bottom: 0.75rem;
+    }
+    .landing-section-title {
+        font-family: var(--font-display);
+        color: #2C221E;
+        font-size: 2.25rem;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    /* ---- Feature cards ---- */
+    .landing-features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+    }
+    .feature-card {
+        background: var(--bhims-cream-light);
+        border-radius: 12px;
+        padding: 2.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.09);
+    }
+    .feature-icon-box {
+        width: 60px;
+        height: 60px;
+        background: #FBEAE3;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.75rem;
+    }
+    .feature-icon-box i {
+        color: var(--bhims-terracotta);
+        font-size: var(--fs-2xl);
+    }
+    .feature-title {
+        font-family: var(--font-display);
+        color: #2C221E;
+        font-size: var(--fs-2xl);
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    .feature-text {
+        color: #5A4A44;
+        line-height: 1.7;
+        margin: 0;
+        font-size: 1rem;
+    }
+
+    /* ---- Featured listings (matches boardings_list card styles) ---- */
+    .landing-listings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1.5rem;
+    }
+    .listing-card {
+        background: var(--bhims-glass-bg-primary);
+        border: 1px solid var(--bhims-border);
+        border-radius: var(--bhims-radius);
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        display: flex;
+        flex-direction: column;
+    }
+    .listing-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 16px rgba(58, 42, 32, 0.09);
+    }
+    .listing-card .card-image {
+        height: 220px;
+        background: var(--bhims-paper-sunken);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--bhims-terracotta);
+        position: relative;
+        overflow: hidden;
+    }
+    .listing-card .card-image img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+        background: var(--bhims-cream-light);
+    }
+    .listing-card .card-body {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+    .listing-card .card-title {
+        font-family: var(--font-display);
+        font-weight: 700;
+        color: var(--bhims-text);
+        font-size: var(--fs-2xl);
+        margin-bottom: 0.5rem;
+    }
+    .listing-card .card-location {
+        display: flex;
+        align-items: center;
+        color: var(--bhims-text-muted);
+        font-size: var(--fs-md);
+        margin-bottom: 0.9rem;
+    }
+    .listing-card .card-location i {
+        margin-right: 0.5rem;
+        color: var(--bhims-terracotta);
+    }
+    .meta-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.9rem;
+    }
+    .room-type-pill,
+    .price-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: var(--bhims-icon-tint);
+        color: var(--bhims-text);
+        padding: 0.4rem 0.9rem;
+        border-radius: 9999px;
+        font-size: var(--fs-sm);
+        font-weight: 600;
+    }
+    .price-pill {
+        background: var(--bhims-text);
+        color: #fff;
+    }
+    .listing-card .card-description {
+        color: var(--bhims-text-muted);
+        font-size: var(--fs-md);
+        line-height: 1.6;
+        margin-bottom: 1.25rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        flex: 1;
+    }
+    .listing-card .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--bhims-border);
+    }
+    .availability-badge {
+        background-color: var(--bhims-badge-verified-bg);
+        color: var(--bhims-badge-verified);
+        padding: 0.4rem 0.9rem;
+        border-radius: 9999px;
+        font-size: var(--fs-sm);
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    .btn-view-details {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        background-color: var(--bhims-terracotta);
+        color: #fff;
+        border: none;
+        border-radius: var(--bhims-radius-sm);
+        padding: 0.55rem 1.4rem;
+        font-weight: 600;
+        font-size: var(--fs-sm);
+        text-decoration: none;
+        white-space: nowrap;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+    .btn-view-details:hover {
+        background-color: var(--bhims-terracotta-hover);
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+    @media (max-width: 900px) {
+        .landing-features-grid {
+            grid-template-columns: 1fr;
+        }
+        .landing-title {
+            font-size: 2.5rem;
+        }
+        .landing-section {
+            padding: 4rem 1.5rem;
+        }
+    }
+    /* ---- Entrance & scroll-reveal animations ---- */
+    @keyframes bhimsRise {
+        from { opacity: 0; transform: translateY(26px); }
+        to { opacity: 1; transform: none; }
+    }
+    .landing-kicker { animation: bhimsRise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .landing-title { animation: bhimsRise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both; }
+    .landing-sub { animation: bhimsRise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.16s both; }
+    .landing-actions { animation: bhimsRise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.28s both; }
+
+    .reveal { transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.16, 1, 0.3, 1); }
+    html.fx .reveal { opacity: 0; transform: translateY(28px); will-change: opacity, transform; }
+    html.fx .reveal.in-view { opacity: 1; transform: none; will-change: auto; }
+    .reveal.in-view { opacity: 1; transform: none; will-change: auto; }
+    .feature-card.reveal:nth-child(2) { transition-delay: 0.1s; }
+    .feature-card.reveal:nth-child(3) { transition-delay: 0.2s; }
+    .listing-card.reveal:nth-child(2) { transition-delay: 0.08s; }
+    .listing-card.reveal:nth-child(3) { transition-delay: 0.16s; }
+    .listing-card.reveal:nth-child(4) { transition-delay: 0.24s; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .landing-kicker, .landing-title, .landing-sub, .landing-actions { animation: none; }
+        .reveal { opacity: 1; transform: none; transition: none; }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="hero-section">
-    <div class="container">
-        <h1>Your Home Away From Home, Near NLUC.</h1>
-        <p class="hero-subtext">Discover carefully vetted boarding houses in Bacnotan, La Union, specifically for NLUC (Don Mariano Marcos Memorial State University – North La Union Campus) students. Browse available rooms, connect with landlords, and secure your accommodation with ease.</p>
-        <div class="d-flex gap-3 justify-content-center flex-wrap">
-            <a href="{% url 'listing_list' %}" class="btn btn-primary btn-lg">Browse Listings</a>
-            <a href="{% url 'student_register' %}" class="btn btn-outline-primary btn-lg">Create Student Account</a>
+<section class="landing-hero">
+    <div class="landing-hero-inner">
+        <p class="landing-kicker">NLUC Bacnotan Student Housing</p>
+        <h1 class="landing-title">Your Home Away From Home, Near NLUC.</h1>
+        <p class="landing-sub">Find and book boarding houses, apartments, and rooms within walking distance of DMMMSU North Luzon Don Mariano Marcos Memorial State University. Secure, student-friendly, and convenient.</p>
+        <div class="landing-actions">
+            <a href="{% url 'listing_list' %}" class="landing-btn landing-btn-primary">Browse Listings</a>
         </div>
     </div>
-</div>
+</section>
 
-<div class="row g-4 mb-5">
-    <div class="col-md-4">
-        <div class="card h-100 p-4">
-            <div class="h3 mb-3" style="color: var(--terracotta);"><i class="bi bi-search"></i></div>
-            <h3>Browse Listings</h3>
-            <p class="text-muted">Filter by price, room type, and amenities to find the perfect boarding house that fits your needs and budget.</p>
+<section class="landing-section landing-section-tinted">
+    <div class="landing-section-inner">
+        <div class="landing-section-header reveal">
+            <p class="landing-section-kicker">Tailored for Students</p>
+            <h2 class="landing-section-title">Simple Housing Discovery</h2>
+        </div>
+        <div class="landing-features-grid">
+            <div class="feature-card reveal">
+                <div class="feature-icon-box">
+                    <i class="bi bi-card-list"></i>
+                </div>
+                <h3 class="feature-title">Browse Listings</h3>
+                <p class="feature-text">Filter by price, location/barangay, and amenities to find the perfect boarding house that fits your student budget.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon-box">
+                    <i class="bi bi-chat-dots"></i>
+                </div>
+                <h3 class="feature-title">Connect Directly</h3>
+                <p class="feature-text">Chat instantly with landlords in Bacnotan. Ask questions, schedule visits, and coordinate terms securely.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon-box">
+                    <i class="bi bi-patch-check"></i>
+                </div>
+                <h3 class="feature-title">Curated Listings</h3>
+                <p class="feature-text">Every house listed is checked by the BHIMS team to help students find safe, legitimate landlords, and fair, transparent pricing.</p>
+            </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card h-100 p-4">
-            <div class="h3 mb-3" style="color: var(--terracotta);"><i class="bi bi-chat-left-text"></i></div>
-            <h3>Connect Directly</h3>
-            <p class="text-muted">Send inquiries directly to landlords through our built-in messaging system. Keep all communication in one place.</p>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card h-100 p-4">
-            <div class="h3 mb-3" style="color: var(--terracotta);"><i class="bi bi-check-circle"></i></div>
-            <h3>Verified Listings</h3>
-            <p class="text-muted">All boarding houses are verified and managed by our admin team to ensure quality and safety for all students.</p>
-        </div>
-    </div>
-</div>
+</section>
 
-<div class="text-center">
-    <a href="{% url 'listing_list' %}" class="btn btn-primary btn-lg">View All Available Boarding Houses →</a>
-</div>
+{% if listings %}
+<section class="landing-section">
+    <div class="landing-section-inner">
+        <div class="landing-section-header reveal">
+            <p class="landing-section-kicker">Verified by BHIMS</p>
+            <h2 class="landing-section-title">Featured Boarding Houses</h2>
+        </div>
+        <div class="landing-listings-grid">
+            {% for house in listings %}
+            <article class="listing-card reveal">
+                <div class="card-image">
+                    {% if house.image_ok %}
+                        <img src="{{ house.image.url }}" alt="{{ house.name }}" loading="lazy" decoding="async">
+                    {% else %}
+                        <i class="bi bi-building" style="font-size: 3rem;"></i>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">{{ house.name }}</h3>
+                    <p class="card-location">
+                        <i class="bi bi-geo-alt"></i>
+                        {{ house.barangay_display }}, {{ house.address }}
+                    </p>
+                    <div class="meta-row">
+                        {% with first_room=house.rooms.all|first %}
+                        <span class="room-type-pill"><i class="bi bi-grid-1x2"></i> {{ first_room.room_type|default:"Standard" }}</span>
+                        {% endwith %}
+                        <span class="price-pill">
+                            {% if house.min_price %}
+                            <i class="bi bi-cash"></i> ₱ {{ house.min_price|floatformat:0 }}
+                            {% else %}
+                            Price on request
+                            {% endif %}
+                        </span>
+                    </div>
+                    <p class="card-description">{{ house.description|truncatechars:160 }}</p>
+                    <div class="card-footer">
+                        <span class="availability-badge"><i class="bi bi-check-circle"></i> {{ house.available_rooms_count }} Room{{ house.available_rooms_count|pluralize }} Available</span>
+                        <a href="{% url 'boarding_detail' house.pk %}" class="btn-view-details">View Details <i class="bi bi-arrow-right"></i></a>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        <div class="reveal" style="text-align: center; margin-top: 3rem;">
+            <a href="{% url 'listing_list' %}" class="landing-btn landing-btn-primary" style="display: inline-block;">View All Listings</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<script>
+    (function () {
+        document.documentElement.classList.add('fx');
+        var els = document.querySelectorAll('.reveal');
+        if (!els.length) return;
+        if (!('IntersectionObserver' in window)) {
+            els.forEach(function (el) { el.classList.add('in-view'); });
+            return;
+        }
+        var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (en) {
+                if (en.isIntersecting) { en.target.classList.add('in-view'); io.unobserve(en.target); }
+            });
+        }, { threshold: 0.12 });
+        els.forEach(function (el) { io.observe(el); });
+    })();
+</script>
+
+<style>
 {% endblock %}

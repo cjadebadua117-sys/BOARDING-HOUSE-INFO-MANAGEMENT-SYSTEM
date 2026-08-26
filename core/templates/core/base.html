@@ -1,435 +1,827 @@
 {% load static %}
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8" /> <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <title>{% block title %}Boarding House Information Management System{% endblock %}</title> <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous"> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"> <style> :root { --terracotta: #C46A3E; --terracotta-dark: #8B4513; --terracotta-light: #D48B5E; --cream: #FDF8F3; --cream-strong: #F5EBE0; --beige: #E6D5C3; --warm-green: #6B8F71; --muted-terracotta: #A67C62; --text-dark: #2D2626; --text-muted: #6B5B4F; --surface: #FFFFFF; --shadow-soft: 0 4px 20px rgba(45, 38, 38, 0.08); --shadow-hover: 0 12px 40px rgba(196, 106, 62, 0.15); } * { box-sizing: border-box; } body { background: var(--cream); color: var(--text-dark); font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; line-height: 1.6; } h1, h2, h3, h4, h5, h6 { font-family: 'Quicksand', sans-serif; font-weight: 700; color: var(--text-dark); } .navbar { background: linear-gradient(135deg, var(--terracotta) 0%, var(--terracotta-dark) 100%) !important; padding: 1rem 0; box-shadow: 0 2px 20px rgba(139, 69, 19, 0.2); } .navbar .container { max-width: 1280px; } .navbar-brand { font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 1.25rem; color: #fff !important; letter-spacing: -0.02em; } .navbar-brand:hover { color: var(--cream-strong) !important; } .nav-link { color: rgba(255,255,255,0.9) !important; font-weight: 500; transition: color 0.2s ease; } .nav-link:hover { color: #fff !important; } .auth-bar { display: flex; gap: 1rem; align-items: center; margin-left: auto; } .auth-bar .btn { border-radius: 9999px; padding: 0.5rem 1.25rem; font-weight: 600; transition: all 0.2s ease; } .btn-outline-light { border-color: rgba(255,255,255,0.7); } .btn-outline-light:hover { background: rgba(255,255,255,0.1); border-color: #fff; } .card { border: none; border-radius: 16px; background: var(--surface); box-shadow: var(--shadow-soft); overflow: hidden; transition: all 0.3s ease; } .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); } .card-img-top { height: 220px; object-fit: cover; } .badge { border-radius: 9999px; padding: 0.375rem 0.875rem; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.02em; } .badge-available { background-color: var(--warm-green); color: white; } .badge-booked { background-color: var(--muted-terracotta); color: white; } .btn-primary { background-color: var(--terracotta); border-color: var(--terracotta); border-radius: 9999px; padding: 0.75rem 1.75rem; font-weight: 600; transition: all 0.2s ease; } .btn-primary:hover { background-color: var(--terracotta-dark); border-color: var(--terracotta-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(196, 106, 62, 0.3); } .btn-outline-primary { color: var(--terracotta); border-color: var(--terracotta); border-radius: 9999px; padding: 0.75rem 1.75rem; font-weight: 600; transition: all 0.2s ease; } .btn-outline-primary:hover { background-color: var(--terracotta); border-color: var(--terracotta); color: white; } .auth-shell { display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; border-radius: 24px; max-width: 900px; margin: 2rem auto; box-shadow: var(--shadow-hover); } .auth-panel { 
-    background: linear-gradient(135deg, rgba(196, 106, 62, 0.95) 0%, rgba(139, 69, 19, 0.98) 100%), 
-                url('{% static "images/dmmmsu-campus.jpg" %}');
-    background-size: cover;
-    background-position: center;
-    color: #fff; 
-    padding: 3.5rem; 
-    display: flex; 
-    flex-direction: column; 
-    justify-content: center; 
-} .auth-panel h2 { font-size: 2.25rem; color: #fff; margin-bottom: 1rem; } .auth-form { padding: 3.5rem; background: var(--surface); } .auth-form .form-control { border-radius: 12px; border: 2px solid var(--beige); padding: 0.875rem 1.25rem; font-size: 1rem; transition: all 0.2s ease; background: var(--cream); } .auth-form .form-control:focus { border-color: var(--terracotta); box-shadow: 0 0 0 4px rgba(196, 106, 62, 0.1); outline: none; } /* Form field styling - stacked labels with consistent alignment */
-.form-group, .mb-3 {
-    margin-bottom: 1.5rem !important;
-    display: flex;
-    flex-direction: column;
-}
-
-.form-label {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    margin-bottom: 0.5rem;
-    text-align: left;
-    line-height: 1.4;
-    letter-spacing: 0.01em;
-}
-
-.auth-form .form-label {
-    color: var(--text-muted);
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.form-control {
-    width: 100% !important;
-    padding: 0.875rem 1.25rem;
-    border-radius: 12px;
-    border: 2px solid var(--beige);
-    font-size: 1rem;
-    transition: all 0.2s ease;
-    background: var(--cream);
-}
-
-.auth-form .form-control {
-    border-radius: 12px;
-    border: 2px solid var(--beige);
-    padding: 0.875rem 1.25rem;
-    font-size: 1rem;
-    transition: all 0.2s ease;
-    background: var(--cream);
-}
-
-.form-control:focus {
-    border-color: var(--terracotta);
-    box-shadow: 0 0 0 4px rgba(196, 106, 62, 0.1);
-    outline: none;
-}
-
-.auth-form .form-control:focus {
-    border-color: var(--terracotta);
-    box-shadow: 0 0 0 4px rgba(196, 106, 62, 0.1);
-    outline: none;
-}
-
-.browse-filter .form-label {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    margin-bottom: 0.5rem;
-}
-
-.browse-filter .form-control,
-.browse-filter .form-select {
-    min-height: 3.5rem;
-    padding: 0.875rem 1.25rem;
-    border-radius: 12px;
-    border: 2px solid var(--beige);
-    font-size: 1rem;
-    background: var(--cream);
-    transition: all 0.2s ease;
-}
-
-.browse-filter .form-control:focus,
-.browse-filter .form-select:focus {
-    border-color: var(--terracotta);
-    box-shadow: 0 0 0 4px rgba(196, 106, 62, 0.1);
-    outline: none;
-}
-
-.browse-filter-item {
-    display: flex;
-    flex-direction: column;
-}
-
-/* Ensure filter inputs and selects share the same size across the row */
-.browse-filter-item .form-control,
-.browse-filter-item .form-select {
-    width: 100%;
-}
-
-/* Keep the filter row balanced at larger breakpoints */
-@media (min-width: 768px) {
-    .browse-filter .browse-filter-item {
-        padding-right: 0.5rem;
-        padding-left: 0.5rem;
-    }
-}
-
-/* Style all input, select, and textarea elements within form groups to ensure they look like form-control even without the filter */
-.mb-3 input, .mb-3 select, .mb-3 textarea,
-.form-group input, .form-group select, .form-group textarea {
-    width: 100% !important;
-    padding: 0.875rem 1.25rem;
-    border-radius: 12px;
-    border: 2px solid var(--beige);
-    font-size: 1rem;
-    transition: all 0.2s ease;
-    background: var(--cream);
-}
-
-.mb-3 input:focus, .mb-3 select:focus, .mb-3 textarea:focus,
-.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-    border-color: var(--terracotta);
-    box-shadow: 0 0 0 4px rgba(196, 106, 62, 0.1);
-    outline: none;
-}
-
-/* Ensure submit buttons match input width */
-.btn-primary, .btn[type="submit"] {
-    width: 100% !important;
-    margin-top: 0.5rem;
-}
-
-/* Fix for all form templates including admin/landlord forms */
-form .btn-primary {
-    width: 100% !important;
-    border-radius: 9999px;
-    padding: 0.875rem 1.75rem;
-    font-weight: 600;
-    transition: all 0.2s ease;
-} .hero-section { padding: 5rem 0; text-align: center; background: linear-gradient(180deg, var(--cream-strong) 0%, var(--cream) 100%); margin: -1.5rem -12px 3rem -12px; border-radius: 0 0 40px 40px; } .hero-section h1 { font-size: 3rem; margin-bottom: 1rem; line-height: 1.2; } .hero-tagline { font-size: 1.5rem; color: var(--terracotta); font-weight: 600; margin-bottom: 1.5rem; } .hero-subtext { font-size: 1.125rem; color: var(--text-muted); max-width: 600px; margin: 0 auto 2rem; } .dashboard-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; } .stat-card { padding: 2rem; border-radius: 20px; background: var(--surface); box-shadow: var(--shadow-soft); text-align: center; } .stat-number { font-size: 3rem; font-weight: 700; font-family: 'Quicksand', sans-serif; color: var(--terracotta); } .stat-label { font-size: 1rem; color: var(--text-muted); font-weight: 500; } .inquiry-thread { display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 2rem; } .message-bubble { max-width: 75%; padding: 1.25rem 1.5rem; border-radius: 20px; position: relative; } .message-student { background: var(--cream-strong); align-self: flex-start; border-bottom-left-radius: 4px; } .message-landlord { background: var(--terracotta); color: white; align-self: flex-end; border-bottom-right-radius: 4px; } .message-meta { font-size: 0.8rem; opacity: 0.8; margin-top: 0.5rem; } .filter-section { background: var(--surface); padding: 2rem; border-radius: 20px; margin-bottom: 2rem; box-shadow: var(--shadow-soft); } .empty-state { text-align: center; padding: 4rem 2rem; } .empty-state h3 { margin-bottom: 1rem; color: var(--text-muted); } .empty-state p { color: var(--text-muted); max-width: 400px; margin: 0 auto; } @media (max-width: 992px) { .auth-shell { grid-template-columns: 1fr; margin: 1rem; } .auth-panel { padding: 2rem 2rem 1.5rem 2rem; min-height: auto; } .auth-panel .auth-identity { margin-bottom: 0.5rem; } .auth-panel h2 { font-size: 1.75rem; margin-bottom: 0.5rem; } .auth-panel p { font-size: 0.9rem; margin-bottom: 0; } .auth-form { padding: 2rem; } .hero-section h1 { font-size: 2rem; } .navbar-brand { font-size: 1rem; } .auth-bar { gap: 0.5rem; } .auth-bar .btn { padding: 0.375rem 0.875rem; font-size: 0.875rem; } .card-img-top { height: 180px; } } @media (max-width: 576px) { .hero-section { padding: 3rem 1rem; } .hero-section h1 { font-size: 1.75rem; } .hero-tagline { font-size: 1.125rem; } .message-bubble { max-width: 90%; } } .navbar-toggler { border-color: rgba(255,255,255,0.5); } .navbar-toggler-icon { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.85%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"); } .container { max-width: 1200px; } .alert { border-radius: 12px; border: none; padding: 1rem 1.25rem; } .alert-success { background: rgba(107, 143, 113, 0.15); border-left: 4px solid var(--warm-green); color: #2d5a35; } .alert-danger { background: rgba(196, 106, 62, 0.15); border-left: 4px solid var(--terracotta); color: #8B4513; } .alert-info { background: rgba(196, 106, 62, 0.1); border-left: 4px solid var(--terracotta-light); color: var(--text-dark); } .price-tag { font-size: 1.5rem; font-weight: 700; font-family: 'Quicksand', sans-serif; color: var(--terracotta); } .listing-card .card-body { padding: 1.5rem; } .listing-card .card-title { font-size: 1.25rem; margin-bottom: 0.5rem; } .amenity-tag { display: inline-block; padding: 0.25rem 0.75rem; background: var(--cream-strong); border-radius: 9999px; font-size: 0.75rem; margin-right: 0.5rem; margin-bottom: 0.5rem; color: var(--text-muted); font-weight: 500; }
-
-/* Password visibility toggle styling */
-.password-input-container {
-    position: relative;
-    width: 100%;
-}
-
-.password-toggle {
-    position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--text-muted);
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.2s ease;
-}
-
-.password-toggle:hover {
-    color: var(--terracotta);
-}
-
-.password-toggle svg {
-    width: 1.25rem;
-    height: 1.25rem;
-}
-
-/* Custom checkbox styling for Remember Me */
-.custom-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-}
-
-.custom-checkbox input[type="checkbox"] {
-    appearance: none !important;
-    -webkit-appearance: none !important;
-    width: 1.25rem !important;
-    height: 1.25rem !important;
-    min-width: 1.25rem !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: 2px solid var(--beige);
-    border-radius: 6px;
-    background: var(--cream);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
-    flex-shrink: 0;
-    transform: none !important;
-}
-
-.custom-checkbox input[type="checkbox"]:checked {
-    background: var(--terracotta);
-    border-color: var(--terracotta);
-}
-
-.custom-checkbox input[type="checkbox"]:checked::after {
-    content: '✓';
-    position: absolute;
-    color: white;
-    font-size: 0.75rem;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.custom-checkbox label {
-    font-size: 0.875rem;
-    color: var(--text-muted);
-    cursor: pointer;
-    margin: 0;
-}
-
-.forgot-password {
-    font-size: 0.875rem;
-    color: var(--terracotta);
-    text-decoration: none;
-    transition: color 0.2s ease;
-}
-
-.forgot-password:hover {
-    color: var(--terracotta-dark);
-    text-decoration: underline;
-}
-
-/* Toggle switch styling for room availability */
-.toggle-switch {
-    position: relative;
-    display: inline-block;
-    width: 48px;
-    height: 24px;
-    flex-shrink: 0;
-}
-
-.toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.toggle-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: .3s;
-    border-radius: 24px;
-}
-
-.toggle-slider:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: .3s;
-    border-radius: 50%;
-}
-
-input:checked + .toggle-slider {
-    background-color: var(--terracotta);
-}
-
-input:focus + .toggle-slider {
-    box-shadow: 0 0 1px var(--terracotta);
-}
-
-input:checked + .toggle-slider:before {
-    transform: translateX(24px);
-}
-
-/* Amenity checkbox styling */
-.amenity-checkbox-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-}
-
-.amenity-checkbox-label {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.5rem 1rem;
-    background-color: var(--cream);
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    margin-bottom: 0.25rem;
-}
-
-.amenity-checkbox-label:hover {
-    background-color: rgba(196, 104, 62, 0.1);
-}
-
-.amenity-checkbox-input:checked + .amenity-checkbox-label {
-    background-color: var(--terracotta);
-    color: white;
-}
-
-.amenity-checkbox-input {
-    display: none;
-}
-</style> </head> <body> <nav class="navbar navbar-expand-lg navbar-dark"> <div class="container"> <a class="navbar-brand" href="{% url 'home' %}">BHIMS</a> <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"> <span class="navbar-toggler-icon"></span> </button> <div class="collapse navbar-collapse" id="navbarNav"> <div class="auth-bar w-100 justify-content-end">
-                {% if request.user.is_authenticated %}
-                    <!-- ONLY SHOW BROWSE TO LOGGED IN USERS (vanishes if not logged in) -->
-                    <a class="nav-link" href="/listings/">Browse</a>
-                    <!-- Show role-specific links only if role matches -->
-                    {% if request.user.role == 'student' %}
-                        <a class="nav-link" href="{% url 'profile' %}">My Profile</a>
-                        <a class="nav-link" href="/students/inquiries/">My Inquiries</a>
-                    {% elif request.user.role == 'landlord' %}
-                        <a class="nav-link" href="{% url 'profile' %}">My Profile</a>
-                        <a class="nav-link" href="/landlords/dashboard/">Dashboard</a>
-                        <a class="nav-link" href="/landlords/boarding-houses/">My Boarding Houses</a>
-                        <a class="nav-link" href="/landlords/inquiries/">Inquiries</a>
-                    {% elif request.user.role == 'admin' %}
-                        <a class="nav-link" href="/admin/dashboard/">Admin Dashboard</a>
-                        <a class="nav-link" href="/admin/landlords/">Landlord Accounts</a>
-                        <a class="nav-link" href="/admin/analytics/">Analytics</a>
-                    {% endif %}
-                    <a class="btn btn-outline-light btn-sm" href="/logout/">Logout</a>
-                {% else %}
-                    <!-- ONLY SHOW THESE TO LOGGED OUT USERS - Browse is hidden here -->
-                    <!-- 3 items total: Student Login, Landlord Login, Sign Up (button) -->
-                    <a class="nav-link" href="/students/login/">Student Login</a>
-                    <a class="nav-link" href="/landlords/login/">Landlord Login</a>
-                    <a class="btn btn-outline-light btn-sm" href="/students/register/">Sign Up</a>
-                {% endif %} </div> </div> </div> </nav> <div class="container mb-5"> {% if messages %} <div class="mb-4"> {% for message in messages %} <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div> {% endfor %} </div> {% endif %} {% block content %}{% endblock %} </div> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-
-<!-- Password visibility toggle JavaScript -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Find all password fields
-    const passwordFields = document.querySelectorAll('input[type="password"]');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BHIMS - NLUC Bacnotan{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{% static 'core/images/bhims-icon.png' %}">
+    {% block meta %}
+    <meta name="description" content="Find verified boarding houses near DMMMSU NLUC in Bacnotan, La Union. Compare rooms, prices, and walking distances from campus — built for BHIMS students and landlords.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="BHIMS NLUC Bacnotan">
+    <meta property="og:title" content="{% block og_title %}BHIMS - Boarding House Information Management System{% endblock %}">
+    <meta property="og:description" content="Verified boarding houses near the DMMMSU NLUC campus — browse listings, message landlords, and book your stay.">
+    <meta name="theme-color" content="#c1592a">
+    {% endblock %}
     
-    passwordFields.forEach(field => {
-        // Create container
-        const container = document.createElement('div');
-        container.className = 'password-input-container';
-        
-        // Wrap the field in the container
-        field.parentNode.insertBefore(container, field);
-        container.appendChild(field);
-        
-        // Create toggle button
-        const toggleBtn = document.createElement('button');
-        toggleBtn.type = 'button';
-        toggleBtn.className = 'password-toggle';
-        toggleBtn.setAttribute('aria-label', 'Toggle password visibility');
-        
-        // Initial eye icon (password hidden)
-        toggleBtn.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-        `;
-        
-        container.appendChild(toggleBtn);
-        
-        // Toggle functionality
-        toggleBtn.addEventListener('click', function() {
-            const isPassword = field.type === 'password';
-            field.type = isPassword ? 'text' : 'password';
-            
-            // Toggle icon
-            if (isPassword) {
-                // Show eye-slash when password is visible
-                toggleBtn.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.992 0 1.958-.112 2.897-.328m-2.334-1.277A4.5 4.5 0 008.875 13.13m9.152 3.644L18.642 15m-3.902-2.925A4.5 4.5 0 0015.126 10.87m-9.152-3.644L5.358 9M9.823 6.533A10.477 10.477 0 0112 4.5c4.638 0 8.573 3.007 9.963 7.178a1.012 1.012 0 010 .638C20.577 16.49 16.64 19.5 12 19.5c-.992 0-1.958-.112-2.897-.328M9.823 6.533L5.358 9m4.465-2.467l4.566 6.652" />
-                    </svg>
-                `;
-            } else {
-                // Show eye when password is hidden
-                toggleBtn.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                `;
+    <!-- Bootstrap CSS (local vendor copy - no internet required) -->
+    <link href="{% static 'vendor/bootstrap.min.css' %}" rel="stylesheet">
+    <!-- Bootstrap Icons (local) -->
+    <link rel="stylesheet" href="{% static 'vendor/bootstrap-icons.css' %}">
+    <!-- Google Fonts: Urbanist (display) + Inter (body) - self-hosted -->
+    <link href="{% static 'vendor/fonts.css' %}" rel="stylesheet">
+    
+    <!-- Centralized Design Tokens -->
+    <style>
+        :root {
+            --bhims-terracotta: #c1592a;
+            --bhims-terracotta-hover: #a84d23;
+            --bhims-terracotta-deep: #8c4a2f;
+            --bhims-cream: rgba(255, 255, 255, 0.42);
+            --bhims-cream-light: rgba(255, 255, 255, 0.60);
+            --bhims-text: #3a2a20;
+            --bhims-text-muted: #7a6555;
+
+            /* Heritage surface system — warm paper & ink instead of glass */
+            --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+            --bhims-paper: #f4ecdf;
+            --bhims-paper-raised: #fdfaf3;
+            --bhims-paper-sunken: #fbf5ea;
+            --bhims-ink-line: #e4d5c2;
+            --bhims-ink-line-strong: #d9c5ab;
+
+            /* Type scale — single source of truth for font sizes.
+               Inline styles across templates reference these via var(--fs-*). */
+            --fs-xs: 0.8125rem;
+            --fs-sm: 0.875rem;
+            --fs-md: 0.95rem;
+            --fs-base: 1rem;
+            --fs-lg: 1.125rem;
+            --fs-xl: 1.25rem;
+            --fs-2xl: 1.5rem;
+            --bhims-border: rgba(193, 89, 42, 0.16);
+            --bhims-icon-tint: rgba(248, 234, 228, 0.60);
+            --bhims-badge-verified-bg: rgba(248, 234, 228, 0.78);
+            --bhims-badge-verified: #c1592a;
+            --bhims-badge-pending-bg: rgba(253, 240, 220, 0.78);
+            --bhims-badge-pending: #9a6a1f;
+            --bhims-badge-rejected-bg: rgba(251, 228, 222, 0.78);
+            --bhims-badge-rejected: #b3402a;
+            --bhims-shadow: rgba(58, 42, 32, 0.06);
+            --bhims-shadow-hover: rgba(58, 42, 32, 0.12);
+            --bhims-radius: 12px;
+            --bhims-radius-sm: 8px;
+            --bhims-moss: #6f8a3c;
+            --bhims-moss-hover: #5e7831;
+            --bhims-info: #3f7d8c;
+
+            /* Legacy glass variables now map onto the paper system so every
+               template that references them gets the flat heritage look. */
+            --bhims-glass-border: var(--bhims-ink-line);
+            --bhims-glass-blur: none;
+
+            --bhims-glass-primary: none;
+            --bhims-glass-secondary: none;
+            --bhims-glass-subtle: none;
+            --bhims-glass-bg-primary: var(--bhims-paper-raised);
+            --bhims-glass-bg-secondary: var(--bhims-paper-sunken);
+            --bhims-glass-bg-subtle: rgba(253, 250, 243, 0.97);
+            --bhims-glass-inner-glow: 0 1px 2px rgba(58, 42, 32, 0.05);
+            --bhims-glass-shadow: 0 1px 2px rgba(58, 42, 32, 0.05), 0 6px 18px rgba(58, 42, 32, 0.07);
+            --bhims-glass-shadow-hover: 0 2px 4px rgba(58, 42, 32, 0.06), 0 14px 30px rgba(58, 42, 32, 0.11);
+
+            /* Backward-compatible aliases for older templates */
+            --warm-green: var(--bhims-terracotta);
+            --terracotta: var(--bhims-terracotta);
+            --muted-terracotta: var(--bhims-terracotta-hover);
+            --landlord-accent: var(--bhims-terracotta-deep);
+            --beige: var(--bhims-cream);
+            --surface: var(--bhims-cream-light);
+            --text-muted: var(--bhims-text-muted);
+            --text-dark: var(--bhims-text);
+            --shadow-soft: 0 4px 12px rgba(58, 42, 32, 0.06);
+            --shadow-hover: 0 8px 24px rgba(58, 42, 32, 0.12);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Woven-paper ground: a faint banig-mat weave in warm ink.
+               Static by design — no animated gradients. */
+            background-color: var(--bhims-paper);
+            background-image:
+                repeating-linear-gradient(45deg, rgba(140, 74, 47, 0.030) 0 1px, transparent 1px 9px),
+                repeating-linear-gradient(-45deg, rgba(140, 74, 47, 0.022) 0 1px, transparent 1px 9px);
+            color: var(--bhims-text);
+            margin: 0;
+            padding: 0;
+        }
+
+        h1, h2, h3, h4, h5, h6,
+        .navbar-brand, .display-1, .display-2, .display-3,
+        .display-4, .display-5, .display-6 {
+            font-family: var(--font-display);
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        /* ---- Buttons: warm terracotta everywhere ---- */
+        .btn-primary {
+            background-color: var(--bhims-terracotta);
+            border-color: var(--bhims-terracotta);
+        }
+        .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+            background-color: var(--bhims-terracotta-hover);
+            border-color: var(--bhims-terracotta-hover);
+        }
+        .btn-outline-primary {
+            color: var(--bhims-terracotta);
+            border-color: var(--bhims-terracotta);
+        }
+        .btn-outline-primary:hover, .btn-outline-primary:active {
+            background-color: var(--bhims-terracotta);
+            border-color: var(--bhims-terracotta);
+            color: #fff;
+        }
+        .btn-success {
+            background-color: var(--bhims-terracotta);
+            border-color: var(--bhims-terracotta);
+        }
+        .btn-success:hover, .btn-success:focus, .btn-success:active {
+            background-color: var(--bhims-terracotta-hover);
+            border-color: var(--bhims-terracotta-hover);
+        }
+        .btn-danger { background-color: var(--bhims-badge-rejected); border-color: var(--bhims-badge-rejected); }
+        .btn-danger:hover, .btn-danger:focus, .btn-danger:active {
+            background-color: #932e1c; border-color: #932e1c;
+        }
+        .btn-warning { background-color: var(--bhims-badge-pending); border-color: var(--bhims-badge-pending); color: #fff; }
+        .btn-warning:hover, .btn-warning:focus, .btn-warning:active {
+            background-color: #7f5716; border-color: #7f5716; color: #fff;
+        }
+
+        /* ---- Primary buttons: flat inked terracotta (no gradient/glow) ---- */
+        .btn-primary, .btn-success, .btn-bhims, .create-btn, .submit-btn,
+        .btn-submit, .btn-register-bhims, .btn-accept-bhims, .bhims-login-btn {
+            background-image: none !important;
+            background-color: var(--bhims-terracotta) !important;
+            border: 1px solid var(--bhims-terracotta-deep) !important;
+            box-shadow: 0 1px 2px rgba(58, 42, 32, 0.12) !important;
+            transition: background-color 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease !important;
+        }
+        .btn-primary:hover, .btn-primary:focus, .btn-primary:active,
+        .btn-success:hover, .btn-success:focus, .btn-success:active,
+        .btn-bhims:hover, .create-btn:hover, .submit-btn:hover, .btn-submit:hover,
+        .btn-register-bhims:hover, .btn-accept-bhims:hover,
+        .bhims-login-btn:hover, .bhims-login-btn:focus {
+            background-image: none !important;
+            background-color: var(--bhims-terracotta-hover) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 2px 6px rgba(58, 42, 32, 0.16) !important;
+        }
+        .btn-primary:active, .btn-success:active, .btn-bhims:active,
+        .create-btn:active, .submit-btn:active, .btn-submit:active,
+        .btn-register-bhims:active, .btn-accept-bhims:active, .bhims-login-btn:active {
+            transform: translateY(1px) !important;
+            box-shadow: 0 0 0 rgba(58, 42, 32, 0.12) !important;
+        }
+
+        /* ---- Cards & surfaces: raised warm paper ---- */
+        .card {
+            background-color: var(--bhims-paper-raised);
+            border: 1px solid var(--bhims-ink-line);
+            border-radius: var(--bhims-radius);
+            box-shadow: 0 1px 2px rgba(58, 42, 32, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: var(--bhims-ink-line-strong);
+            box-shadow: 0 6px 16px rgba(58, 42, 32, 0.09);
+        }
+        .card .card-header { background-color: var(--bhims-icon-tint); border-bottom: 1px solid var(--bhims-border); }
+        .card .card-footer { background-color: transparent; border-top: 1px solid var(--bhims-border); }
+
+        /* ---- Forms ---- */
+        .form-control, .form-select {
+            border: 1px solid var(--bhims-border);
+            border-radius: var(--bhims-radius-sm);
+            color: var(--bhims-text);
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--bhims-terracotta);
+            box-shadow: 0 0 0 0.25rem rgba(193, 89, 42, 0.12);
+        }
+        .form-label { font-weight: 600; color: var(--bhims-text); }
+
+        /* ---- Badges: warm status colors ---- */
+        .badge { font-weight: 600; }
+        .bg-success { background-color: var(--bhims-badge-verified) !important; }
+        .bg-danger { background-color: var(--bhims-badge-rejected) !important; }
+        .bg-warning { background-color: var(--bhims-badge-pending) !important; }
+        .text-success { color: var(--bhims-terracotta-deep) !important; }
+        .text-danger { color: var(--bhims-badge-rejected) !important; }
+        .text-warning { color: var(--bhims-badge-pending) !important; }
+        .text-muted { color: var(--bhims-text-muted) !important; }
+
+        /* ---- Tables ---- */
+        .table { --bs-table-color: var(--bhims-text); --bs-table-border-color: var(--bhims-border); }
+        .table > :not(caption) > * > * { border-bottom-color: var(--bhims-border); }
+        .table thead th { font-family: 'Inter', sans-serif; font-weight: 700; color: var(--bhims-text); }
+
+        /* ---- Links ---- */
+        a { color: var(--bhims-terracotta); }
+        a:hover { color: var(--bhims-terracotta-hover); }
+
+        /* ---- Lists / modals ---- */
+        .list-group-item { background-color: var(--bhims-cream-light); border-color: var(--bhims-border); }
+        .modal-content { background-color: var(--bhims-cream-light); border: 1px solid var(--bhims-border); border-radius: var(--bhims-radius); }
+        .modal-header { border-bottom: 1px solid var(--bhims-border); }
+        .modal-footer { border-top: 1px solid var(--bhims-border); }
+
+        /* ---- Status badge helper classes (warm palette) ---- */
+        .badge-bhims-verified { background: var(--bhims-badge-verified-bg); color: var(--bhims-badge-verified); }
+        .badge-bhims-pending { background: var(--bhims-badge-pending-bg); color: var(--bhims-badge-pending); }
+        .badge-bhims-rejected { background: var(--bhims-badge-rejected-bg); color: var(--bhims-badge-rejected); }
+
+        /* ---- Generic BHIMS button component ---- */
+        .btn-bhims {
+            display: inline-block;
+            background-color: var(--bhims-terracotta);
+            color: #fff;
+            border: 1px solid var(--bhims-terracotta-deep);
+            border-radius: var(--bhims-radius-sm);
+            padding: 0.7rem 1.65rem;
+            font-weight: 600;
+            font-size: var(--fs-base);
+            text-decoration: none;
+            transition: background-color 0.18s ease, transform 0.12s ease;
+        }
+        .btn-bhims:hover { background-color: var(--bhims-terracotta-hover); color: #fff; transform: translateY(-1px); }
+        .btn-bhims-outline {
+            background-color: transparent;
+            color: var(--bhims-terracotta);
+            border: 2px solid var(--bhims-terracotta);
+        }
+        .btn-bhims-outline:hover { background-color: var(--bhims-icon-tint); color: var(--bhims-terracotta); }
+
+        /* ---- Page header flex (shared: student & landlord dashboards) ---- */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+        .page-header .eyebrow {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            font-size: var(--fs-xs);
+            color: var(--bhims-terracotta);
+            margin-bottom: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .page-header .eyebrow::before {
+            content: '';
+            width: 22px;
+            height: 2px;
+            background: var(--bhims-terracotta);
+            flex: 0 0 auto;
+        }
+        .page-header h1 {
+            font-weight: 600;
+            font-size: 2.5rem;
+            color: var(--bhims-text);
+            margin: 0 0 0.5rem 0;
+        }
+        .page-header p {
+            color: var(--bhims-text-muted);
+            font-size: 1.05rem;
+            margin: 0;
+        }
+        .create-btn {
+            background-color: var(--bhims-terracotta);
+            color: #ffffff;
+            border: 1px solid var(--bhims-terracotta-deep);
+            border-radius: var(--bhims-radius-sm);
+            padding: 0.7rem 1.65rem;
+            font-weight: 600;
+            font-size: var(--fs-base);
+            cursor: pointer;
+            transition: background-color 0.18s ease, transform 0.12s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .create-btn:hover {
+            background-color: var(--bhims-terracotta-hover);
+            transform: translateY(-1px);
+            color: #ffffff;
+        }
+    </style>
+
+    <!-- Toast notifications (BHIMS style) -->
+    <style>
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 10000;
+            pointer-events: none;
+        }
+        .bhims-toast {
+            width: min(400px, calc(100vw - 40px));
+            background: var(--bhims-cream-light);
+            color: var(--bhims-text);
+            border-radius: var(--bhims-radius-sm);
+            box-shadow: 0 8px 24px rgba(58, 42, 32, 0.18);
+            display: flex;
+            align-items: flex-start;
+            padding: 15px 18px;
+            position: relative;
+            overflow: hidden;
+            border-left: 6px solid;
+            pointer-events: auto;
+            animation: bhimsSlideInRight 0.4s ease forwards;
+            font-family: 'Inter', sans-serif;
+        }
+        .bhims-toast.success { border-color: var(--bhims-moss); }
+        .bhims-toast.error { border-color: var(--bhims-badge-rejected); }
+        .bhims-toast.warning { border-color: var(--bhims-badge-pending); }
+        .bhims-toast.info { border-color: var(--bhims-info); }
+
+        .bhims-toast .toast-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 14px;
+            font-size: 22px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .bhims-toast.success .toast-icon { color: var(--bhims-moss); }
+        .bhims-toast.error .toast-icon { color: var(--bhims-badge-rejected); }
+        .bhims-toast.warning .toast-icon { color: var(--bhims-badge-pending); }
+        .bhims-toast.info .toast-icon { color: var(--bhims-info); }
+
+        .bhims-toast .toast-content { flex: 1; min-width: 0; }
+        .bhims-toast .toast-title {
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--bhims-text);
+            font-size: 15.5px;
+            margin-bottom: 2px;
+        }
+        .bhims-toast .toast-message {
+            font-size: 13.5px;
+            color: var(--bhims-text-muted);
+            margin: 0;
+            line-height: 1.45;
+        }
+
+        .bhims-toast .toast-close {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            line-height: 1;
+            color: var(--bhims-text-muted);
+            padding: 0;
+            margin-left: 10px;
+            margin-top: -2px;
+            min-width: auto;
+            width: auto;
+            flex: 0 0 auto;
+            transition: color 0.3s;
+        }
+        .bhims-toast .toast-close:hover { color: var(--bhims-text); }
+
+        .bhims-toast .progress-track {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            width: 100%;
+            background: rgba(58, 42, 32, 0.08);
+        }
+        .bhims-toast .progress-bar { height: 100%; width: 100%; }
+        .bhims-toast.success .progress-bar { background-color: var(--bhims-moss); }
+        .bhims-toast.error .progress-bar { background-color: var(--bhims-badge-rejected); }
+        .bhims-toast.warning .progress-bar { background-color: var(--bhims-badge-pending); }
+        .bhims-toast.info .progress-bar { background-color: var(--bhims-info); }
+
+        @keyframes bhimsSlideInRight {
+            from { transform: translateX(110%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes bhimsSlideInTop {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes bhimsFadeOut {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0; transform: scale(0.9); }
+        }
+        @keyframes bhimsTimer {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+        .bhims-toast:hover .progress-bar { animation-play-state: paused; }
+
+        @media screen and (max-width: 480px) {
+            #toast-container {
+                right: 0;
+                left: 0;
+                top: 10px;
+                width: 100%;
+                align-items: center;
+                padding: 0 10px;
             }
+            .bhims-toast {
+                width: 100%;
+                max-width: 400px;
+                animation: bhimsSlideInTop 0.4s ease forwards;
+            }
+        }
+    </style>
+
+    <!-- Heritage surface system: flat warm papers, ink hairlines, no frost -->
+    <style>
+        /* Page containers sit directly on the paper ground */
+        .detail-page, .browse-page, .dashboard-page, .landlord-page, .student-page,
+        .property-management-page, .register-page, .messages-page, .booking-page,
+        .room-form-page, .form-section, .profile-page-wrap {
+            background: transparent !important;
+        }
+
+        /* ---- Tier 1 Â· Primary surfaces (main cards & containers) ---- */
+        .card, .stat-card, .hero-card, .image-gallery, .rooms-card, .rooms-section,
+        .house-card, .house-content, .listing-card, .booking-card, .inquiries-card,
+        .filter-card, .profile-card, .profile-main, .profile-sidebar,
+        .admin-table-wrap, .form-container, .landing-feature-card,
+        .thread-header, .messages-container {
+            background: var(--bhims-glass-bg-primary) !important;
+            border: 1px solid var(--bhims-ink-line) !important;
+            box-shadow: var(--bhims-glass-inner-glow) !important;
+        }
+
+        /* ---- Tier 2 Â· Secondary surfaces (list items, small surfaces) ---- */
+        .list-group-item, .inquiry-item, .room-item, .room-card, .locked-note,
+        .avatar-hint, .reply-form-container, .toggle-container, .amenities-section,
+        .availability-toggle-container, .card .card-header, .card .card-footer {
+            background: var(--bhims-paper-sunken) !important;
+            border: 1px solid rgba(228, 213, 194, 0.65) !important;
+        }
+
+        /* ---- Tier 3 Â· Toasts & insets ---- */
+        .bhims-toast {
+            background: var(--bhims-paper-raised) !important;
+            border: 1px solid var(--bhims-ink-line) !important;
+            border-left-width: 6px !important;
+        }
+        .empty-state, .modal-header, .modal-footer,
+        .house-image-placeholder, .inquiry-details {
+            background: var(--bhims-paper-sunken) !important;
+            border: 1px solid rgba(228, 213, 194, 0.65) !important;
+        }
+
+        /* ---- Auth / form cards: raised paper with a woven header strip ---- */
+        .bhims-login-card, .form-card {
+            background: var(--bhims-paper-raised) !important;
+            border: 1px solid var(--bhims-ink-line) !important;
+            border-top: 4px solid var(--bhims-terracotta) !important;
+            border-radius: calc(var(--bhims-radius) + 2px) !important;
+            box-shadow: var(--bhims-glass-shadow) !important;
+            transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+        }
+        .bhims-login-card:hover, .form-card:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: var(--bhims-glass-shadow-hover) !important;
+        }
+
+        /* ---- Card hover: calm print-like lift (no scale morphing) ---- */
+        .card, .stat-card, .listing-card, .house-card, .room-card, .booking-card,
+        .filter-card, .hero-card, .inquiry-item, .landing-feature-card {
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease !important;
+        }
+        .card:hover, .stat-card:hover, .listing-card:hover, .house-card:hover,
+        .room-card:hover, .booking-card:hover, .filter-card:hover,
+        .inquiry-item:hover, .landing-feature-card:hover {
+            transform: translateY(-3px) !important;
+            box-shadow: 0 10px 24px rgba(58, 42, 32, 0.10) !important;
+            border-color: var(--bhims-ink-line-strong) !important;
+        }
+        .hero-card:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 20px rgba(58, 42, 32, 0.08) !important;
+        }
+
+        /* ---- Form inputs: solid paper with terracotta-tinted hairline ---- */
+        .form-control, .form-select, .bhims-input, .bhims-textarea {
+            background: #fffdf9 !important;
+            border: 1px solid var(--bhims-ink-line-strong) !important;
+            transition: background 0.2s ease, border-color 0.18s ease, box-shadow 0.18s ease !important;
+        }
+        .form-control:focus, .form-select:focus, .bhims-input:focus, .bhims-textarea:focus {
+            background: #ffffff !important;
+        }
+
+        /* ---- Keyboard focus: keep a visible ring everywhere ---- */
+        :focus-visible {
+            outline: 3px solid rgba(193, 89, 42, 0.65) !important;
+            outline-offset: 2px;
+        }
+
+        /* ---- Touch devices: enforce 44px minimum tap targets (WCAG 2.5.5 / iOS HIG) ---- */
+        @media (pointer: coarse) {
+            .btn, .btn-bhims, .create-btn, .submit-btn, .btn-submit,
+            .btn-register-bhims, .btn-accept-bhims {
+                min-height: 44px;
+            }
+            .form-control, .form-select, .bhims-input, .bhims-textarea {
+                min-height: 44px;
+            }
+        }
+
+        /* ---- Inline form validation (client-side helper over Django's server rules) ---- */
+        .bhims-field-error {
+            color: #b3261e;
+            font-size: var(--fs-sm);
+            font-weight: 600;
+            margin-top: 0.35rem;
+        }
+        .bhims-error-summary {
+            background: #fdeceb;
+            border: 1px solid #f3c1bd;
+            border-left: 4px solid #b3261e;
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.25rem;
+            color: #8c1d18;
+        }
+        .bhims-error-summary:focus { outline: none; }
+        .bhims-error-summary a { color: #b3261e; font-weight: 600; }
+        form [aria-invalid="true"] {
+            border-color: #dc3545 !important;
+        }
+
+        /* ---- Modals: solid paper, ink hairline ---- */
+        .modal-content {
+            background: var(--bhims-paper-raised) !important;
+            border: 1px solid var(--bhims-ink-line) !important;
+            border-radius: calc(var(--bhims-radius) + 2px) !important;
+        }
+        .modal-backdrop {
+            -webkit-backdrop-filter: blur(2px) !important;
+            backdrop-filter: blur(2px) !important;
+        }
+
+        /* ---- Dashboard shell: paper topbar over a hairline; sidebar in deep
+            espresso. NOTE: never put backdrop-filter (or transform/filter) on
+            .app-shell — it becomes the containing block for position:fixed
+            descendants and traps modals/toasts. */
+        .app-topbar {
+            -webkit-backdrop-filter: none !important;
+            backdrop-filter: none !important;
+        }
+
+        /* ---- Espresso sidebar with a faint weave ---- */
+        .app-sidebar {
+            background:
+                repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.016) 0 1px, transparent 1px 9px),
+                #33241a !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+
+        /* ---- Header & footer sit on raised paper strips ---- */
+        header, footer {
+            -webkit-backdrop-filter: none !important;
+            backdrop-filter: none !important;
+        }
+        footer {
+            border-top: 1px solid var(--bhims-ink-line);
+        }
+
+        /* ---- Reduced motion: calm everything down ---- */
+        @media (prefers-reduced-motion: reduce) {
+            body, .card, .stat-card, .listing-card, .house-card, .room-card,
+            .booking-card, .filter-card, .hero-card, .inquiry-item,
+            .landing-feature-card, .form-card, .bhims-login-card, .bhims-toast {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+
+    <!-- BHIMS Premium Layer: pure visual polish, loads last -->
+    <link rel="stylesheet" href="{% static 'core/css/premium.css' %}">
+</head>
+<body>
+    <!-- Toast notifications -->
+    <div id="toast-container"></div>
+
+    <!-- NAVBAR -->
+    {% block navbar %}{% include 'core/includes/navbar.html' %}{% endblock %}
+
+    {% block pre_content %}{% endblock %}
+
+    <!-- MAIN PAGE CONTENT -->
+    <main style="margin:0; padding:0;">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- FOOTER -->
+    {% block footer %}{% include 'core/includes/footer.html' %}{% endblock %}
+
+    <!-- Bootstrap JS (local) -->
+    <script src="{% static 'vendor/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- Toast notifications -->
+    <script>
+    (function () {
+        var ICONS = {
+            success: '<i class="bi bi-check-circle-fill"></i>',
+            error: '<i class="bi bi-x-circle-fill"></i>',
+            warning: '<i class="bi bi-exclamation-triangle-fill"></i>',
+            info: '<i class="bi bi-info-circle-fill"></i>'
+        };
+        var TITLES = { success: 'Success', error: 'Error', warning: 'Heads up', info: 'Notice' };
+
+        var container = document.getElementById('toast-container');
+        if (!container) return;
+
+        function createToast(type, title, message, duration) {
+            duration = duration || 5000;
+            if (!ICONS[type]) type = 'info';
+
+            var toast = document.createElement('div');
+            toast.className = 'bhims-toast ' + type;
+            toast.setAttribute('role', 'status');
+            toast.setAttribute('aria-live', 'polite');
+
+            toast.innerHTML =
+                '<div class="toast-icon">' + ICONS[type] + '</div>' +
+                '<div class="toast-content">' +
+                    '<div class="toast-title"></div>' +
+                    '<div class="toast-message"></div>' +
+                '</div>' +
+                '<button type="button" class="toast-close" aria-label="Close">&times;</button>' +
+                '<div class="progress-track"><div class="progress-bar"></div></div>';
+
+            toast.querySelector('.toast-title').textContent = title;
+            toast.querySelector('.toast-message').textContent = message;
+
+            var bar = toast.querySelector('.progress-bar');
+            bar.style.animation = 'bhimsTimer ' + duration + 'ms linear forwards';
+
+            container.appendChild(toast);
+
+            var timer = setTimeout(function () { removeToast(toast); }, duration);
+
+            toast.addEventListener('mouseenter', function () {
+                clearTimeout(timer);
+                bar.style.animationPlayState = 'paused';
+            });
+
+            toast.addEventListener('mouseleave', function () {
+                bar.style.animationPlayState = 'running';
+                timer = setTimeout(function () { removeToast(toast); }, duration);
+            });
+
+            toast.querySelector('.toast-close').addEventListener('click', function () {
+                removeToast(toast);
+            });
+        }
+
+        function removeToast(toast) {
+            toast.style.animation = 'bhimsFadeOut 0.4s ease forwards';
+            toast.addEventListener('animationend', function () { toast.remove(); }, { once: true });
+        }
+
+        window.createToast = createToast;
+        window.bhimsToast = createToast;
+
+        // Render Django flash messages as toasts
+        var pending = [];
+        {% for message in messages %}
+        pending.push({
+            type: '{% if message.tags == "error" %}error{% elif message.tags == "warning" %}warning{% elif message.tags == "info" %}info{% else %}success{% endif %}',
+            message: '{{ message|escapejs }}'
         });
-    });
-});
-</script>
+        {% endfor %}
+
+        pending.forEach(function (item, index) {
+            setTimeout(function () {
+                createToast(item.type, TITLES[item.type] || 'Notice', item.message);
+            }, 120 * index);
+        });
+    })();
+    </script>
+
+    <!-- Client-side inline validation for forms opted in via data-validate.
+         Complements (never replaces) Django's server-side validation. -->
+    <script>
+    (function () {
+        var forms = document.querySelectorAll('form[data-validate]');
+        if (!forms.length) return;
+
+        function messageFor(el) {
+            var v = el.validity;
+            if (v.valueMissing) return 'This field is required.';
+            if (v.typeMismatch) return el.type === 'email' ? 'Enter a valid email address.' : 'Enter a valid value.';
+            if (v.patternMismatch) return 'Please match the requested format.';
+            if (v.tooShort) return 'Use at least ' + el.minLength + ' characters.';
+            if (v.tooLong) return 'Use no more than ' + el.maxLength + ' characters.';
+            if (v.rangeUnderflow || v.rangeOverflow) return 'This value is out of range.';
+            return 'Please check this field.';
+        }
+
+        function labelFor(el) {
+            if (el.labels && el.labels.length && el.labels[0].textContent.trim()) {
+                return el.labels[0].textContent.replace('*', '').trim();
+            }
+            return (el.name || 'This field').replace(/_/g, ' ');
+        }
+
+        function showError(el, text) {
+            el.setAttribute('aria-invalid', 'true');
+            var err = el.nextElementSibling;
+            if (!(err && err.classList && err.classList.contains('bhims-field-error'))) {
+                err = document.createElement('div');
+                err.className = 'bhims-field-error';
+                el.insertAdjacentElement('afterend', err);
+            }
+            err.textContent = text;
+        }
+
+        function clearError(el) {
+            el.removeAttribute('aria-invalid');
+            var err = el.nextElementSibling;
+            if (err && err.classList && err.classList.contains('bhims-field-error')) err.remove();
+        }
+
+        function buildSummary(form, bad) {
+            var old = form.querySelector('.bhims-error-summary');
+            if (old) old.remove();
+            if (!bad.length) return;
+            var box = document.createElement('div');
+            box.className = 'bhims-error-summary';
+            box.setAttribute('role', 'alert');
+            box.tabIndex = -1;
+            var title = document.createElement('h2');
+            title.className = 'h5 mb-2';
+            title.textContent = bad.length === 1 ? 'There is 1 problem with this form' :
+                'There are ' + bad.length + ' problems with this form';
+            box.appendChild(title);
+            var ul = document.createElement('ul');
+            ul.className = 'mb-0';
+            bad.forEach(function (el) {
+                if (!el.id) el.id = 'fld-' + (el.name || Math.random().toString(36).slice(2, 8));
+                var li = document.createElement('li');
+                var a = document.createElement('a');
+                a.href = '#' + el.id;
+                a.textContent = labelFor(el) + ': ' + messageFor(el);
+                li.appendChild(a);
+                ul.appendChild(li);
+            });
+            box.appendChild(ul);
+            form.insertBefore(box, form.firstChild);
+            box.focus();
+        }
+
+        Array.prototype.forEach.call(forms, function (form) {
+            var fields = Array.prototype.filter.call(
+                form.querySelectorAll('input, select, textarea'),
+                function (el) {
+                    var t = el.type;
+                    return t !== 'hidden' && t !== 'submit' && t !== 'button' &&
+                           t !== 'checkbox' && t !== 'radio';
+                }
+            );
+
+            fields.forEach(function (el) {
+                el.addEventListener('blur', function () {
+                    if (!el.checkValidity()) showError(el, messageFor(el));
+                });
+                el.addEventListener('input', function () {
+                    if (el.getAttribute('aria-invalid') === 'true' && el.checkValidity()) clearError(el);
+                });
+            });
+
+            form.addEventListener('submit', function (e) {
+                var bad = fields.filter(function (el) { return !el.checkValidity(); });
+                bad.forEach(function (el) { showError(el, messageFor(el)); });
+                buildSummary(form, bad);
+                if (bad.length) {
+                    e.preventDefault();
+                    bad[0].focus();
+                }
+            });
+        });
+    })();
+    </script>
+
+    {% block extra_js %}{% endblock %}
 </body>
 </html>
-<style>
-/* BHIMS visual identity refinements */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700&family=Urbanist:wght@600;700&display=swap');
-body { font-family: 'Inter', sans-serif; }
-h1, h2, h3, h4, h5, h6 { font-family: 'Urbanist', sans-serif; }
-.navbar-brand { font-family: 'Montserrat', sans-serif; }
-:root { --landlord-accent: #8B4513; --admin-accent: #2D2626; --browse-top: #FFFDFC; --browse-bottom: #F5EBE0; }
-.browse-page { background: linear-gradient(180deg, var(--browse-top) 0%, var(--browse-bottom) 100%); }
-.landlord-page { --terracotta: var(--landlord-accent); --terracotta-light: #A85D32; }
-.badge-landlord-available { background: var(--landlord-accent); color: #fff; }
-.admin-page { background: #F3F4F6; --terracotta: var(--admin-accent); --terracotta-dark: #1F1B1B; --terracotta-light: #4A4141; --cream: #F3F4F6; }
-.admin-page .navbar { background: linear-gradient(135deg, var(--terracotta-dark) 0%, var(--admin-accent) 100%) !important; }
-.admin-page .stat-number { color: var(--admin-accent); }
-.admin-page .badge-available { background-color: var(--admin-accent); }
-.admin-page .btn-outline-warning { color: var(--admin-accent); border-color: var(--admin-accent); }
-.admin-page .btn-outline-warning:hover { color: #fff; background: var(--admin-accent); border-color: var(--admin-accent); }
-.auth-panel { position: relative; isolation: isolate; background-image: linear-gradient(135deg, rgba(196, 106, 62, .88) 0%, rgba(45, 38, 38, .94) 100%), url('/static/core/images/dmmmsu-campus.jpg'); background-size: cover; background-position: center; }
-.auth-panel > * { position: relative; z-index: 1; }
-.auth-identity { text-align: center; margin-bottom: 2.25rem; }
-.auth-identity__name { display: block; color: #fff; font-family: 'Quicksand', sans-serif; font-size: clamp(2.4rem, 5vw, 3.6rem); font-weight: 700; line-height: 1; letter-spacing: -.04em; }
-.auth-identity__system { display: block; margin-top: .6rem; color: rgba(255,255,255,.84); font-size: .95rem; font-weight: 500; line-height: 1.35; }
-.auth-identity__location { display: block; margin-top: .45rem; color: #fff; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-.auth-panel .eyebrow { color: rgba(255,255,255,.86); }
-.auth-panel h2, .auth-panel > p:last-child { text-align: center; }
-.detail-hero-copy { position: relative; padding: .85rem 1rem; background: rgba(255,255,255,.88); border-radius: 12px; }
-.detail-hero-copy h1, .detail-hero-copy .price-tag { margin-bottom: 0; }
-</style>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    ['browse-page', 'landlord-page', 'admin-page'].forEach(function (theme) {
-        if (document.querySelector('.' + theme)) document.body.classList.add(theme);
-    });
-});</script>

@@ -5,38 +5,66 @@
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-lg-7">
-    <div class="card shadow-sm border-success">
-      <div class="card-header bg-success text-white">
-        <h2 class="mb-0">✅ Landlord Account Created Successfully</h2>
-      </div>
-      <div class="card-body p-5">
-        <p class="lead mb-4">Please share these login credentials with the landlord:</p>
-        
-        <div class="bg-light p-4 rounded mb-4">
-          <div class="row mb-3">
-            <div class="col-md-4 fw-bold">Full Name:</div>
-            <div class="col-md-8">{{ landlord_name }}</div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-md-4 fw-bold">Login Email:</div>
-            <div class="col-md-8">{{ landlord_email }}</div>
-          </div>
-          <div class="row">
-            <div class="col-md-4 fw-bold">Temporary Password:</div>
-            <div class="col-md-8"><code class="bg-dark text-white px-2 py-1 rounded">{{ landlord_password }}</code></div>
-          </div>
+    <div class="card shadow-sm"
+         style="border: 1px solid var(--bhims-border); border-radius: var(--bhims-radius); background: var(--bhims-paper-raised); overflow: hidden;">
+      <div style="display: flex; align-items: center; gap: 0.9rem; padding: 1.35rem 1.5rem; background: linear-gradient(135deg, rgba(111, 138, 60, 0.10), rgba(193, 89, 42, 0.06)); border-bottom: 1px solid var(--bhims-ink-line);">
+        <span aria-hidden="true"
+              style="width: 48px; height: 48px; border-radius: 14px; background: var(--bhims-moss); color: #fff; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <i class="bi bi-check-lg" style="font-size: 1.6rem;"></i>
+        </span>
+        <div>
+          <h2 class="mb-1" style="font-family: var(--font-display); font-size: var(--fs-2xl); color: var(--bhims-text);">Landlord account created</h2>
+          <p class="mb-0" style="color: var(--bhims-text-muted); font-size: var(--fs-sm);">Share these sign-in details with the landlord.</p>
         </div>
+      </div>
 
-        <div class="alert alert-warning">
-          <strong>Note:</strong> The landlord will be prompted to change their password on their first login.
+      <div class="p-4 p-md-5">
+        <dl style="margin: 0 0 1.25rem; display: grid; grid-template-columns: 1fr; gap: 0.75rem;">
+          {% for label, value in credentials %}
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.8rem 1rem; background: var(--bhims-paper-sunken); border: 1px solid var(--bhims-ink-line); border-radius: var(--bhims-radius-sm);">
+            <div style="min-width: 0;">
+              <dt style="font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: 0.04em; color: var(--bhims-text-muted); margin-bottom: 0.15rem;">{{ label }}</dt>
+              <dd class="mb-0" style="color: var(--bhims-text); font-weight: 600; overflow-wrap: anywhere;">{{ value }}</dd>
+            </div>
+            {% if value %}
+            <button type="button" data-copy="{{ value }}" aria-label="Copy {{ label }}"
+                    class="btn btn-sm"
+                    style="border: 1px solid var(--bhims-ink-line-strong); background: var(--bhims-paper-raised); color: var(--bhims-text-muted); flex-shrink: 0;"
+                    title="Copy">
+              <i class="bi bi-clipboard"></i>
+            </button>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </dl>
+
+        <div style="display: flex; align-items: flex-start; gap: 0.65rem; padding: 0.9rem 1.1rem; background: rgba(253, 240, 220, 0.6); border: 1px solid var(--bhims-badge-pending-bg); border-radius: var(--bhims-radius-sm);">
+          <i class="bi bi-info-circle" style="color: var(--bhims-badge-pending); margin-top: 0.1rem;" aria-hidden="true"></i>
+          <p class="mb-0" style="font-size: var(--fs-sm); color: var(--bhims-text);">The landlord will be prompted to change their password on first login.</p>
         </div>
 
         <div class="d-grid gap-2 mt-4">
           <a href="{% url 'admin_dashboard' %}" class="btn btn-primary">Return to Admin Dashboard</a>
-          <a href="{% url 'admin_create_landlord' %}" class="btn btn-outline-secondary">Create Another Landlord</a>
+          <a href="{% url 'admin_create_landlord' %}" class="btn btn-outline-primary">Create Another Landlord</a>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      navigator.clipboard.writeText(btn.getAttribute('data-copy')).then(function () {
+        var icon = btn.querySelector('i');
+        icon.classList.replace('bi-clipboard', 'bi-check2');
+        btn.style.color = 'var(--bhims-moss)';
+        setTimeout(function () {
+          icon.classList.replace('bi-check2', 'bi-clipboard');
+          btn.style.color = '';
+        }, 1600);
+      });
+    });
+  });
+</script>
 {% endblock %}

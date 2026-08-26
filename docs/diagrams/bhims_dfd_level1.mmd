@@ -1,0 +1,70 @@
+%% BHIMS - Level 1 Data Flow Diagram
+%% Render: npx @mermaid-js/mermaid-cli -i bhims_dfd_level1.mmd -o bhims_dfd_level1.png -b white -s 2.5
+flowchart LR
+    %% ---------- external entities ----------
+    STU["<b>STUDENT</b>"]
+    LAN["<b>LANDLORD</b>"]
+    ADM["<b>ADMINISTRATOR</b>"]
+
+    %% ---------- processes ----------
+    P1("<b>1.0 Authentication<br/>& Profile Management</b>")
+    P2("<b>2.0<br/>Listing Management</b>")
+    P3("<b>3.0 Listing Search<br/>& Viewing</b>")
+    P4("<b>4.0 Inquiry<br/>& Messaging</b>")
+    P5("<b>5.0 Booking<br/>Acceptance</b>")
+    P6("<b>6.0<br/>User Reporting</b>")
+    P7("<b>7.0 Administration<br/>& Analytics</b>")
+
+    %% ---------- data stores ----------
+    D1[("D1 | USERS")]
+    D2[("D2 | HOUSES & ROOMS")]
+    D3[("D3 | INQUIRIES & MESSAGES")]
+    D4[("D4 | BOOKINGS")]
+    D5[("D5 | USER REPORTS")]
+    D6[("D6 | BARANGAYS & SETTINGS")]
+
+    %% --- authentication ---
+    STU -- "registration / login<br/>(program or K-12 grade level)" --> P1
+    LAN -- "login" --> P1
+    ADM -- "login" --> P1
+    P1 <-- "user records" --> D1
+
+    %% --- listings ---
+    LAN -- "house, room &<br/>photo uploads" --> P2
+    P2 -- "approval status" --> LAN
+    ADM -- "approve / reject" --> P2
+    P2 <-- "listing data" --> D2
+
+    %% --- search ---
+    STU <-- "search / results" --> P3
+    D2 -- "approved listings" --> P3
+
+    %% --- inquiry & messaging ---
+    STU <-- "inquiries / replies" --> P4
+    LAN <-- "inquiries / replies" --> P4
+    P4 <-- "messages" --> D3
+
+    %% --- booking ---
+    P4 -. "accepted inquiry" .-> P5
+    LAN -- "accept decision" --> P5
+    P5 -- "confirmed booking" --> D4
+
+    %% --- reporting ---
+    STU -- "report user" --> P6
+    LAN -- "report user" --> P6
+    ADM -- "resolve / dismiss" --> P6
+    P6 -- "report records" --> D5
+
+    %% --- administration & analytics ---
+    ADM <-- "manage / dashboards" --> P7
+    P7 -- "user updates" --> D1
+    P7 -- "settings" --> D6
+    D3 -- "chat stats" --> P7
+    D4 -- "booking stats" --> P7
+
+    classDef entity fill:#f8eae4,stroke:#8c4a2f,stroke-width:2.5px,color:#3a2a20
+    classDef process fill:#ffffff,stroke:#c1592a,stroke-width:3px,color:#3a2a20
+    classDef store fill:#eef2f7,stroke:#4a6785,stroke-width:2px,color:#22303f
+    class STU,LAN,ADM entity
+    class P1,P2,P3,P4,P5,P6,P7 process
+    class D1,D2,D3,D4,D5,D6 store

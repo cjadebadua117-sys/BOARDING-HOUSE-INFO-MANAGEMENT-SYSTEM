@@ -5,3 +5,18 @@ db.sqlite3
 .env
 media/
 .vscode/
+
+# Logs and debug output
+*.log
+*_check.txt
+inspectdb_output.txt
+tables_*.txt
+final_*.txt
+server_*.log
+
+# Local tool config
+.claude/
+
+# OS junk
+Thumbs.db
+.DS_Store

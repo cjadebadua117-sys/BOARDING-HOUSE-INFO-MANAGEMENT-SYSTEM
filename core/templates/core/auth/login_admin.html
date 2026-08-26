@@ -1,0 +1,53 @@
+{% extends 'core/auth/base.html' %}
+
+{% block auth_title %}Administrator Sign In{% endblock %}
+
+{% block hero_title %}The house behind the&nbsp;houses.{% endblock %}
+{% block hero_copy %}Oversee listings, students, landlords, barangay records, and platform reports across Bacnotan.{% endblock %}
+
+{% block auth_main %}
+<div class="pane-inner">
+    <p class="pane-eyebrow">Internal System</p>
+    <h2>Sign in</h2>
+    <p class="pane-sub">Authorized administrators only.</p>
+    <hr class="pane-rule">
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% for h in form.hidden_fields %}{{ h }}{% endfor %}
+        <input type="hidden" name="next" value="{{ next }}">
+
+        {% if form.non_field_errors %}
+            <div class="auth-error" role="alert">
+                {% for e in form.non_field_errors %}{{ e|striptags }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+            </div>
+        {% endif %}
+
+        {% for field in form.visible_fields %}
+            <div class="auth-field">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <div class="auth-input-wrap {% if field.widget_type == 'password' %}has-toggle{% endif %}">
+                    {{ field }}
+                    {% if field.widget_type == 'password' %}
+                        {% include 'core/auth/_eye_toggle.html' with target=field.id_for_label %}
+                    {% endif %}
+                </div>
+                {% if field.errors %}
+                    <div class="field-error">{% for e in field.errors %}{{ e|striptags }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <div class="auth-row">
+            <label><input type="checkbox" name="remember_me" id="remember_me"> Remember me</label>
+            <a href="{% url 'password_reset' %}">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="auth-submit">Sign in</button>
+    </form>
+
+    <div class="pane-foot">
+        Access is logged. If you forgot your credentials, contact the system administrator.
+    </div>
+</div>
+{% endblock %}

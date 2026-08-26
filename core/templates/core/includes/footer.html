@@ -1,0 +1,43 @@
+
+{% load static %}
+<footer style="background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.016) 0 1px, transparent 1px 9px),
+    #33241a !important; border-top: 1px solid var(--bhims-ink-line) !important; width:100% !important; color:#FFFFFF !important; margin:0 !important;">
+  <div style="max-width:1140px !important; margin:0 auto !important; padding:5rem 2rem !important; display:grid !important; grid-template-columns: repeat(3, 1fr) !important; gap:3rem !important;">
+
+    <!-- Left: Brand Info & Copyright -->
+    <div>
+      <div style="display:flex !important; align-items:center !important; margin-bottom:1.5rem !important;">
+        <span style="background:rgba(255,255,255,0.12) !important; border-radius:10px !important; padding:5px !important; margin-right:0.75rem !important; display:inline-flex !important; align-items:center !important; justify-content:center !important;">
+          <img src="{% static 'core/images/bhims-icon.png' %}" alt="BHIMS logo" style="height:40px !important; width:40px !important; display:block !important;">
+        </span>
+        <h5 style="font-family: var(--font-display) !important; font-weight:800 !important; margin:0 !important; font-size: var(--fs-xl) !important;">BHIMS <span style="color:#e08a5a !important;">NLUC BACNOTAN</span></h5>
+      </div>
+      <p style="color:rgba(255,255,255,0.7) !important; line-height:1.7 !important; font-size:1rem !important; margin-bottom: 1.5rem !important;">
+        Browse verified boarding houses near campus, message landlords directly, and manage your stay &mdash; all in one place.
+      </p>
+      <p style="color:rgba(255,255,255,0.5) !important; margin:0 !important; font-size: var(--fs-md) !important;">
+        &copy; BHIMS &mdash; Boarding House Information Management System &middot; DMMMSU&ndash;NLUC, Bacnotan
+      </p>
+    </div>
+
+    <!-- Center: Platform Links -->
+    <div>
+      <h6 style="font-weight:700 !important; text-transform:uppercase !important; letter-spacing:0.08em !important; margin-bottom:1.75rem !important; font-size: var(--fs-md) !important;">PLATFORM</h6>
+      <div style="display:flex !important; flex-direction:column !important; gap:1rem !important;">
+        <a href="{% url 'listing_list' %}" style="color:rgba(255,255,255,0.7) !important; text-decoration:none !important; font-size:1rem !important; transition:color 0.3s ease;">Browse Listings</a>
+        <a href="{% url 'landlord_login' %}" style="color:rgba(255,255,255,0.7) !important; text-decoration:none !important; font-size:1rem !important; transition:color 0.3s ease;">Landlord Portal</a>
+        <a href="{% url 'student_login' %}" style="color:rgba(255,255,255,0.7) !important; text-decoration:none !important; font-size:1rem !important; transition:color 0.3s ease;">Student Login</a>
+      </div>
+    </div>
+
+    <!-- Right: Campus Info -->
+    <div>
+      <h6 style="font-weight:700 !important; text-transform:uppercase !important; letter-spacing:0.08em !important; margin-bottom:1.75rem !important; font-size: var(--fs-md) !important;">CAMPUS INFO</h6>
+      <div style="display:flex !important; flex-direction:column !important; gap:1rem !important; color:rgba(255,255,255,0.7) !important; font-size:1rem !important;">
+        <span>DMMMSU &ndash; North La Union Campus</span>
+        <span>Bacnotan, La Union, Philippines</span>
+      </div>
+    </div>
+  </div>
+</footer>

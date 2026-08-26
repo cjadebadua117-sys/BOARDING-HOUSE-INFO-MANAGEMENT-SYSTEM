@@ -1,18 +1,23 @@
-{% extends 'core/base.html' %}
-{% block title %}Student Dashboard - Boarding House Information Management System{% endblock %}
-{% block content %}
+{% extends 'core/app_base.html' %}
+{% block title %}Student Dashboard{% endblock %}
+{% block app_content %}
 <div class="student-page">
-<div class="row mb-4">
-  <div class="col-md-8">
+<div class="page-header">
+  <div>
+    <p class="eyebrow">Student Portal</p>
     <h1>Student Dashboard</h1>
-    <p>Manage your profile, view your bookings, and track your inquiries.</p>
+    <p>Manage your inquiries and track your boarding house applications.</p>
   </div>
-  <div class="col-md-4 text-end">
-    <a href="{% url 'student_profile' %}" class="btn btn-outline-primary">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+  <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+    <a class="create-btn" href="{% url 'student_bookings' %}">
+      <i class="bi bi-patch-check" style="margin-right: 0.4rem;"></i>
+      My Bookings
+    </a>
+    <a class="create-btn" href="{% url 'listing_list' %}">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 1.1rem; height: 1.1rem;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
       </svg>
-      Edit Profile
+      Browse Listings
     </a>
   </div>
 </div>
@@ -24,12 +29,13 @@
       <div class="d-flex align-items-center">
         <div class="icon-box" style="background: rgba(139, 69, 19, 0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1.5rem; height: 1.5rem; color: var(--terracotta);">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m2 0a2 2 0 100-4 2 2 0 000 4zm-6 4a2 2 0 100-4 2 2 0 000 4zm6-4a2 2 0 100-4 2 2 0 000 4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a3.375 3.375 0 00-3.375 3.375v.035a.675.675 0 00.235.505l2.035 1.782a.675.675 0 00.834 0l2.035-1.782a.675.675 0 00.235-.505v-.035A3.375 3.375 0 0010.5 12H8.625z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.375 12a3.375 3.375 0 00-3.375 3.375v.035a.675.675 0 00.235.505l2.035 1.782a.675.675 0 00.834 0l2.035-1.782a.675.675 0 00.235-.505v-.035A3.375 3.375 0 0018 12h-2.625z" />
           </svg>
         </div>
         <div>
-          <h3 class="mb-0">{{ bookings|length }}</h3>
-          <p class="text-muted mb-0 small">Total Bookings</p>
+          <h2 class="h3 mb-0">{{ inquiries|length }}</h2>
+          <p class="text-muted mb-0 small">Total Inquiries</p>
         </div>
       </div>
     </div>
@@ -38,13 +44,13 @@
     <div class="card shadow-sm border-0 p-4">
       <div class="d-flex align-items-center">
         <div class="icon-box" style="background: rgba(139, 69, 19, 0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1.5rem; height: 1.5rem; color: var(--terracotta);">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1.5rem; height: 1.5rem; color: var(--landlord-accent);">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
           </svg>
         </div>
         <div>
-          <h3 class="mb-0">Active</h3>
-          <p class="text-muted mb-0 small">Current Booking</p>
+          <h2 class="h3 mb-0">{{ active_inquiries }}</h2>
+          <p class="text-muted mb-0 small">Active Inquiries</p>
         </div>
       </div>
     </div>
@@ -53,79 +59,57 @@
     <div class="card shadow-sm border-0 p-4">
       <div class="d-flex align-items-center">
         <div class="icon-box" style="background: rgba(139, 69, 19, 0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1.5rem; height: 1.5rem; color: var(--terracotta);">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8.25l6 6-6 6V8.25z" />
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1.5rem; height: 1.5rem; color: var(--landlord-accent);">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3h1.5m-1.5 3h1.5M9 19.5v-3.375c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125V19.5" />
           </svg>
         </div>
         <div>
-          <h3 class="mb-0">{{ student_inquiries|length }}</h3>
-          <p class="text-muted mb-0 small">Inquiries Sent</p>
+          <h2 class="h3 mb-0">{{ confirmed_bookings }}</h2>
+          <p class="text-muted mb-0 small">Confirmed Bookings</p>
         </div>
       </div>
     </div>
   </div>
-</div>
-
-<!-- Recent Bookings -->
-<div class="mb-4">
-  <h2 class="h4 mb-3">Your Bookings</h2>
-  {% if bookings %}
-  <div class="list-group list-group-flush">
-    {% for booking in bookings %}
-    <div class="list-group-item p-4">
-      <div class="d-flex justify-content-between align-items-start">
-        <div>
-          <h5 class="mb-1">{{ boarding_house.HouseName }}</h5>
-          <p class="text-muted small mb-2">{{ booking.DateStart|date:"M d, Y" }} to {{ booking.DateEnd|date:"M d, Y" }}</p>
-          <p class="mb-0">{{ booking.get_Status_display }}</p>
-        </div>
-        <span class="badge bg-{% if booking.Status == 'Approved' %}success{% elif booking.Status == 'Pending' %}warning{% elif booking.Status == 'Rejected' %}danger{% else %}secondary{% endif %}">
-          {{ booking.get_Status_display }}
-        </span>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-  {% else %}
-  <div class="card shadow-sm border-0 p-5 text-center">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 4rem; height: 4rem; margin: 0 auto 1.5rem; color: var(--text-muted);">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m2 0a2 2 0 100-4 2 2 0 000 4zm-6 4a2 2 0 100-4 2 2 0 000 4zm6-4a2 2 0 100-4 2 2 0 000 4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
-    </svg>
-    <h3 class="h5 mb-2">No bookings yet</h3>
-    <p class="text-muted mb-0">When you book a boarding house, it will appear here.</p>
-    <a href="{% url 'listing_list' %}" class="btn btn-primary">Find a Boarding House</a>
-  </div>
-  {% endif %}
 </div>
 
 <!-- Recent Inquiries -->
-<div>
-  <h2 class="h4 mb-3">Your Inquiries</h2>
-  {% if student_inquiries %}
-  <div class="list-group list-group-flush">
-    {% for inquiry in student_inquiries %}
-    <div class="list-group-item p-4">
-      <div class="d-flex justify-content-between align-items-start">
-        <div>
-          <h5 class="mb-1">{{ inquiry.boarding_house.HouseName }}</h5>
-          <p class="text-muted small mb-2">{{ inquiry.room.room_type|default:"Room" }} {{ inquiry.boarding_house.barangay|title }}</p>
-          <p class="mb-0">{{ inquiry.message|truncatechars:100 }}</p>
+<div class="mb-4">
+  <h2 class="h4 mb-3">Your Recent Inquiries</h2>
+  {% if inquiries %}
+  <div class="row g-4">
+    {% for inquiry in inquiries %}
+    <div class="col-lg-6">
+      <div class="card shadow-sm border-0 overflow-hidden h-100">
+        <div class="card-body">
+          <h3 class="h5 mb-1">{{ inquiry.room.boarding_house.name }}</h3>
+          <p class="text-muted small mb-3">{{ inquiry.room.boarding_house.barangay_display }}, {{ inquiry.room.boarding_house.address }}</p>
+          
+          <div class="d-flex align-items-center mb-4">
+            <span class="badge {% if inquiry.status == 'closed' %}bg-success{% elif inquiry.status == 'open' %}bg-info{% else %}bg-warning{% endif %} me-2">{{ inquiry.get_status_display }}</span>
+            <span class="text-muted small">Room: {{ inquiry.room.name|default:inquiry.room.room_type }}</span>
+          </div>
+          
+          <div class="d-flex gap-2">
+            <a href="{% url 'student_inquiry_list' %}" class="btn btn-primary flex-grow-1">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+              View Details
+            </a>
+          </div>
         </div>
-        <span class="badge bg-{% if inquiry.is_read %}secondary{% else %}warning{% endif %}">
-          {% if inquiry.is_read %}Read{% else %}New{% endif %}
-        </span>
       </div>
     </div>
     {% endfor %}
   </div>
   {% else %}
   <div class="card shadow-sm border-0 p-5 text-center">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 4rem; height: 4rem; margin: 0 auto 1.5rem; color: var(--text-muted);">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M9.5 8a6.5 6.5 0 11-6.5 6.5v2" />
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 4rem; height: 4rem; color: var(--text-muted); margin: 0 auto 1rem;">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3h1.5m-1.5 3h1.5M9 19.5v-3.375c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125V19.5" />
     </svg>
     <h3 class="h5 mb-2">No inquiries yet</h3>
-    <p class="text-muted mb-0">When you send inquiries to landlords, they'll appear here.</p>
-    <a href="{% url 'listing_list' %}" class="btn btn-primary">Send an Inquiry</a>
+    <p class="text-muted mb-4">Start browsing available boarding houses and send inquiries to secure your room!</p>
+    <a href="{% url 'listing_list' %}" class="btn btn-primary">Browse Listings</a>
   </div>
   {% endif %}
 </div>

@@ -1,0 +1,40 @@
+%% BHIMS - System Flowchart
+%% Edit at https://mermaid.live
+flowchart TD
+    START(["START"]) --> OPEN["Open BHIMS Website"]
+    OPEN --> ROLE{"Select role / log in"}
+
+    ROLE -->|Student| S1["Register / Log In<br/>(select program or K-12 grade level)"]
+    ROLE -->|Landlord| L1["Log In (account pre-created by Admin)"]
+    ROLE -->|Administrator| A1["Log In"]
+
+    %% ---------- Student lane ----------
+    S1 --> S2["Browse & Filter Listings"]
+    S2 --> S3["View Boarding House Details"]
+    S3 --> S4["Send Inquiry to Landlord"]
+    S4 --> S5["Chat with Landlord"]
+    S5 --> DS{"Accepted by landlord?"}
+    DS -- "No - keep browsing" --> S5
+    DS -- Yes --> S6["Booking Confirmed"]
+    S6 --> S7["View My Bookings / Profile"]
+
+    %% ---------- Landlord lane ----------
+    L1 --> L2["Add Boarding House, Rooms & Photos"]
+    L2 --> L3["Submit Listing for Approval"]
+    L3 --> DL{"Approved by admin?"}
+    DL -- "No - revise & resubmit" --> L2
+    DL -- Yes --> L4["Listing Visible to Students"]
+    L4 --> L5["Respond to Inquiries / Chat"]
+    L5 --> L6["Accept Student"]
+
+    %% ---------- Admin lane ----------
+    A1 --> A2["Dashboard & Analytics"]
+    A2 --> A3["Review Pending Listings"]
+    A3 --> A4["Approve / Reject Listings"]
+    A4 --> A5["Manage Users & Barangays"]
+    A5 --> A6["Review & Resolve Reports"]
+
+    %% ---------- Merge ----------
+    S7 --> END(["END"])
+    L6 --> END
+    A6 --> END

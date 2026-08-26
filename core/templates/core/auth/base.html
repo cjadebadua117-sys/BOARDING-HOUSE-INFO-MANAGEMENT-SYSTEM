@@ -1,0 +1,372 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}{% block auth_title %}Sign in{% endblock %} · BHIMS{% endblock %}
+
+{% block content %}
+<style>
+    /* ===== BHIMS auth layout — shared by every login/registration page ===== */
+
+    .auth-shell {
+        display: flex !important;
+        min-height: calc(100vh - 72px) !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        position: relative;
+        z-index: 1;
+        animation: authShellIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes authShellIn {
+        from { opacity: 0; transform: scale(1.015); }
+        to { opacity: 1; transform: none; }
+    }
+
+    /* Gentle drift on the hero panel's decorative glow */
+    @keyframes heroGlowDrift {
+        0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+        50% { transform: translate3d(-2.5%, 2.5%, 0) scale(1.06); }
+    }
+
+    /* ---- Left: duotone campus panel ---- */
+    .auth-hero {
+        flex: 1 1 46%;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 3.5rem 3rem 3rem;
+        color: #f6efe4;
+        background:
+            repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.022) 0 1px, transparent 1px 9px),
+            linear-gradient(to top, rgba(30, 21, 15, 0.94) 0%, rgba(51, 36, 26, 0.72) 48%, rgba(51, 36, 26, 0.45) 100%),
+            url('{% static 'core/images/dmmmsu-campus.jpg' %}') center / cover no-repeat;
+    }
+    .auth-hero > * { animation: authRise 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .auth-hero .hero-eyebrow { animation-delay: 0.05s; }
+    .auth-hero h1            { animation-delay: 0.12s; }
+    .auth-hero .hero-rule    { animation-name: authDrawX; animation-duration: 0.6s; animation-delay: 0.22s; transform-origin: left center; }
+    .auth-hero .hero-copy    { animation-delay: 0.28s; }
+    .auth-hero .hero-foot    { animation-delay: 0.38s; }
+
+    @keyframes authRise {
+        from { opacity: 0; transform: translateY(18px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes authDrawX {
+        from { opacity: 0; transform: scaleX(0); }
+        to   { opacity: 1; transform: scaleX(1); }
+    }
+
+    .auth-hero .hero-eyebrow {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        opacity: 0.85;
+        margin: 0 0 1rem;
+    }
+    .auth-hero h1 {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: clamp(2.6rem, 5vw, 4.2rem);
+        line-height: 1.02;
+        margin: 0 0 1.1rem;
+        color: #fdf8ef;
+    }
+    .auth-hero .hero-rule {
+        width: 52px;
+        height: 2px;
+        background: var(--bhims-terracotta);
+        border: none;
+        margin: 0 0 1.2rem;
+    }
+    .auth-hero .hero-copy {
+        font-size: 1.02rem;
+        line-height: 1.55;
+        max-width: 34ch;
+        opacity: 0.92;
+        margin: 0 0 2.4rem;
+    }
+    .auth-hero .hero-foot {
+        border-top: 1px solid rgba(246, 239, 228, 0.22);
+        padding-top: 1rem;
+        font-size: 0.82rem;
+        letter-spacing: 0.04em;
+        opacity: 0.75;
+    }
+
+    /* ---- Right: form side on paper ---- */
+    .auth-main {
+        flex: 1 1 54%;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2.75rem 2rem;
+        overflow-y: auto;
+        background: var(--bhims-paper);
+        background-image: repeating-linear-gradient(0deg, rgba(58, 42, 32, 0.014) 0 1px, transparent 1px 7px);
+    }
+
+    .pane-inner { width: 100%; max-width: 440px; margin: auto 0; min-width: 0; }
+    .pane-inner > * { animation: authRise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .pane-inner > :nth-child(2) { animation-delay: 0.06s; }
+    .pane-inner > :nth-child(3) { animation-delay: 0.12s; }
+    .pane-inner > :nth-child(4) { animation-delay: 0.18s; }
+
+    .pane-eyebrow {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--bhims-terracotta-deep);
+        margin: 0 0 0.5rem;
+    }
+    .pane-inner h2 {
+        font-family: var(--font-display);
+        font-weight: 600;
+        font-size: 2.1rem;
+        color: var(--bhims-text);
+        margin: 0 0 0.4rem;
+    }
+    .pane-sub {
+        color: var(--bhims-text-muted);
+        font-size: 0.95rem;
+        margin: 0 0 1.4rem;
+    }
+    .pane-rule {
+        width: 44px; height: 2px; border: none;
+        background: var(--bhims-terracotta);
+        margin: 0 0 1.8rem;
+    }
+
+    .auth-error {
+        background: #f9e9e4;
+        border-left: 3px solid #b3402a;
+        color: #7c2d1c;
+        font-size: 0.92rem;
+        line-height: 1.45;
+        padding: 0.85rem 1rem;
+        margin-bottom: 1.4rem;
+    }
+
+    .auth-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 1.75rem;
+    }
+    .auth-field { margin-bottom: 1.35rem; min-width: 0; }
+    .auth-field > label {
+        display: block;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #5f4a38;
+        margin-bottom: 0.25rem;
+    }
+    .auth-input-wrap { position: relative; }
+    .auth-input-wrap input,
+    .auth-input-wrap select {
+        width: 100%;
+        border: 0;
+        border-bottom: 1.5px solid #d9c9b2;
+        border-radius: 0;
+        background: transparent;
+        padding: 0.6rem 0.1rem;
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        color: var(--bhims-text);
+        transition: border-color 0.18s ease;
+    }
+    .auth-input-wrap.has-toggle input { padding-right: 2.6rem; }
+    .auth-input-wrap input:focus,
+    .auth-input-wrap select:focus {
+        outline: none;
+        border-bottom-color: var(--bhims-terracotta);
+        box-shadow: 0 1px 0 var(--bhims-terracotta);
+    }
+    .field-error {
+        color: #b3402a;
+        font-size: 0.84rem;
+        margin-top: 0.35rem;
+    }
+
+    .eye-toggle {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-52%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #a08c76;
+        padding: 0.5rem;
+        border-radius: 6px;
+        line-height: 0;
+        transition: color 0.18s ease;
+    }
+    .eye-toggle:hover { color: var(--bhims-terracotta); }
+    .eye-toggle:focus-visible {
+        outline: 2px solid rgba(193, 89, 42, 0.65);
+        outline-offset: 1px;
+    }
+
+    .auth-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin: 1rem 0 0.4rem;
+        font-size: 0.9rem;
+        color: var(--bhims-text-muted);
+    }
+    .auth-row a {
+        color: var(--bhims-terracotta-deep);
+        font-weight: 600;
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+    }
+    .auth-row a:hover { border-bottom-color: var(--bhims-terracotta-deep); }
+    .auth-row label { display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer; }
+
+    .auth-submit {
+        width: 100%;
+        background: var(--bhims-text);
+        color: #f6efe4;
+        border: 1px solid rgba(38, 26, 19, 0.35);
+        border-radius: var(--bhims-radius-sm);
+        padding: 0.85rem 2rem;
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 1rem;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+        box-shadow: 0 1px 2px rgba(58, 42, 32, 0.18);
+        transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.18s ease;
+        margin-top: 0.5rem;
+    }
+    .auth-submit:hover { background: var(--bhims-terracotta); border-color: var(--bhims-terracotta-deep); }
+    .auth-submit:active { transform: translateY(1px); box-shadow: none; }
+
+    .pane-foot {
+        margin-top: 2rem;
+        padding-top: 1.2rem;
+        border-top: 1px solid #e5d8c4;
+        font-size: 0.88rem;
+        color: var(--bhims-text-muted);
+    }
+    .pane-foot a {
+        color: var(--bhims-terracotta-deep);
+        font-weight: 600;
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+    }
+    .pane-foot a:hover { border-bottom-color: var(--bhims-terracotta-deep); }
+
+    .auth-submit:focus-visible,
+    .pane-foot a:focus-visible {
+        outline: 2px solid rgba(140, 74, 47, 0.8);
+        outline-offset: 2px;
+    }
+
+    {% block auth_style %}{% endblock %}
+
+    @media (prefers-reduced-motion: reduce) {
+        .auth-shell { animation: none !important; }
+        .auth-hero::before { animation: none !important; }
+        .auth-hero > *, .pane-inner > *, .eye-toggle, .auth-submit, .auth-input-wrap input,
+        .auth-input-wrap select {
+            animation: none !important;
+            transition: none !important;
+        }
+    }
+
+    /* ---- Mobile: hero collapses to a compact banner ---- */
+    @media (max-width: 900px) {
+        .auth-shell { flex-direction: column; min-height: auto !important; }
+        .auth-hero {
+            flex: none;
+            justify-content: center;
+            padding: 2.25rem 1.5rem 1.75rem;
+            min-height: 220px;
+            background:
+                linear-gradient(to bottom, rgba(30, 21, 15, 0.88), rgba(51, 36, 26, 0.78)),
+                url('{% static 'core/images/dmmmsu-campus.jpg' %}') center / cover no-repeat;
+        }
+        .auth-hero h1 { font-size: 2.1rem; margin-bottom: 0.7rem; }
+        .auth-hero .hero-copy, .auth-hero .hero-rule { display: none; }
+        .auth-hero .hero-foot { border-top: none; padding-top: 0; }
+        .auth-main { min-height: 520px; padding: 2.25rem 1.5rem; }
+    }
+</style>
+
+<div class="auth-shell">
+    <!-- Left: campus duotone panel -->
+    <div class="auth-hero">
+        <p class="hero-eyebrow">DMMMSU &middot; NLUC &middot; Bacnotan, La Union</p>
+        <h1>{% block hero_title %}Welcome.{% endblock %}</h1>
+        <hr class="hero-rule">
+        <p class="hero-copy">{% block hero_copy %}{% endblock %}</p>
+        <p class="hero-foot">Boarding House Information Management System</p>
+    </div>
+
+    <!-- Right: portal-specific pane(s) -->
+    <div class="auth-main">
+        {% block auth_main %}{% endblock %}
+    </div>
+</div>
+
+<script>
+    (function () {
+        document.querySelectorAll('.auth-shell form input[name="username"]').forEach(function (el) {
+            el.setAttribute('autocomplete', 'username');
+        });
+        document.querySelectorAll('.auth-shell form input, .auth-shell form select').forEach(function (el) {
+            if (el.name === 'email') { el.setAttribute('autocomplete', 'email'); }
+            if (el.type === 'password') {
+                el.setAttribute('autocomplete',
+                    el.name.indexOf('new') !== -1 || el.name === 'password1' || el.name === 'password2'
+                        ? 'new-password' : 'current-password');
+            }
+        });
+
+        var eyeOpen = '<path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.118.178-.25.346-.395.507A13.132 13.132 0 0 1 13.168 10.04C11.879 11.332 10.12 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.133 13.133 0 0 1 1.173 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/>';
+        var eyeClosed = '<path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.893 1.584A5.263 5.263 0 0 1 8 5.999c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.118.178-.25.346-.395.507A13.132 13.132 0 0 1 13.168 10.04C12.725 10.432 12.253 10.795 11.76 11.132l.893 1.585c.625-.343 1.217-.735 1.767-1.179zM2.146 1.157a.5.5 0 0 1 .708 0l12.5 12.5a.5.5 0 0 1-.708.708l-12.5-12.5a.5.5 0 0 1 0-.708z"/><path d="M6.38 7.863a2.5 2.5 0 0 0 3.26 3.26l-3.26-3.26zm.92-4.064A6.953 6.953 0 0 0 8 4c-2.12 0-3.879 1.168-5.168 2.457A13.134 13.134 0 0 0 1.172 8c.118-.178.25-.346.395-.507A13.133 13.133 0 0 1 2.832 6.04C4.121 4.768 5.88 3.625 8 3.625c.554 0 1.092.053 1.61.155l-.922-1.582z"/>';
+
+        document.querySelectorAll('.eye-toggle').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var input = document.getElementById(btn.dataset.target);
+                if (!input) return;
+                var svg = btn.querySelector('svg');
+                var showing = input.type === 'text';
+                input.type = showing ? 'password' : 'text';
+                svg.innerHTML = showing ? eyeOpen : eyeClosed;
+                btn.setAttribute('aria-pressed', showing ? 'false' : 'true');
+                btn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+            });
+        });
+
+        var stageEl = document.getElementById('authStage');
+        var signupOpen = stageEl && stageEl.classList.contains('sign-up-mode');
+        var firstInput = document.querySelector('.auth-shell form input[name="username"]');
+        if (firstInput && !firstInput.value && !signupOpen) firstInput.focus();
+
+        document.querySelectorAll('.auth-shell form').forEach(function (form) {
+            form.addEventListener('submit', function () {
+                var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+                if (!btn || btn.disabled) return;
+                window.setTimeout(function () {
+                    btn.disabled = true;
+                    btn.dataset.label = btn.textContent;
+                    btn.textContent = 'Please wait\u2026';
+                }, 0);
+            });
+        });
+    })();
+</script>
+{% block auth_script %}{% endblock %}
+{% endblock %}

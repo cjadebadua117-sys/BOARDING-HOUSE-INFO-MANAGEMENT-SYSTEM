@@ -1,7 +1,36 @@
+from django import forms as django_forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from .models import Booking, BoardingHouse, Inquiry, InquiryMessage, Room, Amenity, RoomPhoto, User
+from .models import Booking, BoardingHouse, Inquiry, InquiryMessage, Room, Amenity, Barangay, RoomPhoto, User, SiteSetting
+
+
+@admin.register(SiteSetting)
+class SiteSettingAdmin(admin.ModelAdmin):
+    list_display = ('key', 'value')
+    search_fields = ('key', 'value')
+    ordering = ('key',)
+
+
+@admin.register(Barangay)
+class BarangayAdmin(admin.ModelAdmin):
+    list_display = ('name', 'distance_from_campus')
+    search_fields = ('name',)
+    ordering = ('name',)
+
+
+class BoardingHouseAdminForm(django_forms.ModelForm):
+    class Meta:
+        model = BoardingHouse
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        choices = [(b.name, b.display_name) for b in Barangay.objects.all()]
+        current = self.instance.barangay if self.instance and self.instance.pk else ''
+        if current and current not in [c[0] for c in choices]:
+            choices.append((current, current))
+        self.fields['barangay'].widget = django_forms.Select(choices=choices)
 
 
 @admin.register(User)
@@ -26,6 +55,7 @@ class UserAdmin(BaseUserAdmin):
 
 @admin.register(BoardingHouse)
 class BoardingHouseAdmin(admin.ModelAdmin):
+    form = BoardingHouseAdminForm
     list_display = ('name', 'owner', 'barangay', 'address', 'is_active')
     search_fields = ('name', 'address', 'barangay', 'owner__email')
     list_filter = ('is_active', 'barangay')

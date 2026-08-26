@@ -1,37 +1,479 @@
-{% extends "core/base.html" %}
+{% extends "core/app_base.html" %}
 
-{% block title %}Inquiry Thread - {{ inquiry.room.boarding_house.name }}{% endblock %}
+{% block title %}Messages - {{ inquiry.room.boarding_house.name }}{% endblock %}
+{% block extra_css %}
+<style>
+    .messages-page {
+        background-color: #f7ede3;
+        min-height: calc(100vh - 72px);
+        padding: 3rem 2rem;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        color: #c1592a;
+        font-weight: 600;
+        text-decoration: none;
+        margin-bottom: 2rem;
+        transition: opacity 0.2s ease;
+    }
+    .back-link:hover {
+        opacity: 0.8;
+        color: #c1592a;
+    }
+    .back-link i {
+        margin-right: 0.5rem;
+    }
+    .thread-header {
+        background: var(--bhims-cream-light);
+        border: 1px solid #e9dcd0;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .thread-header h1 {
+        font-family: var(--font-display);
+        font-weight: 800;
+        color: #3a2a20;
+        font-size: 1.75rem;
+        margin: 0 0 0.5rem 0;
+    }
+    .thread-subtitle {
+        color: #6d5c53;
+        font-size: 1rem;
+    }
+    .thread-subtitle strong {
+        color: #3a2a20;
+    }
+    .messages-container {
+        background: var(--bhims-cream-light);
+        border: 1px solid #e9dcd0;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+    }
+    .message-bubble {
+        max-width: 75%;
+        padding: 1.25rem;
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+    .message-student {
+        background-color: #c1592a;
+        color: white;
+        margin-left: auto;
+        border-bottom-right-radius: 4px;
+    }
+    .message-landlord {
+        background-color: var(--bhims-icon-tint);
+        color: #3a2a20;
+        margin-right: auto;
+        border-bottom-left-radius: 4px;
+    }
+    .message-meta {
+        font-size: var(--fs-xs);
+        opacity: 0.9;
+        margin-top: 0.75rem;
+        text-align: right;
+    }
+    .message-landlord .message-meta {
+        color: #6d5c53;
+    }
+    .reply-form-container {
+        background: var(--bhims-cream-light);
+        border: 1px solid #e9dcd0;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #3a2a20;
+        margin-bottom: 0.75rem;
+        font-size: 1.05rem;
+    }
+    .form-control {
+        width: 100%;
+        padding: 1rem;
+        border: 1px solid #e9dcd0;
+        border-radius: 12px;
+        font-size: 1rem;
+        color: #3a2a20;
+        margin-bottom: 1.5rem;
+        min-height: 100px;
+        resize: vertical;
+    }
+    .form-control:focus {
+        border-color: #c1592a;
+        box-shadow: 0 0 0 0.25rem rgba(193, 89, 42, 0.1);
+        outline: none;
+    }
+    .btn-primary-bhims {
+        background-color: #c1592a;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 0.85rem 2rem;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+    }
+    .btn-primary-bhims:hover {
+        background-color: #a84d23;
+        color: white;
+    }
+    .btn-primary-bhims i {
+        margin-right: 0.5rem;
+    }
+    .btn-accept-bhims {
+        background-color: #2d7d46;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 0.85rem 2rem;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        margin-top: 1rem;
+        text-decoration: none;
+    }
+    .btn-accept-bhims:hover {
+        background-color: #246839;
+        color: white;
+        text-decoration: none;
+    }
+    .btn-accept-bhims i {
+        margin-right: 0.5rem;
+    }
+    .accept-banner {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        background-color: #e8f5ec;
+        border: 1px solid #bfe0c9;
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        margin-top: 1rem;
+    }
+    .accept-banner i {
+        font-size: 1.75rem;
+        color: #2d7d46;
+    }
+    .accept-banner h3 {
+        font-family: var(--font-display);
+        font-weight: 700;
+        color: #1f5c33;
+        font-size: var(--fs-lg);
+        margin: 0 0 0.25rem 0;
+    }
+    .declined-banner { background-color: #fdecea; border-color: #f5c6c2; }
+    .declined-banner i { color: #b3261e; }
+    .declined-banner h3 { color: #8c1d18; }
+    .accept-banner p { margin: 0.4rem 0 0; color: #1f5c33; line-height: 1.55; }
+    .declined-banner p { color: #8c1d18; }
+    .reject-btn {
+        background: #b3261e !important;
+        border: 1px solid #8c1d18 !important;
+        padding: 0.85rem 2rem;
+        border-radius: 10px;
+        color: #fff;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+    .reject-btn:hover { background: #8c1d18 !important; }
+        color: #3f6b50;
+        margin: 0;
+        font-size: var(--fs-md);
+    }
+    .btn-secondary-bhims {
+        background-color: transparent;
+        color: #6d5c53;
+        border: 1px solid #e9dcd0;
+        border-radius: 10px;
+        padding: 0.85rem 2rem;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        margin-left: 1rem;
+    }
+    .btn-secondary-bhims:hover {
+        background-color: #f7ede3;
+        color: #3a2a20;
+        text-decoration: none;
+    }
+    .empty-messages {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: #6d5c53;
+    }
+    .empty-messages i {
+        font-size: 3rem;
+        color: #c1592a;
+        margin-bottom: 1.5rem;
+    }
+    .empty-messages h3 {
+        font-family: var(--font-display);
+        font-weight: 700;
+        color: #3a2a20;
+        font-size: var(--fs-2xl);
+        margin-bottom: 1rem;
+    }
+    /* Chat avatars (added) */
+    .message-row {
+        display: flex;
+        align-items: flex-end;
+        gap: 0.6rem;
+    }
+    .msg-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+        border: 2px solid #e9dcd0;
+    }
+    span.msg-avatar-fallback {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #6d5c53;
+        color: #ffffff;
+        font-weight: 700;
+        font-size: var(--fs-md);
+        font-family: var(--font-display);
+    }
+    .row-self .msg-avatar { border-color: rgba(193,89,42,0.35); }
+    @media (max-width: 768px) {
+        .messages-page {
+            padding: 2rem 1rem;
+        }
+        .message-bubble {
+            max-width: 90%;
+        }
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .btn-secondary-bhims {
+            margin-left: 0;
+            justify-content: center;
+        }
+        .btn-primary-bhims {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+{% block app_content %}
+<div class="messages-page">
+    <a href="{% if request.user.role == 'landlord' %}{% url 'landlord_inquiry_list' %}{% else %}{% url 'student_inquiry_list' %}{% endif %}" class="back-link">
+        <i class="bi bi-arrow-left"></i>
+        Back to all inquiries
+    </a>
 
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="card mb-4">
-            <div class="card-body">
-                <h2 class="card-title h4 mb-2">{{ inquiry.room.boarding_house.name }}</h2>
-                <p class="text-muted mb-0">{{ inquiry.room.name|default:inquiry.room.room_type }} • ₱{{ inquiry.room.price }}/month</p>
+    <div class="thread-header">
+        <h1>{{ inquiry.room.boarding_house.name }}</h1>
+        <p class="thread-subtitle">
+            {{ inquiry.room.name|default:inquiry.room.room_type }} • 
+            <strong>₱{{ inquiry.room.price }}/month</strong>
+        </p>
+        {% if inquiry.subject %}
+        <p class="thread-subtitle"><strong>Subject:</strong> {{ inquiry.subject }}</p>
+        {% endif %}
+        <span style="display: inline-block; margin-top: 0.75rem; background: var(--bhims-icon-tint); color: var(--bhims-terracotta); padding: 0.375rem 0.875rem; border-radius: 9999px; font-size: var(--fs-sm); font-weight: 600;">
+            {{ inquiry.get_status_display }}
+        </span>
+
+        {% if accepted_booking %}
+        <div class="accept-banner">
+            <i class="bi bi-patch-check-fill"></i>
+            <div>
+                <h2 class="h3">Student accepted</h2>
+                <p>
+                    <a href="{% url 'user_profile' accepted_booking.student.pk %}" style="color:#c1592a;font-weight:700;text-decoration:none;">
+                        {{ accepted_booking.student.get_full_name|default:accepted_booking.student.username }}
+                    </a>
+                    has been accepted into this room
+                    (confirmed {{ accepted_booking.confirmed_at|date:"M j, Y" }}).
+                    {% if request.user.role == 'landlord' %}The room has been marked as occupied.{% endif %}
+                </p>
             </div>
         </div>
-        
-        <div class="card p-4 mb-4">
-            <div class="inquiry-thread">
-                {% for message in messages %}
-                <div class="message-bubble {% if message.sender.role == 'student' %}message-student{% else %}message-landlord{% endif %}">
-                    <p class="mb-1">{{ message.message }}</p>
-                    <div class="message-meta">{{ message.sender.full_name }} • {{ message.created_at|date:"M j, g:i A" }}</div>
-                </div>
-                {% endfor %}
+        {% elif inquiry.status == 'rejected' %}
+        <div class="accept-banner declined-banner">
+            <i class="bi bi-x-circle-fill"></i>
+            <div>
+                <h2 class="h3">Inquiry declined</h2>
+                <p>This inquiry has been declined. The student can see this status in their inquiry list.</p>
             </div>
-            
-            <form method="post" class="mt-4">
+        </div>
+        {% elif request.user.role == 'landlord' and inquiry.status != 'closed' %}
+        <div style="display:flex; gap:.75rem; margin-top:1rem; flex-wrap:wrap;">
+            {% if inquiry.room.is_available and inquiry.room.is_active and not inquiry.room.is_full %}
+            <form method="post" action="{% url 'accept_student' inquiry.pk %}" onsubmit="return confirm('Accept {{ inquiry.student.get_full_name|default:inquiry.student.username }} into {{ inquiry.room.name }}?');">
                 {% csrf_token %}
-                <div class="mb-3">
-                    <label for="{{ reply_form.message.id_for_label }}" class="form-label">Send a Reply</label>
-                    {{ reply_form.message }}
-                </div>
-                <button type="submit" class="btn btn-primary">Send Reply</button>
-                <a href="{% url 'student_inquiry_list' %}" class="btn btn-outline-secondary ms-2">Back to Inquiries</a>
+                <button type="submit" class="btn-accept-bhims"><i class="bi bi-person-check-fill"></i> Accept Student</button>
+            </form>
+            {% endif %}
+            <form method="post" action="{% url 'reject_student' inquiry.pk %}" onsubmit="return confirm('Decline this inquiry?');">
+                {% csrf_token %}
+                <button type="submit" class="btn-accept-bhims reject-btn"><i class="bi bi-person-x-fill"></i> Reject</button>
             </form>
         </div>
+        {% endif %}
+    </div>
+
+    <div class="messages-container" id="messages-container">
+        {% if inquiry.message_text or inquiry.messages.all %}
+            {% if inquiry.message_text %}
+            <div class="message-row {% if inquiry.student == request.user %}row-self{% else %}row-other{% endif %}">
+                {% if inquiry.student != request.user %}<a href="{% url 'user_profile' inquiry.student.pk %}" style="display:inline-flex;text-decoration:none;">{% include 'core/includes/chat_avatar.html' with person=inquiry.student %}</a>{% endif %}
+                <div class="message-bubble {% if inquiry.student == request.user %}message-student{% else %}message-landlord{% endif %}">
+                    <p class="mb-1">{{ inquiry.message_text }}</p>
+                    <div class="message-meta">{% if inquiry.student != request.user %}<a href="{% url 'user_profile' inquiry.student.pk %}" style="color:inherit;font-weight:700;">{{ inquiry.student.get_full_name|default:inquiry.student.username }}</a>{% else %}{{ inquiry.student.get_full_name|default:inquiry.student.username }}{% endif %} • {{ inquiry.created_at|date:"M j, g:i A" }}</div>
+                </div>
+                {% if inquiry.student == request.user %}{% include 'core/includes/chat_avatar.html' with person=request.user %}{% endif %}
+            </div>
+            {% endif %}
+            {% for message in inquiry.messages.all %}
+            <div class="message-row {% if message.sender == request.user %}row-self{% else %}row-other{% endif %}">
+                {% if message.sender != request.user %}<a href="{% url 'user_profile' message.sender.pk %}" style="display:inline-flex;text-decoration:none;">{% include 'core/includes/chat_avatar.html' with person=message.sender %}</a>{% endif %}
+                <div class="message-bubble {% if message.sender == request.user %}message-student{% else %}message-landlord{% endif %}">
+                    <p class="mb-1">{{ message.message }}</p>
+                    <div class="message-meta">{% if message.sender != request.user %}<a href="{% url 'user_profile' message.sender.pk %}" style="color:inherit;font-weight:700;">{{ message.sender.get_full_name|default:message.sender.username }}</a>{% else %}{{ message.sender.get_full_name|default:message.sender.username }}{% endif %} • {{ message.sent_at|date:"M j, g:i A" }}</div>
+                </div>
+                {% if message.sender == request.user %}{% include 'core/includes/chat_avatar.html' with person=request.user %}{% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="empty-messages" id="empty-messages">
+            <i class="bi bi-chat-square-text"></i>
+            <h2 class="h3">No messages yet</h2>
+            <p>Start the conversation by sending your first message below.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="reply-form-container">
+        <form method="post" id="reply-form">
+            {% csrf_token %}
+            <label for="message_text" class="form-label">Send a Reply</label>
+            <textarea class="form-control" id="message_text" name="message_text" placeholder="Type your message..." required></textarea>
+            <div class="btn-group">
+                <button type="submit" class="btn-primary-bhims">
+                    <i class="bi bi-send"></i>
+                    Send Reply
+                </button>
+                <a href="{% if request.user.role == 'landlord' %}{% url 'landlord_inquiry_list' %}{% else %}{% url 'student_inquiry_list' %}{% endif %}" class="btn-secondary-bhims">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to Inquiries
+                </a>
+            </div>
+        </form>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var container = document.getElementById('messages-container');
+    if (!container) return;
+
+    var sinceId = {{ last_message_id }};
+    var endpoint = '{% url "inquiry_messages_json" inquiry.pk %}';
+    var isSelfLandlord = {% if request.user.role == 'landlord' %}true{% else %}false{% endif %};
+
+    function escapeHtml(s) {
+        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function avatarHtml(m) {
+        if (m.photo) {
+            return '<img class="msg-avatar" src="' + escapeHtml(m.photo) + '" alt="">';
+        }
+        var initial = (m.sender || '?').charAt(0).toUpperCase();
+        return '<span class="msg-avatar msg-avatar-fallback">' + escapeHtml(initial) + '</span>';
+    }
+
+    function bubbleHtml(m) {
+        var cls = m.is_self ? 'message-student' : 'message-landlord';
+        var bubble = '<div class="message-bubble ' + cls + '">' +
+            '<p class="mb-1">' + escapeHtml(m.text) + '</p>' +
+            '<div class="message-meta">' + escapeHtml(m.sender) + ' &bull; ' + escapeHtml(m.time) + '</div>' +
+            '</div>';
+        var avatar = avatarHtml(m);
+        return m.is_self
+            ? '<div class="message-row row-self">' + bubble + avatar + '</div>'
+            : '<div class="message-row row-other">' + avatar + bubble + '</div>';
+    }
+
+    function scrollToBottom() {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+
+    function appendMessages(messages) {
+        var empty = document.getElementById('empty-messages');
+        var scrolledNearBottom = window.innerHeight + window.scrollY >= document.body.scrollHeight - 60;
+        messages.forEach(function (m) {
+            container.insertAdjacentHTML('beforeend', bubbleHtml(m));
+            sinceId = Math.max(sinceId, m.id);
+        });
+        if (empty) empty.remove();
+        if (scrolledNearBottom) scrollToBottom();
+    }
+
+    function poll() {
+        if (document.hidden) return;
+        fetch(endpoint + '?since=' + sinceId, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (data.messages && data.messages.length) appendMessages(data.messages);
+            })
+            .catch(function () {});
+    }
+
+    setInterval(poll, 3000);
+
+    var form = document.getElementById('reply-form');
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            var textarea = form.querySelector('textarea[name="message_text"]');
+            var text = textarea.value.trim();
+            if (!text) return;
+            var fd = new FormData(form);
+            fetch(form.getAttribute('action') || window.location.pathname, { method: 'POST', body: fd })
+                .then(function (res) { return res.text(); })
+                .then(function () {
+                    textarea.value = '';
+                    poll();
+                })
+                .catch(function () {});
+        });
+    }
+
+    scrollToBottom();
+})();
+</script>
 {% endblock %}

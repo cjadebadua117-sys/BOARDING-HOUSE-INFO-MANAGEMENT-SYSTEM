@@ -1,0 +1,115 @@
+{% extends 'core/app_base.html' %}
+{% block title %}User Reports - BHIMS Admin{% endblock %}
+
+{% block extra_css %}
+{% include 'core/includes/admin_styles.html' %}
+<style>
+    .report-filter { display: inline-flex; gap: 8px; }
+    .report-filter a {
+        text-decoration: none; font-size: var(--fs-sm); font-weight: 700;
+        padding: 6px 16px; border-radius: 999px; color: #6d5c53;
+        background: rgba(255,255,255,0.7); border: 1px solid var(--bhims-border);
+    }
+    .report-filter a.active { color: #fff; background: #c1592a; border-color: #c1592a; }
+</style>
+{% endblock %}
+
+{% block app_content %}
+<div class="admin-page">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Admin</div>
+            <h1>User Reports</h1>
+            <p>Reports submitted by students and landlords about other users.</p>
+        </div>
+        <span class="pill pill-pending">{{ pending_count }} pending</span>
+    </div>
+
+    <div class="mb-3 report-filter">
+        <a href="{% url 'admin_reports' %}" class="{% if not status %}active{% endif %}">All</a>
+        <a href="?status=pending" class="{% if status == 'pending' %}active{% endif %}">Pending</a>
+        <a href="?status=resolved" class="{% if status == 'resolved' %}active{% endif %}">Resolved</a>
+        <a href="?status=dismissed" class="{% if status == 'dismissed' %}active{% endif %}">Dismissed</a>
+    </div>
+
+    {% if reports %}
+    <div class="admin-table-wrap">
+        <div class="table-responsive">
+            <table class="table admin-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Reported User</th>
+                        <th>Reported By</th>
+                        <th>Reason</th>
+                        <th>Details</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in reports %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'admin_report_detail' report.pk %}" class="text-decoration-none fw-semibold" style="color: var(--bhims-text);">
+                                {{ report.reported_user.display_name }}
+                            </a>
+                            <br><small class="text-muted text-capitalize">{{ report.reported_user.role }}</small>
+                        </td>
+                        <td>
+                            {{ report.reporter.display_name }}
+                            <br><small class="text-muted text-capitalize">{{ report.reporter.role }}</small>
+                        </td>
+                        <td>{{ report.get_reason_display }}</td>
+                        <td style="max-width: 260px;">
+                            <a href="{% url 'admin_report_detail' report.pk %}" class="text-decoration-none" style="color: inherit;" title="Open report to read details">
+                                {% if report.details %}
+                                    <small><i class="bi bi-file-earmark-text"></i> View details</small>
+                                {% else %}
+                                    <small class="text-muted">&mdash;</small>
+                                {% endif %}
+                            </a>
+                        </td>
+                        <td><small>{{ report.created_at|date:"M j, Y g:i A" }}</small></td>
+                        <td>
+                            {% if report.status == 'pending' %}
+                                <span class="pill pill-pending">Pending</span>
+                            {% elif report.status == 'resolved' %}
+                                <span class="pill pill-approved">Resolved</span>
+                            {% else %}
+                                <span class="pill pill-rejected">Dismissed</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="d-inline-flex gap-2 align-items-center">
+                                <a href="{% url 'admin_report_detail' report.pk %}" class="btn btn-uppercase btn-outline-secondary" title="View full report">
+                                    View
+                                </a>
+                                {% if report.status == 'pending' %}
+                                <form method="post" action="{% url 'admin_report_update' report.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="resolve">
+                                    <button type="submit" class="btn btn-uppercase btn-success">Resolve</button>
+                                </form>
+                                <form method="post" action="{% url 'admin_report_update' report.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="dismiss">
+                                    <button type="submit" class="btn btn-uppercase btn-danger">Dismiss</button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-inbox" style="font-size: 2.5rem; color: #c1592a;"></i>
+        <p class="mt-2 mb-0" style="color: #6d5c53;">No reports{% if status %} with this status{% endif %}.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

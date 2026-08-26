@@ -1,19 +1,26 @@
-{% extends 'core/base.html' %}
-{% block title %}Edit Landlord - Boarding House Information Management System{% endblock %}
-{% block content %}
-<div class="admin-page">
-<div class="mb-4">
-    <h1>Edit Landlord</h1>
-    <a href="{% url 'admin_landlord_detail' landlord.id %}" class="btn btn-outline-secondary mb-3">← Back to Landlord Details</a>
-</div>
+{% extends 'core/app_base.html' %}
+{% block title %}Edit Landlord - BHIMS Admin{% endblock %}
 
-<div class="row">
-    <div class="col-md-8">
-        <div class="card p-4">
-            <div class="card-header">
-                <h5 class="mb-0">Edit Landlord Information</h5>
-            </div>
-            <div class="card-body">
+{% block extra_css %}
+{% include 'core/includes/admin_styles.html' %}
+{% endblock %}
+
+{% block app_content %}
+<div class="admin-page">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Admin</div>
+            <h1>Edit Landlord</h1>
+            <p>Update account details for {{ landlord.full_name|default:landlord.username }}.</p>
+        </div>
+        <a href="{% url 'admin_landlord_detail' landlord.id %}" class="btn btn-uppercase btn-primary btn-sm">
+            <i class="bi bi-arrow-left"></i> Back to Details
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-7 col-xl-6">
+            <div class="admin-table-wrap p-4">
                 <form method="post" novalidate>
                     {% csrf_token %}
                     {% for field in form %}
@@ -25,11 +32,14 @@
                         {% endif %}
                     </div>
                     {% endfor %}
-                    <button type="submit" class="btn btn-primary w-100">Update Landlord</button>
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-uppercase btn-primary">
+                            <i class="bi bi-check2"></i> Update Landlord
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
-</div>
 </div>
 {% endblock %}

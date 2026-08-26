@@ -1,115 +1,181 @@
-{% extends "core/base.html" %}
+{% extends "core/app_base.html" %}
 
 {% block title %}Admin Dashboard - Boarding House Information Management System{% endblock %}
 
-{% block content %}
+{% block extra_css %}
+{% include 'core/includes/admin_styles.html' %}
+{% endblock %}
+
+{% block app_content %}
 <div class="admin-page">
-<div class="mb-5">
-    <h1>Admin Analytics Dashboard</h1>
-    <p class="text-muted">Overview of the Boarding House Information Management System for NLUC Students</p>
-</div>
-
-<div class="dashboard-stats">
-    <div class="stat-card">
-        <div class="stat-icon">👥</div>
-        <div class="stat-number">{{ total_students }}</div>
-        <div class="stat-label">Active Students</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon">🏠</div>
-        <div class="stat-number">{{ total_landlords }}</div>
-        <div class="stat-label">Verified Landlords</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon">🏘️</div>
-        <div class="stat-number">{{ total_boarding_houses }}</div>
-        <div class="stat-label">Active Listings</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon">🛏️</div>
-        <div class="stat-number">{{ total_available_rooms }}</div>
-        <div class="stat-label">Available Rooms</div>
-    </div>
-</div>
-
-<div class="row g-4 mb-5">
-    <div class="col-md-6">
-        <div class="card p-4">
-            <h3 class="mb-4">Student Enrollment by Program</h3>
-            {% if program_stats %}
-                {% for stat in program_stats %}
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span>{{ stat.program }}</span>
-                    <span class="badge" style="background: var(--terracotta); color: white;">{{ stat.count }} students</span>
-                </div>
-                {% endfor %}
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Admin</div>
+            <h1>Overview</h1>
+            <p>An overview of the Boarding House Information Management System for NLUC students.</p>
+        </div>
+        <div class="d-inline-flex gap-2">
+            {% if pending_listings %}
+            <a href="{% url 'admin_pending_listings' %}" class="btn btn-uppercase btn-primary">
+                <i class="bi bi-hourglass-split"></i> Review {{ pending_listings }} Listing{{ pending_listings|pluralize }}
+            </a>
             {% else %}
-                <p class="text-muted">No student data available yet.</p>
+            <a href="{% url 'admin_create_landlord' %}" class="btn btn-uppercase btn-primary">
+                <i class="bi bi-person-plus"></i> Add Landlord
+            </a>
             {% endif %}
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="card p-4">
-            <h3 class="mb-4">Most Inquired Listings</h3>
-            {% if top_listings %}
-                {% for listing in top_listings %}
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span>{{ listing.room__boarding_house__name }}</span>
-                    <span class="badge" style="background: var(--admin-accent); color: white;">{{ listing.inquiry_count }} inquiries</span>
-                </div>
-                {% endfor %}
-            {% else %}
-                <p class="text-muted">No inquiry data available yet.</p>
-            {% endif %}
+
+    <div class="stat-grid">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-people"></i></div>
+            <div>
+                <div class="stat-number" data-count="{{ total_students }}">{{ total_students }}</div>
+                <div class="stat-label">Active Students</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-person-badge"></i></div>
+            <div>
+                <div class="stat-number" data-count="{{ total_landlords }}">{{ total_landlords }}</div>
+                <div class="stat-label">Landlords</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-buildings"></i></div>
+            <div>
+                <div class="stat-number" data-count="{{ total_boarding_houses }}">{{ total_boarding_houses }}</div>
+                <div class="stat-label">Boarding Houses</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-bed"></i></div>
+            <div>
+                <div class="stat-number" data-count="{{ total_available_rooms }}">{{ total_available_rooms }}</div>
+                <div class="stat-label">Available Rooms</div>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="card p-4 mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3>Manage Landlords</h3>
-        <a href="{% url 'admin_create_landlord' %}" class="btn btn-primary">Add New Landlord</a>
+    <div class="stat-grid">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-hourglass-split"></i></div>
+            <div>
+                <div class="stat-number" data-count="{{ pending_listings }}">{{ pending_listings }}</div>
+                <div class="stat-label">Pending Listings</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-chat-dots"></i></div>
+            <div>
+                <div class="stat-number" data-count="{{ total_inquiries }}">{{ total_inquiries }}</div>
+                <div class="stat-label">Total Inquiries</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-building-add"></i></div>
+            <div>
+                <div class="stat-number">{{ total_boarding_houses }}</div>
+                <div class="stat-label">All Registered Listings</div>
+            </div>
+        </div>
     </div>
-    
-    {% if landlords %}
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Boarding Houses</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for landlord in landlords %}
-                <tr>
-                    <td><a href="{% url 'admin_landlord_detail' landlord.id %}" class="text-decoration-none">{{ landlord.first_name }} {{ landlord.last_name }}</a></td>
-                    <td>{{ landlord.email }}</td>
-                    <td>{{ landlord.phone_number|default:"-" }}</td>
-                    <td><span class="badge" style="background: var(--terracotta); color: white;">{{ landlord.boarding_house_count }}</span></td>
-                    <td>
-                        {% if landlord.is_active %}
-                        <span class="badge badge-available">Active</span>
-                        {% else %}
-                        <span class="badge badge-booked">Inactive</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="{% url 'admin_edit_landlord' landlord.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
-                        <a href="{% url 'toggle_landlord_active' landlord.id %}" class="btn btn-sm btn-outline-warning" onclick="return confirm('Are you sure you want to toggle this landlord\'s active status?')">Toggle</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="admin-table-wrap p-4">
+                <h2 class="h3 mb-4" style="font-family: var(--font-display); font-weight: 800; color: var(--bhims-text);">Student Enrollment by Program</h2>
+                {% if program_stats %}
+                    {% for stat in program_stats %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span>{{ stat.program|default:"Not specified" }}</span>
+                        <span class="pill pill-approved">{{ stat.count }} student{{ stat.count|pluralize }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state py-3">
+                        <i class="bi bi-bar-chart"></i>
+                        <p class="mb-0">No student data available yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="admin-table-wrap p-4">
+                <h2 class="h3 mb-4" style="font-family: var(--font-display); font-weight: 800; color: var(--bhims-text);">Most Inquired Listings</h2>
+                {% if top_listings %}
+                    {% for listing in top_listings %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span>{{ listing.room__boarding_house__name }}</span>
+                        <span class="pill pill-approved">{{ listing.inquiry_count }} inquiry{{ listing.inquiry_count|pluralize }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state py-3">
+                        <i class="bi bi-chat-dots"></i>
+                        <p class="mb-0">No inquiry data available yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
-    {% else %}
-        <p class="text-muted">No landlord accounts created yet.</p>
-    {% endif %}
-</div>
+
+    <div class="admin-table-wrap mb-5">
+        <div class="d-flex justify-content-between align-items-center p-4" style="border-bottom: 1px solid var(--bhims-border);">
+            <h2 class="h3 mb-0" style="font-family: var(--font-display); font-weight: 800; color: var(--bhims-text);">Manage Landlords</h2>
+            <a href="{% url 'admin_create_landlord' %}" class="btn btn-uppercase btn-primary">Add New Landlord</a>
+        </div>
+
+        {% if landlords %}
+        <div class="table-responsive">
+            <table class="table admin-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Boarding Houses</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for landlord in landlords %}
+                    <tr>
+                        <td><a href="{% url 'admin_landlord_detail' landlord.id %}" class="text-decoration-none fw-medium">{{ landlord.full_name|default:landlord.email }}</a></td>
+                        <td>{{ landlord.email }}</td>
+                        <td>{{ landlord.phone_number|default:"—" }}</td>
+                        <td><span class="pill pill-approved">{{ landlord.boarding_houses.count }}</span></td>
+                        <td>
+                            {% if landlord.is_active %}
+                            <span class="pill pill-approved">Active</span>
+                            {% else %}
+                            <span class="pill pill-rejected">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a href="{% url 'admin_edit_landlord' landlord.id %}" class="btn btn-uppercase btn-primary btn-sm">Edit</a>
+                            <form method="post" action="{% url 'toggle_landlord_active' landlord.id %}" class="d-inline"
+                                  onsubmit="return confirm(({% if landlord.is_active %}'Deactivate'{% else %}'Activate'{% endif %}) + ' this landlord\'s account?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-uppercase btn-outline-primary btn-sm">
+                                    {% if landlord.is_active %}Deactivate{% else %}Activate{% endif %}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-people"></i>
+            <p class="mb-0 fw-semibold" style="color: var(--bhims-text);">No landlord accounts yet</p>
+            <p class="mb-0">Add a landlord to get started.</p>
+        </div>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

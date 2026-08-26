@@ -1,0 +1,341 @@
+{% load static %}
+<aside class="app-sidebar" aria-label="Main navigation">
+    <!-- Ambient sheen so the frost reads as glass -->
+    <div class="sidebar-sheen" aria-hidden="true"></div>
+
+    <!-- Brand -->
+    <div class="sidebar-brand">
+        <a href="{% url 'home' %}" style="display: flex; align-items: center; text-decoration: none; min-width: 0;">
+            <img src="{% static 'core/images/bhims-icon.png' %}" alt="BHIMS logo" style="width: 56px; height: 56px; object-fit: cover; border-radius: 14px; margin-right: 0.75rem; flex-shrink: 0; display: block; box-shadow: 0 4px 14px rgba(0,0,0,0.28);">
+            <span class="sidebar-wordmark">
+                BHIMS
+                <span>NLUC Bacnotan</span>
+            </span>
+        </a>
+        <button type="button" class="sidebar-close" id="sidebarClose" aria-label="Close sidebar">
+            <i class="bi bi-x-lg" aria-hidden="true"></i>
+        </button>
+    </div>
+
+    <!-- Nav links (role-aware; active state resolved server-side per URL) -->
+    <nav class="sidebar-nav">
+        <p class="sidebar-heading">Menu</p>
+        <div class="sidebar-links">
+            {% if request.user.is_authenticated %}
+            {% if request.user.role == 'student' %}
+            <a href="{% url 'student_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">
+                <i class="bi bi-grid-1x2"></i><span>Dashboard</span>
+            </a>
+            <a href="{% url 'listing_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'listing_list' or request.resolver_match.url_name == 'boarding_detail' %}active{% endif %}">
+                <i class="bi bi-buildings"></i><span>Browse Listings</span>
+            </a>
+            <a href="{% url 'student_inquiry_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'student_inquiry_list' or request.resolver_match.url_name == 'student_inquiry_thread' %}active{% endif %}">
+                <i class="bi bi-chat-dots"></i><span>My Inquiries</span>
+            </a>
+            <a href="{% url 'student_bookings' %}" class="sidebar-link {% if request.resolver_match.url_name == 'student_bookings' %}active{% endif %}">
+                <i class="bi bi-patch-check"></i><span>My Bookings</span>
+            </a>
+            {% elif request.user.role == 'landlord' %}
+            <a href="{% url 'landlord_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'landlord_dashboard' %}active{% endif %}">
+                <i class="bi bi-grid-1x2"></i><span>Dashboard</span>
+            </a>
+            <a href="{% url 'landlord_boarding_house_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'landlord_boarding_house_list' or request.resolver_match.url_name == 'landlord_boarding_house_detail' or request.resolver_match.url_name == 'boarding_house_create' or request.resolver_match.url_name == 'boarding_house_edit' or request.resolver_match.url_name == 'room_create' or request.resolver_match.url_name == 'room_edit' %}active{% endif %}">
+                <i class="bi bi-buildings"></i><span>My Boarding Houses</span>
+            </a>
+            <a href="{% url 'landlord_inquiry_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'landlord_inquiry_list' or request.resolver_match.url_name == 'landlord_inquiry_thread' %}active{% endif %}">
+                <i class="bi bi-chat-dots"></i><span>Inquiries</span>
+                {% if pending_inquiries_count %}<span style="display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;margin-left:auto;border-radius:999px;background:var(--bhims-terracotta);color:#fff;font-size:0.75rem;font-weight:700;box-shadow:0 2px 8px rgba(193,89,42,0.35);">{{ pending_inquiries_count }}</span>{% endif %}
+            </a>
+            <a href="{% url 'landlord_bookings' %}" class="sidebar-link {% if request.resolver_match.url_name == 'landlord_bookings' %}active{% endif %}">
+                <i class="bi bi-people"></i><span>Bookings</span>
+            </a>
+            {% elif request.user.role == 'admin' %}
+            <a href="{% url 'admin_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                <i class="bi bi-grid-1x2"></i><span>Dashboard</span>
+            </a>
+            <a href="{% url 'admin_pending_listings' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_pending_listings' %}active{% endif %}">
+                <i class="bi bi-hourglass-split"></i><span>Pending Listings</span>
+            </a>
+            <a href="{% url 'admin_landlord_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_landlord_list' or request.resolver_match.url_name == 'admin_landlord_detail' or request.resolver_match.url_name == 'admin_edit_landlord' %}active{% endif %}">
+                <i class="bi bi-people"></i><span>Manage Landlords</span>
+            </a>
+            <a href="{% url 'admin_student_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_student_list' %}active{% endif %}">
+                <i class="bi bi-mortarboard"></i><span>Manage Students</span>
+            </a>
+            <a href="{% url 'admin_reports' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_reports' %}active{% endif %}">
+                <i class="bi bi-flag"></i><span>User Reports</span>
+            </a>
+            <a href="{% url 'admin_barangay_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_barangay_list' %}active{% endif %}">
+                <i class="bi bi-map"></i><span>Edit Barangays</span>
+            </a>
+            <a href="{% url 'admin_analytics' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_analytics' %}active{% endif %}">
+                <i class="bi bi-bar-chart-line"></i><span>Analytics</span>
+            </a>
+            <a href="{% url 'admin_settings' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_settings' %}active{% endif %}">
+                <i class="bi bi-gear"></i><span>System Settings</span>
+            </a>
+            {% endif %}
+            {% if request.user.role != 'admin' %}
+            <a href="{% url 'profile' %}" class="sidebar-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                <i class="bi bi-person-circle"></i><span>My Profile</span>
+            </a>
+            {% endif %}
+            {% else %}
+            <a href="{% url 'listing_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'listing_list' or request.resolver_match.url_name == 'boarding_detail' %}active{% endif %}">
+                <i class="bi bi-buildings"></i><span>Browse Listings</span>
+            </a>
+            <a href="{% url 'student_login' %}" class="sidebar-link">
+                <i class="bi bi-box-arrow-in-right"></i><span>Student Login</span>
+            </a>
+            <a href="{% url 'landlord_login' %}" class="sidebar-link">
+                <i class="bi bi-box-arrow-in-right"></i><span>Landlord Login</span>
+            </a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Glass profile card (mirrors the demo's avatar footer, wired to real data) -->
+    {% if request.user.is_authenticated %}
+    <div class="sidebar-profile">
+        {% if request.user.profile_picture %}
+        <img class="sidebar-avatar" src="{{ request.user.profile_picture.url }}" alt="{{ request.user.get_full_name|default:request.user.username }}">
+        {% else %}
+        <span class="sidebar-avatar sidebar-avatar-initial" aria-hidden="true">{{ request.user.get_full_name|default:request.user.username|first|upper }}</span>
+        {% endif %}
+        <div class="sidebar-profile-info">
+            <p class="sidebar-profile-name">{{ request.user.get_full_name|default:request.user.username }}</p>
+            <p class="sidebar-profile-role">{{ request.user.role }}</p>
+        </div>
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="sidebar-logout" title="Logout" aria-label="Log out">
+                <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+            </button>
+        </form>
+    </div>
+    {% endif %}
+</aside>
+
+<style>
+    /* ---- Warm glassmorphism rail (BHIMS terracotta palette) ---- */
+    .app-sidebar {
+        width: 264px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        color: #fff;
+        background:
+            linear-gradient(188deg, rgba(64, 45, 33, 0.86) 0%, rgba(43, 29, 21, 0.90) 58%, rgba(36, 24, 17, 0.94) 100%);
+        -webkit-backdrop-filter: blur(18px) saturate(1.25);
+        backdrop-filter: blur(18px) saturate(1.25);
+        border-right: 1px solid rgba(255, 235, 220, 0.16);
+        box-shadow: 8px 0 32px rgba(46, 30, 20, 0.22);
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 235, 220, 0.28) transparent;
+        z-index: 5;
+    }
+    .app-sidebar::-webkit-scrollbar { width: 6px; }
+    .app-sidebar::-webkit-scrollbar-thumb {
+        background: rgba(255, 235, 220, 0.28);
+        border-radius: 999px;
+    }
+    .app-sidebar::-webkit-scrollbar-track { background: transparent; }
+
+    /* Soft moving light so the frost has something to catch */
+    .sidebar-sheen {
+        pointer-events: none;
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(420px 260px at -60px 8%, rgba(233, 150, 84, 0.22), transparent 62%),
+            radial-gradient(360px 300px at 130% 96%, rgba(111, 138, 60, 0.16), transparent 60%);
+        z-index: 0;
+    }
+    .sidebar-brand,
+    .sidebar-nav,
+    .sidebar-profile { position: relative; z-index: 1; }
+
+    .sidebar-brand {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 1.6rem 1rem 1.2rem 1.6rem;
+        border-bottom: 1px solid rgba(255, 235, 220, 0.12);
+    }
+    .sidebar-wordmark {
+        font-family: var(--font-display);
+        font-weight: 800;
+        color: #fff;
+        font-size: 1.05rem;
+        line-height: 1.15;
+        white-space: nowrap;
+        display: block;
+    }
+    .sidebar-wordmark span {
+        display: block;
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        color: rgba(255, 235, 220, 0.58);
+        text-transform: uppercase;
+    }
+
+    .sidebar-close {
+        background: rgba(255, 235, 220, 0.10);
+        border: 1px solid rgba(255, 235, 220, 0.16);
+        border-radius: 10px;
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 240, 228, 0.8);
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: background-color 0.2s ease, color 0.2s ease;
+    }
+    .sidebar-close:hover { background: rgba(255, 235, 220, 0.2); color: #fff; }
+
+    .sidebar-nav { flex: 1; padding: 1.4rem 1rem; }
+    .sidebar-heading {
+        margin: 0 0 0.75rem 0.5rem;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: rgba(255, 235, 220, 0.44);
+    }
+    .sidebar-links { display: flex; flex-direction: column; gap: 0.35rem; }
+
+    .sidebar-link {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        padding: 0.72rem 1rem;
+        border-radius: 14px;
+        color: rgba(255, 244, 234, 0.80);
+        text-decoration: none;
+        font-size: var(--fs-md);
+        font-weight: 500;
+        transition: background-color 0.22s ease, color 0.22s ease, box-shadow 0.22s ease;
+    }
+    .sidebar-link i { font-size: var(--fs-lg); min-width: 22px; text-align: center; }
+    .sidebar-link:focus-visible {
+        outline: 2px solid rgba(255, 214, 186, 0.85);
+        outline-offset: 2px;
+    }
+    /* Frosted hover with the demo's inner light ring */
+    .sidebar-link:hover {
+        background: rgba(255, 235, 220, 0.10);
+        box-shadow: inset 0 0 0 1px rgba(255, 235, 220, 0.22);
+        color: #fff;
+    }
+    .sidebar-link.active {
+        background: linear-gradient(92deg, rgba(193, 89, 42, 0.95), rgba(164, 72, 31, 0.92));
+        box-shadow: inset 0 0 0 1px rgba(255, 214, 186, 0.34), 0 6px 18px rgba(140, 61, 27, 0.35);
+        color: #fff;
+        font-weight: 600;
+    }
+    /* Terracotta accent bar on the active item */
+    .sidebar-link.active::before {
+        content: '';
+        position: absolute;
+        left: -1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 22px;
+        border-radius: 0 4px 4px 0;
+        background: #ffcfae;
+        box-shadow: 0 0 12px rgba(255, 207, 174, 0.55);
+    }
+
+    /* Profile card pinned to the bottom, avatar wired to user.profile_picture */
+    .sidebar-profile {
+        margin: 0 1rem 1.25rem;
+        padding: 0.8rem 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        background: rgba(255, 235, 220, 0.09);
+        border: 1px solid rgba(255, 235, 220, 0.16);
+        border-radius: 16px;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+    .sidebar-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+        border: 2px solid rgba(255, 214, 186, 0.4);
+    }
+    .sidebar-avatar-initial {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(193, 89, 42, 0.85);
+        color: #fff;
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 1.05rem;
+    }
+    .sidebar-profile-info { min-width: 0; flex: 1; }
+    .sidebar-profile-name {
+        margin: 0;
+        font-weight: 600;
+        font-size: var(--fs-sm);
+        color: #fff;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .sidebar-profile-role {
+        margin: 0;
+        font-size: 0.72rem;
+        color: rgba(255, 235, 220, 0.55);
+        text-transform: capitalize;
+    }
+    .sidebar-logout {
+        background: none;
+        border: none;
+        padding: 0.35rem;
+        cursor: pointer;
+        color: rgba(255, 235, 220, 0.65);
+        font-size: var(--fs-lg);
+        line-height: 1;
+        border-radius: 8px;
+        transition: color 0.2s ease, background-color 0.2s ease;
+    }
+    .sidebar-logout:hover { color: #fff; background: rgba(255, 235, 220, 0.12); }
+
+    @media (max-width: 768px) {
+        .app-shell { flex-direction: column; }
+        .app-main { order: 1; }
+        .app-sidebar {
+            order: 2;
+            width: 100%;
+            height: auto;
+            position: static;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .sidebar-nav { padding: 0.5rem 1rem; }
+        .sidebar-links { flex-direction: row; flex-wrap: wrap; }
+        .sidebar-profile { display: none; }
+        .sidebar-sheen, .sidebar-close { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .sidebar-link, .sidebar-close, .sidebar-logout { transition: none; }
+    }
+</style>

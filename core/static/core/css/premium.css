@@ -1,0 +1,272 @@
+/* =====================================================================
+   BHIMS HERITAGE LAYER v3 — "Bacnotan Heritage"
+   Editorial print language: Fraunces display type, ink hairlines,
+   woven-paper ground, flat tactile controls. Loaded LAST in <head>.
+   Motion stays transform/opacity only, with a global reduced-motion
+   kill-switch.
+   ===================================================================== */
+
+/* ---------------------------------------------------------------
+   1. Tokens: signature easings + warm-ink shadows
+   --------------------------------------------------------------- */
+:root {
+    --bhims-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --bhims-ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+
+    --bhims-shadow-xs: 0 1px 2px rgba(58, 42, 32, 0.06);
+    --bhims-shadow-sm: 0 1px 2px rgba(58, 42, 32, 0.05), 0 4px 10px rgba(58, 42, 32, 0.06);
+    --bhims-shadow-md: 0 2px 4px rgba(58, 42, 32, 0.05), 0 10px 22px rgba(58, 42, 32, 0.09);
+    --bhims-shadow-lg: 0 4px 8px rgba(58, 42, 32, 0.06), 0 18px 40px rgba(58, 42, 32, 0.12);
+}
+
+/* ---------------------------------------------------------------
+   2. Base feel: paper, ink, selection, scrollbar
+   --------------------------------------------------------------- */
+html {
+    -webkit-text-size-adjust: 100%;
+}
+@media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+}
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+::selection {
+    background: #c1592a;
+    color: #fdf6ee;
+}
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: rgba(140, 74, 47, 0.30);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(140, 74, 47, 0.48);
+    border: 3px solid transparent;
+    background-clip: content-box;
+}
+* { scrollbar-width: thin; scrollbar-color: rgba(140, 74, 47, 0.35) transparent; }
+
+/* ---------------------------------------------------------------
+   3. Typography rhythm — display serif carries the voice
+   --------------------------------------------------------------- */
+h1, h2, h3, h4, h5, h6, .navbar-brand,
+.display-1, .display-2, .display-3, .display-4, .display-5, .display-6 {
+    letter-spacing: -0.01em !important;
+    text-wrap: balance;
+}
+p, li { text-wrap: pretty; }
+.page-header h1 { letter-spacing: -0.015em !important; }
+.page-header .eyebrow { letter-spacing: 0.14em !important; }
+
+/* Prices & stat numerals: serif figures give listings an editorial voice */
+.stat-card h2, .stat-card h3, .stat-card .stat-value,
+.price-tag, .listing-price, .house-price {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-variant-numeric: lining-nums;
+}
+
+/* ---------------------------------------------------------------
+   4. Accessible focus rings
+   --------------------------------------------------------------- */
+:focus { outline: none; }
+:focus-visible {
+    outline: 2px solid rgba(193, 89, 42, 0.65) !important;
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+.btn:focus-visible, .form-control:focus-visible, .form-select:focus-visible {
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(193, 89, 42, 0.18), 0 0 0 1px rgba(193, 89, 42, 0.55) !important;
+}
+
+/* ---------------------------------------------------------------
+   5. Buttons: tactile press (no sheen, no sweep)
+   --------------------------------------------------------------- */
+.btn-primary, .btn-success, .btn-bhims, .create-btn, .submit-btn,
+.btn-submit, .btn-register-bhims, .btn-accept-bhims, .bhims-login-btn {
+    transition: transform 0.12s ease, box-shadow 0.18s ease !important;
+}
+.btn-primary:hover, .btn-success:hover, .btn-bhims:hover, .create-btn:hover,
+.submit-btn:hover, .btn-submit:hover, .btn-register-bhims:hover,
+.btn-accept-bhims:hover, .bhims-login-btn:hover {
+    transform: translateY(-1px) !important;
+}
+.btn-primary:active, .btn-success:active, .btn-bhims:active, .create-btn:active,
+.submit-btn:active, .btn-submit:active, .btn-register-bhims:active,
+.btn-accept-bhims:active, .bhims-login-btn:active,
+.btn-danger:active, .btn-warning:active, .btn-outline-primary:active {
+    transform: translateY(1px) !important;
+    transition-duration: 0.08s !important;
+}
+.btn-danger, .btn-warning, .btn-outline-primary {
+    transition: transform 0.12s ease, box-shadow 0.18s ease !important;
+}
+
+/* ---------------------------------------------------------------
+   6. Cards: quiet depth — border darkens, shadow lifts
+   --------------------------------------------------------------- */
+.card, .stat-card, .hero-card, .listing-card, .house-card, .room-card,
+.booking-card, .filter-card, .inquiries-card, .profile-card, .form-card,
+.bhims-login-card, .landing-feature-card, .rooms-card, .admin-table-wrap {
+    transition: transform 0.25s var(--bhims-ease-smooth),
+                box-shadow 0.25s var(--bhims-ease-smooth),
+                border-color 0.25s var(--bhims-ease-smooth) !important;
+}
+.card:hover, .stat-card:hover, .listing-card:hover, .house-card:hover,
+.room-card:hover, .booking-card:hover, .filter-card:hover,
+.inquiry-item:hover, .landing-feature-card:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: var(--bhims-shadow-md) !important;
+}
+.hero-card:hover { transform: translateY(-2px) !important; }
+
+/* Stat cards get a woven corner tab instead of a radial blob */
+.stat-card { overflow: hidden; }
+.stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 64px;
+    height: 6px;
+    background:
+        repeating-linear-gradient(45deg, rgba(193, 89, 42, 0.55) 0 3px, transparent 3px 7px),
+        rgba(193, 89, 42, 0.18);
+    pointer-events: none;
+}
+
+/* ---------------------------------------------------------------
+   7. Sidebar / shell
+   --------------------------------------------------------------- */
+.app-sidebar .nav-link, .app-sidebar a {
+    transition: background-color 0.25s var(--bhims-ease-smooth),
+                color 0.25s var(--bhims-ease-smooth),
+                transform 0.25s var(--bhims-ease-smooth) !important;
+}
+.app-sidebar .nav-link:hover, .app-sidebar a:hover {
+    transform: translateX(4px);
+}
+.app-sidebar .nav-link.active, .app-sidebar .active > a {
+    background: rgba(193, 89, 42, 0.28) !important;
+    box-shadow: inset 3px 0 0 var(--bhims-terracotta) !important;
+}
+
+/* ---------------------------------------------------------------
+   8. Forms: grounded focus (no floating pulse)
+   --------------------------------------------------------------- */
+.form-control, .form-select, .bhims-input, .bhims-textarea {
+    transition: background 0.2s var(--bhims-ease-smooth),
+                border-color 0.18s var(--bhims-ease-smooth),
+                box-shadow 0.18s var(--bhims-ease-smooth) !important;
+}
+.form-control:hover, .form-select:hover { border-color: rgba(193, 89, 42, 0.40) !important; }
+.form-control:focus, .form-select:focus, .bhims-input:focus, .bhims-textarea:focus {
+    box-shadow: 0 0 0 3px rgba(193, 89, 42, 0.12) !important;
+}
+
+/* ---------------------------------------------------------------
+   9. Tables & badges
+   --------------------------------------------------------------- */
+.table thead th {
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    letter-spacing: 0.10em;
+    color: var(--bhims-text-muted) !important;
+}
+.table tbody tr { transition: background-color 0.2s var(--bhims-ease-smooth); }
+.table tbody tr:hover { background-color: rgba(193, 89, 42, 0.05) !important; }
+
+.badge {
+    letter-spacing: 0.02em;
+    border-radius: 999px !important;
+    transition: transform 0.2s var(--bhims-ease-smooth) !important;
+}
+.badge:hover { transform: scale(1.05); }
+/* live "pending" heartbeat dot */
+.badge-bhims-pending::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    vertical-align: middle;
+    animation: bhimsHeartbeat 1.8s ease-in-out infinite;
+}
+@keyframes bhimsHeartbeat {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.45; transform: scale(0.8); }
+}
+
+/* ---------------------------------------------------------------
+   10. Links: underline slide-out
+   --------------------------------------------------------------- */
+main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.nav-link):not(.app-sidebar a):not(:has(svg)):not(:has(i)) {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0% 1px;
+    transition: background-size 0.3s var(--bhims-ease-out), color 0.2s var(--bhims-ease-smooth);
+}
+main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.nav-link):not(:has(svg)):not(:has(i)):hover {
+    background-size: 100% 1px;
+}
+
+/* ---------------------------------------------------------------
+   11. Images breathe in
+   --------------------------------------------------------------- */
+.listing-card img, .house-card img, .hero-card img, .card-img-top {
+    transition: transform 0.6s var(--bhims-ease-out), filter 0.6s var(--bhims-ease-out);
+}
+.listing-card:hover img, .house-card:hover img {
+    transform: scale(1.04);
+    filter: saturate(1.06);
+}
+
+/* ---------------------------------------------------------------
+   12. Modals / dropdowns / toasts: measured entrances
+   --------------------------------------------------------------- */
+.modal-content {
+    box-shadow: var(--bhims-shadow-lg) !important;
+    animation: bhimsPop 0.32s var(--bhims-ease-out) both !important;
+}
+@keyframes bhimsPop {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.dropdown-menu {
+    animation: bhimsPop 0.24s var(--bhims-ease-out) both;
+    box-shadow: var(--bhims-shadow-md) !important;
+    border-radius: var(--bhims-radius) !important;
+    transform-origin: top right;
+}
+.bhims-toast {
+    box-shadow: var(--bhims-shadow-lg) !important;
+    animation: bhimsToastIn 0.45s var(--bhims-ease-out) forwards !important;
+}
+@keyframes bhimsToastIn {
+    from { transform: translateX(110%); opacity: 0; }
+    to   { transform: translateX(0); opacity: 1; }
+}
+
+/* ---------------------------------------------------------------
+   14. Reduced motion: kill everything instantly
+   --------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ============================================================

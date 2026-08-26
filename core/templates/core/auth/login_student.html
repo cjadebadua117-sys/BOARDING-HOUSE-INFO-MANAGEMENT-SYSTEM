@@ -1,0 +1,418 @@
+{% extends 'core/auth/base.html' %}
+
+{% block auth_title %}{% if initial_mode == 'signup' %}Create your account{% else %}Sign in{% endif %}{% endblock %}
+
+{% block hero_title %}Find your second&nbsp;home.{% endblock %}
+{% block hero_copy %}Browse verified boarding houses near campus, ask landlords directly, and book your room for the semester &mdash; all in one place.{% endblock %}
+
+{% block auth_style %}
+    /* ---- Sliding Sign in / Sign up stage ---- */
+    .auth-main { padding: 0; overflow: hidden; align-items: stretch; }
+
+    .auth-stage { position: absolute; inset: 0; }
+
+    .auth-pane {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        padding: 2.75rem 2rem;
+        overflow-y: auto;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateX(28px);
+        transition:
+            opacity 0.45s ease,
+            transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+            visibility 0s linear 0.45s;
+    }
+    .sign-up-mode .auth-pane-signin { transform: translateX(-28px); }
+    .auth-stage:not(.sign-up-mode) .auth-pane-signin,
+    .auth-stage.sign-up-mode .auth-pane-signup {
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        transition-delay: 0s, 0s, 0s;
+    }
+
+    /* Content stays clear of whichever half the overlay covers */
+    .auth-pane-signin { padding-right: calc(50% + 1rem); }
+    .auth-pane-signup { padding-left: calc(50% + 1rem); }
+
+    .auth-pane .pane-inner { max-width: 480px; }
+    .auth-error { grid-column: 1 / -1; }
+    .field-error {
+        display: flex;
+        gap: 0.4rem;
+        align-items: flex-start;
+        margin-top: 0.35rem;
+        color: #b3261e;
+        font-size: 0.85rem;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+    .field-error::before { content: '\26A0\FE0F'; font-size: 0.9em; line-height: inherit; }
+    .auth-field.has-error .auth-input-wrap input {
+        border-color: #b3261e !important;
+        box-shadow: 0 0 0 3px rgba(179, 38, 30, 0.14);
+    }
+    .auth-error-summary {
+        grid-column: 1 / -1;
+        background: #fdeceb;
+        border: 1px solid #f3c1bd;
+        border-left: 4px solid #b3261e;
+        border-radius: 10px;
+        padding: 0.9rem 1.1rem;
+        margin-bottom: 1.25rem;
+        color: #7a1c17;
+        font-size: 0.88rem;
+    }
+    .auth-error-summary strong { display: block; margin-bottom: 0.25rem; }
+    .auth-error-summary ul { margin: 0; padding-left: 1.1rem; }
+    .auth-error-summary li { margin-top: 0.15rem; }
+    .auth-error-summary a { color: #b3261e; font-weight: 700; text-decoration: underline; }
+
+    .pane-foot button {
+        background: none;
+        border: none;
+        padding: 0;
+        font: inherit;
+        color: var(--bhims-terracotta-deep);
+        font-weight: 600;
+        cursor: pointer;
+        border-bottom: 1px solid transparent;
+    }
+    .pane-foot button:hover { border-bottom-color: var(--bhims-terracotta-deep); }
+    .pane-foot button:focus-visible {
+        outline: 2px solid rgba(140, 74, 47, 0.8);
+        outline-offset: 2px;
+    }
+
+    /* Mobile-only swap link (overlay is hidden on small screens) */
+    .auth-swap-mobile { display: none; }
+
+    /* ---- Sliding overlay panel (the animation centerpiece) ----
+       A deep-espresso card matching the hero panel glides across the
+       stage to sit over the inactive half, carrying a call-to-action
+       that flips users between modes. */
+    .auth-overlay {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: 50%;
+        z-index: 4;
+        display: flex;
+        overflow: hidden;
+        background:
+            repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 9px),
+            linear-gradient(150deg, #33241a 0%, #47301f 62%, var(--bhims-terracotta-deep) 130%);
+        box-shadow: -18px 0 44px rgba(30, 21, 15, 0.28);
+        transform: translateX(0);
+        transition: transform 0.65s cubic-bezier(0.65, 0, 0.35, 1);
+    }
+    .sign-up-mode .auth-overlay { transform: translateX(-100%); }
+
+    .overlay-face {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        text-align: center;
+        padding: 2.5rem 2.25rem;
+        color: #f6efe4;
+        opacity: 0;
+        transform: translateX(24px);
+        visibility: hidden;
+        transition:
+            opacity 0.4s ease,
+            transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+            visibility 0s linear 0.45s;
+        pointer-events: none;
+    }
+    .sign-up-mode .overlay-face-signup,
+    .auth-stage:not(.sign-up-mode) .overlay-face-signin {
+        opacity: 1;
+        transform: none;
+        visibility: visible;
+        transition-delay: 0.18s, 0.18s, 0.18s;
+        pointer-events: auto;
+    }
+
+    .overlay-face h2 {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: clamp(1.7rem, 2.6vw, 2.3rem);
+        color: #fdf8ef;
+        margin: 0 0 0.4rem;
+    }
+    .overlay-face p {
+        font-size: 0.95rem;
+        line-height: 1.55;
+        max-width: 30ch;
+        opacity: 0.88;
+        margin: 0 0 1.5rem;
+    }
+    .overlay-btn {
+        display: inline-block;
+        background: transparent;
+        color: #fdf8ef;
+        border: 2px solid rgba(246, 239, 228, 0.65);
+        border-radius: 9999px;
+        padding: 0.7rem 2.2rem;
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 0.95rem;
+        letter-spacing: 0.03em;
+        cursor: pointer;
+        transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.12s ease;
+    }
+    .overlay-btn:hover {
+        background: var(--bhims-terracotta);
+        border-color: var(--bhims-terracotta);
+        transform: translateY(-1px);
+    }
+    .overlay-btn:active { transform: translateY(1px); }
+    .overlay-btn:focus-visible {
+        outline: 2px solid rgba(246, 239, 228, 0.85);
+        outline-offset: 3px;
+    }
+    .overlay-brand {
+        position: absolute;
+        bottom: 1.4rem;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 0.68rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        opacity: 0.55;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .auth-pane, .auth-overlay, .overlay-face { transition: none !important; }
+    }
+
+    @media (max-width: 900px) {
+        .auth-main { min-height: 620px; }
+        .auth-pane { padding-left: 2rem !important; padding-right: 2rem !important; }
+        .auth-overlay { display: none; }
+        .auth-swap-mobile {
+            display: block;
+            margin-top: 1.6rem;
+            padding-top: 1.2rem;
+            border-top: 1px solid var(--bhims-border);
+            font-size: 0.92rem;
+            color: var(--bhims-text-muted);
+        }
+        .auth-swap-mobile button {
+            background: none;
+            border: none;
+            padding: 0;
+            font: inherit;
+        color: var(--bhims-terracotta-deep);
+        font-weight: 600;
+        cursor: pointer;
+        border-bottom: 1px solid transparent;
+    }
+    .auth-swap-mobile button:hover { border-bottom-color: var(--bhims-terracotta-deep); }
+        .auth-grid { grid-template-columns: 1fr; column-gap: 0; }
+    }
+{% endblock %}
+
+{% block auth_main %}
+<div class="auth-stage {% if initial_mode == 'signup' %}sign-up-mode{% endif %}" id="authStage">
+
+    <!-- ===== Sign in ===== -->
+    <div class="auth-pane auth-pane-signin" data-pane="signin">
+        <div class="pane-inner">
+            <p class="pane-eyebrow">Welcome back</p>
+            <h2>{{ login_heading|default:"Sign in" }}</h2>
+            <p class="pane-sub">{{ login_subtitle|default:"Use your student account to continue." }}</p>
+            <hr class="pane-rule">
+
+            <form method="post" action="{% url 'login' %}" novalidate>
+                {% csrf_token %}
+                {% for h in form.hidden_fields %}{{ h }}{% endfor %}
+                <input type="hidden" name="next" value="{{ next }}">
+
+                {% if form.non_field_errors %}
+                    <div class="auth-error" role="alert">
+                        {% for e in form.non_field_errors %}{{ e|striptags }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+                    </div>
+                {% endif %}
+
+                {% for field in form.visible_fields %}
+                    <div class="auth-field">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        <div class="auth-input-wrap {% if field.widget_type == 'password' %}has-toggle{% endif %}">
+                            {{ field }}
+                            {% if field.widget_type == 'password' %}
+                                {% include 'core/auth/_eye_toggle.html' with target=field.id_for_label %}
+                            {% endif %}
+                        </div>
+                        {% if field.errors %}
+                            <div class="field-error">{% for e in field.errors %}{{ e|striptags }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <div class="auth-row">
+                    <label><input type="checkbox" name="remember_me" id="remember_me"> Remember me</label>
+                    <a href="{% url 'password_reset' %}">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="auth-submit">Sign in</button>
+            </form>
+
+            <div class="pane-foot">
+                New here?
+                <button type="button" data-mode="signup">Create an account</button>
+            </div>
+
+            <div class="auth-swap-mobile">
+                New here? <button type="button" data-mode="signup">Create an account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Sign up ===== -->
+    <div class="auth-pane auth-pane-signup" data-pane="signup">
+        <div class="pane-inner">
+            <p class="pane-eyebrow">Student registration</p>
+            <h2>Create your account</h2>
+            <p class="pane-sub">It takes less than a minute.</p>
+            <hr class="pane-rule">
+
+            <form method="post" action="{% url 'student_register' %}" novalidate>
+                {% csrf_token %}
+                {% for h in reg_form.hidden_fields %}{{ h }}{% endfor %}
+                <input type="hidden" name="next" value="{{ next }}">
+
+                {% if reg_form.non_field_errors %}
+                    <div class="auth-error" role="alert">
+                        {% for e in reg_form.non_field_errors %}{{ e|striptags }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if reg_form.errors %}
+                    <div class="auth-error-summary" role="alert" id="regErrorSummary">
+                        <strong>Please fix the following before continuing:</strong>
+                        <ul>
+                            {% for field in reg_form.visible_fields %}
+                                {% if field.errors %}
+                                    <li><a href="#{{ field.id_for_label }}_wrap">{{ field.label }}</a> &mdash; {{ field.errors.0|striptags }}</li>
+                                {% endif %}
+                            {% endfor %}
+                            {% for e in reg_form.non_field_errors %}
+                                <li>{{ e|striptags }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <div class="auth-grid">
+                    {% for field in reg_form.visible_fields %}
+                        <div class="auth-field {% if field.errors %}has-error{% endif %}" id="{{ field.id_for_label }}_wrap" {% if field.name == 'username' or field.name == 'email' or field.name == 'full_name' or field.name == 'student_id' or field.name == 'program' or field.name == 'program_custom' %}style="grid-column: 1 / -1;"{% endif %}>
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            <div class="auth-input-wrap {% if field.widget_type == 'password' %}has-toggle{% endif %}">
+                                {{ field }}
+                                {% if field.widget_type == 'password' %}
+                                    {% include 'core/auth/_eye_toggle.html' with target=field.id_for_label %}
+                                {% endif %}
+                            </div>
+                            {% if field.errors %}
+                                <div class="field-error" role="alert">{% for e in field.errors %}{{ e|striptags }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" class="auth-submit">Create account</button>
+            </form>
+
+            <div class="pane-foot">
+                Already registered?
+                <button type="button" data-mode="signin">Sign in instead</button>
+            </div>
+
+            <div class="auth-swap-mobile">
+                Already registered? <button type="button" data-mode="signin">Sign in instead</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Sliding overlay ===== -->
+    <div class="auth-overlay">
+        <div class="overlay-face overlay-face-signin">
+            <h2>New here?</h2>
+            <p>Create a free student account to browse boarding houses and send inquiries to landlords.</p>
+            <button type="button" class="overlay-btn" data-mode="signup">Create account</button>
+        </div>
+        <div class="overlay-face overlay-face-signup">
+            <h2>Already registered?</h2>
+            <p>Welcome back! Sign in to pick up where you left off.</p>
+            <button type="button" class="overlay-btn" data-mode="signin">Sign in</button>
+        </div>
+        <span class="overlay-brand">BHIMS &middot; NLUC</span>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block auth_script %}
+<script>
+    (function () {
+        var stage = document.getElementById('authStage');
+        if (!stage) return;
+
+        function setMode(mode) {
+            var signup = mode === 'signup';
+            stage.classList.toggle('sign-up-mode', signup);
+
+            stage.querySelectorAll('.auth-pane').forEach(function (pane) {
+                var active = signup === (pane.dataset.pane === 'signup');
+                pane.setAttribute('aria-hidden', active ? 'false' : 'true');
+            });
+
+            var activePane = stage.querySelector(signup ? '.auth-pane-signup' : '.auth-pane-signin');
+            if (activePane && stage.contains(document.activeElement) && !signup) {
+                var firstField = activePane.querySelector('input:not([type="hidden"]):not([disabled])');
+                if (firstField) {
+                    window.setTimeout(function () { firstField.focus({ preventScroll: true }); }, 120);
+                }
+            }
+
+            try {
+                var url = new URL(window.location.href);
+                if (signup) { url.searchParams.set('mode', 'signup'); }
+                else { url.searchParams.delete('mode'); }
+                window.history.replaceState({}, '', url);
+            } catch (e) { /* older browsers: mode switch still works */ }
+        }
+
+        document.querySelectorAll('[data-mode]').forEach(function (btn) {
+            btn.addEventListener('click', function () { setMode(btn.dataset.mode); });
+        });
+
+        // Failed submission: jump straight to the first invalid field so the
+        // user never has to hunt for what went wrong.
+        var summary = document.getElementById('regErrorSummary');
+        if (summary) {
+            window.setTimeout(function () {
+                var badField = document.querySelector('.auth-field.has-error');
+                if (badField) {
+                    badField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    var inp = badField.querySelector('input, select');
+                    if (inp) {
+                        inp.setAttribute('aria-invalid', 'true');
+                        try { inp.focus({ preventScroll: true }); } catch (e) { /* noop */ }
+                    }
+                }
+            }, 400);
+        }
+    })();
+</script>
+{% endblock %}

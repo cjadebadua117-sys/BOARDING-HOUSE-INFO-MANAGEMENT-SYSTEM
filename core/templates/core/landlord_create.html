@@ -1,27 +1,56 @@
-{% extends 'core/base.html' %}
-{% block title %}Create Landlord Account{% endblock %}
-{% block content %}
-<div class="row justify-content-center">
-  <div class="col-lg-6">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <h2 class="card-title mb-3">Create Landlord Account</h2>
-        <p class="text-muted">Admin-only page for creating landlord accounts.</p>
-        <form method="post" novalidate>
-          {% csrf_token %}
-          {% for field in form %}
-            <div class="mb-3">
-              <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-              {{ field }}
-              {% if field.errors %}
-                <div class="text-danger small mt-2">{{ field.errors|striptags }}</div>
-              {% endif %}
-            </div>
-          {% endfor %}
-          <button type="submit" class="btn btn-primary w-100">Create Landlord</button>
-        </form>
-      </div>
+{% extends 'core/app_base.html' %}
+{% block title %}Add Landlord - BHIMS Admin{% endblock %}
+
+{% block extra_css %}
+{% include 'core/includes/admin_styles.html' %}
+{% endblock %}
+
+{% block app_content %}
+<div class="admin-page">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Admin</div>
+            <h1>Add Landlord</h1>
+            <p>Create a new landlord account with generated login credentials.</p>
+        </div>
+        <a href="{% url 'admin_landlord_list' %}" class="btn btn-uppercase btn-primary btn-sm">
+            <i class="bi bi-arrow-left"></i> Back to Landlords
+        </a>
     </div>
-  </div>
+
+    <div class="row">
+        <div class="col-lg-7 col-xl-6">
+            <div class="admin-table-wrap p-4">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                        <div class="text-danger small mt-2">{{ field.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-uppercase btn-primary">
+                            <i class="bi bi-person-plus"></i> Create Landlord
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-5 col-xl-6 mt-4 mt-lg-0">
+            <div class="admin-table-wrap p-4">
+                <h2 class="h3 mb-3" style="font-family: var(--font-display); font-weight: 800; color: var(--bhims-text);">What happens next?</h2>
+                <p style="color: var(--bhims-text-muted);">Use the login credentials you set below. After creating the account, the credentials are shown on a confirmation page so you can share them with the landlord.</p>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="stat-icon"><i class="bi bi-envelope-check"></i></span>
+                    <span style="color: var(--bhims-text-muted); font-size: var(--fs-md);">An email notification is also attempted when email sending is configured.</span>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

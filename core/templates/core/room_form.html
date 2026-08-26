@@ -1,68 +1,330 @@
-{% extends 'core/base.html' %}
+{% extends 'core/app_base.html' %}
 {% block title %}{{ title }}{% endblock %}
-{% block content %}
-<div class="row justify-content-center">
-  <div class="col-lg-7">
-    <div class="card shadow-sm border-0">
-      <div class="card-body p-5">
-        <div class="text-center mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 3rem; height: 3rem; color: var(--terracotta); margin-bottom: 1rem;">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75" />
-          </svg>
-          <h2 class="mb-1">{{ title }}</h2>
-          <p class="text-muted">{{ house.name }}</p>
+{% block extra_css %}
+<style>
+    .room-form-page {
+        background-color: #f7ede3;
+        min-height: calc(100vh - 72px);
+        padding: 3rem 2rem;
+        max-width: 900px;
+        margin: 0 auto;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .form-container {
+        background-color: var(--bhims-cream-light);
+        border: 1px solid #e9dcd0;
+        border-radius: 16px;
+        padding: 3rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .form-header .form-icon {
+        width: 4rem;
+        height: 4rem;
+        color: #c1592a;
+        margin-bottom: 1rem;
+    }
+
+    .form-header h2 {
+        font-family: var(--font-display);
+        font-size: 2rem;
+        font-weight: 700;
+        color: #3a2a20;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-header p {
+        color: #6b5b53;
+        font-size: var(--fs-lg);
+        margin: 0;
+    }
+
+    .form-group {
+        margin-bottom: 1.75rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 500;
+        color: #3a2a20;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 1px solid #d4c5b9;
+        border-radius: 10px;
+        font-size: 1rem;
+        color: #3a2a20;
+        background-color: #fcf9f6;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #c1592a;
+        box-shadow: 0 0 0 3px rgba(193, 89, 42, 0.1);
+    }
+
+    .toggle-container {
+        background-color: #f7ede3;
+        border-radius: 10px;
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .toggle-content h4 {
+        font-weight: 600;
+        color: #3a2a20;
+        margin: 0 0 0.25rem 0;
+        font-size: 1rem;
+    }
+
+    .toggle-content p {
+        color: #6b5b53;
+        margin: 0;
+        font-size: var(--fs-sm);
+    }
+
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 52px;
+        height: 28px;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .3s;
+        border-radius: 28px;
+    }
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 22px;
+        width: 22px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .3s;
+        border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+        background-color: #c1592a;
+    }
+
+    input:checked + .toggle-slider:before {
+        transform: translateX(24px);
+    }
+
+    .amenities-section {
+        background-color: #fcf9f6;
+        border-radius: 10px;
+        padding: 1.5rem;
+        border: 1px solid #e9dcd0;
+    }
+
+    .amenity-checkbox-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .amenity-checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        color: #5a4a42;
+        font-weight: 500;
+    }
+
+    input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #c1592a;
+    }
+
+    .error-message {
+        color: #dc2626;
+        font-size: var(--fs-sm);
+        margin-top: 0.5rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2.5rem;
+    }
+
+    .btn-cancel {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.875rem 1.5rem;
+        border: 1px solid #c1592a;
+        border-radius: 10px;
+        background-color: transparent;
+        color: #c1592a;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        font-size: 1rem;
+    }
+
+    .btn-cancel:hover {
+        background-color: rgba(193, 89, 42, 0.05);
+        text-decoration: none;
+        color: #c1592a;
+    }
+
+    .btn-submit {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.875rem 1.5rem;
+        border: none;
+        border-radius: 10px;
+        background-color: #c1592a;
+        color: white;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+
+    .btn-submit:hover {
+        background-color: #a04821;
+    }
+
+    @media (max-width: 768px) {
+        .room-form-page {
+            padding: 2rem 1rem;
+        }
+
+        .form-container {
+            padding: 2rem 1.5rem;
+        }
+
+        .form-header h2 {
+            font-size: var(--fs-2xl);
+        }
+
+        .amenity-checkbox-list {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+{% block app_content %}
+<div class="room-form-page">
+    <div class="form-container">
+        <div class="form-header">
+            <svg class="form-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75" />
+            </svg>
+            <h2>{% if room %}Edit Room{% else %}Add New Room{% endif %}</h2>
+            <p>{{ house.name }}</p>
         </div>
-        <form method="post" novalidate>
-          {% csrf_token %}
-          {% for field in form %}
-            {% if field.name == 'is_available' %}
-            <div class="mb-4 p-4 rounded" style="background: var(--cream);">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <label class="form-label fw-medium mb-0">{{ field.label }}</label>
-                  <p class="text-muted small mb-0">Toggle this room's availability for student bookings</p>
+        <form method="post" novalidate data-validate enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for field in form %}
+                {% if field.name == 'is_available' %}
+                <div class="form-group">
+                    <div class="toggle-container">
+                        <div class="toggle-content">
+                            <h3 class="h4">{{ field.label }}</h3>
+                            <p>Toggle this room's availability for student bookings</p>
+                        </div>
+                        <label class="toggle-switch">
+                            {{ field }}
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    {% if field.errors %}
+                        <div class="error-message">{{ field.errors|striptags }}</div>
+                    {% endif %}
                 </div>
-                <label class="toggle-switch">
-                  {{ field }}
-                  <span class="toggle-slider"></span>
-                </label>
-              </div>
-              {% if field.errors %}
-                <div class="text-danger small mt-2">{{ field.errors|striptags }}</div>
-              {% endif %}
+                {% elif field.name == 'photo' %}
+                <div class="form-group">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {% if room and room.photos.first %}
+                        <div style="margin-bottom: 0.75rem;">
+                            <img src="{{ room.photos.first.image.url }}" alt="{{ room.room_type }}" style="width: 100%; max-width: 320px; border-radius: 10px; border: 1px solid #e9dcd0; object-fit: cover; display: block;">
+                        </div>
+                    {% endif %}
+                    {{ field }}
+                    <div class="form-text" style="color: #8a7566; font-size: var(--fs-sm); margin-top: 0.5rem;">{{ field.help_text }}</div>
+                    {% if field.errors %}
+                        <div class="error-message">{{ field.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% elif field.name == 'amenities' %}
+                <div class="form-group">
+                    <div class="amenities-section">
+                        <label class="form-label">{{ field.label }}</label>
+                        <div class="amenity-checkbox-list">
+                            {% for checkbox in field %}
+                                <label class="amenity-checkbox-label">
+                                    {{ checkbox.tag }}
+                                    {{ checkbox.choice_label }}
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% if field.errors %}
+                        <div class="error-message">{{ field.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="form-group">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="error-message">{{ field.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% endfor %}
+            <div class="form-actions">
+                <a href="{% url 'landlord_boarding_house_detail' house.pk %}" class="btn-cancel">Cancel</a>
+                <button type="submit" class="btn-submit">Save Room</button>
             </div>
-            {% elif field.name == 'amenities' %}
-            <div class="mb-4">
-              <label class="form-label fw-medium">{{ field.label }}</label>
-              <div class="amenity-checkbox-list">
-                {% for checkbox in field %}
-                  <div>
-                    {{ checkbox.tag }}
-                    <label for="{{ checkbox.id_for_label }}" class="amenity-checkbox-label">{{ checkbox.choice_label }}</label>
-                  </div>
-                {% endfor %}
-              </div>
-              {% if field.errors %}
-                <div class="text-danger small mt-2">{{ field.errors|striptags }}</div>
-              {% endif %}
-            </div>
-            {% else %}
-            <div class="mb-4">
-              <label class="form-label fw-medium" for="{{ field.id_for_label }}">{{ field.label }}</label>
-              {{ field }}
-              {% if field.errors %}
-                <div class="text-danger small mt-2">{{ field.errors|striptags }}</div>
-              {% endif %}
-            </div>
-            {% endif %}
-          {% endfor %}
-          <div class="d-flex gap-3">
-            <a href="{% url 'landlord_dashboard' %}" class="btn btn-outline-secondary flex-grow-1">Cancel</a>
-            <button type="submit" class="btn btn-primary flex-grow-1">Save Room</button>
-          </div>
         </form>
-      </div>
     </div>
-  </div>
 </div>
 {% endblock %}

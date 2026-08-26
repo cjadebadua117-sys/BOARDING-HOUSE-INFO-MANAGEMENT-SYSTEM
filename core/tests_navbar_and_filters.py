@@ -1,8 +1,7 @@
-
 from django.test import TestCase, Client
 from django.urls import reverse
-from django.contrib.auth.hashers import make_password
 from core.models import User, Amenity, BoardingHouse, Room
+
 
 class NavbarAndFilterTests(TestCase):
     def setUp(self):
@@ -19,8 +18,7 @@ class NavbarAndFilterTests(TestCase):
             email='landlord@test.com',
             password='password',
             role='landlord',
-            is_active=True,
-            is_verified=True
+            is_active=True
         )
         self.admin = User.objects.create_user(
             username='admin_test',
@@ -37,22 +35,22 @@ class NavbarAndFilterTests(TestCase):
         self.ac = Amenity.objects.create(name='Air Conditioning')
         self.kitchen = Amenity.objects.create(name='Shared Kitchen')
 
-        # Create Boarding House
+        # Create approved boarding houses (only approved + active houses are public)
         self.bh1 = BoardingHouse.objects.create(
             owner=self.landlord,
             name='Test House 1',
             address='123 Test St.',
-            barangay='Poblacion',
-            city='Test City',
+            barangay='Sapilang',
+            status=BoardingHouse.Status.APPROVED,
             description='A test boarding house.'
         )
-        
+
         self.bh2 = BoardingHouse.objects.create(
             owner=self.landlord,
             name='Test House 2',
             address='456 Sample Ave.',
             barangay='San Jose',
-            city='Test City',
+            status=BoardingHouse.Status.APPROVED,
             description='Another test boarding house.'
         )
 
@@ -60,39 +58,39 @@ class NavbarAndFilterTests(TestCase):
         self.room1 = Room.objects.create(
             boarding_house=self.bh1,
             room_type='Single',
-            price=5000.00,
-            description='A single room.'
+            monthly_rate=5000.00,
+            capacity=2,
         )
         self.room1.amenities.add(self.wifi, self.ac)
 
         self.room2 = Room.objects.create(
             boarding_house=self.bh2,
             room_type='Double',
-            price=3500.00,
-            description='A double room.'
+            monthly_rate=3500.00,
+            capacity=2,
         )
         self.room2.amenities.add(self.kitchen)
-        
+
         self.room3 = Room.objects.create(
             boarding_house=self.bh1,
             room_type='Single',
-            price=5500.00,
-            description='An expensive single room.'
+            monthly_rate=5500.00,
+            capacity=1,
         )
         self.room3.amenities.add(self.wifi)
 
     def test_navbar_logged_out(self):
         response = self.client.get(reverse('listing_list'))
-        self.assertContains(response, 'Browse')
         self.assertContains(response, 'Student Login')
         self.assertContains(response, 'Landlord Login')
-        self.assertContains(response, 'Sign Up')
+        # Register buttons were removed from public chrome by design;
+        # students register via the Sign in page's Register toggle.
+        self.assertNotContains(response, 'Register as Student')
 
     def test_navbar_student(self):
         self.client.login(username='student_test', password='password')
         response = self.client.get(reverse('listing_list'))
-        self.assertContains(response, 'Browse')
-        self.assertContains(response, 'My Profile')
+        self.assertContains(response, 'Browse Listings')
         self.assertContains(response, 'My Inquiries')
         self.assertContains(response, 'Logout')
 
@@ -107,8 +105,8 @@ class NavbarAndFilterTests(TestCase):
     def test_navbar_admin(self):
         self.client.login(username='admin_test', password='password')
         response = self.client.get(reverse('admin_dashboard'))
-        self.assertContains(response, 'Admin Dashboard')
-        self.assertContains(response, 'Landlord Accounts')
+        self.assertContains(response, 'Pending Listings')
+        self.assertContains(response, 'Manage Landlords')
         self.assertContains(response, 'Analytics')
         self.assertContains(response, 'Logout')
 
@@ -123,7 +121,7 @@ class NavbarAndFilterTests(TestCase):
         self.assertNotContains(response, 'Test House 1')
 
     def test_filter_amenities(self):
-        response = self.client.get(reverse('listing_list'), {'amenities': [self.ac.id]})
+        response = self.client.get(reverse('listing_list'), {'amenities': 'Air Conditioning'})
         self.assertContains(response, 'Test House 1')
         self.assertNotContains(response, 'Test House 2')
 
@@ -136,9 +134,9 @@ class NavbarAndFilterTests(TestCase):
         response = self.client.get(reverse('listing_list'), {'sort': 'lowest_price'})
         # The first result should be Test House 2 because it has the cheapest room
         self.assertIn(self.bh2, response.context['houses'])
-        self.assertLess(response.context['houses'].first().rooms.first().price, self.bh1.rooms.first().price)
+        self.assertEqual(response.context['houses'][0], self.bh2)
 
     def test_sort_newest(self):
         response = self.client.get(reverse('listing_list'), {'sort': 'newest'})
         # The first result should be Test House 2 because it was created last
-        self.assertEqual(response.context['houses'].first(), self.bh2)
+        self.assertEqual(response.context['houses'][0], self.bh2)

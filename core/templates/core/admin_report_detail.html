@@ -1,0 +1,142 @@
+{% extends 'core/app_base.html' %}
+{% block title %}Report #{{ report.pk }} - BHIMS Admin{% endblock %}
+
+{% block extra_css %}
+{% include 'core/includes/admin_styles.html' %}
+<style>
+    .rd-wrap { max-width: 760px; margin: 0 auto; }
+    .rd-card {
+        background: var(--bhims-glass-bg-primary);
+        -webkit-backdrop-filter: var(--bhims-glass-primary);
+        backdrop-filter: var(--bhims-glass-primary);
+        border: 1px solid var(--bhims-glass-border);
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 10px 30px rgba(58, 42, 32, 0.08);
+        margin-top: 1.5rem;
+    }
+    .rd-person {
+        display: flex; align-items: center; gap: 14px; background: rgba(255,255,255,0.55);
+        border: 1px solid var(--bhims-border); border-radius: 12px; padding: 14px 18px;
+    }
+    .rd-avatar {
+        width: 52px; height: 52px; border-radius: 50%; object-fit: cover;
+        display: inline-flex; align-items: center; justify-content: center;
+        background: #f2ece5; color: #c1592a; font-weight: 800; font-size: var(--fs-xl);
+        overflow: hidden; flex-shrink: 0;
+    }
+    .rd-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .rd-details-box {
+        background: rgba(255,255,255,0.65); border: 1px solid var(--bhims-border);
+        border-radius: 12px; padding: 18px 20px; white-space: pre-wrap;
+        color: var(--bhims-text); line-height: 1.6;
+    }
+    .rd-meta-row { display: flex; gap: 10px; align-items: center; padding: 8px 0;
+        border-bottom: 1px dashed rgba(109,92,83,0.25); color: var(--bhims-text); font-size: var(--fs-md); }
+    .rd-meta-label { min-width: 130px; color: #6d5c53; font-weight: 600; }
+    .btn-rd { border-radius: 999px; padding: 9px 24px; font-weight: 700; text-decoration: none;
+        display: inline-flex; align-items: center; gap: 6px; border: 1px solid transparent; }
+    .btn-rd-back { background: #fffdfa; color: #3a2a20; border-color: var(--bhims-border); }
+    .btn-rd-back:hover { background: #f3ece5; color: #3a2a20; }
+</style>
+{% endblock %}
+
+{% block app_content %}
+<div class="admin-page rd-wrap">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Admin &middot; User Reports</div>
+            <h1>Report #{{ report.pk }}</h1>
+            <p>Submitted {{ report.created_at|date:"M j, Y \a\t g:i A" }}</p>
+        </div>
+        {% if report.status == 'pending' %}
+            <span class="pill pill-pending">Pending</span>
+        {% elif report.status == 'resolved' %}
+            <span class="pill pill-approved">Resolved</span>
+        {% else %}
+            <span class="pill pill-rejected">Dismissed</span>
+        {% endif %}
+    </div>
+
+    <div class="rd-card">
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="fw-bold mb-2" style="color:#6d5c53;"><i class="bi bi-person-x"></i> Reported User</div>
+                <div class="rd-person">
+                    {% if report.reported_user.profile_picture %}
+                        <span class="rd-avatar"><img src="{{ report.reported_user.profile_picture.url }}" alt=""></span>
+                    {% else %}
+                        <span class="rd-avatar">{{ report.reported_user.display_name|first|upper }}</span>
+                    {% endif %}
+                    <div>
+                        <a href="{% url 'user_profile' report.reported_user.pk %}" class="fw-bold text-decoration-none" style="color:var(--bhims-text);">
+                            {{ report.reported_user.display_name }}
+                        </a><br>
+                        <small class="text-muted text-capitalize">{{ report.reported_user.role }}</small>
+                        {% if report.reported_user.student_id %}<br><small class="text-muted">Student ID: <code>{{ report.reported_user.student_id }}</code></small>{% endif %}
+                        {% if report.reported_user.landlord_id %}<br><small class="text-muted">Landlord ID: <code>{{ report.reported_user.landlord_id }}</code></small>{% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="fw-bold mb-2" style="color:#6d5c53;"><i class="bi bi-flag"></i> Reported By</div>
+                <div class="rd-person">
+                    {% if report.reporter.profile_picture %}
+                        <span class="rd-avatar"><img src="{{ report.reporter.profile_picture.url }}" alt=""></span>
+                    {% else %}
+                        <span class="rd-avatar">{{ report.reporter.display_name|first|upper }}</span>
+                    {% endif %}
+                    <div>
+                        <span class="fw-bold" style="color:var(--bhims-text);">{{ report.reporter.display_name }}</span><br>
+                        <small class="text-muted text-capitalize">{{ report.reporter.role }}</small>
+                        {% if report.reporter.student_id %}<br><small class="text-muted">Student ID: <code>{{ report.reporter.student_id }}</code></small>{% endif %}
+                        {% if report.reporter.landlord_id %}<br><small class="text-muted">Landlord ID: <code>{{ report.reporter.landlord_id }}</code></small>{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <div class="fw-bold mb-2" style="color:#6d5c53;">Complaint Details</div>
+            {% if report.details %}
+                <div class="rd-details-box">{{ report.details }}</div>
+            {% else %}
+                <p class="text-muted mb-0"><em>The reporter did not provide additional details.</em></p>
+            {% endif %}
+        </div>
+
+        <div class="mb-4">
+            <div class="rd-meta-row"><span class="rd-meta-label">Reason</span><span>{{ report.get_reason_display }}</span></div>
+            <div class="rd-meta-row"><span class="rd-meta-label">Date Submitted</span><span>{{ report.created_at|date:"F j, Y g:i A" }}</span></div>
+            <div class="rd-meta-row" style="border-bottom:none;">
+                <span class="rd-meta-label">Status</span>
+                {% if report.status == 'pending' %}
+                    <span class="pill pill-pending">Pending review</span>
+                {% elif report.status == 'resolved' %}
+                    <span class="pill pill-approved">Resolved {{ report.resolved_at|date:"M j, Y g:i A" }}</span>
+                {% else %}
+                    <span class="pill pill-rejected">Dismissed {{ report.resolved_at|date:"M j, Y g:i A" }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <a href="{% url 'admin_reports' %}" class="btn-rd btn-rd-back"><i class="bi bi-arrow-left"></i> Back to Reports</a>
+            {% if report.status == 'pending' %}
+            <div class="d-inline-flex gap-2">
+                <form method="post" action="{% url 'admin_report_update' report.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="dismiss">
+                    <button type="submit" class="btn btn-uppercase btn-danger">Dismiss</button>
+                </form>
+                <form method="post" action="{% url 'admin_report_update' report.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="resolve">
+                    <button type="submit" class="btn btn-uppercase btn-success">Resolve</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

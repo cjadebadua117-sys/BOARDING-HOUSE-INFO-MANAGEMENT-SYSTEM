@@ -1,0 +1,153 @@
+{% extends "core/app_base.html" %}
+
+{% block title %}My Bookings - Boarding House Information Management System{% endblock %}
+
+{% block app_content %}
+<style>
+    .booking-card {
+        border-radius: 20px;
+        background: var(--surface);
+        box-shadow: var(--shadow-soft);
+        transition: all 0.3s ease;
+        border: none;
+    }
+    .booking-card:hover {
+        box-shadow: var(--shadow-hover);
+        transform: translateY(-2px);
+    }
+    .status-confirmed {
+        background-color: rgba(45, 125, 70, 0.12);
+        color: #2d7d46;
+        border-left: 4px solid #2d7d46;
+    }
+    .status-pending {
+        background-color: rgba(154, 106, 31, 0.12);
+        color: var(--bhims-badge-pending);
+        border-left: 4px solid var(--bhims-badge-pending);
+    }
+    .status-declined,
+    .status-cancelled {
+        background-color: rgba(179, 64, 42, 0.12);
+        color: var(--bhims-badge-rejected);
+        border-left: 4px solid var(--bhims-badge-rejected);
+    }
+    .status-badge {
+        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        font-size: var(--fs-sm);
+    }
+    .empty-state-wrapper {
+        min-height: 50vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        max-width: 720px;
+        margin: 2rem auto;
+        border-radius: 24px;
+        background: var(--surface);
+        box-shadow: var(--shadow-soft);
+    }
+    .empty-state h3 {
+        margin-bottom: 1rem;
+        color: var(--text-dark);
+    }
+    .empty-state p {
+        color: var(--text-muted);
+        max-width: 520px;
+        margin: 0 auto 2rem auto;
+    }
+    .booking-meta {
+        font-size: var(--fs-sm);
+        color: var(--text-muted);
+    }
+    .booking-meta i {
+        margin-right: 0.4rem;
+        color: var(--bhims-terracotta);
+    }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="mb-4">
+            <h1>My Bookings</h1>
+            <p class="text-muted">Rooms that have been reserved for you by landlords</p>
+        </div>
+
+        {% if bookings %}
+            <div class="row gy-4">
+                {% for booking in bookings %}
+                    <div class="col-md-6">
+                        <div class="card booking-card h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <h2 class="h5 card-title mb-0">{{ booking.room.boarding_house.name }}</h2>
+                                    <span class="status-badge status-{{ booking.status }}">
+                                        {{ booking.get_status_display }}
+                                    </span>
+                                </div>
+
+                                <div class="booking-meta mb-2">
+                                    <i class="bi bi-door-open"></i>
+                                    <strong>Room:</strong> {{ booking.room.name|default:booking.room.room_type }}
+                                    &bull; ₱{{ booking.room.price }}/month
+                                </div>
+                                <div class="booking-meta mb-2">
+                                    <i class="bi bi-geo-alt"></i>
+                                    {{ booking.room.boarding_house.barangay_display }}, {{ booking.room.boarding_house.address }}
+                                </div>
+                                <div class="booking-meta mb-2">
+                                    <i class="bi bi-person-badge"></i>
+                                    <strong>Listed by:</strong>
+                                    <a href="{% url 'user_profile' booking.room.boarding_house.owner.pk %}">{{ booking.room.boarding_house.owner.get_full_name|default:booking.room.boarding_house.owner.username }}</a>
+                                </div>
+
+                                {% if booking.move_in_date %}
+                                <div class="booking-meta mb-2">
+                                    <i class="bi bi-calendar-event"></i>
+                                    <strong>Move-in:</strong> {{ booking.move_in_date|date:"M j, Y" }}
+                                </div>
+                                {% endif %}
+
+                                {% if booking.notes %}
+                                <p class="card-text text-truncate mb-3">{{ booking.notes }}</p>
+                                {% endif %}
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        {% if booking.confirmed_at %}
+                                        Confirmed: {{ booking.confirmed_at|date:"M j, Y g:i A" }}
+                                        {% else %}
+                                        Requested: {{ booking.requested_at|date:"M j, Y g:i A" }}
+                                        {% endif %}
+                                    </small>
+                                    <a href="{% url 'boarding_detail' booking.room.boarding_house.pk %}" class="btn btn-primary btn-sm">View Property</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="row justify-content-center empty-state-wrapper">
+                <div class="col-lg-8">
+                    <div class="empty-state">
+                        <div class="mb-4">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="var(--beige)" stroke-width="1.5">
+                                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7z"></path>
+                            </svg>
+                        </div>
+                        <h2 class="h3">No bookings yet</h2>
+                        <p>When a landlord accepts your inquiry, your confirmed booking will appear here so you can track your move-in.</p>
+                        <a href="{% url 'listing_list' %}" class="btn btn-primary">Browse Boarding Houses</a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

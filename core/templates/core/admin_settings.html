@@ -1,0 +1,79 @@
+{% extends 'core/app_base.html' %}
+{% block title %}System Settings - BHIMS Admin{% endblock %}
+
+{% block extra_css %}
+{% include 'core/includes/admin_styles.html' %}
+{% endblock %}
+
+{% block app_content %}
+<div class="admin-page">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Admin</div>
+            <h1>System Settings</h1>
+            <p>Configure the BHIMS site name, contact details and registration controls.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-7 col-xl-6">
+            <div class="admin-table-wrap p-4" style="background: var(--bhims-cream-light);">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    {% for field in form %}
+                    {% if field.name == 'student_registration_enabled' %}
+                    <div class="form-check form-switch mt-4 p-0 d-flex align-items-center gap-3">
+                        <div class="form-check form-switch" style="padding-left: 2.6rem; margin: 0;">
+                            {{ field }}
+                        </div>
+                        <div>
+                            <label class="form-label mb-0" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            <small class="d-block text-muted">Students can sign up on their own when this is on.</small>
+                            {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors|striptags }}</div>{% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors|striptags }}</div>{% endif %}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-uppercase btn-primary">
+                            <i class="bi bi-check2"></i> Save Settings
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-5 col-xl-6 mt-4 mt-lg-0">
+            <div class="admin-table-wrap p-4" style="background: var(--bhims-cream-light);">
+                <h2 class="h3 mb-3" style="font-family: var(--font-display); font-weight: 800; color: var(--bhims-text);">How it works</h2>
+                <ul class="list-unstyled mb-0" style="color: var(--bhims-text-muted); font-size: var(--fs-md);">
+                    <li class="d-flex gap-3 mb-3">
+                        <i class="bi bi-hash" style="color: var(--bhims-terracotta);"></i>
+                        <span><strong style="color: var(--bhims-text);">System name</strong> — shown in the browser title bar and emails.</span>
+                    </li>
+                    <li class="d-flex gap-3 mb-3">
+                        <i class="bi bi-chat-quote" style="color: var(--bhims-terracotta);"></i>
+                        <span><strong style="color: var(--bhims-text);">Tagline</strong> — the short message on the landing page.</span>
+                    </li>
+                    <li class="d-flex gap-3 mb-3">
+                        <i class="bi bi-envelope" style="color: var(--bhims-terracotta);"></i>
+                        <span><strong style="color: var(--bhims-text);">Support email</strong> — where students can reach the admin team.</span>
+                    </li>
+                    <li class="d-flex gap-3">
+                        <i class="bi bi-person-plus" style="color: var(--bhims-terracotta);"></i>
+                        <span><strong style="color: var(--bhims-text);">Student registration</strong> — toggle self-service signup on or off.</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

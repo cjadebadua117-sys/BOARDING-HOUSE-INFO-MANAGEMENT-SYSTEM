@@ -1,19 +1,266 @@
-{% extends 'core/base.html' %}
-{% block title %}Send Inquiry{% endblock %}
+{% extends 'core/app_base.html' %}
+{% load humanize static %}
+{% block title %}Send Inquiry · {{ room.name|default:room.room_type }}{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-lg-7">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <h2 class="card-title">Inquiry for {{ room.name|default:room.room_type }}</h2>
-        <p class="text-muted">{{ room.boarding_house.name }} · ₱{{ room.price }}</p>
-        <form method="post" novalidate>
-          {% csrf_token %}
-          {{ form.as_p }}
-          <button type="submit" class="btn btn-primary">Send Inquiry</button>
-        </form>
-      </div>
+<style>
+    /* ---- Ambient campus backdrop ---- */
+    .inq-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background: url('{% static "core/images/dmmmsu-campus.jpg" %}') center / cover no-repeat;
+        filter: blur(3px) saturate(1.08);
+        transform: scale(1.06);
+        opacity: 0.85;
+    }
+    .inq-backdrop::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(250, 246, 240, 0.30) 0%, rgba(250, 246, 240, 0.62) 82%);
+    }
+    .inq-wrap { max-width: 880px; margin: 2rem auto 3rem; padding: 0 1rem; position: relative; z-index: 1; }
+    .inq-back {
+        display: inline-flex; align-items: center; gap: .4rem;
+        color: var(--bhims-text-muted); text-decoration: none;
+        font-size: .9rem; font-weight: 500; margin-bottom: 1rem;
+        transition: color .2s ease;
+    }
+    .inq-back:hover { color: var(--bhims-terracotta-deep); }
+
+    .inq-card {
+        background: var(--bhims-paper-raised);
+        border: 1px solid var(--bhims-border);
+        border-radius: var(--bhims-radius-lg, 18px);
+        box-shadow: 0 10px 34px rgba(58, 42, 32, 0.10);
+        overflow: hidden;
+    }
+    .inq-head {
+        background:
+            repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 9px),
+            linear-gradient(135deg, var(--bhims-terracotta) 0%, var(--bhims-terracotta-deep) 100%);
+        color: #fff;
+        padding: 1.5rem 2rem;
+    }
+    .inq-eyebrow {
+        margin: 0 0 .3rem; font-size: .72rem; font-weight: 700;
+        letter-spacing: .14em; text-transform: uppercase; opacity: .85;
+    }
+    .inq-title { margin: 0; font-size: 1.45rem; font-weight: 700; line-height: 1.25; }
+    .inq-body {
+        display: grid;
+        grid-template-columns: minmax(240px, 300px) 1fr;
+        gap: 2rem;
+        padding: 2rem;
+    }
+    @media (max-width: 720px) {
+        .inq-body { grid-template-columns: 1fr; padding: 1.5rem; }
+    }
+
+    /* ---- Room summary panel ---- */
+    .inq-room {
+        background: var(--bhims-paper);
+        border: 1px solid var(--bhims-border);
+        border-radius: 14px;
+        padding: 1.25rem;
+        align-self: start;
+        display: flex; flex-direction: column; gap: .9rem;
+    }
+    .inq-house-label {
+        font-size: .7rem; font-weight: 700; letter-spacing: .12em;
+        text-transform: uppercase; color: var(--bhims-text-muted); margin: 0;
+    }
+    .inq-house-name { margin: .15rem 0 0; font-size: 1.05rem; font-weight: 700; color: var(--bhims-text-strong); }
+    .inq-price { font-size: 1.55rem; font-weight: 800; color: var(--bhims-terracotta-deep); line-height: 1; }
+    .inq-price small { font-size: .8rem; font-weight: 500; color: var(--bhims-text-muted); }
+    .inq-chip-row { display: flex; flex-wrap: wrap; gap: .45rem; }
+    .inq-chip {
+        display: inline-flex; align-items: center; gap: .35rem;
+        padding: .28rem .7rem; border-radius: 999px;
+        font-size: .78rem; font-weight: 600;
+        background: rgba(111, 138, 60, 0.12);
+        color: #4c621f; border: 1px solid rgba(111, 138, 60, 0.25);
+    }
+    .inq-chip--type {
+        background: rgba(193, 89, 42, 0.10);
+        color: var(--bhims-terracotta-deep);
+        border-color: rgba(193, 89, 42, 0.25);
+    }
+
+    /* ---- Form ---- */
+    .inq-form-field { margin-bottom: 1.15rem; }
+    .inq-form-field label {
+        display: block; margin-bottom: .4rem;
+        font-size: .78rem; font-weight: 700;
+        letter-spacing: .06em; text-transform: uppercase;
+        color: #5f4a38;
+    }
+    .inq-form-field label .opt { text-transform: none; font-weight: 500; color: var(--bhims-text-muted); letter-spacing: 0; }
+    .inq-input {
+        width: 100%;
+        padding: .72rem .95rem;
+        border-radius: 12px;
+        border: 1px solid var(--bhims-border);
+        background: var(--bhims-paper);
+        font: inherit; color: var(--bhims-text);
+        transition: border-color .2s ease, box-shadow .2s ease;
+    }
+    .inq-input:focus {
+        outline: none;
+        border-color: var(--bhims-terracotta);
+        box-shadow: 0 0 0 3px rgba(193, 89, 42, 0.16);
+    }
+    .inq-input.is-invalid { border-color: #b3261e; }
+    .inq-help { margin: .35rem 0 0; font-size: .78rem; color: var(--bhims-text-muted); }
+    .inq-error { margin: .35rem 0 0; font-size: .82rem; color: #b3261e; }
+    .inq-summary {
+        margin-bottom: 1.25rem;
+        padding: .85rem 1rem;
+        border-radius: 12px;
+        border: 1px solid rgba(179, 38, 30, 0.35);
+        background: rgba(179, 38, 30, 0.08);
+    }
+    .inq-summary h3 { margin: 0 0 .35rem; font-size: .92rem; color: #b3261e; }
+    .inq-summary ul { margin: 0; padding-left: 1.1rem; }
+    .inq-summary a { color: #b3261e; }
+    .inq-counter {
+        text-align: right; font-size: .75rem;
+        color: var(--bhims-text-muted); margin-top: .3rem;
+    }
+    .inq-counter.at-limit { color: #b3261e; font-weight: 600; }
+    .inq-actions {
+        display: flex; align-items: center; gap: 1rem;
+        margin-top: 1.5rem; flex-wrap: wrap;
+    }
+    .inq-submit {
+        flex: 1; min-width: 200px; min-height: 46px;
+        padding: .8rem 1.5rem;
+        border: none; border-radius: 999px;
+        background: linear-gradient(135deg, var(--bhims-terracotta), var(--bhims-terracotta-deep));
+        color: #fff; font-weight: 700; font-size: 1rem;
+        cursor: pointer;
+        box-shadow: 0 6px 18px rgba(193, 89, 42, 0.30);
+        transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+    }
+    .inq-submit:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 9px 22px rgba(193, 89, 42, 0.38); }
+    .inq-submit:disabled { opacity: .65; cursor: wait; transform: none; }
+    .inq-cancel {
+        color: var(--bhims-text-muted); text-decoration: none;
+        font-weight: 600; font-size: .92rem; min-height: 44px;
+        display: inline-flex; align-items: center;
+    }
+    .inq-cancel:hover { color: var(--bhims-terracotta-deep); }
+    @media (prefers-reduced-motion: reduce) {
+        .inq-submit, .inq-submit:hover:not(:disabled), .inq-back, .inq-cancel { transition: none !important; transform: none !important; }
+    }
+</style>
+
+<div class="inq-backdrop" aria-hidden="true"></div>
+<div class="inq-wrap">
+    <a href="{% url 'boarding_detail' room.boarding_house.pk %}" class="inq-back">
+        <i class="bi bi-arrow-left"></i> Back to {{ room.boarding_house.name }}
+    </a>
+
+    <div class="inq-card">
+        <header class="inq-head">
+            <p class="inq-eyebrow"><i class="bi bi-chat-dots"></i> New Inquiry</p>
+            <h1 class="inq-title">{{ room.name|default:room.room_type }}</h1>
+        </header>
+
+        <div class="inq-body">
+            <aside class="inq-room" aria-label="Room summary">
+                <div>
+                    <p class="inq-house-label">Boarding house</p>
+                    <p class="inq-house-name">{{ room.boarding_house.name }}</p>
+                </div>
+                <p class="inq-price">₱{{ room.price|intcomma }}<small> / month</small></p>
+                <div class="inq-chip-row">
+                    <span class="inq-chip inq-chip--type"><i class="bi bi-door-open"></i> {{ room.get_room_type_display|default:room.room_type }}</span>
+                    {% if room.is_available %}
+                        <span class="inq-chip"><i class="bi bi-check-circle"></i> Available</span>
+                    {% else %}
+                        <span class="inq-chip inq-chip--type"><i class="bi bi-x-circle"></i> Occupied</span>
+                    {% endif %}
+                </div>
+            </aside>
+
+            <form method="post" novalidate id="inquiryForm">
+                {% csrf_token %}
+
+                {% if form.errors or form.non_field_errors %}
+                <div class="inq-summary" role="alert" tabindex="-1" id="errorSummary">
+                    <h3><i class="bi bi-exclamation-triangle"></i> Please fix the following:</h3>
+                    <ul>
+                        {% for field, errors in form.errors.items %}
+                            {% if field == '__all__' %}
+                                {% for error in errors %}<li>{{ error }}</li>{% endfor %}
+                            {% else %}
+                                <li><a href="#id_{{ field }}">{{ errors.0 }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <div class="inq-form-field">
+                    <label for="{{ form.subject.id_for_label }}">
+                        Subject <span class="opt">(optional)</span>
+                    </label>
+                    {{ form.subject }}
+                    {% for error in form.subject.errors %}
+                        <p class="inq-error" id="{{ form.subject.html_name }}-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div class="inq-form-field">
+                    <label for="{{ form.message_text.id_for_label }}">Message</label>
+                    {{ form.message_text }}
+                    <p class="inq-counter" id="charCounter" aria-live="polite">0 / 2000</p>
+                    <p class="inq-help">Ask about rent, utilities, house rules, or move-in dates — the landlord will reply in your inquiries inbox.</p>
+                    {% for error in form.message_text.errors %}
+                        <p class="inq-error" id="{{ form.message_text.html_name }}-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div class="inq-actions">
+                    <button type="submit" class="inq-submit" id="submitBtn">
+                        <i class="bi bi-send"></i> Send Inquiry
+                    </button>
+                    <a href="{% url 'boarding_detail' room.boarding_house.pk %}" class="inq-cancel">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
-  </div>
 </div>
+
+<script>
+    (function () {
+        var MAX = 2000;
+        var msg = document.getElementById('{{ form.message_text.id_for_label }}');
+        var counter = document.getElementById('charCounter');
+        if (msg && counter) {
+            var update = function () {
+                var len = msg.value.length;
+                counter.textContent = len + ' / ' + MAX;
+                counter.classList.toggle('at-limit', len >= MAX);
+            };
+            msg.addEventListener('input', update);
+            update();
+        }
+
+        var form = document.getElementById('inquiryForm');
+        var btn = document.getElementById('submitBtn');
+        if (form && btn) {
+            form.addEventListener('submit', function () {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending…';
+            });
+        }
+
+        var summary = document.getElementById('errorSummary');
+        if (summary) summary.focus();
+    })();
+</script>
 {% endblock %}

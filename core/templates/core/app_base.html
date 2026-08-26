@@ -1,0 +1,201 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="app-shell" id="appShell" style="display: flex; min-height: 100vh; background: var(--bhims-cream);">
+    {% include 'core/includes/sidebar.html' %}
+    <main class="app-main">
+        <!-- Persistent top bar with high-visibility hamburger toggle -->
+        <div class="app-topbar">
+            <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar" aria-controls="appShell" aria-expanded="true" title="Open/close menu">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#c1592a" stroke-width="2.5" stroke-linecap="round">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <span class="topbar-page-title">{% block topbar_title %}<img src="{% static 'core/images/bhims-logo.png' %}" alt="BHIMS logo" style="height: 48px !important; width: auto !important; display: block !important; border-radius: 12px !important;">{% endblock %}</span>
+        </div>
+        <div class="app-content">
+            {% block app_content %}{% endblock %}
+        </div>
+    </main>
+</div>
+
+<style>
+    /* Ambient warm light field — gives the glass rail something to refract */
+    .app-shell {
+        position: relative;
+        isolation: isolate;
+    }
+    .app-shell::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background:
+            radial-gradient(560px 420px at 10% 2%, rgba(193, 89, 42, 0.15), transparent 62%),
+            radial-gradient(520px 400px at 92% 94%, rgba(111, 138, 60, 0.13), transparent 62%),
+            radial-gradient(440px 340px at 72% 6%, rgba(63, 125, 140, 0.11), transparent 58%);
+    }
+
+    .app-main {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .app-topbar {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.9rem 1.5rem;
+        background: var(--bhims-paper-raised);
+        border-bottom: 1px solid var(--bhims-border);
+        position: sticky;
+        top: 0;
+        z-index: 1200;
+    }
+    .sidebar-toggle {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .sidebar-toggle {
+        background: transparent;
+        border: none;
+        border-radius: 12px;
+        width: 48px;
+        height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+    .sidebar-toggle svg {
+        width: 1.5rem;
+        height: 1.5rem;
+        display: block;
+    }
+    .sidebar-toggle:hover {
+        background: var(--bhims-paper-sunken);
+    }
+    .sidebar-toggle:active {
+        transform: scale(0.94);
+    }
+
+    .topbar-page-title {
+        font-family: var(--font-display);
+        font-weight: 700;
+        color: var(--bhims-text);
+        font-size: 1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .app-content {
+        padding: 2.5rem 2.5rem 4rem;
+        max-width: 1440px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .app-shell.sidebar-collapsed .app-sidebar {
+        display: none !important;
+    }
+
+    @media (max-width: 768px) {
+        .app-content {
+            padding: 2rem 1.25rem 3rem;
+        }
+    }
+</style>
+
+<script>
+(function () {
+    function init() {
+        var shell = document.getElementById('appShell');
+        var toggle = document.getElementById('sidebarToggle');
+        var sidebar = shell ? shell.querySelector('.app-sidebar') : null;
+        if (!shell || !toggle || !sidebar) return;
+
+        var KEY = 'bhims_sidebar_collapsed';
+
+        function apply(collapsed) {
+            shell.classList.toggle('sidebar-collapsed', collapsed);
+            sidebar.style.display = collapsed ? 'none' : 'flex';
+            toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        }
+
+        function readStored() {
+            try { return localStorage.getItem(KEY) === '1'; } catch (e) { return false; }
+        }
+
+        function toggleSidebar() {
+            var collapsed = !shell.classList.contains('sidebar-collapsed');
+            try { localStorage.setItem(KEY, collapsed ? '1' : '0'); } catch (e) {}
+            apply(collapsed);
+        }
+
+        apply(readStored());
+
+        // Delegated listener: works for #sidebarToggle and #sidebarClose even if
+        // the buttons are re-rendered or the click lands on an inner SVG element.
+        document.addEventListener('click', function (e) {
+            var t = e.target;
+            while (t && t !== document) {
+                if (t.id === 'sidebarToggle') { toggleSidebar(); return; }
+                if (t.id === 'sidebarClose') {
+                    try { localStorage.setItem(KEY, '1'); } catch (err) {}
+                    apply(true);
+                    return;
+                }
+                t = t.parentNode;
+            }
+        });
+
+        window.addEventListener('storage', function () { apply(readStored()); });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+
+(function () {
+    // Animated count-up for .stat-number[data-count] elements
+    function animateNumbers() {
+        document.querySelectorAll('.stat-number[data-count]').forEach(function (el) {
+            var target = parseInt(el.getAttribute('data-count'), 10);
+            if (isNaN(target)) return;
+            if (el.dataset.animated === '1') return;
+            el.dataset.animated = '1';
+            var duration = 700;
+            var start = null;
+            function step(ts) {
+                if (!start) start = ts;
+                var progress = Math.min((ts - start) / duration, 1);
+                var eased = 1 - Math.pow(1 - progress, 3);
+                el.textContent = Math.round(eased * target).toLocaleString();
+                if (progress < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        });
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', animateNumbers);
+    } else {
+        animateNumbers();
+    }
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,22 @@
+%% BHIMS - Context Diagram (Level 0 DFD)
+%% Render: npx @mermaid-js/mermaid-cli -i bhims_context_diagram.mmd -o bhims_context_diagram.png -b white -s 2.5
+flowchart LR
+    STU["<b>STUDENT</b>"]
+    LAN["<b>LANDLORD</b>"]
+    ADM["<b>ADMINISTRATOR</b>"]
+
+    SYS(("<b>BOARDING HOUSE<br/>INFORMATION MANAGEMENT<br/>SYSTEM</b><br/>0"))
+
+    STU -- "registration / login with program<br/>or K-12 grade level,<br/>search filters, inquiries, reports" --> SYS
+    SYS -- "listings & house details,<br/>replies, booking status" --> STU
+
+    LAN -- "house / room / photo data,<br/>replies, accept decisions, reports" --> SYS
+    SYS -- "student inquiries,<br/>approval status" --> LAN
+
+    ADM -- "approve / reject listings,<br/>manage users, resolve reports" --> SYS
+    SYS -- "pending listings,<br/>user reports, analytics summary" --> ADM
+
+    classDef entity fill:#f8eae4,stroke:#8c4a2f,stroke-width:2.5px,color:#3a2a20,font-size:16px
+    classDef system fill:#ffffff,stroke:#c1592a,stroke-width:4px,color:#3a2a20,font-size:16px
+    class STU,LAN,ADM entity
+    class SYS system

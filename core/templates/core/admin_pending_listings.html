@@ -1,0 +1,97 @@
+{% extends 'core/app_base.html' %}
+{% block title %}Pending Listings - BHIMS Admin{% endblock %}
+
+{% block extra_css %}
+{% include 'core/includes/admin_styles.html' %}
+{% endblock %}
+
+{% block app_content %}
+<div class="admin-page">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Admin</div>
+            <h1>Pending Listings</h1>
+            <p>Review boarding house submissions before they go live to students.</p>
+        </div>
+        <span class="pill pill-pending">{{ page_obj.paginator.count }} awaiting review</span>
+    </div>
+
+    {% if page_obj.object_list %}
+    <div class="admin-table-wrap">
+        <div class="table-responsive">
+            <table class="table admin-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Boarding House</th>
+                        <th>Landlord</th>
+                        <th>Barangay</th>
+                        <th>Rooms</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for house in page_obj %}
+                    <tr>
+                        <td>
+                            <div class="fw-semibold" style="color: var(--bhims-text);">{{ house.name }}</div>
+                            <small class="text-muted">{{ house.address }}</small>
+                        </td>
+                        <td>
+                            <a href="{% url 'admin_landlord_detail' house.owner.id %}" class="text-decoration-none fw-medium">{{ house.owner.full_name|default:house.owner.email }}</a>
+                        </td>
+                        <td>{{ house.barangay_display }}</td>
+                        <td>{{ house.rooms.count }}</td>
+                        <td><span class="pill pill-pending">Pending</span></td>
+                        <td class="text-end">
+                            <div class="d-inline-flex gap-2">
+                                <form method="post" action="{% url 'admin_approve_listing' house.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-uppercase btn-success">Approve</button>
+                                </form>
+                                <form method="post" action="{% url 'admin_reject_listing' house.pk %}" class="d-inline" onsubmit="return confirm('Reject this listing? The landlord will have to resubmit it.');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-uppercase btn-danger">Reject</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav aria-label="Pending listings pages" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                {% if page_obj.number == num %}
+                <span class="page-link">{{ num }}</span>
+                {% else %}
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                {% endif %}
+            </li>
+            {% endfor %}
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="admin-table-wrap">
+        <div class="empty-state">
+            <i class="bi bi-check2-circle"></i>
+            <p class="mb-0 fw-semibold" style="color: var(--bhims-text);">All caught up!</p>
+            <p class="mb-0">There are no boarding houses waiting for review.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

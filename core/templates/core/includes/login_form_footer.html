@@ -3,5 +3,6 @@
         <input type="checkbox" id="remember_me" name="remember_me">
         <label for="remember_me">Remember Me</label>
     </div>
+    <input type="hidden" name="next" value="{{ next|default:'' }}">
     <a href="{% url 'password_reset' %}" class="forgot-password">Forgot Password?</a>
 </div>

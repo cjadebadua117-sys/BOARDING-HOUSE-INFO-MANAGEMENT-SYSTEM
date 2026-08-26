@@ -1,167 +1,656 @@
-{% extends 'core/base.html' %}
+{% extends 'core/app_base.html' %}
 {% block title %}Landlord Dashboard{% endblock %}
-{% block content %}
-<div class="landlord-page">
-<div class="row mb-4">
-  <div class="col-md-8">
-    <h1>Landlord Dashboard</h1>
-    <p>Manage your boarding houses, rooms, and student inquiries.</p>
-  </div>
-  <div class="col-md-4 text-end">
-    <a class="btn btn-primary" href="{% url 'boarding_house_create' %}">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-      </svg>
-      Create Boarding House
-    </a>
-  </div>
-</div>
 
-<!-- Stats Row -->
-<div class="row mb-4">
-  <div class="col-md-4">
-    <div class="card shadow-sm border-0 p-4">
-      <div class="d-flex align-items-center">
-        <div class="icon-box" style="background: rgba(139, 69, 19, 0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1.5rem; height: 1.5rem; color: var(--terracotta);">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3h1.5m-1.5 3h1.5M9 19.5v-3.375c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125V19.5" />
-          </svg>
-        </div>
-        <div>
-          <h3 class="mb-0">{{ houses|length }}</h3>
-          <p class="text-muted mb-0 small">Boarding Houses</p>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card shadow-sm border-0 p-4">
-      <div class="d-flex align-items-center">
-        <div class="icon-box" style="background: rgba(139, 69, 19, 0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1.5rem; height: 1.5rem; color: var(--landlord-accent);">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-          </svg>
-        </div>
-        <div>
-          <h3 class="mb-0">{% with total=0 %}{% for house in houses %}{% with available=house.available_rooms.count %}{% with total=total|add:available %}{% endwith %}{% endwith %}{% endfor %}{{ total }}{% endwith %}</h3>
-          <p class="text-muted mb-0 small">Available Rooms</p>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card shadow-sm border-0 p-4">
-      <div class="d-flex align-items-center">
-        <div class="icon-box" style="background: rgba(139, 69, 19, 0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1.5rem; height: 1.5rem; color: var(--landlord-accent);">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a3.375 3.375 0 00-3.375 3.375v.035a.675.675 0 00.235.505l2.035 1.782a.675.675 0 00.834 0l2.035-1.782a.675.675 0 00.235-.505v-.035A3.375 3.375 0 0010.5 12H8.625z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.375 12a3.375 3.375 0 00-3.375 3.375v.035a.675.675 0 00.235.505l2.035 1.782a.675.675 0 00.834 0l2.035-1.782a.675.675 0 00.235-.505v-.035A3.375 3.375 0 0018 12h-2.625z" />
-          </svg>
-        </div>
-        <div>
-          <h3 class="mb-0">{{ open_inquiries|length }}</h3>
-          <p class="text-muted mb-0 small">Open Inquiries</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+{% block extra_css %}
+<style>
+    .dashboard-page {
+        min-height: 0;
+        padding: 0;
+        max-width: none;
+        margin: 0;
+        background: transparent;
+    }
+    
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2.5rem;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+    
+    .page-header .eyebrow {
+        font-family: var(--font-display);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.125em;
+        font-size: var(--fs-sm);
+        color: #c1592a;
+        margin-bottom: 0.5rem;
+    }
+    
+    .page-header h1 {
+        font-family: var(--font-display);
+        font-weight: 800;
+        font-size: 2.5rem;
+        color: #3a2a20;
+        margin: 0 0 0.5rem 0;
+    }
+    
+    .page-header p {
+        color: #6d5c53;
+        font-size: 1.05rem;
+        margin: 0;
+    }
+    
+    .create-btn {
+        background-color: #c1592a;
+        color: #ffffff;
+        border: none;
+        border-radius: var(--bhims-radius-sm);
+        padding: 0.875rem 1.75rem;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.1s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .create-btn:hover {
+        background-color: #a84c23;
+        transform: translateY(-1px);
+        color: #ffffff;
+    }
+    
+    /* Stats Cards */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+    
+    .stat-card {
+        background-color: var(--bhims-cream-light);
+        border: 1px solid #e9dcd0;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    }
+    
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        background-color: #f8eae4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .stat-icon svg {
+        width: 1.75rem;
+        height: 1.75rem;
+        color: #c1592a;
+    }
+    
+    .stat-content h3 {
+        font-family: var(--font-display);
+        font-weight: 800;
+        font-size: 2.25rem;
+        color: #3a2a20;
+        margin: 0 0 0.25rem 0;
+        line-height: 1;
+    }
+    
+    .stat-content p {
+        color: #6d5c53;
+        font-size: var(--fs-md);
+        margin: 0;
+        font-weight: 500;
+    }
+    
+    /* Section Styles */
+    .section {
+        margin-bottom: 3rem;
+    }
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .section-header h2 {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: var(--fs-2xl);
+        color: #3a2a20;
+        margin: 0;
+    }
+    
+    .view-all-btn {
+        color: #c1592a;
+        border: 1px solid #c1592a;
+        background-color: transparent;
+        border-radius: var(--bhims-radius-sm);
+        padding: 0.625rem 1.5rem;
+        font-weight: 600;
+        font-size: var(--fs-sm);
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        text-decoration: none;
+    }
+    
+    .view-all-btn:hover {
+        background-color: #f8eae4;
+        color: #c1592a;
+    }
+    
+    /* Boarding Houses Grid */
+    .houses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .house-card {
+        background-color: var(--bhims-cream-light);
+        border: 1px solid #e9dcd0;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .house-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    }
+    
+    .house-image-container {
+        height: 220px;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .house-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background: var(--bhims-cream);
+    }
+    
+    .house-image-placeholder {
+        width: 100%;
+        height: 100%;
+        background-color: #f8eae4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .house-image-placeholder svg {
+        width: 4rem;
+        height: 4rem;
+        color: #c1592a;
+        opacity: 0.6;
+    }
+    
+    .house-content {
+        padding: 1.75rem;
+    }
+    
+    .house-content h3 {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: var(--fs-xl);
+        color: #3a2a20;
+        margin: 0 0 0.5rem 0;
+    }
+    
+    .house-location {
+        color: #6d5c53;
+        font-size: var(--fs-sm);
+        margin: 0 0 1rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+    
+    .house-stats {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .available-badge {
+        background-color: var(--bhims-badge-verified-bg);
+        color: var(--bhims-badge-verified);
+        padding: 0.375rem 0.875rem;
+        border-radius: 9999px;
+        font-size: var(--fs-sm);
+        font-weight: 600;
+    }
+    
+    .total-rooms {
+        color: #6d5c53;
+        font-size: var(--fs-sm);
+    }
+    
+    .house-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+    
+    .manage-btn {
+        flex: 1;
+        background-color: #c1592a;
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        font-weight: 600;
+        font-size: var(--fs-md);
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .manage-btn:hover {
+        background-color: #a84c23;
+        color: #ffffff;
+    }
+    
+    .edit-btn {
+        background-color: transparent;
+        color: #3a2a20;
+        border: 1px solid #e9dcd0;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        font-weight: 600;
+        font-size: var(--fs-md);
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .edit-btn:hover {
+        background-color: #f8eae4;
+        color: #c1592a;
+        border-color: #c1592a;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        background-color: var(--bhims-cream-light);
+        border: 1px solid #e9dcd0;
+        border-radius: 16px;
+        padding: 4rem 2rem;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    }
+    
+    .empty-state svg {
+        width: 4rem;
+        height: 4rem;
+        color: #c1592a;
+        opacity: 0.4;
+        margin: 0 auto 1.5rem;
+    }
+    
+    .empty-state h3 {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: var(--fs-xl);
+        color: #3a2a20;
+        margin: 0 0 0.5rem 0;
+    }
+    
+    .empty-state p {
+        color: #6d5c53;
+        font-size: var(--fs-md);
+        margin: 0 0 1.5rem 0;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .empty-state .create-first-btn {
+        background-color: #c1592a;
+        color: #ffffff;
+        border: none;
+        border-radius: var(--bhims-radius-sm);
+        padding: 0.875rem 2rem;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .empty-state .create-first-btn:hover {
+        background-color: #a84c23;
+        color: #ffffff;
+    }
+    
+    /* Inquiries List */
+    .inquiries-card {
+        background-color: var(--bhims-cream-light);
+        border: 1px solid #e9dcd0;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    }
+    
+    .inquiry-item {
+        padding: 1.75rem;
+        border-bottom: 1px solid #f0e8e0;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .inquiry-item:last-child {
+        border-bottom: none;
+    }
+    
+    .inquiry-student-info {
+        display: flex;
+        gap: 1.25rem;
+        flex: 1;
+        min-width: 280px;
+    }
+    
+    .student-avatar {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background-color: #c1592a;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: var(--fs-xl);
+        flex-shrink: 0;
+    }
+    
+    .inquiry-details h4 {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: var(--fs-lg);
+        color: #3a2a20;
+        margin: 0 0 0.375rem 0;
+    }
+    .new-chip {
+        display: inline-flex;
+        align-items: center;
+        background: var(--bhims-terracotta);
+        color: #fff;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        border-radius: 999px;
+        padding: 0.18rem 0.6rem;
+        vertical-align: middle;
+        margin-left: 0.4rem;
+        box-shadow: 0 2px 8px rgba(193, 89, 42, 0.35);
+    }
+    @media (prefers-reduced-motion: no-preference) {
+        .new-chip { animation: newChipPop 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        @keyframes newChipPop {
+            from { opacity: 0; transform: scale(0.6); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    }
+    
+    .inquiry-property {
+        color: #6d5c53;
+        font-size: var(--fs-sm);
+        margin: 0 0 0.5rem 0;
+    }
+    
+    .inquiry-preview {
+        color: #3a2a20;
+        font-size: var(--fs-md);
+        margin: 0;
+        line-height: 1.5;
+    }
+    
+    .view-thread-btn {
+        background-color: #c1592a;
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        padding: 0.625rem 1.25rem;
+        font-weight: 600;
+        font-size: var(--fs-sm);
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+    
+    .view-thread-btn:hover {
+        background-color: #a84c23;
+        color: #ffffff;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .page-header h1 {
+            font-size: 2rem;
+        }
+        
+        .houses-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .stat-card {
+            padding: 1.5rem;
+        }
+        
+        .stat-content h3 {
+            font-size: 1.75rem;
+        }
+        
+        .inquiry-item {
+            flex-direction: column;
+        }
+        
+        .view-thread-btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
 
-<!-- Boarding Houses Grid -->
-<div class="mb-4">
-  <h2 class="h4 mb-3">Your Boarding Houses</h2>
-  {% if houses %}
-  <div class="row g-4">
-    {% for house in houses %}
-    <div class="col-lg-6">
-      <div class="card shadow-sm border-0 overflow-hidden h-100">
-        {% if house.photos.first %}
-        <img src="{{ house.photos.first.image.url }}" class="card-img-top" alt="{{ house.name }}" style="height: 200px; object-fit: cover;">
+{% block app_content %}
+<div class="dashboard-page">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Property Management</p>
+            <h1>Landlord Dashboard</h1>
+            <p>Manage your boarding houses, rooms, and student inquiries all in one place.</p>
+        </div>
+        <a href="{% url 'boarding_house_create' %}" class="create-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 1.1rem; height: 1.1rem;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Create Boarding House
+        </a>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3h1.5m-1.5 3h1.5M9 19.5v-3.375c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125V19.5" />
+                </svg>
+            </div>
+            <div class="stat-content">
+                <h2 class="h3">{{ houses|length }}</h2>
+                <p>Boarding Houses</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+            </div>
+            <div class="stat-content">
+                <h2 class="h3">{{ total_available_rooms }}</h2>
+                <p>Available Rooms</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a3.375 3.375 0 00-3.375 3.375v.035a.675.675 0 00.235.505l2.035 1.782a.675.675 0 00.834 0l2.035-1.782a.675.675 0 00.235-.505v-.035A3.375 3.375 0 0010.5 12H8.625z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.375 12a3.375 3.375 0 00-3.375 3.375v.035a.675.675 0 00.235.505l2.035 1.782a.675.675 0 00.834 0l2.035-1.782a.675.675 0 00.235-.505v-.035A3.375 3.375 0 0018 12h-2.625z" />
+                </svg>
+            </div>
+            <div class="stat-content">
+                <h2 class="h3">{{ inquiries|length }}</h2>
+                <p>Open Inquiries</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Boarding Houses Section -->
+    <div class="section">
+        <div class="section-header">
+            <h2>Your Boarding Houses</h2>
+            <a href="{% url 'landlord_boarding_house_list' %}" class="view-all-btn">View all properties</a>
+        </div>
+        
+        {% if houses %}
+        <div class="houses-grid">
+            {% for house in houses %}
+            <div class="house-card">
+                <div class="house-image-container">
+                    {% if house.image %}
+                    <img src="{{ house.image.url }}" class="house-image" alt="{{ house.name }}">
+                    {% else %}
+                    <div class="house-image-placeholder">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3h1.5m-1.5 3h1.5M9 19.5v-3.375c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125V19.5" />
+                        </svg>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="house-content">
+                    <h3>{{ house.name }}</h3>
+                    <p class="house-location">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        {{ house.barangay_display }}, {{ house.address }}
+                    </p>
+                    <div class="house-stats">
+                        <span class="available-badge">{{ house.rooms.count }} total rooms</span>
+                    </div>
+                    <div class="house-actions">
+                        <a href="{% url 'landlord_boarding_house_detail' house.pk %}" class="manage-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 1rem; height: 1rem;">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>
+                            Manage Rooms
+                        </a>
+                        <a href="{% url 'boarding_house_edit' house.pk %}" class="edit-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 1rem; height: 1rem;">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.688-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
         {% else %}
-        <div class="bg-light" style="height: 200px; display: flex; align-items: center; justify-content: center; background: var(--cream);">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 4rem; height: 4rem; color: var(--text-muted);">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3h1.5m-1.5 3h1.5M9 19.5v-3.375c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125V19.5" />
-          </svg>
+        <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3h1.5m-1.5 3h1.5M9 19.5v-3.375c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125V19.5" />
+            </svg>
+            <h3>No boarding houses yet</h3>
+            <p>Create your first boarding house to start managing rooms and receiving student inquiries from DMMMSU students.</p>
+            <a href="{% url 'boarding_house_create' %}" class="create-first-btn">Create Your First Boarding House</a>
         </div>
         {% endif %}
-        <div class="card-body">
-          <h3 class="h5 mb-1">{{ house.name }}</h3>
-          <p class="text-muted small mb-3">{{ house.barangay }}, {{ house.address }}</p>
-          
-          <div class="d-flex align-items-center mb-4">
-            <span class="badge badge-landlord-available me-2">{{ house.available_rooms.count }} available</span>
-            <span class="text-muted small">{{ house.rooms.count }} total rooms</span>
-          </div>
-          
-          <div class="d-flex gap-2">
-            <a href="{% url 'landlord_boarding_house_detail' house.pk %}" class="btn btn-primary flex-grow-1">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 9.333m0 0l-5.83-5.83m5.83 5.83H3m0 0v9m9-9h9v9" />
-              </svg>
-              Manage Rooms
-            </a>
-            <a href="{% url 'boarding_house_edit' house.pk %}" class="btn btn-outline-secondary">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle;">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.688-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-              </svg>
-            </a>
-          </div>
-        </div>
-      </div>
     </div>
-    {% endfor %}
-  </div>
-  {% else %}
-  <div class="card shadow-sm border-0 p-5 text-center">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 4rem; height: 4rem; margin: 0 auto 1.5rem; color: var(--text-muted);">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3h1.5m-1.5 3h1.5M9 19.5v-3.375c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125V19.5" />
-    </svg>
-    <h3 class="h5 mb-2">No boarding houses yet</h3>
-    <p class="text-muted mb-4">Create your first boarding house to start managing rooms and receiving student inquiries.</p>
-    <a href="{% url 'boarding_house_create' %}" class="btn btn-primary">Create Your First Boarding House</a>
-  </div>
-  {% endif %}
-</div>
 
-<!-- Recent Inquiries -->
-<div>
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="h4 mb-0">Recent Student Inquiries</h2>
-    <a href="{% url 'landlord_inquiry_list' %}" class="btn btn-outline-secondary btn-sm">View all inquiries</a>
-  </div>
-  {% if open_inquiries %}
-  <div class="card shadow-sm border-0">
-    <div class="card-body p-0">
-      <div class="list-group list-group-flush">
-        {% for inquiry in open_inquiries|slice:":5" %}
-        <div class="list-group-item p-4">
-          <div class="d-flex justify-content-between align-items-start">
-            <div class="d-flex">
-              <div class="avatar-circle" style="background: var(--terracotta); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; margin-right: 1rem; flex-shrink: 0;">
-                {{ inquiry.student.full_name|first|default:inquiry.student.email|first }}
-              </div>
-              <div>
-                <h5 class="mb-1">{{ inquiry.student.full_name|default:inquiry.student.email }}</h5>
-                <p class="text-muted small mb-2">{{ inquiry.room.boarding_house.name }} · {{ inquiry.room.name|default:inquiry.room.room_type }}</p>
-                <p class="mb-0">{{ inquiry.message|truncatechars:120 }}</p>
-              </div>
+    <!-- Recent Inquiries Section -->
+    <div class="section">
+        <div class="section-header">
+            <h2>Recent Student Inquiries</h2>
+            <div style="display: flex; gap: 0.75rem; align-items: center;">
+                <a href="{% url 'landlord_bookings' %}" class="view-all-btn">View bookings</a>
+                <a href="{% url 'landlord_inquiry_list' %}" class="view-all-btn">View all inquiries</a>
             </div>
-            <a href="{% url 'landlord_inquiry_thread' inquiry.pk %}" class="btn btn-sm btn-primary">View Thread</a>
-          </div>
         </div>
-        {% endfor %}
-      </div>
+        
+        {% if inquiries %}
+        <div class="inquiries-card">
+            {% for inquiry in inquiries|slice:":5" %}
+            <div class="inquiry-item">
+                <div class="inquiry-student-info">
+                    <div class="student-avatar">
+                        {{ inquiry.student.full_name|first|default:inquiry.student.email|first }}
+                    </div>
+                    <div class="inquiry-details">
+                        <h3 class="h4">{{ inquiry.student.full_name|default:inquiry.student.email }}
+                            {% if inquiry.pk in new_inquiry_ids %}<span class="new-chip">NEW</span>{% endif %}
+                        </h3>
+                        <p class="inquiry-property">{{ inquiry.room.boarding_house.name }} Â· {{ inquiry.room.name|default:inquiry.room.room_type }}</p>
+                        <p class="inquiry-preview">{{ inquiry.message|truncatechars:120 }}</p>
+                    </div>
+                </div>
+                <a href="{% url 'landlord_inquiry_thread' inquiry.pk %}" class="view-thread-btn">View Thread</a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a3.375 3.375 0 00-3.375 3.375v.035a.675.675 0 00.235.505l2.035 1.782a.675.675 0 00.834 0l2.035-1.782a.675.675 0 00.235-.505v-.035A3.375 3.375 0 0010.5 12H8.625z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.375 12a3.375 3.375 0 00-3.375 3.375v.035a.675.675 0 00.235.505l2.035 1.782a.675.675 0 00.834 0l2.035-1.782a.675.675 0 00.235-.505v-.035A3.375 3.375 0 0018 12h-2.625z" />
+            </svg>
+            <h3>No inquiries yet</h3>
+            <p>When students send inquiries about your rooms, they'll appear here so you can respond and manage bookings.</p>
+        </div>
+        {% endif %}
     </div>
-  </div>
-  {% else %}
-  <div class="card shadow-sm border-0 p-5 text-center">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 4rem; height: 4rem; margin: 0 auto 1.5rem; color: var(--text-muted);">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a3.375 3.375 0 00-3.375 3.375v.035a.675.675 0 00.235.505l2.035 1.782a.675.675 0 00.834 0l2.035-1.782a.675.675 0 00.235-.505v-.035A3.375 3.375 0 0010.5 12H8.625z" />
-      <path stroke-linecap="round" stroke-linejoin="round" d="M15.375 12a3.375 3.375 0 00-3.375 3.375v.035a.675.675 0 00.235.505l2.035 1.782a.675.675 0 00.834 0l2.035-1.782a.675.675 0 00.235-.505v-.035A3.375 3.375 0 0018 12h-2.625z" />
-    </svg>
-    <h3 class="h5 mb-2">No inquiries yet</h3>
-    <p class="text-muted mb-0">When students send inquiries about your rooms, they'll appear here.</p>
-  </div>
-  {% endif %}
 </div>
 {% endblock %}
