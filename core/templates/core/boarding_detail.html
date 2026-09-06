@@ -36,7 +36,7 @@
     .hero-card h1 {
         font-family: var(--font-display);
         font-weight: 800;
-        color: #3a2a20;
+        color: #1f3438;
         font-size: 2.5rem;
         margin-bottom: 0.75rem;
     }
@@ -53,7 +53,7 @@
         font-size: var(--fs-xl);
     }
     .description {
-        color: #3a2a20;
+        color: #1f3438;
         line-height: 1.7;
         font-size: 1.05rem;
     }
@@ -68,7 +68,7 @@
     .gallery-title {
         font-family: var(--font-display);
         font-weight: 700;
-        color: #3a2a20;
+        color: #1f3438;
         font-size: var(--fs-2xl);
         margin-bottom: 1.5rem;
     }
@@ -100,7 +100,7 @@
     .rooms-title {
         font-family: var(--font-display);
         font-weight: 700;
-        color: #3a2a20;
+        color: #1f3438;
         font-size: 1.75rem;
         margin-bottom: 2rem;
     }
@@ -154,7 +154,7 @@
     .room-name {
         font-family: var(--font-display);
         font-weight: 700;
-        color: #3a2a20;
+        color: #1f3438;
         font-size: 1.375rem;
         margin: 0;
     }
@@ -188,7 +188,7 @@
     .room-price {
         font-size: var(--fs-2xl);
         font-weight: 700;
-        color: #3a2a20;
+        color: #1f3438;
         margin-bottom: 1rem;
     }
     .amenities-list {
@@ -239,7 +239,7 @@
     .empty-rooms h3 {
         font-family: var(--font-display);
         font-weight: 700;
-        color: #3a2a20;
+        color: #1f3438;
         font-size: var(--fs-2xl);
         margin-bottom: 1rem;
     }
@@ -277,7 +277,7 @@
             <!-- Hero Card -->
             <div class="hero-card">
                 <h1>{{ house.name }}</h1>
-                <a href="{% url 'user_profile' house.owner.pk %}" class="owner-chip" style="display:inline-flex;align-items:center;gap:8px;margin:4px 0 10px;padding:6px 16px;border-radius:999px;background:rgba(193,89,42,0.10);border:1px solid rgba(193,89,42,0.35);color:#0d7a7b;font-weight:700;font-size: var(--fs-sm);text-decoration:none;">
+                <a href="{% url 'user_profile' house.owner.pk %}" class="owner-chip" style="display:inline-flex;align-items:center;gap:8px;margin:4px 0 10px;padding:6px 16px;border-radius:999px;background:rgba(13,122,123,0.10);border:1px solid rgba(13,122,123,0.35);color:#0d7a7b;font-weight:700;font-size: var(--fs-sm);text-decoration:none;">
                     <i class="bi bi-person-circle"></i>
                     Posted by {{ house.owner.get_full_name|default:house.owner.username }} &middot; View Profile
                 </a>

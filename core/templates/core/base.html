@@ -30,16 +30,16 @@
             --bhims-teal-deep: #084f4f;
             --bhims-cream: rgba(255, 255, 255, 0.42);
             --bhims-cream-light: rgba(255, 255, 255, 0.60);
-            --bhims-text: #3a2a20;
-            --bhims-text-muted: #7a6555;
+            --bhims-text: #1f3438;
+            --bhims-text-muted: #57706f;
 
             /* Heritage surface system — warm paper & ink instead of glass */
             --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
-            --bhims-paper: #f4ecdf;
-            --bhims-paper-raised: #fdfaf3;
-            --bhims-paper-sunken: #fbf5ea;
-            --bhims-ink-line: #e4d5c2;
-            --bhims-ink-line-strong: #d9c5ab;
+            --bhims-paper: #edf3ee;
+            --bhims-paper-raised: #f8fbf8;
+            --bhims-paper-sunken: #f2f6f0;
+            --bhims-ink-line: #cfd9d5;
+            --bhims-ink-line-strong: #b9cdc8;
 
             /* Type scale — single source of truth for font sizes.
                Inline styles across templates reference these via var(--fs-*). */
@@ -51,15 +51,15 @@
             --fs-xl: 1.25rem;
             --fs-2xl: 1.5rem;
             --bhims-border: rgba(13, 122, 123, 0.16);
-            --bhims-icon-tint: rgba(248, 234, 228, 0.60);
-            --bhims-badge-verified-bg: rgba(248, 234, 228, 0.78);
+            --bhims-icon-tint: rgba(224, 240, 240, 0.60);
+            --bhims-badge-verified-bg: rgba(224, 240, 240, 0.78);
             --bhims-badge-verified: #0d7a7b;
             --bhims-badge-pending-bg: rgba(253, 240, 220, 0.78);
             --bhims-badge-pending: #9a6a1f;
             --bhims-badge-rejected-bg: rgba(251, 228, 222, 0.78);
             --bhims-badge-rejected: #b3402a;
-            --bhims-shadow: rgba(58, 42, 32, 0.06);
-            --bhims-shadow-hover: rgba(58, 42, 32, 0.12);
+            --bhims-shadow: rgba(8, 79, 79, 0.06);
+            --bhims-shadow-hover: rgba(8, 79, 79, 0.12);
             --bhims-radius: 12px;
             --bhims-radius-sm: 8px;
             --bhims-moss: #6f8a3c;
@@ -77,19 +77,18 @@
             --bhims-glass-bg-primary: var(--bhims-paper-raised);
             --bhims-glass-bg-secondary: var(--bhims-paper-sunken);
             --bhims-glass-bg-subtle: rgba(253, 250, 243, 0.97);
-            --bhims-glass-inner-glow: 0 1px 2px rgba(58, 42, 32, 0.05);
-            --bhims-glass-shadow: 0 1px 2px rgba(58, 42, 32, 0.05), 0 6px 18px rgba(58, 42, 32, 0.07);
-            --bhims-glass-shadow-hover: 0 2px 4px rgba(58, 42, 32, 0.06), 0 14px 30px rgba(58, 42, 32, 0.11);
+            --bhims-glass-inner-glow: 0 1px 2px rgba(8, 79, 79, 0.05);
+            --bhims-glass-shadow: 0 1px 2px rgba(8, 79, 79, 0.05), 0 6px 18px rgba(8, 79, 79, 0.07);
+            --bhims-glass-shadow-hover: 0 2px 4px rgba(8, 79, 79, 0.06), 0 14px 30px rgba(8, 79, 79, 0.11);
 
             /* Backward-compatible aliases for older templates */
             --warm-green: var(--bhims-teal);
-            --terracotta: var(--bhims-teal);
             --beige: var(--bhims-cream);
             --surface: var(--bhims-cream-light);
             --text-muted: var(--bhims-text-muted);
             --text-dark: var(--bhims-text);
-            --shadow-soft: 0 4px 12px rgba(58, 42, 32, 0.06);
-            --shadow-hover: 0 8px 24px rgba(58, 42, 32, 0.12);
+            --shadow-soft: 0 4px 12px rgba(8, 79, 79, 0.06);
+            --shadow-hover: 0 8px 24px rgba(8, 79, 79, 0.12);
         }
 
         body {
@@ -154,7 +153,7 @@
             background-image: none !important;
             background-color: var(--bhims-teal) !important;
             border: 1px solid var(--bhims-teal-deep) !important;
-            box-shadow: 0 1px 2px rgba(58, 42, 32, 0.12) !important;
+            box-shadow: 0 1px 2px rgba(8, 79, 79, 0.12) !important;
             transition: background-color 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease !important;
         }
         .btn-primary:hover, .btn-primary:focus, .btn-primary:active,
@@ -165,13 +164,13 @@
             background-image: none !important;
             background-color: var(--bhims-teal-hover) !important;
             transform: translateY(-1px) !important;
-            box-shadow: 0 2px 6px rgba(58, 42, 32, 0.16) !important;
+            box-shadow: 0 2px 6px rgba(8, 79, 79, 0.16) !important;
         }
         .btn-primary:active, .btn-success:active, .btn-bhims:active,
         .create-btn:active, .submit-btn:active, .btn-submit:active,
         .btn-register-bhims:active, .btn-accept-bhims:active, .bhims-login-btn:active {
             transform: translateY(1px) !important;
-            box-shadow: 0 0 0 rgba(58, 42, 32, 0.12) !important;
+            box-shadow: 0 0 0 rgba(8, 79, 79, 0.12) !important;
         }
 
         /* ---- Cards & surfaces: raised warm paper ---- */
@@ -179,13 +178,13 @@
             background-color: var(--bhims-paper-raised);
             border: 1px solid var(--bhims-ink-line);
             border-radius: var(--bhims-radius);
-            box-shadow: 0 1px 2px rgba(58, 42, 32, 0.05);
+            box-shadow: 0 1px 2px rgba(8, 79, 79, 0.05);
             transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         }
         .card:hover {
             transform: translateY(-2px);
             border-color: var(--bhims-ink-line-strong);
-            box-shadow: 0 6px 16px rgba(58, 42, 32, 0.09);
+            box-shadow: 0 6px 16px rgba(8, 79, 79, 0.09);
         }
         .card .card-header { background-color: var(--bhims-icon-tint); border-bottom: 1px solid var(--bhims-border); }
         .card .card-footer { background-color: transparent; border-top: 1px solid var(--bhims-border); }
@@ -331,7 +330,7 @@
             background: var(--bhims-cream-light);
             color: var(--bhims-text);
             border-radius: var(--bhims-radius-sm);
-            box-shadow: 0 8px 24px rgba(58, 42, 32, 0.18);
+            box-shadow: 0 8px 24px rgba(8, 79, 79, 0.18);
             display: flex;
             align-items: flex-start;
             padding: 15px 18px;
@@ -399,7 +398,7 @@
             left: 0;
             height: 4px;
             width: 100%;
-            background: rgba(58, 42, 32, 0.08);
+            background: rgba(8, 79, 79, 0.08);
         }
         .bhims-toast .progress-bar { height: 100%; width: 100%; }
         .bhims-toast.success .progress-bar { background-color: var(--bhims-moss); }
@@ -505,17 +504,17 @@
         .room-card:hover, .booking-card:hover, .filter-card:hover,
         .inquiry-item:hover, .landing-feature-card:hover {
             transform: translateY(-3px) !important;
-            box-shadow: 0 10px 24px rgba(58, 42, 32, 0.10) !important;
+            box-shadow: 0 10px 24px rgba(8, 79, 79, 0.10) !important;
             border-color: var(--bhims-ink-line-strong) !important;
         }
         .hero-card:hover {
             transform: translateY(-2px) !important;
-            box-shadow: 0 8px 20px rgba(58, 42, 32, 0.08) !important;
+            box-shadow: 0 8px 20px rgba(8, 79, 79, 0.08) !important;
         }
 
-        /* ---- Form inputs: solid paper with terracotta-tinted hairline ---- */
+        /* ---- Form inputs: solid paper with teal-tinted hairline ---- */
         .form-control, .form-select, .bhims-input, .bhims-textarea {
-            background: #fffdf9 !important;
+            background: #f7fbf8 !important;
             border: 1px solid var(--bhims-ink-line-strong) !important;
             transition: background 0.2s ease, border-color 0.18s ease, box-shadow 0.18s ease !important;
         }

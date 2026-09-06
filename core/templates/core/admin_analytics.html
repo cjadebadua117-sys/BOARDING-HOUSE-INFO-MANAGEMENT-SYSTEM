@@ -152,11 +152,11 @@ document.addEventListener('DOMContentLoaded', function() {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { labels: { color: '#3a2a20', boxWidth: 14 } }
+                legend: { labels: { color: '#1f3438', boxWidth: 14 } }
             },
             scales: {
-                x: { ticks: { color: '#7a6555' }, grid: { display: false } },
-                y: { beginAtZero: true, ticks: { color: '#7a6555', precision: 0 }, grid: { color: 'rgba(58,42,32,0.08)' } }
+                x: { ticks: { color: '#57706f' }, grid: { display: false } },
+                y: { beginAtZero: true, ticks: { color: '#57706f', precision: 0 }, grid: { color: 'rgba(8,79,79,0.08)' } }
             }
         }
     });
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [{
                 data: {{ status_data|safe }},
                 backgroundColor: ['#6f8a3c', '#c98a2d', '#0d7a7b'],
-                borderColor: '#fdfaf3',
+                borderColor: '#f8fbf8',
                 borderWidth: 2,
                 hoverOffset: 6
             }]
@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function() {
             maintainAspectRatio: false,
             cutout: '62%',
             plugins: {
-                legend: { position: 'bottom', labels: { color: '#3a2a20', boxWidth: 14 } }
+                legend: { position: 'bottom', labels: { color: '#1f3438', boxWidth: 14 } }
             }
         }
     });

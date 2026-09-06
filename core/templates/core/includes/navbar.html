@@ -1,6 +1,6 @@
 {% load static %}
 <!-- FIGMA HEADER IMPLEMENTATION - Pure flexbox to override Bootstrap -->
-<header class="bhims-topbar" style="background: var(--bhims-paper-raised) !important; width: 100% !important; position: sticky !important; top: 0 !important; z-index: 9999 !important; box-shadow: 0 2px 14px rgba(58, 42, 32, 0.10) !important; padding: 0.5rem 0 !important; margin: 0 !important; height: auto !important; min-height: 0 !important; max-height: none !important; overflow: visible !important;">
+<header class="bhims-topbar" style="background: var(--bhims-paper-raised) !important; width: 100% !important; position: sticky !important; top: 0 !important; z-index: 9999 !important; box-shadow: 0 2px 14px rgba(8, 79, 79, 0.10) !important; padding: 0.5rem 0 !important; margin: 0 !important; height: auto !important; min-height: 0 !important; max-height: none !important; overflow: visible !important;">
   <style>
     .bhims-brand-link:focus-visible { outline: 2px solid rgba(13, 122, 123, 0.65); outline-offset: -2px; border-radius: 10px; }
   </style>
@@ -28,7 +28,7 @@
         {% endif %}
         <form method="post" action="{% url 'logout' %}">
             {% csrf_token %}
-            <button type="submit" style="background: var(--bhims-teal) !important; color: #FFFFFF !important; border: 1px solid var(--bhims-teal-deep) !important; border-radius: var(--bhims-radius-sm) !important; padding: 0.6rem 1.75rem !important; font-weight: 600 !important; cursor: pointer; font-size: 1rem !important; box-shadow: 0 1px 2px rgba(58, 42, 32, 0.12) !important;">Logout</button>
+            <button type="submit" style="background: var(--bhims-teal) !important; color: #FFFFFF !important; border: 1px solid var(--bhims-teal-deep) !important; border-radius: var(--bhims-radius-sm) !important; padding: 0.6rem 1.75rem !important; font-weight: 600 !important; cursor: pointer; font-size: 1rem !important; box-shadow: 0 1px 2px rgba(8, 79, 79, 0.12) !important;">Logout</button>
         </form>
       {% endif %}
     </div>
