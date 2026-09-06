@@ -68,27 +68,27 @@
         <form method="get" class="row g-3" id="filterForm">
             <div class="col-md-4 col-lg-3">
                 <label for="{{ form.price_min.id_for_label }}" class="form-label">{{ form.price_min.label }}</label>
-                {{ form.price_min|add_class:"form-control" }}
+                {{ form.price_min }}
             </div>
             <div class="col-md-4 col-lg-3">
                 <label for="{{ form.price_max.id_for_label }}" class="form-label">{{ form.price_max.label }}</label>
-                {{ form.price_max|add_class:"form-control" }}
+                {{ form.price_max }}
             </div>
             <div class="col-md-4 col-lg-3">
                 <label for="{{ form.room_type.id_for_label }}" class="form-label">{{ form.room_type.label }}</label>
-                {{ form.room_type|add_class:"form-control" }}
+                {{ form.room_type }}
             </div>
             <div class="col-md-4 col-lg-3">
                 <label for="{{ form.barangay.id_for_label }}" class="form-label">{{ form.barangay.label }}</label>
-                {{ form.barangay|add_class:"form-select" }}
+                {{ form.barangay }}
             </div>
             <div class="col-md-5">
                 <label for="{{ form.amenities.id_for_label }}" class="form-label">{{ form.amenities.label }}</label>
-                {{ form.amenities|add_class:"form-control" }}
+                {{ form.amenities }}
             </div>
             <div class="col-md-3">
                 <label for="{{ form.sort.id_for_label }}" class="form-label">{{ form.sort.label }}</label>
-                {{ form.sort|add_class:"form-select" }}
+                {{ form.sort }}
             </div>
             <div class="col-md-4 d-flex align-items-end gap-2">
                 <button type="submit" class="btn btn-primary">Apply Filters</button>
