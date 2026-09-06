@@ -1,135 +1,40 @@
 {% extends "core/app_base.html" %}
 
-{% block title %}My Inquiries - Boarding House Information Management System{% endblock %}
+{% block title %}My Inquiries - BHIMS{% endblock %}
 
 {% block app_content %}
-<style>
-    .available-badge {
-        background-color: rgba(13, 122, 123, 0.12);
-        color: var(--bhims-teal);
-        border-left: 4px solid var(--bhims-teal);
-        border-radius: 12px;
-        padding: 0.5rem 1rem;
-        font-weight: 600;
-        font-size: var(--fs-sm);
-    }
-    .pending-badge {
-        background-color: rgba(154, 106, 31, 0.12);
-        color: var(--bhims-badge-pending);
-        border-left: 4px solid var(--bhims-badge-pending);
-        border-radius: 12px;
-        padding: 0.5rem 1rem;
-        font-weight: 600;
-        font-size: var(--fs-sm);
-    }
-    .closed-badge {
-        background-color: rgba(90, 74, 60, 0.10);
-        color: #6b5a49;
-        border-left: 4px solid #8a7761;
-        border-radius: 12px;
-        padding: 0.5rem 1rem;
-        font-weight: 600;
-        font-size: var(--fs-sm);
-    }
-    .declined-badge {
-        background-color: rgba(179, 64, 42, 0.12);
-        color: var(--bhims-badge-rejected);
-        border-left: 4px solid var(--bhims-badge-rejected);
-        border-radius: 12px;
-        padding: 0.5rem 1rem;
-        font-weight: 600;
-        font-size: var(--fs-sm);
-    }
-    .inquiry-card {
-        border-radius: 20px;
-        background: var(--surface);
-        box-shadow: var(--shadow-soft);
-        transition: all 0.3s ease;
-        border: none;
-    }
-    .inquiry-card:hover {
-        box-shadow: var(--shadow-hover);
-        transform: translateY(-2px);
-    }
-    .empty-state-wrapper {
-        min-height: 50vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .empty-state {
-        text-align: center;
-        padding: 3rem;
-        max-width: 720px;
-        margin: 2rem auto;
-        border-radius: 24px;
-        background: var(--surface);
-        box-shadow: var(--shadow-soft);
-    }
-    .empty-state h3 {
-        margin-bottom: 1rem;
-        color: var(--text-dark);
-    }
-    .empty-state p {
-        color: var(--text-muted);
-        max-width: 520px;
-        margin: 0 auto 2rem auto;
-    }
-</style>
-
-<div class="row justify-content-center">
-    <div class="col-lg-10">
-        <div class="mb-4">
-            <h1>My Inquiries</h1>
-            <p class="text-muted">Track all your boarding house inquiries and conversations with landlords</p>
-        </div>
-
-        {% if inquiries %}
-            <div class="row gy-4">
-                {% for inquiry in inquiries %}
-                    <div class="col-md-6">
-                        <div class="card inquiry-card h-100">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <h2 class="h5 card-title mb-0">{{ inquiry.room.boarding_house.name }}</h2>
-                                    <span class="{% if inquiry.status == 'pending' %}pending-badge{% elif inquiry.status == 'open' %}available-badge{% else %}closed-badge{% endif %}">
-                                        {{ inquiry.get_status_display }}
-                                    </span>
-                                </div>
-                                
-                                <p class="text-muted mb-2">
-                                    <strong>Room:</strong> {{ inquiry.room.name|default:inquiry.room.room_type }}
-                                </p>
-                                
-                                <p class="card-text text-truncate mb-3">{{ inquiry.message }}</p>
-                                
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">
-                                        Last updated: {{ inquiry.last_activity|date:"M j, Y g:i A" }}
-                                    </small>
-                                    <a href="{% url 'student_inquiry_thread' inquiry.pk %}" class="btn btn-primary btn-sm">View Conversation</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="row justify-content-center empty-state-wrapper">
-                <div class="col-lg-8">
-                    <div class="empty-state">
-                        <div class="mb-4">
-                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="var(--beige)" stroke-width="1.5">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                            </svg>
-                        </div>
-                        <h2 class="h3">You haven't inquired about any boarding houses yet</h2>
-                        <p>Start exploring available boarding houses and send inquiries to landlords to find your perfect home.</p>
-                        <a href="{% url 'listing_list' %}" class="btn btn-primary">Browse Boarding Houses</a>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
+<div class="page-header">
+    <div>
+        <p class="eyebrow">Messages</p>
+        <h1>My inquiries</h1>
+        <p>Every conversation with a landlord, in one place.</p>
     </div>
+    <a href="{% url 'listing_list' %}" class="create-btn"><i class="bi bi-search"></i> Find a room</a>
 </div>
+
+{% if inquiries %}
+<div class="inquiry-stack">
+    {% for inquiry in inquiries %}
+    <a class="inquiry-row" href="{% url 'student_inquiry_thread' inquiry.pk %}">
+        <div>
+            <h3>{{ inquiry.room.boarding_house.name }}</h3>
+            <p>{{ inquiry.message|truncatechars:110 }}</p>
+            <div class="inquiry-meta">
+                <span class="status-chip {% if inquiry.status == 'open' %}is-open{% elif inquiry.status == 'pending' %}is-pending{% elif inquiry.status == 'declined' %}is-declined{% else %}is-closed{% endif %}">{{ inquiry.get_status_display }}</span>
+                <span>{{ inquiry.room.name|default:inquiry.room.room_type }}</span>
+                <span>{{ inquiry.last_activity|date:"M j, Y g:i A" }}</span>
+            </div>
+        </div>
+        <span class="inquiry-cta">Conversation <i class="bi bi-arrow-right"></i></span>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="bhims-empty">
+    <i class="bi bi-chat-dots"></i>
+    <h3>Nothing here yet</h3>
+    <p>When you inquire about a room, the thread will show up here.</p>
+    <a href="{% url 'listing_list' %}" class="btn btn-primary">Browse boarding houses</a>
+</div>
+{% endif %}
 {% endblock %}

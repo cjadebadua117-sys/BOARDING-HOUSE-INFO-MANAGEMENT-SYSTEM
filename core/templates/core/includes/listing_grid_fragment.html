@@ -3,11 +3,18 @@
     {% for house in houses %}
         {% include 'core/includes/listing_card.html' with house=house %}
     {% endfor %}
+{% elif request.GET.values|join:'' %}
+    <div class="empty-state">
+        <i class="bi bi-sliders"></i>
+        <h2 class="h3">Nothing matches those filters</h2>
+        <p>Drop a filter or two — rent range and barangay are the usual culprits.</p>
+        <a href="{% url 'listing_list' %}" class="btn btn-primary mt-2">Reset filters</a>
+    </div>
 {% else %}
     <div class="empty-state">
-        <i class="bi bi-search"></i>
-        <h2 class="h3">No boarding houses match your filters.</h2>
-        <p>Try widening your search or resetting the filters to see more available boarding houses near the campus.</p>
-        <a href="{% url 'listing_list' %}" class="btn btn-primary mt-2">Clear All Filters</a>
+        <i class="bi bi-houses"></i>
+        <h2 class="h3">No houses on the board yet</h2>
+        <p>Approved listings will show up here. If you rent rooms near NLUC, you can add them from the landlord portal.</p>
+        <a href="{% url 'landlord_login' %}" class="btn btn-primary mt-2">Landlord login</a>
     </div>
 {% endif %}

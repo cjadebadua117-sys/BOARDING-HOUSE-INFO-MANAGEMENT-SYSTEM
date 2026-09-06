@@ -44,11 +44,11 @@
 <div class="browse-page">
     <div class="page-header">
         <div>
-            <p class="eyebrow">Browse Listings</p>
-            <h1>Boarding Houses Near NLUC</h1>
+            <p class="eyebrow">Browse</p>
+            <h1>Boarding houses near NLUC</h1>
             <p>
-                {% if request.user.is_authenticated %}Welcome back, {{ request.user.last_name|default:request.user.username }}! {% endif %}
-                Discover available accommodations near DMMMSU-NLUC Bacnotan, tailored for student life.
+                {% if request.user.is_authenticated %}Hi {{ request.user.first_name|default:request.user.username }}. {% endif %}
+                Filter by rent and barangay, then message the landlord from the listing.
             </p>
         </div>
         {% if request.user.is_authenticated %}
@@ -91,7 +91,7 @@
                 {{ form.sort }}
             </div>
             <div class="col-md-4 d-flex align-items-end gap-2">
-                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <button type="submit" class="btn btn-primary">Apply</button>
                 <a href="{% url 'listing_list' %}" class="filter-reset">Reset</a>
             </div>
         </form>

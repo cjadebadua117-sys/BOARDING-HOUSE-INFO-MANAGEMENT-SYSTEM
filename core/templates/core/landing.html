@@ -12,8 +12,7 @@
         width: 100%;
         min-height: calc(100vh - var(--header-height, 72px));
         background:
-            repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.022) 0 1px, transparent 1px 9px),
-            linear-gradient(to top, rgba(8, 49, 49, 0.78) 0%, rgba(8, 79, 79, 0.58) 48%, rgba(8, 79, 79, 0.32) 100%),
+            linear-gradient(to top, rgba(8, 49, 49, 0.82) 0%, rgba(8, 79, 79, 0.42) 55%, rgba(8, 79, 79, 0.22) 100%),
             url('{% static 'core/images/dmmmsu-campus.jpg' %}') center / cover no-repeat;
         display: flex;
         align-items: center;
@@ -139,9 +138,8 @@
         transition: transform 0.25s var(--bhims-ease-smooth), box-shadow 0.25s var(--bhims-ease-smooth), border-color 0.25s var(--bhims-ease-smooth);
     }
     .feature-card:hover {
-        transform: translateY(-3px);
-        box-shadow: var(--bhims-glass-shadow-hover);
         border-color: var(--bhims-ink-line-strong);
+        box-shadow: var(--bhims-shadow-xs);
     }
     .feature-icon-box {
         width: 60px;
@@ -208,9 +206,12 @@
         grid-template-columns: repeat(3, 1fr);
         gap: var(--space-6);
         margin-top: var(--space-10);
-        padding-top: var(--space-8);
-        border-top: 1px solid rgba(255,255,255,0.18);
+        padding: var(--space-5) var(--space-6);
+        border-top: 0;
         max-width: 720px;
+        background: rgba(8, 49, 49, 0.42);
+        border-radius: 14px;
+        backdrop-filter: blur(8px);
     }
     .landing-trust div { color: #fff; }
     .landing-trust strong {
@@ -239,8 +240,8 @@
 <section class="landing-hero">
     <div class="landing-hero-inner">
         <p class="landing-kicker">NLUC Bacnotan Student Housing</p>
-        <h1 class="landing-title">Your Home Away From Home, Near NLUC.</h1>
-        <p class="landing-sub">Find boarding houses near DMMMSU–NLUC Bacnotan. Compare rooms, prices, and barangays — then message landlords and book with confidence.</p>
+        <h1 class="landing-title">Find a room near NLUC without the group-chat hunt.</h1>
+        <p class="landing-sub">Boarding houses around DMMMSU–NLUC Bacnotan, with prices, barangays, and a direct line to the landlord.</p>
         <div class="landing-actions">
             <a href="{% url 'listing_list' %}" class="landing-btn landing-btn-primary">Browse listings</a>
             <a href="{% url 'student_login' %}" class="landing-btn landing-btn-outline">Student sign in</a>
@@ -256,8 +257,8 @@
 <section class="landing-section landing-section-tinted">
     <div class="landing-section-inner">
         <div class="landing-section-header reveal">
-            <p class="landing-section-kicker">Tailored for Students</p>
-            <h2 class="landing-section-title">Simple Housing Discovery</h2>
+            <p class="landing-section-kicker">How it works</p>
+            <h2 class="landing-section-title">Look, ask, then book</h2>
         </div>
         <div class="landing-features-grid">
             <div class="feature-card reveal">
@@ -265,21 +266,21 @@
                     <i class="bi bi-card-list"></i>
                 </div>
                 <h3 class="feature-title">Browse Listings</h3>
-                <p class="feature-text">Filter by price, location/barangay, and amenities to find the perfect boarding house that fits your student budget.</p>
+                <p class="feature-text">Filter by barangay, rent, and room type. See what’s actually open before you walk over.</p>
             </div>
             <div class="feature-card reveal">
                 <div class="feature-icon-box">
                     <i class="bi bi-chat-dots"></i>
                 </div>
                 <h3 class="feature-title">Connect Directly</h3>
-                <p class="feature-text">Chat instantly with landlords in Bacnotan. Ask questions, schedule visits, and coordinate terms securely.</p>
+                <p class="feature-text">Message the landlord in the app. Ask about vacancies, visiting hours, and house rules without sharing your number first.</p>
             </div>
             <div class="feature-card reveal">
                 <div class="feature-icon-box">
                     <i class="bi bi-patch-check"></i>
                 </div>
                 <h3 class="feature-title">Curated Listings</h3>
-                <p class="feature-text">Every house listed is checked by the BHIMS team to help students find safe, legitimate landlords, and fair, transparent pricing.</p>
+                <p class="feature-text">Listings go through admin review before they show up. You’re looking at houses that made it past that check.</p>
             </div>
         </div>
     </div>
@@ -300,7 +301,7 @@
             {% endfor %}
         </div>
         <div class="reveal" style="text-align: center; margin-top: 3rem;">
-            <a href="{% url 'listing_list' %}" class="landing-btn landing-btn-primary" style="display: inline-block;">View All Listings</a>
+            <a href="{% url 'listing_list' %}" class="landing-btn landing-btn-primary" style="display: inline-block;">See all listings</a>
         </div>
     </div>
 </section>

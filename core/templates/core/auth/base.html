@@ -3,6 +3,9 @@
 
 {% block title %}{% block auth_title %}Sign in{% endblock %} · BHIMS{% endblock %}
 
+{% block breadcrumb %}{% endblock %}
+{% block footer %}{% endblock %}
+
 {% block content %}
 <style>
     /* ===== BHIMS auth layout — shared by every login/registration page ===== */
@@ -37,8 +40,7 @@
         padding: 3.5rem 3rem 3rem;
         color: #f6efe4;
         background:
-            repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.022) 0 1px, transparent 1px 9px),
-            linear-gradient(to top, rgba(8, 49, 49, 0.88) 0%, rgba(8, 79, 79, 0.58) 48%, rgba(8, 79, 79, 0.32) 100%),
+            linear-gradient(to top, rgba(8, 49, 49, 0.88) 0%, rgba(8, 79, 79, 0.52) 52%, rgba(8, 79, 79, 0.28) 100%),
             url('{% static 'core/images/dmmmsu-campus.jpg' %}') center / cover no-repeat;
     }
     .auth-hero > * { animation: authRise 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }

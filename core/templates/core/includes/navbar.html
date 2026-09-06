@@ -2,7 +2,7 @@
 <header class="bhims-topbar" id="bhimsTopbar">
   <div class="bhims-topbar-inner">
     <a href="{% url 'home' %}" class="bhims-brand-link">
-      <img src="{% static 'core/images/bhims-logo.png' %}?v=8" alt="BHIMS">
+      <img src="{% static 'core/images/bhims-icon.png' %}?v=8" alt="">
       <span class="bhims-brand-text">
         <strong>BHIMS</strong>
         <span>NLUC Bacnotan</span>
@@ -14,9 +14,7 @@
     </button>
 
     <nav class="bhims-nav" id="bhimsNav" aria-label="Primary">
-      <a href="{% url 'listing_list' %}" class="bhims-nav-link"{% if request.resolver_match.url_name == 'listing_list' %} aria-current="page"{% endif %}>Browse listings</a>
-
-      <div class="theme-switch-wrapper" style="display:flex;align-items:center;gap:0.4rem;">
+      <div class="theme-switch-wrapper" title="Switch light or dark theme">
         <span class="visually-hidden">Color theme</span>
         <label class="theme-switch">
           <input type="checkbox" class="theme-toggle-input" data-theme-toggle>
@@ -25,14 +23,18 @@
       </div>
 
       {% if not request.user.is_authenticated %}
-        <a href="{% url 'student_login' %}" class="bhims-nav-ghost">Student login</a>
-        <a href="{% url 'landlord_login' %}" class="bhims-nav-cta">Landlord login</a>
+        <a href="{% url 'student_login' %}" class="bhims-nav-ghost">Student</a>
+        <a href="{% url 'landlord_login' %}" class="bhims-nav-ghost">Landlord</a>
+        <a href="{% url 'listing_list' %}" class="bhims-nav-cta">Browse listings</a>
       {% else %}
         {% if request.user.role == 'student' %}
+          <a href="{% url 'listing_list' %}" class="bhims-nav-link">Browse</a>
           <a href="{% url 'student_dashboard' %}" class="bhims-nav-link">Dashboard</a>
         {% elif request.user.role == 'landlord' %}
+          <a href="{% url 'listing_list' %}" class="bhims-nav-link">Browse</a>
           <a href="{% url 'landlord_dashboard' %}" class="bhims-nav-link">Dashboard</a>
         {% elif request.user.role == 'admin' %}
+          <a href="{% url 'listing_list' %}" class="bhims-nav-link">Browse</a>
           <a href="{% url 'admin_dashboard' %}" class="bhims-nav-link">Admin</a>
         {% endif %}
         <form method="post" action="{% url 'logout' %}">

@@ -5,47 +5,32 @@
 <div class="page-header">
   <div>
     <p class="eyebrow">Student Portal</p>
-    <h1>Student Dashboard</h1>
-    <p>Manage your inquiries and track your boarding house applications.</p>
+    <h1>Good to see you{% if request.user.first_name %}, {{ request.user.first_name }}{% endif %}</h1>
+    <p>Your inquiries and bookings with boarding houses near NLUC.</p>
   </div>
-  <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-    <a class="create-btn" href="{% url 'student_bookings' %}">
-      <i class="bi bi-patch-check" style="margin-right: 0.4rem;"></i>
-      My Bookings
-    </a>
-    <a class="create-btn" href="{% url 'listing_list' %}">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 1.1rem; height: 1.1rem;">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-      </svg>
-      Browse Listings
-    </a>
+  <div class="header-actions">
+    <a class="btn btn-outline-primary" href="{% url 'student_bookings' %}"><i class="bi bi-patch-check"></i> Bookings</a>
+    <a class="create-btn" href="{% url 'listing_list' %}"><i class="bi bi-search"></i> Browse listings</a>
   </div>
 </div>
 
-<!-- Stats Row -->
 <div class="stats-row">
   <div class="stat-card">
-    <div class="stat-icon">
-      <i class="bi bi-chat-dots" style="font-size:1.4rem;color:var(--bhims-teal);"></i>
-    </div>
+    <div class="stat-icon"><i class="bi bi-chat-dots"></i></div>
     <div class="stat-content">
-      <h2 class="h3 stat-value">{{ inquiries|length }}</h2>
+      <h2 class="h3 stat-value">{{ total_inquiries }}</h2>
       <p>Total inquiries</p>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon">
-      <i class="bi bi-lightning" style="font-size:1.4rem;color:var(--bhims-teal);"></i>
-    </div>
+    <div class="stat-icon"><i class="bi bi-lightning"></i></div>
     <div class="stat-content">
       <h2 class="h3 stat-value">{{ active_inquiries }}</h2>
       <p>Open inquiries</p>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon">
-      <i class="bi bi-patch-check" style="font-size:1.4rem;color:var(--bhims-teal);"></i>
-    </div>
+    <div class="stat-icon"><i class="bi bi-patch-check"></i></div>
     <div class="stat-content">
       <h2 class="h3 stat-value">{{ confirmed_bookings }}</h2>
       <p>Confirmed bookings</p>
@@ -53,46 +38,36 @@
   </div>
 </div>
 
-<!-- Recent Inquiries -->
-<div class="mb-4">
-  <h2 class="h4 mb-3">Your Recent Inquiries</h2>
+<div class="section-header">
+  <h2>Recent inquiries</h2>
   {% if inquiries %}
-  <div class="row g-4">
-    {% for inquiry in inquiries %}
-    <div class="col-lg-6">
-      <div class="card shadow-sm border-0 overflow-hidden h-100">
-        <div class="card-body">
-          <h3 class="h5 mb-1">{{ inquiry.room.boarding_house.name }}</h3>
-          <p class="text-muted small mb-3">{{ inquiry.room.boarding_house.barangay_display }}, {{ inquiry.room.boarding_house.address }}</p>
-          
-          <div class="d-flex align-items-center mb-4">
-            <span class="badge {% if inquiry.status == 'closed' %}bg-success{% elif inquiry.status == 'open' %}bg-info{% else %}bg-warning{% endif %} me-2">{{ inquiry.get_status_display }}</span>
-            <span class="text-muted small">Room: {{ inquiry.room.name|default:inquiry.room.room_type }}</span>
-          </div>
-          
-          <div class="d-flex gap-2">
-            <a href="{% url 'student_inquiry_list' %}" class="btn btn-primary flex-grow-1">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-              </svg>
-              View Details
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-  {% else %}
-  <div class="bhims-empty">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 3.5rem; height: 3.5rem; margin: 0 auto 1rem; display: block;">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3h1.5m-1.5 3h1.5M9 19.5v-3.375c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125V19.5" />
-    </svg>
-    <h3>No inquiries yet</h3>
-    <p style="color: var(--bhims-text-muted); max-width: 460px; margin: 0 auto 1.25rem;">Start browsing available boarding houses and send inquiries to secure your room.</p>
-    <a href="{% url 'listing_list' %}" class="btn btn-primary">Browse Listings</a>
-  </div>
+  <a href="{% url 'student_inquiry_list' %}" class="view-all-btn">View all</a>
   {% endif %}
 </div>
+
+{% if inquiries %}
+<div class="inquiry-stack">
+  {% for inquiry in inquiries %}
+  <a class="inquiry-row" href="{% url 'student_inquiry_thread' inquiry.pk %}">
+    <div>
+      <h3>{{ inquiry.room.boarding_house.name }}</h3>
+      <p>{{ inquiry.room.name|default:inquiry.room.room_type }} · {{ inquiry.room.boarding_house.barangay_display }}</p>
+      <div class="inquiry-meta">
+        <span class="status-chip {% if inquiry.status == 'open' %}is-open{% elif inquiry.status == 'pending' %}is-pending{% elif inquiry.status == 'declined' %}is-declined{% else %}is-closed{% endif %}">{{ inquiry.get_status_display }}</span>
+        <span>{{ inquiry.last_activity|date:"M j" }}</span>
+      </div>
+    </div>
+    <span class="inquiry-cta">Open thread <i class="bi bi-arrow-right"></i></span>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="bhims-empty">
+  <i class="bi bi-chat-dots"></i>
+  <h3>No inquiries yet</h3>
+  <p>Browse houses near campus and message a landlord when a room looks right.</p>
+  <a href="{% url 'listing_list' %}" class="btn btn-primary">Browse listings</a>
+</div>
+{% endif %}
 </div>
 {% endblock %}

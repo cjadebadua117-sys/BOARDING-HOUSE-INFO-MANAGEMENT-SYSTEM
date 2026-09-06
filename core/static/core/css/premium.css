@@ -142,25 +142,14 @@ p, li { text-wrap: pretty; }
 .card:hover, .stat-card:hover, .listing-card:hover, .house-card:hover,
 .room-card:hover, .booking-card:hover, .filter-card:hover,
 .inquiry-item:hover, .landing-feature-card:hover {
-    transform: translateY(-3px) !important;
-    box-shadow: var(--bhims-shadow-md) !important;
+    transform: none !important;
+    box-shadow: var(--bhims-shadow-sm) !important;
+    border-color: var(--bhims-ink-line-strong) !important;
 }
-.hero-card:hover { transform: translateY(-2px) !important; }
+.hero-card:hover { transform: none !important; }
 
-/* Stat cards get a woven corner tab instead of a radial blob */
 .stat-card { overflow: hidden; }
-.stat-card::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 64px;
-    height: 6px;
-    background:
-        repeating-linear-gradient(45deg, rgba(13, 122, 123, 0.55) 0 3px, transparent 3px 7px),
-        rgba(13, 122, 123, 0.18);
-    pointer-events: none;
-}
+.stat-card::after { content: none !important; display: none; }
 
 /* ---------------------------------------------------------------
    7. Sidebar / shell
@@ -208,7 +197,7 @@ p, li { text-wrap: pretty; }
     border-radius: 999px !important;
     transition: transform 0.2s var(--bhims-ease-smooth) !important;
 }
-.badge:hover { transform: scale(1.05); }
+.badge:hover { transform: none; }
 /* live "pending" heartbeat dot */
 .badge-bhims-pending::before {
     content: '';
@@ -335,6 +324,27 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 /* ---------------------------------------------------------------
    15. Theme Switch (navbar toggle)
    --------------------------------------------------------------- */
+.theme-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.theme-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+.theme-slider {
+    position: absolute;
+    inset: 0;
+    background: #c5d4cf;
+    border-radius: 999px;
+    transition: background 0.2s var(--bhims-ease-smooth);
+}
 .theme-switch .theme-slider::before {
     content: '';
     position: absolute;
@@ -506,8 +516,8 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 .stat-card:hover,
 .listing-card:hover,
 .result-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--bhims-glass-shadow-hover);
+    transform: none;
+    box-shadow: var(--bhims-shadow-sm);
     border-color: var(--bhims-ink-line-strong);
 }
 
@@ -535,16 +545,7 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     position: relative;
     overflow: hidden;
 }
-.stat-card::after {
-    content: '';
-    position: absolute;
-    top: 0; right: 0;
-    width: 72px; height: 6px;
-    background:
-        repeating-linear-gradient(45deg, rgba(13, 122, 123, 0.55) 0 3px, transparent 3px 7px),
-        rgba(13, 122, 123, 0.18);
-    pointer-events: none;
-}
+.stat-card::after { content: none; display: none; }
 .stat-icon {
     width: 56px; height: 56px;
     border-radius: var(--radius-lg);
@@ -1052,10 +1053,11 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     min-width: 0;
 }
 .bhims-brand-link img {
-    height: 44px;
-    width: auto;
+    height: 40px;
+    width: 40px;
+    object-fit: cover;
     display: block;
-    border-radius: 12px;
+    border-radius: 10px;
     flex-shrink: 0;
 }
 .bhims-brand-text {
@@ -1160,9 +1162,7 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 
 /* Site footer */
 .bhims-footer {
-    background:
-        repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.016) 0 1px, transparent 1px 9px),
-        #33241a;
+    background: #2c221b;
     border-top: 1px solid var(--bhims-ink-line);
     color: #fff;
     width: 100%;
@@ -1436,6 +1436,220 @@ main#main-content {
         grid-template-columns: 1fr;
     }
     .listing-card .card-image { height: 190px; }
+}
+
+/* =====================================================================
+   19. Human layer — quieter product UI
+   ===================================================================== */
+
+.listing-card .card-title,
+.listing-card .card-location,
+.listing-card .card-description {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.listing-card .card-title { -webkit-line-clamp: 2; line-clamp: 2; }
+.listing-card .card-location { -webkit-line-clamp: 2; line-clamp: 2; }
+.listing-card .card-description { -webkit-line-clamp: 3; line-clamp: 3; }
+.listing-card:hover img { transform: scale(1.03); }
+
+.filter-card {
+    padding: 1.15rem 1.25rem !important;
+}
+.filter-card .form-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--bhims-text-muted);
+}
+
+.status-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+.status-chip.is-open,
+.status-chip.is-available { background: var(--bhims-badge-verified-bg); color: var(--bhims-badge-verified); }
+.status-chip.is-pending { background: var(--bhims-badge-pending-bg); color: var(--bhims-badge-pending); }
+.status-chip.is-closed { background: var(--bhims-paper-sunken); color: var(--bhims-text-muted); }
+.status-chip.is-declined { background: var(--bhims-badge-rejected-bg); color: var(--bhims-badge-rejected); }
+
+.inquiry-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+.inquiry-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.75rem 1.25rem;
+    align-items: center;
+    padding: 1rem 1.15rem;
+    background: var(--bhims-paper-raised);
+    border: 1px solid var(--bhims-ink-line);
+    border-radius: 14px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.inquiry-row:hover {
+    border-color: var(--bhims-ink-line-strong);
+    box-shadow: var(--bhims-shadow-xs);
+    color: inherit;
+}
+.inquiry-row h3 {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 0 0 0.2rem;
+    color: var(--bhims-text);
+}
+.inquiry-row p {
+    margin: 0;
+    color: var(--bhims-text-muted);
+    font-size: 0.875rem;
+    line-height: 1.45;
+}
+.inquiry-row .inquiry-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.85rem;
+    margin-top: 0.45rem;
+    font-size: 0.75rem;
+    color: var(--bhims-text-muted);
+}
+.inquiry-row .inquiry-cta {
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: var(--bhims-teal);
+    white-space: nowrap;
+}
+
+.listing-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) 320px;
+    gap: 1.75rem;
+    align-items: start;
+}
+.listing-hero {
+    display: grid;
+    grid-template-columns: 1.65fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 6px;
+    height: 420px;
+    border-radius: 18px;
+    overflow: hidden;
+    background: var(--bhims-paper-sunken);
+    margin-bottom: 1.5rem;
+}
+.listing-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.listing-hero img:first-child,
+.listing-hero .hero-main {
+    grid-row: 1 / -1;
+}
+.listing-hero.is-single,
+.listing-hero.is-empty {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+}
+.listing-hero.is-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bhims-text-muted);
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.listing-hero.is-empty i { font-size: 2.2rem; color: var(--bhims-teal); }
+.listing-summary {
+    position: sticky;
+    top: 5.5rem;
+    background: var(--bhims-paper-raised);
+    border: 1px solid var(--bhims-ink-line);
+    border-radius: 16px;
+    padding: 1.35rem 1.4rem;
+}
+.listing-summary h2 {
+    font-family: var(--font-display);
+    font-size: 1.45rem;
+    margin: 0 0 0.35rem;
+}
+.listing-summary .summary-loc {
+    color: var(--bhims-text-muted);
+    font-size: 0.9rem;
+    margin: 0 0 1rem;
+}
+.listing-summary dl {
+    margin: 0 0 1.15rem;
+    display: grid;
+    gap: 0.65rem;
+}
+.listing-summary dt {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--bhims-text-muted);
+    margin: 0;
+}
+.listing-summary dd {
+    margin: 0.15rem 0 0;
+    font-weight: 600;
+    color: var(--bhims-text);
+}
+.listing-copy h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.7rem, 3vw, 2.35rem);
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.02em;
+}
+.listing-copy .owner-chip { margin-bottom: 1rem; }
+.listing-copy .description {
+    font-size: 1.02rem;
+    line-height: 1.7;
+    color: var(--bhims-text);
+    margin: 0 0 2rem;
+}
+.room-item {
+    background: var(--bhims-paper-raised) !important;
+}
+.back-link {
+    font-size: 0.9rem;
+    margin-bottom: 1.15rem !important;
+}
+
+.feature-card:hover {
+    transform: none !important;
+    box-shadow: var(--bhims-shadow-xs);
+}
+
+.bhims-bottom-nav a {
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    font-weight: 600;
+}
+
+@media (max-width: 980px) {
+    .listing-layout { grid-template-columns: 1fr; }
+    .listing-summary { position: static; }
+    .listing-hero { height: 280px; }
+}
+@media (max-width: 720px) {
+    .inquiry-row {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ============================================================

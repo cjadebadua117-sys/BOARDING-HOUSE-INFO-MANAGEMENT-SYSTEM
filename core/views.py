@@ -244,7 +244,7 @@ def boarding_detail(request, pk):
             messages.info(request, 'This boarding house is not currently available to students.')
             return redirect('listing_list')
 
-    rooms = [room for room in house.rooms.all() if room.has_space()]
+    rooms = [room for room in house.rooms.prefetch_related('photos', 'amenities').all() if room.has_space()]
     return render(request, 'core/boarding_detail.html', {'house': house, 'rooms': rooms})
 
 
@@ -631,8 +631,13 @@ def report_user(request, pk):
 @login_required
 @user_passes_test(student_required)
 def student_dashboard(request):
-    inquiries = Inquiry.objects.filter(student=request.user).order_by('-created_at')
-    active_inquiries = inquiries.filter(
+    inquiries = (
+        Inquiry.objects.filter(student=request.user)
+        .select_related('room', 'room__boarding_house')
+        .order_by('-created_at')[:8]
+    )
+    active_inquiries = Inquiry.objects.filter(
+        student=request.user,
         status__in=[Inquiry.Status.PENDING, Inquiry.Status.OPEN]
     ).count()
     confirmed_bookings = Booking.objects.filter(
@@ -644,13 +649,16 @@ def student_dashboard(request):
         'student': request.user,
         'active_inquiries': active_inquiries,
         'confirmed_bookings': confirmed_bookings,
+        'total_inquiries': Inquiry.objects.filter(student=request.user).count(),
     })
 
 
 @login_required
 @user_passes_test(student_required)
 def student_inquiry_list(request):
-    inquiries = Inquiry.objects.filter(student=request.user).order_by('-created_at')
+    inquiries = Inquiry.objects.filter(student=request.user).select_related(
+        'room', 'room__boarding_house'
+    ).order_by('-created_at')
     return render(request, 'core/student_inquiry_list.html', {'inquiries': inquiries})
 
 

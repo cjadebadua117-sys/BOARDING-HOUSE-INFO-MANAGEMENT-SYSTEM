@@ -3,6 +3,7 @@
 
 {% block navbar %}{% endblock %}
 {% block footer %}{% endblock %}
+{% block breadcrumb %}{% endblock %}
 
 {% block content %}
 <div class="app-shell" id="appShell" style="display: flex; min-height: 100vh; background: var(--bhims-cream);">
@@ -17,7 +18,7 @@
                     <line x1="3" y1="18" x2="21" y2="18"></line>
                 </svg>
             </button>
-            <span class="topbar-page-title">{% block topbar_title %}<img src="{% static 'core/images/bhims-logo.png' %}" alt="BHIMS" class="topbar-logo">{% endblock %}</span>
+            <span class="topbar-page-title">{% block topbar_title %}<img src="{% static 'core/images/bhims-icon.png' %}" alt="BHIMS" class="topbar-logo">{% endblock %}</span>
             <div class="topbar-tools">
                 <label class="theme-switch" title="Toggle color theme">
                     <input type="checkbox" class="theme-toggle-input" data-theme-toggle>
@@ -132,10 +133,11 @@
         text-overflow: ellipsis;
     }
     .topbar-logo {
-        height: 40px;
-        width: auto;
+        height: 32px;
+        width: 32px;
+        object-fit: cover;
         display: block;
-        border-radius: 10px;
+        border-radius: 8px;
     }
 
     .app-content {

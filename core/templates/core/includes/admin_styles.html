@@ -31,8 +31,9 @@
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .stat-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px var(--bhims-shadow-hover);
+        transform: none;
+        box-shadow: 0 4px 20px var(--bhims-shadow);
+        border-color: var(--bhims-ink-line-strong);
     }
     .stat-icon {
         width: 56px;
@@ -61,12 +62,12 @@
 
     /* Uppercase CTA buttons */
     .btn-uppercase {
-        text-transform: uppercase;
+        text-transform: none;
         font-weight: 600;
-        letter-spacing: 0.04em;
-        border-radius: 9999px;
-        padding: 0.6rem 1.4rem;
-        border-width: 2px;
+        letter-spacing: 0;
+        border-radius: 10px;
+        padding: 0.55rem 1.15rem;
+        border-width: 1px;
     }
     .btn-uppercase.btn-sm {
         padding: 0.4rem 1.05rem;
