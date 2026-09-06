@@ -129,8 +129,8 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [{
                 label: 'Students',
                 data: {{ student_data|safe }},
-                borderColor: '#6f8a3c',
-                backgroundColor: '#6f8a3c',
+                borderColor: '#3d8f6e',
+                backgroundColor: '#3d8f6e',
                 tension: 0.35,
                 borderWidth: 2,
                 pointRadius: 3,
@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
             labels: ['Available', 'Full', 'Unavailable'],
             datasets: [{
                 data: {{ status_data|safe }},
-                backgroundColor: ['#6f8a3c', '#c98a2d', '#0d7a7b'],
+                backgroundColor: ['#3d8f6e', '#0a5f60', '#0d7a7b'],
                 borderColor: '#f8fbf8',
                 borderWidth: 2,
                 hoverOffset: 6

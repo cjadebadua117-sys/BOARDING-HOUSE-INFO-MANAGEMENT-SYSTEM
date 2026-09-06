@@ -12,7 +12,7 @@
     <meta property="og:site_name" content="BHIMS NLUC Bacnotan">
     <meta property="og:title" content="{% block og_title %}BHIMS - Boarding House Information Management System{% endblock %}">
     <meta property="og:description" content="Verified boarding houses near the DMMMSU NLUC campus — browse listings, message landlords, and book your stay.">
-    <meta name="theme-color" content="#0d7a7b">
+    <meta name="theme-color" content="#0e7d6b">
     {% endblock %}
     <script>
         (function () {
@@ -33,9 +33,9 @@
     <!-- Centralized Design Tokens -->
     <style>
         :root {
-            --bhims-teal: #0d7a7b;
-            --bhims-teal-hover: #0a5f60;
-            --bhims-teal-deep: #084f4f;
+            --bhims-teal: #0e7d6b;
+            --bhims-teal-hover: #0b6558;
+            --bhims-teal-deep: #085248;
             --bhims-cream: rgba(255, 255, 255, 0.42);
             --bhims-cream-light: rgba(255, 255, 255, 0.60);
             --bhims-text: #1f3438;
@@ -76,8 +76,8 @@
             --bhims-shadow-hover: rgba(8, 79, 79, 0.12);
             --bhims-radius: 12px;
             --bhims-radius-sm: 8px;
-            --bhims-moss: #6f8a3c;
-            --bhims-moss-hover: #5e7831;
+            --bhims-moss: #3d8f6e;
+            --bhims-moss-hover: #32785b;
             --bhims-info: #3f7d8c;
 
             /* Legacy glass variables now map onto the paper system so every
@@ -107,9 +107,9 @@
 
         /* ---- Dark mode overrides (paper/ink inverted) ---- */
         [data-theme="dark"] {
-            --bhims-teal: #14a8a8;
-            --bhims-teal-hover: #1cdede;
-            --bhims-teal-deep: #0d8a8a;
+            --bhims-teal: #1bb89a;
+            --bhims-teal-hover: #2ee0bb;
+            --bhims-teal-deep: #12967c;
             --bhims-text: #e8f0ee;
             --bhims-text-muted: #a5c4be;
             --bhims-paper: #0f1a18;
@@ -613,8 +613,8 @@
             backdrop-filter: blur(2px) !important;
         }
 
-        /* ---- Dashboard shell: paper topbar over a hairline; sidebar in deep
-            espresso. NOTE: never put backdrop-filter (or transform/filter) on
+        /* ---- Dashboard shell: paper topbar over a hairline.
+            NOTE: never put backdrop-filter (or transform/filter) on
             .app-shell — it becomes the containing block for position:fixed
             descendants and traps modals/toasts. */
         .app-topbar {
@@ -622,12 +622,11 @@
             backdrop-filter: none !important;
         }
 
-        /* ---- Espresso sidebar with a faint weave ---- */
+        /* ---- Deep teal sidebar ---- */
         .app-sidebar {
             background:
-                repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.016) 0 1px, transparent 1px 9px),
-                #33241a !important;
-            border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+                linear-gradient(188deg, #0b6558 0%, #085248 52%, #064038 100%) !important;
+            border-right: 1px solid rgba(206, 234, 234, 0.16) !important;
         }
 
         /* ---- Header & footer sit on raised paper strips ---- */

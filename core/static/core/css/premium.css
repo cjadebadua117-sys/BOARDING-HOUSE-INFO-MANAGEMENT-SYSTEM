@@ -1068,7 +1068,7 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 .bhims-brand-text strong {
     font-family: var(--font-display);
     font-size: 1.05rem;
-    color: var(--bhims-text);
+    color: var(--bhims-teal-deep);
     font-weight: 700;
 }
 .bhims-brand-text span {
@@ -1162,8 +1162,8 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 
 /* Site footer */
 .bhims-footer {
-    background: #2c221b;
-    border-top: 1px solid var(--bhims-ink-line);
+    background: #085248;
+    border-top: 1px solid rgba(206, 234, 234, 0.16);
     color: #fff;
     width: 100%;
 }
@@ -1209,7 +1209,7 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 }
 .bhims-footer a:hover { color: #fff; }
 .bhims-footer-links { display: flex; flex-direction: column; gap: 0.65rem; }
-.bhims-footer-accent { color: #e08a5a !important; }
+.bhims-footer-accent { color: #9ee0d8 !important; }
 @media (max-width: 800px) {
     .bhims-footer-inner { grid-template-columns: 1fr; padding: 2.5rem var(--space-4); }
 }
