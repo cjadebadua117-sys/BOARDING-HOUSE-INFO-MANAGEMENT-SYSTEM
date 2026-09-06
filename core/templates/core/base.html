@@ -97,6 +97,33 @@
             --shadow-hover: 0 8px 24px rgba(8, 79, 79, 0.12);
         }
 
+        /* ---- Dark mode overrides (paper/ink inverted) ---- */
+        [data-theme="dark"] {
+            --bhims-teal: #14a8a8;
+            --bhims-teal-hover: #1cdede;
+            --bhims-teal-deep: #0d8a8a;
+            --bhims-text: #e8f0ee;
+            --bhims-text-muted: #a5c4be;
+            --bhims-paper: #0f1a18;
+            --bhims-paper-raised: #152320;
+            --bhims-paper-sunken: #0d1815;
+            --bhims-ink-line: #1e3a35;
+            --bhims-ink-line-strong: #2a5048;
+            --bhims-border: rgba(20, 168, 168, 0.2);
+            --bhims-icon-tint: rgba(20, 168, 168, 0.15);
+            --bhims-badge-verified-bg: rgba(20, 168, 168, 0.2);
+            --bhims-badge-pending-bg: rgba(253, 240, 220, 0.15);
+            --bhims-badge-rejected-bg: rgba(251, 228, 222, 0.15);
+            --bhims-shadow: rgba(20, 168, 168, 0.1);
+            --bhims-shadow-hover: rgba(20, 168, 168, 0.18);
+            --bhims-glass-inner-glow: 0 1px 2px rgba(20, 168, 168, 0.08);
+            --bhims-glass-shadow: 0 1px 2px rgba(20, 168, 168, 0.08), 0 6px 18px rgba(20, 168, 168, 0.12);
+            --bhims-glass-shadow-hover: 0 2px 4px rgba(20, 168, 168, 0.1), 0 14px 30px rgba(20, 168, 168, 0.16);
+            --bhims-glass-bg-primary: var(--bhims-paper-raised);
+            --bhims-glass-bg-secondary: var(--bhims-paper-sunken);
+            --bhims-glass-bg-subtle: var(--bhims-paper-raised);
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             /* Woven-paper ground: faint teal weave on layered elevation.
@@ -821,6 +848,27 @@
                     bad[0].focus();
                 }
             });
+        });
+    })();
+    </script>
+
+    <!-- Theme Toggle Script -->
+    <script>
+    (function () {
+        var toggle = document.getElementById('themeToggle');
+        var html = document.documentElement;
+        if (!toggle) return;
+
+        // Load saved theme
+        var savedTheme = localStorage.getItem('bhims-theme') || 'light';
+        html.setAttribute('data-theme', savedTheme);
+        toggle.checked = savedTheme === 'dark';
+
+        // Toggle handler
+        toggle.addEventListener('change', function () {
+            var theme = this.checked ? 'dark' : 'light';
+            html.setAttribute('data-theme', theme);
+            localStorage.setItem('bhims-theme', theme);
         });
     })();
     </script>

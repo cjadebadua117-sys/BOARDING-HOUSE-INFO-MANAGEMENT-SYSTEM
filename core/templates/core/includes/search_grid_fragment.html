@@ -1,0 +1,43 @@
+{# Search results grid fragment for AJAX filter #}
+{% if listings %}
+    {% for listing in listings %}
+    <article class="result-card bhims-press reveal">
+        <div class="result-image">
+            {% if listing.main_image %}
+            <img src="{{ listing.main_image.url }}" alt="{{ listing.name }}" loading="lazy" decoding="async">
+            {% else %}
+            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-building" style="font-size: 3rem;"></i>
+            </div>
+            {% endif %}
+            <span class="result-badge badge bg-success">Available</span>
+        </div>
+        <div class="result-body">
+            <h3 class="result-title">{{ listing.name }}</h3>
+            <p class="result-location"><i class="fas fa-map-marker-alt"></i> {{ listing.barangay.name }}, Bacnotan</p>
+            <div class="result-meta">
+                <span class="result-pill price"><i class="fas fa-tag"></i> ₱{{ listing.price_per_month }}/mo</span>
+                <span class="result-pill"><i class="fas fa-bed"></i> {{ listing.total_rooms }} rooms</span>
+            </div>
+            <p class="result-description">{{ listing.description|truncatechars:140 }}</p>
+            <div class="result-amenities">
+                {% for amenity in listing.amenities.all|slice:":4" %}
+                <span class="result-amenity">{{ amenity.name }}</span>
+                {% empty %}
+                <span class="text-muted" style="font-size: var(--fs-xs);">No amenities listed</span>
+                {% endfor %}
+            </div>
+            <div class="result-footer">
+                <a href="{% url 'listing_detail' listing.id %}" class="btn-view-result"><i class="fas fa-eye"></i> View Details</a>
+            </div>
+        </div>
+    </article>
+    {% endfor %}
+{% else %}
+    <div class="empty-results">
+        <i class="fas fa-search"></i>
+        <h3>No listings match your filters.</h3>
+        <p>Try adjusting your search criteria or clearing all filters.</p>
+        <a href="{% url 'search_results' %}" class="btn btn-primary">Clear All Filters</a>
+    </div>
+{% endif %}

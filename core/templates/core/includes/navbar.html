@@ -13,8 +13,18 @@
 
 
 
-    <!-- Right: Auth Links -->
+    <!-- Right: Theme Toggle + Auth Links -->
     <div style="display: flex !important; gap: 1.5rem !important; align-items: center !important;">
+      <!-- Theme Toggle -->
+      <div class="theme-switch-wrapper" style="display: flex; align-items: center; gap: 0.5rem;">
+        <span style="font-size: 0.85rem; color: var(--bhims-text-muted);">☀️</span>
+        <label class="theme-switch" style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer;">
+          <input type="checkbox" id="themeToggle" style="opacity: 0; width: 0; height: 0;">
+          <span class="theme-slider" style="position: absolute; cursor: pointer; inset: 0; background: var(--bhims-ink-line); border-radius: 24px; transition: background-color var(--bhims-ease-smooth);"></span>
+        </label>
+        <span style="font-size: 0.85rem; color: var(--bhims-text-muted);">🌙</span>
+      </div>
+
       {% if not request.user.is_authenticated %}
         <a href="/students/login/" style="color: var(--bhims-text) !important; font-weight: 500 !important; text-decoration: none !important; font-size: 1rem !important;">Student Login</a>
         <a href="/landlords/login/" style="color: var(--bhims-text) !important; font-weight: 500 !important; text-decoration: none !important; font-size: 1rem !important;">Landlord Login</a>

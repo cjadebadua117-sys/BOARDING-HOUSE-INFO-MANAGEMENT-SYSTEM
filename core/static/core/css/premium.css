@@ -332,4 +332,37 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     }
 }
 
+/* ---------------------------------------------------------------
+   15. Theme Switch (navbar toggle)
+   --------------------------------------------------------------- */
+.theme-switch .theme-slider::before {
+    content: '';
+    position: absolute;
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform var(--bhims-ease-smooth);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.theme-switch input:checked + .theme-slider {
+    background: var(--bhims-teal);
+}
+.theme-switch input:checked + .theme-slider::before {
+    transform: translateX(20px);
+}
+.theme-switch input:focus-visible + .theme-slider {
+    outline: 2px solid rgba(13, 122, 123, 0.65);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .theme-switch .theme-slider,
+    .theme-switch .theme-slider::before {
+        transition: none !important;
+    }
+}
+
 /* ============================================================

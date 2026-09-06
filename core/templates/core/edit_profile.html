@@ -1,0 +1,238 @@
+{% extends 'core/app_base.html' %}
+{% block title %}Edit Profile - BHIMS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-profile-page {
+        background: transparent;
+        min-height: 0;
+        padding: 0;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    .edit-form-card {
+        background: var(--bhims-paper-raised);
+        border: 1px solid var(--bhims-ink-line);
+        border-radius: var(--bhims-radius);
+        padding: 2.5rem;
+        box-shadow: var(--bhims-glass-shadow);
+    }
+    .edit-form-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .edit-form-header h4 {
+        font-family: var(--font-display);
+        color: var(--bhims-teal);
+        font-size: var(--fs-2xl);
+        margin-bottom: 0.5rem;
+    }
+    .form-group { margin-bottom: 1.5rem; }
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: var(--bhims-text);
+        font-size: var(--fs-sm);
+        margin-bottom: 0.4rem;
+    }
+    .form-control, .form-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--bhims-border);
+        border-radius: var(--bhims-radius-sm);
+        background: var(--bhims-paper);
+        color: var(--bhims-text);
+        font-size: var(--fs-base);
+        transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+    .form-control:focus, .form-select:focus {
+        outline: none;
+        border-color: var(--bhims-teal);
+        box-shadow: 0 0 0 3px rgba(13, 122, 123, 0.12);
+    }
+    .bhims-field-error { color: #b3261e; font-size: var(--fs-sm); font-weight: 600; margin-top: 0.35rem; }
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--bhims-ink-line);
+    }
+    .btn-cancel, .btn-save {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.875rem 1.5rem;
+        border-radius: var(--bhims-radius-sm);
+        font-weight: 600;
+        font-size: var(--fs-base);
+        min-height: 44px;
+        text-decoration: none;
+    }
+    .btn-cancel { border: 1px solid var(--bhims-teal); background: transparent; color: var(--bhims-teal); }
+    .btn-cancel:hover { background: var(--bhims-icon-tint); color: var(--bhims-teal); }
+    .btn-save { border: none; background: var(--bhims-teal); color: #fff; cursor: pointer; }
+    .btn-save:hover { background: var(--bhims-teal-hover); }
+    .btn-cancel:active, .btn-save:active { transform: translateY(1px) scale(0.98); }
+    .avatar-preview {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid var(--bhims-teal);
+        margin: 0 auto 1rem;
+        display: block;
+    }
+    .avatar-placeholder {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: var(--bhims-teal);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 2.5rem;
+        border: 4px solid var(--bhims-teal);
+        margin: 0 auto 1rem;
+    }
+    .avatar-upload {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+    }
+    .avatar-upload input { display: none; }
+    .avatar-upload-label {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--bhims-teal);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(13, 122, 123, 0.3);
+        transition: transform 0.2s ease;
+    }
+    .avatar-upload-label:hover { transform: scale(1.1); }
+    @media (max-width: 768px) {
+        .edit-form-card { padding: 1.5rem; }
+        .form-actions { flex-direction: column; }
+    }
+</style>
+{% endblock %}
+
+{% block topbar_title %}
+    <span style="font-family: var(--font-display); font-weight: 700; color: var(--bhims-text);">Edit Profile</span>
+{% endblock %}
+
+{% block app_content %}
+<div class="edit-profile-page">
+    <div class="app-content" style="padding-top: 2rem; padding-bottom: 3rem;">
+        <div class="edit-form-card bhims-press">
+            <div class="edit-form-header">
+                <h4><i class="fas fa-user-edit text-teal me-1"></i> Edit Profile</h4>
+                <p class="text-muted mb-0">Update your personal information</p>
+            </div>
+
+            <!-- Avatar Upload -->
+            <div class="avatar-upload text-center">
+                {% if user.profile_picture %}
+                <img src="{{ user.profile_picture.url }}" alt="{{ user.get_full_name|default:user.username }}" class="avatar-preview" id="avatarPreview">
+                {% else %}
+                <div class="avatar-placeholder" id="avatarPlaceholder">{{ user.get_full_name|first|upper|default:user.username|first|upper }}</div>
+                {% endif %}
+                <label for="avatarInput" class="avatar-upload-label" aria-label="Change avatar">
+                    <i class="fas fa-camera" style="font-size: 0.9rem;"></i>
+                </label>
+                <form method="post" action="{% url 'update_avatar' %}" enctype="multipart/form-data" style="display: none;" id="avatarForm">
+                    {% csrf_token %}
+                    <input type="file" id="avatarInput" name="avatar" accept="image/*" onchange="document.getElementById('avatarForm').submit();">
+                </form>
+            </div>
+
+            <form method="post" novalidate data-validate>
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}<div class="bhims-field-error">{{ form.first_name.errors|striptags }}</div>{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}<div class="bhims-field-error">{{ form.last_name.errors|striptags }}</div>{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}<div class="bhims-field-error">{{ form.email.errors|striptags }}</div>{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.phone_number.id_for_label }}">{{ form.phone_number.label }}</label>
+                            {{ form.phone_number }}
+                            {% if form.phone_number.errors %}<div class="bhims-field-error">{{ form.phone_number.errors|striptags }}</div>{% endif %}
+                        </div>
+                    </div>
+                    {% if form.address %}
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
+                            {{ form.address }}
+                            {% if form.address.errors %}<div class="bhims-field-error">{{ form.address.errors|striptags }}</div>{% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-actions">
+                    <a href="{% url 'profile' %}" class="btn-cancel bhims-press"><i class="fas fa-times me-1"></i> Cancel</a>
+                    <button type="submit" class="btn-save bhims-press"><i class="fas fa-save me-1"></i> Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var avatarInput = document.getElementById('avatarInput');
+    var avatarPreview = document.getElementById('avatarPreview');
+    var avatarPlaceholder = document.getElementById('avatarPlaceholder');
+    if (avatarInput) {
+        avatarInput.addEventListener('change', function () {
+            var file = this.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    if (avatarPreview) {
+                        avatarPreview.src = e.target.result;
+                        avatarPreview.style.display = 'block';
+                    }
+                    if (avatarPlaceholder) avatarPlaceholder.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+})();
+</script>
+{% endblock %}

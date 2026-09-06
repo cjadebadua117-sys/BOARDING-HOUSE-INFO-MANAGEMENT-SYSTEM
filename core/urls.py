@@ -63,4 +63,20 @@ urlpatterns = [
     path('profile/change-password/', views.change_password, name='change_password'),
     path('users/<int:pk>/', views.user_profile, name='user_profile'),
     path('users/<int:pk>/report/', views.report_user, name='report_user'),
+
+    # Profile
+    path('profile/', views.profile, name='profile'),
+    path('profile/edit/', views.edit_profile, name='edit_profile'),
+    path('profile/avatar/', views.update_avatar, name='update_avatar'),
+
+    # Search with AJAX
+    path('search/', views.search_results, name='search_results'),
+
+    # Chat
+    path('chat/', views.chat_list, name='chat_list'),
+    path('chat/<int:pk>/', views.chat_detail, name='chat_detail'),
+    path('chat/<int:pk>/send/', views.send_message, name='send_message'),
+
+    # Listing detail alias
+    path('listing/<int:pk>/', views.listing_detail, name='listing_detail'),
 ]

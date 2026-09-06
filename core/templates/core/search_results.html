@@ -1,0 +1,482 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Search Results - BHIMS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-page {
+        background: transparent;
+        min-height: 0;
+        padding: 0;
+        max-width: none;
+        margin: 0;
+    }
+    .filter-sidebar {
+        position: sticky;
+        top: 90px;
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
+    }
+    .filter-card {
+        background: var(--bhims-paper-raised);
+        border: 1px solid var(--bhims-ink-line);
+        border-radius: var(--bhims-radius);
+        padding: 1.5rem;
+        box-shadow: var(--bhims-glass-shadow);
+    }
+    .filter-card h6 {
+        font-family: var(--font-display);
+        color: var(--bhims-teal);
+        margin-bottom: 1rem;
+        font-size: var(--fs-lg);
+    }
+    .filter-section { margin-bottom: 1.5rem; }
+    .filter-section:last-child { margin-bottom: 0; }
+    .filter-label {
+        display: block;
+        font-weight: 600;
+        color: var(--bhims-text);
+        font-size: var(--fs-sm);
+        margin-bottom: 0.5rem;
+    }
+    .filter-control {
+        width: 100%;
+        padding: 0.6rem 0.875rem;
+        border: 1px solid var(--bhims-border);
+        border-radius: var(--bhims-radius-sm);
+        background: var(--bhims-paper);
+        color: var(--bhims-text);
+        font-size: var(--fs-sm);
+        transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+    .filter-control:focus {
+        outline: none;
+        border-color: var(--bhims-teal);
+        box-shadow: 0 0 0 3px rgba(13, 122, 123, 0.12);
+    }
+    .amenity-checkbox-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    .amenity-checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        color: var(--bhims-text);
+        font-size: var(--fs-sm);
+        font-weight: 500;
+    }
+    .amenity-checkbox-label input { accent-color: var(--bhims-teal); }
+    .filter-actions { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.5rem; }
+    .filter-btn { min-height: 44px; }
+    .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .results-title {
+        font-family: var(--font-display);
+        font-weight: 700;
+        color: var(--bhims-text);
+        font-size: var(--fs-2xl);
+        margin: 0;
+    }
+    .view-toggle { display: flex; gap: 0.5rem; }
+    .view-toggle .btn {
+        padding: 0.5rem 1rem;
+        font-size: var(--fs-sm);
+    }
+    .result-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+    .result-card {
+        background: var(--bhims-paper-raised);
+        border: 1px solid var(--bhims-ink-line);
+        border-radius: var(--bhims-radius);
+        overflow: hidden;
+        box-shadow: var(--bhims-glass-inner-glow);
+        transition: transform 0.25s var(--bhims-ease-smooth), box-shadow 0.25s var(--bhims-ease-smooth), border-color 0.25s var(--bhims-ease-smooth);
+        display: flex;
+        flex-direction: column;
+    }
+    .result-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--bhims-glass-shadow-hover);
+        border-color: var(--bhims-ink-line-strong);
+    }
+    .result-image {
+        height: 200px;
+        background: var(--bhims-paper-sunken);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--bhims-teal);
+        position: relative;
+        overflow: hidden;
+    }
+    .result-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .result-badge {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        z-index: 1;
+    }
+    .result-body {
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+    .result-title {
+        font-family: var(--font-display);
+        font-weight: 700;
+        color: var(--bhims-text);
+        font-size: var(--fs-xl);
+        margin: 0 0 0.5rem;
+    }
+    .result-location {
+        color: var(--bhims-text-muted);
+        font-size: var(--fs-sm);
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+    .result-location i { color: var(--bhims-teal); }
+    .result-meta {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+    .result-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        background: var(--bhims-icon-tint);
+        color: var(--bhims-text);
+        padding: 0.3rem 0.75rem;
+        border-radius: 9999px;
+        font-size: var(--fs-xs);
+        font-weight: 600;
+    }
+    .result-pill.price { background: var(--bhims-text); color: #fff; }
+    .result-description {
+        color: var(--bhims-text-muted);
+        font-size: var(--fs-sm);
+        line-height: 1.5;
+        margin-bottom: 1rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        flex: 1;
+    }
+    .result-amenities {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin-bottom: 1rem;
+    }
+    .result-amenity {
+        background: var(--bhims-icon-tint);
+        color: var(--bhims-teal);
+        padding: 0.2rem 0.6rem;
+        border-radius: 9999px;
+        font-size: var(--fs-xs);
+        font-weight: 500;
+    }
+    .result-footer {
+        padding-top: 1rem;
+        border-top: 1px solid var(--bhims-border);
+    }
+    .btn-view-result {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: var(--bhims-teal);
+        color: #fff;
+        border: none;
+        border-radius: var(--bhims-radius-sm);
+        padding: 0.5rem 1.25rem;
+        font-weight: 600;
+        font-size: var(--fs-sm);
+        text-decoration: none;
+        transition: background-color 0.18s ease, transform 0.12s ease;
+    }
+    .btn-view-result:hover {
+        background: var(--bhims-teal-hover);
+        color: #fff;
+        transform: translateY(-1px);
+    }
+    .btn-view-result:active { transform: translateY(1px) scale(0.98); }
+    .empty-results {
+        grid-column: 1 / -1;
+        background: var(--bhims-paper-raised);
+        border: 1px dashed var(--bhims-ink-line-strong);
+        border-radius: var(--bhims-radius);
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+    .empty-results i { font-size: 3rem; color: var(--bhims-teal); margin-bottom: 1.25rem; display: block; }
+    .empty-results h3 { font-family: var(--font-display); font-weight: 700; color: var(--bhims-text); font-size: var(--fs-2xl); margin-bottom: 0.75rem; }
+    .empty-results p { color: var(--bhims-text-muted); max-width: 500px; margin: 0 auto 1.5rem; }
+    .pagination-custom {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+    .page-link-custom {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        height: 40px;
+        padding: 0 0.75rem;
+        border: 1px solid var(--bhims-ink-line);
+        border-radius: 8px;
+        color: var(--bhims-teal);
+        background: var(--bhims-paper-raised);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: var(--fs-sm);
+        transition: all 0.18s ease;
+    }
+    .page-link-custom:hover { background: var(--bhims-icon-tint); color: var(--bhims-teal); border-color: var(--bhims-teal); }
+    .page-link-custom.active { background: var(--bhims-teal); color: #fff; border-color: var(--bhims-teal); }
+    .skeleton-result-card {
+        background: var(--bhims-paper-raised);
+        border: 1px solid var(--bhims-ink-line);
+        border-radius: var(--bhims-radius);
+        overflow: hidden;
+    }
+    .skeleton-result-card .sk-img { height: 200px; }
+    .skeleton-result-card .sk-body { padding: 1.25rem; }
+    .skeleton-result-card .sk-line { height: 14px; margin-bottom: 10px; }
+    .skeleton-result-card .sk-line.short { width: 60%; }
+    .skeleton-result-card .sk-pill { height: 20px; width: 80px; border-radius: 999px; display: inline-block; margin-right: 0.5rem; }
+    @media (max-width: 991.98px) {
+        .filter-sidebar { position: static; max-height: none; margin-bottom: 2rem; }
+    }
+</style>
+{% endblock %}
+
+{% block topbar_title %}
+    <span style="font-family: var(--font-display); font-weight: 700; color: var(--bhims-text);">Search Results</span>
+{% endblock %}
+
+{% block app_content %}
+<div class="search-page">
+    <div class="app-content" style="max-width: 1400px;">
+        <div class="row g-4">
+            <!-- Sidebar Filters -->
+            <div class="col-lg-3">
+                <div class="filter-card filter-sidebar">
+                    <h6><i class="fas fa-sliders-h me-1"></i> Filters</h6>
+                    <form method="get" id="searchFilterForm">
+                        <div class="filter-section">
+                            <label class="filter-label">Search</label>
+                            <input type="text" name="q" class="filter-control" placeholder="Name, location, amenities..." value="{{ request.GET.q }}">
+                        </div>
+
+                        <div class="filter-section">
+                            <label class="filter-label">Price Range (₱/mo)</label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="number" name="min_price" class="filter-control" placeholder="Min" value="{{ request.GET.min_price }}" min="0" step="100">
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" name="max_price" class="filter-control" placeholder="Max" value="{{ request.GET.max_price }}" min="0" step="100">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="filter-section">
+                            <label class="filter-label">Barangay</label>
+                            <select name="barangay" class="filter-control">
+                                <option value="">All Barangays</option>
+                                {% for barangay in barangays %}
+                                <option value="{{ barangay.id }}" {% if request.GET.barangay == barangay.id|stringformat:"s" %}selected{% endif %}>{{ barangay.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="filter-section">
+                            <label class="filter-label">Min Rooms</label>
+                            <input type="number" name="min_rooms" class="filter-control" placeholder="0" value="{{ request.GET.min_rooms }}" min="0">
+                        </div>
+
+                        <div class="filter-section">
+                            <label class="filter-label">Amenities</label>
+                            <div class="amenity-checkbox-list">
+                                {% for amenity in all_amenities %}
+                                <label class="amenity-checkbox-label">
+                                    <input type="checkbox" name="amenities" value="{{ amenity.id }}" {% if amenity.id|stringformat:"s" in request.GET.amenities %}checked{% endif %}>
+                                    {{ amenity.name }}
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="filter-section">
+                            <label class="filter-label">Sort By</label>
+                            <select name="sort" class="filter-control">
+                                <option value="newest" {% if request.GET.sort == 'newest' %}selected{% endif %}>Newest First</option>
+                                <option value="price_low" {% if request.GET.sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                                <option value="price_high" {% if request.GET.sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                                <option value="popular" {% if request.GET.sort == 'popular' %}selected{% endif %}>Most Popular</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-actions">
+                            <button type="submit" class="btn btn-primary filter-btn"><i class="fas fa-search me-1"></i> Apply Filters</button>
+                            <a href="{% url 'search_results' %}" class="btn btn-outline-primary filter-btn"><i class="fas fa-undo me-1"></i> Reset</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="col-lg-9">
+                <div class="results-header">
+                    <h1 class="results-title">{{ listings.count }} Result{{ listings.count|pluralize }} Found</h1>
+                    <div class="view-toggle">
+                        <button type="button" class="btn btn-sm btn-outline-primary active" data-view="grid" aria-pressed="true"><i class="fas fa-th"></i></button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-view="list" aria-pressed="false"><i class="fas fa-list"></i></button>
+                    </div>
+                </div>
+
+                <p id="filterStatus" class="visually-hidden" aria-live="polite" aria-atomic="true"></p>
+
+                <div class="result-grid" id="resultGrid" aria-live="polite" aria-busy="false">
+                    {% include 'core/includes/search_grid_fragment.html' %}
+                </div>
+
+                <div id="resultSkeleton" class="result-grid" style="display:none;" aria-hidden="true">
+                    {% for i in "123456" %}
+                    <div class="skeleton-result-card" aria-hidden="true">
+                        <div class="skeleton sk-img"></div>
+                        <div class="sk-body">
+                            <div class="skeleton sk-line"></div>
+                            <div class="skeleton sk-line short"></div>
+                            <div class="skeleton sk-pill" style="margin-top: 10px;"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% if listings.has_other_pages %}
+                <nav class="pagination-custom" aria-label="Pagination">
+                    {% if listings.has_previous %}
+                    <a href="?page={{ listings.previous_page_number }}{{ query_string }}" class="page-link-custom"><i class="fas fa-chevron-left"></i></a>
+                    {% endif %}
+                    {% for page in listings.paginator.page_range %}
+                    <a href="?page={{ page }}{{ query_string }}" class="page-link-custom {% if page == listings.number %}active{% endif %}">{{ page }}</a>
+                    {% endfor %}
+                    {% if listings.has_next %}
+                    <a href="?page={{ listings.next_page_number }}{{ query_string }}" class="page-link-custom"><i class="fas fa-chevron-right"></i></a>
+                    {% endif %}
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var form = document.getElementById('searchFilterForm');
+    var grid = document.getElementById('resultGrid');
+    var skeleton = document.getElementById('resultSkeleton');
+    var statusEl = document.getElementById('filterStatus');
+    if (!form || !grid || !skeleton) return;
+
+    var debounceTimer;
+    var controller;
+
+    function showSkeleton(show) {
+        skeleton.style.display = show ? 'grid' : 'none';
+        grid.style.display = show ? 'none' : 'grid';
+        grid.setAttribute('aria-busy', show ? 'true' : 'false');
+        skeleton.setAttribute('aria-hidden', show ? 'false' : 'true');
+    }
+
+    function fetchGrid(url, push) {
+        if (controller) controller.abort();
+        controller = new AbortController();
+        showSkeleton(true);
+        if (statusEl) statusEl.textContent = 'Loading results…';
+        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, signal: controller.signal })
+            .then(function (r) { return r.text(); })
+            .then(function (html) {
+                grid.innerHTML = html;
+                showSkeleton(false);
+                if (push) history.pushState(null, '', url);
+                if (statusEl) {
+                    var count = grid.querySelectorAll('.result-card').length;
+                    statusEl.textContent = count ? count + ' result' + (count === 1 ? '' : 's') + ' found.' : 'No results match your filters.';
+                }
+            })
+            .catch(function (e) {
+                if (e.name === 'AbortError') return;
+                showSkeleton(false);
+                if (statusEl) statusEl.textContent = 'Could not load results. Showing last results.';
+            });
+    }
+
+    function buildUrl() {
+        var params = new URLSearchParams(new FormData(form));
+        for (var pair of Array.from(params.entries())) { if (!pair[1]) params.delete(pair[0]); }
+        var base = form.getAttribute('action') || window.location.pathname;
+        var qs = params.toString();
+        return qs ? base + '?' + qs : base;
+    }
+
+    form.addEventListener('submit', function (e) {
+        if (!window.fetch) return;
+        e.preventDefault();
+        fetchGrid(buildUrl(), true);
+    });
+
+    ['input', 'change'].forEach(function (evt) {
+        form.addEventListener(evt, function () {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(function () { fetchGrid(buildUrl(), true); }, 320);
+        });
+    });
+
+    window.addEventListener('popstate', function () {
+        fetchGrid(window.location.pathname + window.location.search, false);
+    });
+
+    // View toggle
+    document.querySelectorAll('[data-view]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('[data-view]').forEach(function (b) { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
+            this.classList.add('active'); this.setAttribute('aria-pressed', 'true');
+            var grid = document.getElementById('resultGrid');
+            if (!grid) return;
+            if (this.dataset.view === 'list') {
+                grid.style.gridTemplateColumns = '1fr';
+            } else {
+                grid.style.gridTemplateColumns = '';
+            }
+        });
+    });
+})();
+</script>
+{% endblock %}

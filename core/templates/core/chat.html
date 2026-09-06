@@ -1,0 +1,391 @@
+{% extends 'core/app_base.html' %}
+{% load static %}
+
+{% block title %}Messages - BHIMS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-page {
+        background: transparent;
+        min-height: 0;
+        padding: 0;
+        max-width: none;
+        margin: 0;
+    }
+    .chat-container {
+        display: flex;
+        height: calc(100vh - 140px);
+        min-height: 500px;
+    }
+    .chat-sidebar {
+        width: 360px;
+        flex-shrink: 0;
+        background: var(--bhims-paper-raised);
+        border-right: 1px solid var(--bhims-ink-line);
+        display: flex;
+        flex-direction: column;
+    }
+    .chat-header {
+        padding: 1.25rem;
+        border-bottom: 1px solid var(--bhims-ink-line);
+    }
+    .chat-header h5 {
+        font-family: var(--font-display);
+        color: var(--bhims-teal);
+        margin: 0;
+        font-size: var(--fs-lg);
+    }
+    .chat-search {
+        margin-top: 0.75rem;
+    }
+    .chat-search .form-control {
+        background: var(--bhims-paper);
+        border: 1px solid var(--bhims-border);
+        border-radius: var(--bhims-radius-sm);
+        color: var(--bhims-text);
+    }
+    .chat-search .form-control:focus {
+        border-color: var(--bhims-teal);
+        box-shadow: 0 0 0 3px rgba(13, 122, 123, 0.12);
+    }
+    .conversation-list {
+        flex: 1;
+        overflow-y: auto;
+    }
+    .conversation-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border-bottom: 1px solid var(--bhims-border);
+        text-decoration: none;
+        color: var(--bhims-text);
+        transition: background-color 0.18s ease;
+    }
+    .conversation-item:hover {
+        background: var(--bhims-paper-sunken);
+    }
+    .conversation-item.active {
+        background: var(--bhims-icon-tint);
+    }
+    .conversation-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+    .conversation-avatar-placeholder {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: var(--bhims-teal);
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+    .conversation-info { flex: 1; min-width: 0; }
+    .conversation-name {
+        font-weight: 600;
+        color: var(--bhims-text);
+        margin: 0 0 0.15rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .conversation-preview {
+        font-size: var(--fs-sm);
+        color: var(--bhims-text-muted);
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .conversation-time {
+        font-size: var(--fs-xs);
+        color: var(--bhims-text-muted);
+        flex-shrink: 0;
+    }
+    .conversation-unread {
+        background: var(--bhims-teal);
+        color: #fff;
+        font-size: var(--fs-xs);
+        font-weight: 700;
+        padding: 0.15rem 0.5rem;
+        border-radius: 999px;
+        min-width: 20px;
+        text-align: center;
+    }
+    .chat-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: var(--bhims-paper);
+    }
+    .chat-empty {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--bhims-text-muted);
+    }
+    .chat-empty i { font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; }
+    .chat-empty h5 { font-family: var(--font-display); color: var(--bhims-text); margin-bottom: 0.5rem; }
+    .chat-active-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--bhims-ink-line);
+        background: var(--bhims-paper-raised);
+    }
+    .chat-active-info { display: flex; align-items: center; gap: 1rem; }
+    .chat-active-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .chat-active-avatar-placeholder {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--bhims-teal);
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 1rem;
+    }
+    .chat-active-name { font-weight: 600; color: var(--bhims-text); margin: 0 0 0.15rem; }
+    .chat-active-role { font-size: var(--fs-xs); color: var(--bhims-text-muted); margin: 0; }
+    .chat-active-status { margin-left: auto; font-size: var(--fs-xs); }
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .message {
+        max-width: 70%;
+        padding: 0.75rem 1rem;
+        border-radius: 18px;
+        animation: fadeInUp 0.3s var(--bhims-ease-out);
+    }
+    .message-sent {
+        align-self: flex-end;
+        background: var(--bhims-teal);
+        color: #fff;
+        border-bottom-right-radius: 4px;
+    }
+    .message-received {
+        align-self: flex-start;
+        background: var(--bhims-paper-raised);
+        border: 1px solid var(--bhims-ink-line);
+        color: var(--bhims-text);
+        border-bottom-left-radius: 4px;
+    }
+    .message-content { margin: 0; line-height: 1.5; }
+    .message-time {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        margin-top: 0.35rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+    .message-sent .message-time { color: rgba(255,255,255,0.8); justify-content: flex-end; }
+    .message-received .message-time { color: var(--bhims-text-muted); }
+    .message-read { color: var(--bhims-teal-light) !important; }
+    .chat-input-area {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid var(--bhims-ink-line);
+        background: var(--bhims-paper-raised);
+    }
+    .chat-input-form { display: flex; gap: 0.75rem; }
+    .chat-input-form .form-control {
+        flex: 1;
+        background: var(--bhims-paper);
+        border: 1px solid var(--bhims-border);
+        border-radius: 24px;
+        padding: 0.75rem 1.25rem;
+        color: var(--bhims-text);
+    }
+    .chat-input-form .form-control:focus {
+        border-color: var(--bhims-teal);
+        box-shadow: 0 0 0 3px rgba(13, 122, 123, 0.12);
+    }
+    .chat-send-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--bhims-teal);
+        color: #fff;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.18s ease, transform 0.12s ease;
+        flex-shrink: 0;
+    }
+    .chat-send-btn:hover { background: var(--bhims-teal-hover); transform: scale(1.05); }
+    .chat-send-btn:active { transform: scale(0.95); }
+    .no-conversation {
+        padding: 1.5rem;
+        text-align: center;
+        color: var(--bhims-text-muted);
+    }
+    .no-conversation i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+
+    @media (max-width: 768px) {
+        .chat-container { flex-direction: column; }
+        .chat-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--bhims-ink-line); max-height: 300px; }
+        .chat-main { min-height: calc(100vh - 440px); }
+        .message { max-width: 85%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .message { animation: none; }
+    }
+</style>
+{% endblock %}
+
+{% block topbar_title %}
+    <span style="font-family: var(--font-display); font-weight: 700; color: var(--bhims-text);">Messages</span>
+{% endblock %}
+
+{% block app_content %}
+<div class="chat-page">
+    <div class="chat-container">
+        <!-- Sidebar: Conversation List -->
+        <aside class="chat-sidebar">
+            <div class="chat-header">
+                <h5><i class="fas fa-comments me-1"></i> Conversations</h5>
+                <div class="chat-search">
+                    <input type="text" class="form-control form-control-sm" placeholder="Search conversations..." aria-label="Search conversations">
+                </div>
+            </div>
+            <nav class="conversation-list" aria-label="Conversations">
+                {% if conversations %}
+                {% for conversation in conversations %}
+                <a href="{% url 'chat_detail' conversation.id %}" class="conversation-item {% if conversation.id == active_conversation.id %}active{% endif %}">
+                    {% if conversation.other_user.profile_picture %}
+                    <img src="{{ conversation.other_user.profile_picture.url }}" alt="" class="conversation-avatar">
+                    {% else %}
+                    <div class="conversation-avatar-placeholder">{{ conversation.other_user.get_full_name|first|upper|default:conversation.other_user.username|first|upper }}</div>
+                    {% endif %}
+                    <div class="conversation-info">
+                        <div class="d-flex justify-content-between">
+                            <p class="conversation-name">{{ conversation.other_user.get_full_name|default:conversation.other_user.username }}</p>
+                            <small class="conversation-time">{{ conversation.last_message_time|timesince }} ago</small>
+                        </div>
+                        <p class="conversation-preview">{{ conversation.last_message|truncatechars:40 }}</p>
+                    </div>
+                    {% if conversation.unread_count %}
+                    <span class="conversation-unread">{{ conversation.unread_count }}</span>
+                    {% endif %}
+                </a>
+                {% endfor %}
+                {% else %}
+                <div class="p-3 text-center text-muted">
+                    <i class="fas fa-inbox fa-2x d-block mb-2 opacity-50"></i>
+                    <p class="mb-0">No conversations yet</p>
+                </div>
+                {% endif %}
+            </nav>
+        </aside>
+
+        <!-- Main: Chat Window -->
+        <main class="chat-main">
+            {% if active_conversation %}
+            <!-- Active Chat Header -->
+            <header class="chat-active-header">
+                <div class="chat-active-info">
+                    {% if active_conversation.other_user.profile_picture %}
+                    <img src="{{ active_conversation.other_user.profile_picture.url }}" alt="" class="chat-active-avatar">
+                    {% else %}
+                    <div class="chat-active-avatar-placeholder">{{ active_conversation.other_user.get_full_name|first|upper|default:active_conversation.other_user.username|first|upper }}</div>
+                    {% endif %}
+                    <div>
+                        <p class="chat-active-name">{{ active_conversation.other_user.get_full_name|default:active_conversation.other_user.username }}</p>
+                        <p class="chat-active-role">{{ active_conversation.other_user.get_role_display }}</p>
+                    </div>
+                    <span class="chat-active-status badge bg-success"><i class="fas fa-circle" style="font-size: 0.4rem;"></i> Online</span>
+                </div>
+            </header>
+
+            <!-- Messages -->
+            <div class="chat-messages" id="chatMessages">
+                {% for message in messages %}
+                <div class="message {% if message.sender == user %}message-sent{% else %}message-received{% endif %}">
+                    <p class="message-content">{{ message.content }}</p>
+                    <div class="message-time">
+                        {{ message.created_at|date:"h:i A" }}
+                        {% if message.sender == user %}
+                        <i class="fas fa-{% if message.is_read %}check-double text-teal{% else %}check text-muted{% endif %}"></i>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center text-muted" style="width: 100%; padding: 2rem;">
+                    <i class="fas fa-comment-dots fa-2x mb-2 opacity-50"></i>
+                    <p class="mb-0">No messages yet. Start the conversation!</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Input Area -->
+            <form method="post" action="{% url 'send_message' active_conversation.id %}" class="chat-input-area chat-input-form">
+                {% csrf_token %}
+                <input type="text" name="message" class="form-control" placeholder="Type your message..." required autocomplete="off" aria-label="Message">
+                <button type="submit" class="chat-send-btn" aria-label="Send message">
+                    <i class="fas fa-paper-plane" style="font-size: 1rem;"></i>
+                </button>
+            </form>
+
+            {% else %}
+            <!-- No Conversation Selected -->
+            <div class="chat-empty">
+                <i class="fas fa-comments"></i>
+                <h5>Select a conversation</h5>
+                <p class="mb-0">Choose a conversation from the list to start chatting.</p>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    // Auto-scroll to bottom
+    var chatMessages = document.getElementById('chatMessages');
+    if (chatMessages) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Focus input on load
+    var msgInput = document.querySelector('.chat-input-form input[name="message"]');
+    if (msgInput) msgInput.focus();
+
+    // Submit on Enter (but allow Shift+Enter for newlines)
+    var chatForm = document.querySelector('.chat-input-form');
+    if (chatForm) {
+        chatForm.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                this.submit();
+            }
+        });
+    }
+})();
+</script>
+{% endblock %}

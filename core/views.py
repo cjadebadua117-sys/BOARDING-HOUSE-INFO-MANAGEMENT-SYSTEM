@@ -1458,3 +1458,175 @@ def admin_settings(request):
             'student_registration_enabled': site_setting('student_registration_enabled', '1') == '1',
         })
     return render(request, 'core/admin_settings.html', {'form': form})
+
+
+# =========================================================================
+# Profile, Search, Chat, Listing Detail
+# =========================================================================
+
+@login_required
+def profile(request):
+    """User profile with tabs for activity, bookings, inquiries, properties."""
+    activities = []
+    # Build activity feed from recent actions
+    for booking in request.user.bookings.order_by('-created_at')[:5]:
+        activities.append({
+            'icon': 'calendar-check',
+            'description': f'Booked <strong>{booking.room.boarding_house.name}</strong> (Room: {booking.room.name})',
+            'created_at': booking.created_at,
+        })
+    for inquiry in request.user.inquiries.order_by('-created_at')[:5]:
+        activities.append({
+            'icon': 'envelope',
+            'description': f'Inquired about <strong>{inquiry.room.boarding_house.name}</strong>',
+            'created_at': inquiry.created_at,
+        })
+    activities.sort(key=lambda x: x['created_at'], reverse=True)
+
+    return render(request, 'core/profile.html', {
+        'activities': activities,
+    })
+
+
+@login_required
+def edit_profile(request):
+    """Edit user profile."""
+    if request.method == 'POST':
+        form = StudentProfileUpdateForm(request.POST, instance=request.user) if request.user.role == 'student' else LandlordProfileUpdateForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('profile')
+    else:
+        form = StudentProfileUpdateForm(instance=request.user) if request.user.role == 'student' else LandlordProfileUpdateForm(instance=request.user)
+    return render(request, 'core/edit_profile.html', {'form': form})
+
+
+@login_required
+def update_avatar(request):
+    """Update user avatar."""
+    if request.method == 'POST':
+        form = LandlordProfilePictureForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Avatar updated!')
+    return redirect('profile')
+
+
+def search_results(request):
+    """Search listings with filters - supports AJAX for instant filtering."""
+    # Same filter logic as listing_list but with all listings
+    try:
+        houses = BoardingHouse.objects.filter(status=BoardingHouse.Status.APPROVED, is_active=True)
+        houses = decorate_house_cards(houses)
+    except DatabaseError:
+        houses = BoardingHouse.objects.none()
+
+    barangays = []
+    try:
+        barangays = list(BoardingHouse.objects.filter(status=BoardingHouse.Status.APPROVED, is_active=True).values_list('barangay', flat=True).distinct())
+    except Exception:
+        pass
+    try:
+        official = list(Barangay.objects.values_list('name', 'distance_from_campus'))
+        if official:
+            barangays = list(dict.fromkeys([o[0] for o in official] + barangays))
+    except Exception:
+        pass
+    all_amenities = Amenity.objects.all()
+
+    form = ListingFilterForm(request.GET)
+    form.fields['barangay'].choices = [('', 'All')] + [(b, b) for b in barangays]
+    for field in ['price_min', 'price_max', 'room_type', 'amenities', 'sort', 'barangay']:
+        form.fields[field].widget.attrs['class'] = 'form-control' if field != 'sort' else 'form-select'
+
+    if form.is_valid():
+        price_min = form.cleaned_data.get('price_min')
+        price_max = form.cleaned_data.get('price_max')
+        room_type = form.cleaned_data.get('room_type')
+        amenities_text = form.cleaned_data.get('amenities')
+        barangay = form.cleaned_data.get('barangay')
+        sort = form.cleaned_data.get('sort')
+
+        if price_min:
+            houses = houses.filter(rooms__monthly_rate__gte=price_min)
+        if price_max:
+            houses = houses.filter(rooms__monthly_rate__lte=price_max)
+        if room_type:
+            houses = houses.filter(rooms__room_type__icontains=room_type)
+        if amenities_text:
+            amenity_names = [s.strip() for s in amenities_text.split(',') if s.strip()]
+            try:
+                amenity_ids = list(Amenity.objects.filter(name__in=amenity_names).values_list('id', flat=True))
+            except DatabaseError:
+                amenity_ids = []
+            if amenity_ids:
+                houses = houses.filter(rooms__amenities__in=amenity_ids)
+            else:
+                houses = houses.none()
+        if barangay:
+            houses = houses.filter(barangay=barangay)
+        if sort == 'lowest_price':
+            houses = houses.order_by('rooms__monthly_rate')
+        elif sort == 'newest':
+            houses = houses.order_by('-id')
+
+    # Pagination
+    from django.core.paginator import Paginator
+    paginator = Paginator(houses.distinct(), 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Build query string for pagination links
+    query_params = request.GET.copy()
+    query_params.pop('page', None)
+    query_string = '&' + query_params.urlencode() if query_params else ''
+
+    # AJAX fragment response
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'core/includes/search_grid_fragment.html', {
+            'listings': page_obj.object_list,
+        })
+
+    return render(request, 'core/search_results.html', {
+        'listings': page_obj,
+        'barangays': barangays,
+        'all_amenities': all_amenities,
+        'form': form,
+        'query_string': query_string,
+    })
+
+
+@login_required
+def chat_list(request):
+    """List user's conversations."""
+    # Get conversations where user is participant
+    # This assumes an Inquiry/Message model structure
+    conversations = []
+    return render(request, 'core/chat.html', {
+        'conversations': conversations,
+        'active_conversation': None,
+    })
+
+
+@login_required
+def chat_detail(request, pk):
+    """View a conversation and its messages."""
+    # Placeholder - requires Inquiry/Message model
+    return render(request, 'core/chat.html', {
+        'conversations': [],
+        'active_conversation': None,
+        'messages': [],
+    })
+
+
+@login_required
+@require_POST
+def send_message(request, pk):
+    """Send a message in a conversation."""
+    return redirect('chat_detail', pk=pk)
+
+
+def listing_detail(request, pk):
+    """Public listing detail page (alias for boarding_detail)."""
+    return boarding_detail(request, pk)

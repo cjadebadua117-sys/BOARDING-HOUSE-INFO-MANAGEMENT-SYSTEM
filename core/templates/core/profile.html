@@ -1,369 +1,449 @@
 {% extends 'core/app_base.html' %}
-{% load static %}
+{% block title %}My Profile - BHIMS{% endblock %}
 
-{% block app_content %}
+{% block extra_css %}
 <style>
-    :root {
-        --bhims-teal: #0d7a7b;
-        --bhims-teal-deep: #084f4f;
-        --bhims-cream: rgba(255, 255, 255, 0.42);
-        --bhims-cream-light: rgba(255, 255, 255, 0.60);
-        --bhims-text: #1f3438;
-        --bhims-text-muted: #8a7566;
-        --bhims-border: rgba(13, 122, 123, 0.16);
+    .profile-page-wrap {
+        background: transparent;
+        min-height: 0;
+        padding: 0;
+        max-width: none;
+        margin: 0;
     }
-    .profile-page-wrap { min-height: 80vh; display: flex; justify-content: center; align-items: flex-start; padding: 0; }
-    .profile-card { background: #ffffff; width: 100%; max-width: 920px; border-radius: 24px; border: 1px solid var(--bhims-border); display: flex; overflow: hidden; box-shadow: 0 20px 45px rgba(13, 122, 123, 0.12); position: relative; }
-    .profile-role-bar { position: absolute; top: 0; left: 0; bottom: 0; width: 6px; background: {% if is_landlord %}var(--bhims-teal-deep){% else %}var(--bhims-teal){% endif %}; }
-    .profile-sidebar { flex: 1; background: var(--bhims-cream-light); padding: 44px 36px; display: flex; flex-direction: column; align-items: center; border-right: 1px solid var(--bhims-border); text-align: center; }
-    .avatar-ring { width: 140px; height: 140px; border-radius: 50%; padding: 4px; background: {% if is_landlord %}var(--bhims-teal-deep){% else %}var(--bhims-teal){% endif %}; margin-bottom: 16px; cursor: pointer; position: relative; }
-    .avatar-ring img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid #ffffff; background: var(--bhims-cream); display: block; }
-    .avatar-initial-fallback { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #ffffff; background: var(--bhims-teal); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: 700; }
-    .avatar-hint { font-size: 11px; color: var(--bhims-text-muted); background: #ffffff; border: 1px solid var(--bhims-border); border-radius: 999px; padding: 4px 12px; margin-top: -14px; position: relative; z-index: 2; }
-    .role-badge { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; padding: 6px 16px; border-radius: 100px; background: {% if is_landlord %}rgba(13, 122, 123, 0.1){% else %}rgba(13, 122, 123, 0.1){% endif %}; color: {% if is_landlord %}var(--bhims-teal-deep){% else %}var(--bhims-teal){% endif %}; margin-top: 14px; }
-    .sidebar-stat { margin-top: 24px; font-size: 13px; color: var(--bhims-text-muted); }
-    .sidebar-stat strong { display: block; font-size: 22px; color: var(--bhims-text); font-weight: 800; }
-    .profile-main { flex: 2; padding: 44px 48px; }
-    .profile-header h1 { font-size: 28px; font-weight: 800; color: var(--bhims-text); margin: 0 0 4px; }
-    .profile-header span { color: var(--bhims-text-muted); font-size: 14px; }
-    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 28px; margin-top: 32px; }
-    .data-cell label { display: block; font-size: 10px; font-weight: 700; color: var(--bhims-text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-    .data-cell p.readonly-value { font-size: 15px; color: var(--bhims-text); font-weight: 600; margin: 0; padding: 10px 0; }
-    .bhims-input, .bhims-textarea, select.bhims-input { width: 100%; padding: 10px 12px; border: 1px solid var(--bhims-border); border-radius: 10px; color: var(--bhims-text); background: var(--bhims-cream-light); font-size: 14px; font-family: inherit; }
-    .bhims-input:focus, .bhims-textarea:focus { outline: none; border-color: var(--bhims-teal); box-shadow: 0 0 0 3px rgba(13, 122, 123, 0.15); }
-    .bhims-input:disabled { background: #f2ece5; color: var(--bhims-text-muted); cursor: not-allowed; }
-    .field-errors { color: #c0392b; font-size: 12px; margin-top: 4px; min-height: 14px; }
-    .locked-note { margin-top: 28px; padding: 14px 16px; background: var(--bhims-cream-light); border: 1px dashed var(--bhims-border); border-radius: 12px; font-size: 13px; color: var(--bhims-text-muted); }
-    .btn-row { margin-top: 34px; display: flex; gap: 12px; flex-wrap: wrap; }
-    .btn-bhims { display: inline-flex; align-items: center; gap: 8px; border: none; padding: 11px 22px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 14px; cursor: pointer; }
-    .btn-bhims.primary { background: {% if is_landlord %}var(--bhims-teal-deep){% else %}var(--bhims-teal){% endif %}; color: #ffffff; }
-    .btn-bhims.secondary { background: #ffffff; color: var(--bhims-text); border: 1px solid var(--bhims-border); }
-    .btn-bhims:disabled { opacity: 0.6; cursor: not-allowed; }
-    .password-section { margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--bhims-border); }
-    .password-section h3 { font-size: 16px; font-weight: 800; color: var(--bhims-text); margin: 0 0 16px; }
-    .password-grid { display: grid; grid-template-columns: 1fr; gap: 16px; max-width: 360px; }
-    #bhims-toast { position: fixed; bottom: 24px; right: 24px; background: rgba(255, 255, 255, 0.85); -webkit-backdrop-filter: blur(14px) saturate(160%); backdrop-filter: blur(14px) saturate(160%); border: 1px solid var(--bhims-border); border-left: 4px solid var(--bhims-teal); border-radius: 10px; padding: 14px 18px; box-shadow: 0 10px 30px rgba(8,79,79,0.15); font-size: 14px; color: var(--bhims-text); display: none; z-index: 9999; max-width: 320px; }
-    #bhims-toast.error { border-left-color: #c0392b; }
-    #bhims-toast.show { display: block; }
-    .photo-modal { position: fixed; inset: 0; background: rgba(8, 79, 79, 0.50); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 99999; padding: 20px; }
-    .photo-modal.open { display: flex; }
-    .cropper-panel { width: min(92vw, 480px); background: #fffdfa; border: 1px solid var(--bhims-border); border-radius: 16px; padding: 20px; box-shadow: 0 20px 45px rgba(0, 0, 0, 0.28); }
-    .cropper-panel h3 { margin: 0 0 12px; font-size: 16px; color: var(--bhims-text); }
-    .cropper-stage { width: 100%; height: min(60vh, 380px); background: #f2ece5; border-radius: 10px; overflow: hidden; }
-    .cropper-stage img { max-width: 100%; display: block; }
-    .cropper-actions { margin-top: 16px; display: flex; gap: 10px; justify-content: flex-end; }
-    .crop-btn { border: none; border-radius: 10px; padding: 11px 22px; font-weight: 700; font-size: 14px; cursor: pointer; }
-    .crop-btn.crop-btn-primary { background: #0d7a7b; color: #ffffff; }
-    .crop-btn.crop-btn-secondary { background: #ffffff; color: #1f3438; border: 1px solid var(--bhims-border); }
-    @media (max-width: 720px) {
-        .profile-card { flex-direction: column; }
-        .profile-sidebar { border-right: none; border-bottom: 1px solid var(--bhims-border); }
-        .info-grid { grid-template-columns: 1fr; }
-        .profile-main { padding: 32px 24px; }
+    .profile-header {
+        background: var(--bhims-paper-raised);
+        border: 1px solid var(--bhims-ink-line);
+        border-radius: var(--bhims-radius);
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--bhims-glass-shadow);
+        text-align: center;
+    }
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid var(--bhims-teal);
+        margin-bottom: 1rem;
+    }
+    .profile-avatar-placeholder {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: var(--bhims-teal);
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 2.5rem;
+        border: 4px solid var(--bhims-teal);
+        margin-bottom: 1rem;
+    }
+    .profile-role {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--bhims-icon-tint);
+        color: var(--bhims-teal);
+        padding: 0.35rem 1rem;
+        border-radius: 9999px;
+        font-size: var(--fs-sm);
+        font-weight: 600;
+        margin-top: 0.5rem;
+    }
+    .profile-stats {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--bhims-ink-line);
+    }
+    .profile-stat-item {
+        text-align: center;
+    }
+    .profile-stat-value {
+        font-family: var(--font-display);
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--bhims-text);
+    }
+    .profile-stat-label {
+        font-size: var(--fs-sm);
+        color: var(--bhims-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+    .profile-card {
+        background: var(--bhims-paper-raised);
+        border: 1px solid var(--bhims-ink-line);
+        border-radius: var(--bhims-radius);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--bhims-glass-shadow);
+    }
+    .profile-card h6 {
+        font-family: var(--font-display);
+        color: var(--bhims-teal);
+        margin-bottom: 1rem;
+        font-size: var(--fs-lg);
+    }
+    .profile-info-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.5rem 0;
+        color: var(--bhims-text);
+    }
+    .profile-info-row i {
+        color: var(--bhims-teal);
+        width: 20px;
+        text-align: center;
+    }
+    .nav-tabs-custom {
+        border-bottom: 2px solid var(--bhims-ink-line);
+        margin-bottom: 1.5rem;
+    }
+    .nav-tabs-custom .nav-link {
+        color: var(--bhims-text-muted);
+        font-weight: 600;
+        border: none;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0;
+        position: relative;
+        transition: color 0.2s ease;
+    }
+    .nav-tabs-custom .nav-link:hover {
+        color: var(--bhims-teal);
+        background: transparent;
+    }
+    .nav-tabs-custom .nav-link.active {
+        color: var(--bhims-teal);
+        background: transparent;
+    }
+    .nav-tabs-custom .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--bhims-teal);
+        border-radius: 3px 3px 0 0;
+    }
+    .timeline-item {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--bhims-border);
+    }
+    .timeline-item:last-child { border-bottom: none; }
+    .timeline-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--bhims-icon-tint);
+        color: var(--bhims-teal);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .timeline-content { flex: 1; }
+    .timeline-description { color: var(--bhims-text); margin: 0 0 0.25rem; }
+    .timeline-time { font-size: var(--fs-xs); color: var(--bhims-text-muted); }
+    .list-group-item-custom {
+        background: transparent;
+        border-color: var(--bhims-border);
+        color: var(--bhims-text);
+    }
+    .list-group-item-custom:hover {
+        background: var(--bhims-paper-sunken);
+    }
+    .booking-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--bhims-border);
+    }
+    .booking-card:last-child { border-bottom: none; }
+    .booking-info { flex: 1; }
+    .booking-name { font-weight: 600; color: var(--bhims-text); }
+    .booking-date { font-size: var(--fs-sm); color: var(--bhims-text-muted); }
+    .inquiry-card {
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--bhims-border);
+    }
+    .inquiry-card:last-child { border-bottom: none; }
+    .inquiry-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.5rem;
+    }
+    .inquiry-property { font-weight: 600; color: var(--bhims-text); }
+    .inquiry-time { font-size: var(--fs-xs); color: var(--bhims-text-muted); }
+    .inquiry-message { font-size: var(--fs-sm); color: var(--bhims-text-muted); margin: 0; }
+    .empty-state-custom {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--bhims-text-muted);
+    }
+    .empty-state-custom i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+    .avatar-upload {
+        position: relative;
+        display: inline-block;
+    }
+    .avatar-upload input { display: none; }
+    .avatar-upload-label {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--bhims-teal);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(13, 122, 123, 0.3);
+        transition: transform 0.2s ease;
+    }
+    .avatar-upload-label:hover { transform: scale(1.1); }
+    @media (max-width: 768px) {
+        .profile-stats { gap: 1rem; }
+        .profile-header { padding: 1.5rem; }
     }
 </style>
+{% endblock %}
 
+{% block topbar_title %}
+    <span style="font-family: var(--font-display); font-weight: 700; color: var(--bhims-text);">My Profile</span>
+{% endblock %}
+
+{% block app_content %}
 <div class="profile-page-wrap">
-    <div class="profile-card">
-        <div class="profile-role-bar"></div>
-        <div class="profile-sidebar">
-            <div class="avatar-ring" id="avatar-trigger" title="Click to change photo">
+    <div class="app-content" style="max-width: 1000px; padding-top: 2rem; padding-bottom: 3rem;">
+        <!-- Profile Header -->
+        <div class="profile-header bhims-press">
+            <div class="avatar-upload">
                 {% if user.profile_picture %}
-                    <img src="{{ user.profile_picture.url }}" alt="Profile photo" id="avatar-image">
+                <img src="{{ user.profile_picture.url }}" alt="{{ user.get_full_name|default:user.username }}" class="profile-avatar" id="avatarPreview">
                 {% else %}
-                    <div class="avatar-initial-fallback" id="avatar-image">{{ user.first_name|default:user.username|first|upper }}</div>
+                <div class="profile-avatar-placeholder" id="avatarPlaceholder">{{ user.get_full_name|first|upper|default:user.username|first|upper }}</div>
                 {% endif %}
-            </div>
-            <span class="avatar-hint">Click photo to change</span>
-            <input type="file" id="avatar-file-input" accept="image/*" style="display:none;">
-            <div class="role-badge">{% if is_landlord %}Landlord{% else %}Student{% endif %}</div>
-            {% if is_landlord %}
-            <div class="sidebar-stat">
-                <strong>{{ boarding_house_count }}</strong>
-                Boarding House{{ boarding_house_count|pluralize }} Managed
-            </div>
-            {% endif %}
-        </div>
-        <div class="profile-main">
-            <div class="profile-header">
-                <h1>My Profile</h1>
-                <span>{% if is_landlord %}Manage your profile details, password and photo.{% else %}Keep your information up to date.{% endif %}</span>
-            </div>
-
-            {% if is_student %}
-            <form id="profile-edit-form">
-                <div class="info-grid">
-                    <div class="data-cell">
-                        <label>Email (not editable)</label>
-                        <p class="readonly-value">{{ user.email }}</p>
-                    </div>
-                    <div class="data-cell">
-                        <label>Student ID (not editable)</label>
-                        <p class="readonly-value">{{ user.student_id }}</p>
-                    </div>
-                    <div class="data-cell">
-                        <label>First Name</label>
-                        <input class="bhims-input" name="first_name" value="{{ user.first_name }}">
-                        <div class="field-errors" data-error-for="first_name"></div>
-                    </div>
-                    <div class="data-cell">
-                        <label>Last Name</label>
-                        <input class="bhims-input" name="last_name" value="{{ user.last_name }}">
-                        <div class="field-errors" data-error-for="last_name"></div>
-                    </div>
-                    <div class="data-cell">
-                        <label>Program</label>
-                        <select class="bhims-input" name="program" id="id_program">
-                            {% for value, label in program_choices %}
-                            <option value="{{ value }}" {% if user.program == value %}selected{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                        <div class="field-errors" data-error-for="program"></div>
-                    </div>
-                    <div class="data-cell" id="program-custom-cell" style="display: none;">
-                        <label id="program-custom-label">Enter Your Grade Level</label>
-                        <input class="bhims-input" name="program_custom" id="id_program_custom" value="{{ user.program_custom|default:'' }}" maxlength="100">
-                        <div class="field-errors" data-error-for="program_custom"></div>
-                    </div>
-                    <div class="data-cell">
-                        <label>Phone Number</label>
-                        <input class="bhims-input" name="phone_number" value="{{ user.phone_number|default:'' }}">
-                        <div class="field-errors" data-error-for="phone_number"></div>
-                    </div>
-                    <div class="data-cell" style="grid-column: 1 / -1;">
-                        <label>Bio</label>
-                        <textarea class="bhims-input bhims-textarea" name="bio" rows="3" maxlength="300">{{ user.bio|default:'' }}</textarea>
-                        <div class="field-errors" data-error-for="bio"></div>
-                    </div>
-                </div>
-                <div class="btn-row">
-                    <button type="submit" class="btn-bhims primary" id="save-profile-btn">Save Changes</button>
-                </div>
-            </form>
-            {% endif %}
-
-            {% if is_landlord %}
-            <form id="profile-edit-form">
-                <div class="info-grid">
-                    <div class="data-cell">
-                        <label>Email (not editable)</label>
-                        <p class="readonly-value">{{ user.email }}</p>
-                    </div>
-                    <div class="data-cell">
-                        <label>First Name</label>
-                        <input class="bhims-input" name="first_name" value="{{ user.first_name }}">
-                        <div class="field-errors" data-error-for="first_name"></div>
-                    </div>
-                    <div class="data-cell">
-                        <label>Last Name</label>
-                        <input class="bhims-input" name="last_name" value="{{ user.last_name }}">
-                        <div class="field-errors" data-error-for="last_name"></div>
-                    </div>
-                    <div class="data-cell">
-                        <label>Phone Number</label>
-                        <input class="bhims-input" name="phone_number" value="{{ user.phone_number|default:'' }}">
-                        <div class="field-errors" data-error-for="phone_number"></div>
-                    </div>
-                </div>
-                <div class="btn-row">
-                    <button type="submit" class="btn-bhims primary" id="save-profile-btn">Save Changes</button>
-                </div>
-            </form>
-            <div class="locked-note">
-                Your email address is managed by the Admin. If it needs to change, please contact your Admin.
-            </div>
-            {% endif %}
-
-            <div class="password-section">
-                <h2 class="h3">Change Password</h2>
-                <form id="password-form" class="password-grid">
-                    <div class="data-cell">
-                        <label>Current Password</label>
-                        <input class="bhims-input" type="password" name="old_password" required>
-                        <div class="field-errors" data-error-for="old_password"></div>
-                    </div>
-                    <div class="data-cell">
-                        <label>New Password</label>
-                        <input class="bhims-input" type="password" name="new_password1" required>
-                        <div class="field-errors" data-error-for="new_password1"></div>
-                    </div>
-                    <div class="data-cell">
-                        <label>Confirm New Password</label>
-                        <input class="bhims-input" type="password" name="new_password2" required>
-                        <div class="field-errors" data-error-for="new_password2"></div>
-                    </div>
-                    <div class="btn-row" style="margin-top:8px;">
-                        <button type="submit" class="btn-bhims primary" id="save-password-btn">Update Password</button>
-                    </div>
+                <label for="avatarInput" class="avatar-upload-label" aria-label="Change avatar">
+                    <i class="fas fa-camera" style="font-size: 0.85rem;"></i>
+                </label>
+                <form method="post" action="{% url 'update_avatar' %}" enctype="multipart/form-data" style="display: none;" id="avatarForm">
+                    {% csrf_token %}
+                    <input type="file" id="avatarInput" name="avatar" accept="image/*" onchange="document.getElementById('avatarForm').submit();">
                 </form>
             </div>
+            <h2 style="font-family: var(--font-display); font-weight: 700; color: var(--bhims-text); margin: 0;">{{ user.get_full_name|default:user.username }}</h2>
+            <span class="profile-role">
+                <i class="fas fa-tag"></i> {{ user.get_role_display }}
+            </span>
+
+            <div class="profile-stats">
+                <div class="profile-stat-item">
+                    <div class="profile-stat-value">{% if user.role == 'student' %}{{ user.bookings.count }}{% else %}{{ user.properties.count }}{% endif %}</div>
+                    <div class="profile-stat-label">{% if user.role == 'student' %}Bookings{% else %}Properties{% endif %}</div>
+                </div>
+                <div class="profile-stat-item">
+                    <div class="profile-stat-value">{{ user.inquiries.count }}</div>
+                    <div class="profile-stat-label">Inquiries</div>
+                </div>
+                <div class="profile-stat-item">
+                    <div class="profile-stat-value">{{ user.date_joined|date:"M Y" }}</div>
+                    <div class="profile-stat-label">Member Since</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Tabs -->
+        <ul class="nav nav-tabs nav-tabs-custom" id="profileTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity" type="button" role="tab">
+                    <i class="fas fa-clock me-1"></i> Activity
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="bookings-tab" data-bs-toggle="tab" data-bs-target="#bookings" type="button" role="tab">
+                    <i class="fas fa-calendar-check me-1"></i> Bookings
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="inquiries-tab" data-bs-toggle="tab" data-bs-target="#inquiries" type="button" role="tab">
+                    <i class="fas fa-envelope me-1"></i> Inquiries
+                </button>
+            </li>
+            {% if user.role == 'landlord' %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="properties-tab" data-bs-toggle="tab" data-bs-target="#properties" type="button" role="tab">
+                    <i class="fas fa-building me-1"></i> Properties
+                </button>
+            </li>
+            {% endif %}
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="profileTabContent">
+            <!-- Activity Tab -->
+            <div class="tab-pane fade show active" id="activity" role="tabpanel">
+                <div class="profile-card">
+                    <h6><i class="fas fa-clock text-teal me-1"></i> Recent Activity</h6>
+                    {% if activities %}
+                    <div class="timeline">
+                        {% for activity in activities %}
+                        <div class="timeline-item">
+                            <div class="timeline-icon">
+                                <i class="fas fa-{{ activity.icon|default:'circle' }}"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <p class="timeline-description">{{ activity.description }}</p>
+                                <small class="timeline-time">{{ activity.created_at|timesince }} ago</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-center text-muted py-3">No recent activity</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Bookings Tab -->
+            <div class="tab-pane fade" id="bookings" role="tabpanel">
+                <div class="profile-card">
+                    <h6><i class="fas fa-calendar-check text-teal me-1"></i> Your Bookings</h6>
+                    {% if user.bookings.all %}
+                    {% for booking in user.bookings.all %}
+                    <div class="booking-card">
+                        <div class="booking-info">
+                            <div class="booking-name">{{ booking.property.name|default:booking.room.boarding_house.name }}</div>
+                            <div class="booking-date">
+                                <i class="fas fa-calendar me-1"></i> {{ booking.created_at|date:"M d, Y" }}
+                                {% if booking.move_in_date %} · Move-in: {{ booking.move_in_date|date:"M d, Y" }}{% endif %}
+                            </div>
+                        </div>
+                        <span class="badge {% if booking.status == 'confirmed' %}bg-success{% elif booking.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                            {{ booking.get_status_display }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="empty-state-custom">
+                        <i class="fas fa-calendar-check"></i>
+                        <p class="mt-2">No bookings yet</p>
+                        <a href="{% url 'listing_list' %}" class="btn btn-sm btn-primary mt-2">Browse Listings</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Inquiries Tab -->
+            <div class="tab-pane fade" id="inquiries" role="tabpanel">
+                <div class="profile-card">
+                    <h6><i class="fas fa-envelope text-teal me-1"></i> Your Inquiries</h6>
+                    {% if user.inquiries.all %}
+                    {% for inquiry in user.inquiries.all %}
+                    <div class="inquiry-card">
+                        <div class="inquiry-header">
+                            <strong class="inquiry-property">{{ inquiry.property.name|default:inquiry.room.boarding_house.name }}</strong>
+                            <small class="inquiry-time">{{ inquiry.created_at|timesince }} ago</small>
+                        </div>
+                        <p class="inquiry-message">{{ inquiry.message|truncatechars:120 }}</p>
+                        <span class="badge {% if inquiry.is_replied %}bg-success{% else %}bg-warning{% endif %}">
+                            {% if inquiry.is_replied %}Replied{% else %}Awaiting Reply{% endif %}
+                        </span>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="empty-state-custom">
+                        <i class="fas fa-envelope"></i>
+                        <p class="mt-2">No inquiries sent yet</p>
+                        <a href="{% url 'listing_list' %}" class="btn btn-sm btn-primary mt-2">Browse & Inquire</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Properties Tab (Landlord only) -->
+            {% if user.role == 'landlord' %}
+            <div class="tab-pane fade" id="properties" role="tabpanel">
+                <div class="profile-card">
+                    <h6><i class="fas fa-building text-teal me-1"></i> Your Properties</h6>
+                    {% if user.properties.all %}
+                    <div class="row g-3">
+                        {% for property in user.properties.all %}
+                        <div class="col-md-6">
+                            <div class="profile-card h-100">
+                                <h6 style="margin: 0 0 0.5rem;">{{ property.name }}</h6>
+                                <p class="text-muted small mb-2">
+                                    <i class="fas fa-map-pin me-1"></i> {{ property.barangay.name }}
+                                </p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge badge-teal">₱{{ property.price_per_month }}/mo</span>
+                                    <span class="badge {% if property.is_approved %}bg-success{% else %}bg-warning{% endif %}">
+                                        {{ property.is_approved|yesno:"Approved,Pending" }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state-custom">
+                        <i class="fas fa-building"></i>
+                        <p class="mt-2">No properties listed yet</p>
+                        <a href="{% url 'boarding_house_create' %}" class="btn btn-sm btn-primary mt-2">Add Your First Property</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Edit Profile Button -->
+        <div class="text-center mt-4">
+            <a href="{% url 'edit_profile' %}" class="btn btn-primary">
+                <i class="fas fa-edit me-1"></i> Edit Profile
+            </a>
         </div>
     </div>
 </div>
+{% endblock %}
 
-<div class="photo-modal" id="cropper-modal">
-    <div class="cropper-panel">
-        <h2 class="h3">Adjust Your Photo</h2>
-        <div class="cropper-stage"><img id="cropper-image" src="" alt=""></div>
-        <div class="cropper-actions">
-            <button type="button" class="crop-btn crop-btn-secondary" id="cropper-cancel">Cancel</button>
-            <button type="button" class="crop-btn crop-btn-primary" id="cropper-save">Save Photo</button>
-        </div>
-    </div>
-</div>
-
-<div id="bhims-toast"></div>
-
-<link href="{% static 'vendor/cropper.min.css' %}" rel="stylesheet">
-<script src="{% static 'vendor/cropper.min.js' %}"></script>
+{% block extra_js %}
 <script>
 (function () {
-    const csrfToken = '{{ csrf_token }}';
-    function getToast() { return document.getElementById('bhims-toast'); }
-    function showToast(message, isError) {
-        const t = getToast();
-        t.textContent = message;
-        t.className = isError ? 'show error' : 'show';
-        setTimeout(() => { t.className = ''; }, 3500);
-    }
-    function clearErrors(form) { form.querySelectorAll('.field-errors').forEach(el => el.textContent = ''); }
-    function applyErrors(form, errors) {
-        if (!errors) return;
-        Object.keys(errors).forEach(key => {
-            const el = form.querySelector(`[data-error-for="${key}"]`);
-            if (el) el.textContent = Array.isArray(errors[key]) ? errors[key].map(e => e.message || e).join(' ') : errors[key];
+    // Avatar preview
+    var avatarInput = document.getElementById('avatarInput');
+    var avatarPreview = document.getElementById('avatarPreview');
+    var avatarPlaceholder = document.getElementById('avatarPlaceholder');
+    if (avatarInput) {
+        avatarInput.addEventListener('change', function () {
+            var file = this.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    if (avatarPreview) {
+                        avatarPreview.src = e.target.result;
+                        avatarPreview.style.display = 'block';
+                    }
+                    if (avatarPlaceholder) avatarPlaceholder.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
         });
     }
-    const profileForm = document.getElementById('profile-edit-form');
-    // Show grade-level input only when Program is K-12
-    const programSelect = document.getElementById('id_program');
-    const customCell = document.getElementById('program-custom-cell');
-    if (programSelect && customCell) {
-        const customLabel = document.getElementById('program-custom-label');
-        const customInput = document.getElementById('id_program_custom');
-        function refreshProgramCustom() {
-            const show = programSelect.value === 'K12';
-            customCell.style.display = show ? '' : 'none';
-            if (customLabel) customLabel.textContent = 'Enter Your Grade Level';
-            if (!show) customInput.value = '';
-        }
-        programSelect.addEventListener('change', refreshProgramCustom);
-        refreshProgramCustom();
-    }
-    if (profileForm) {
-        profileForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-            clearErrors(profileForm);
-            const btn = document.getElementById('save-profile-btn');
-            btn.disabled = true;
-            const payload = {
-                first_name: profileForm.first_name.value,
-                last_name: profileForm.last_name.value,
-                phone_number: profileForm.phone_number.value,
-            };
-            if (profileForm.program) payload.program = profileForm.program.value;
-            if (profileForm.program_custom) payload.program_custom = profileForm.program_custom.value;
-            if (profileForm.bio) payload.bio = profileForm.bio.value;
-            fetch("{% url 'update_profile' %}", {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
-                body: JSON.stringify(payload),
-            })
-            .then(res => res.json().then(data => ({ ok: res.ok, data })))
-            .then(({ ok, data }) => {
-                if (!ok || !data.success) { showToast(data.message || 'Could not save changes.', true); applyErrors(profileForm, data.errors); return; }
-                showToast(data.message || 'Profile updated.');
-                const avatar = document.getElementById('avatar-image');
-                if (avatar && data.profile && data.profile.first_name) {
-                    avatar.textContent = data.profile.first_name.charAt(0).toUpperCase();
-                }
-            })
-            .catch(() => showToast('Something went wrong.', true))
-            .finally(() => { btn.disabled = false; });
-        });
-    }
-    const passwordForm = document.getElementById('password-form');
-    passwordForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        clearErrors(passwordForm);
-        const btn = document.getElementById('save-password-btn');
-        btn.disabled = true;
-        const payload = {
-            old_password: passwordForm.old_password.value,
-            new_password1: passwordForm.new_password1.value,
-            new_password2: passwordForm.new_password2.value,
-        };
-        fetch("{% url 'change_password' %}", {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
-            body: JSON.stringify(payload),
-        })
-        .then(res => res.json().then(data => ({ ok: res.ok, data })))
-        .then(({ ok, data }) => {
-            if (!ok || !data.success) { showToast(data.message || 'Could not change password.', true); applyErrors(passwordForm, data.errors); return; }
-            showToast(data.message || 'Password changed.');
-            passwordForm.reset();
-        })
-        .catch(() => showToast('Something went wrong.', true))
-        .finally(() => { btn.disabled = false; });
-    });
-    const avatarTrigger = document.getElementById('avatar-trigger');
-    const avatarInput = document.getElementById('avatar-file-input');
-    const avatarImage = document.getElementById('avatar-image');
-    const cropperModal = document.getElementById('cropper-modal');
-    const cropperImage = document.getElementById('cropper-image');
-    const cropperCancel = document.getElementById('cropper-cancel');
-    const cropperSave = document.getElementById('cropper-save');
-    let cropper = null;
-    avatarTrigger.addEventListener('click', () => avatarInput.click());
-    avatarInput.addEventListener('change', function (e) {
-        const file = e.target.files[0];
-        if (!file || !file.type.startsWith('image/')) { showToast('Please select an image file.', true); return; }
-        const reader = new FileReader();
-        reader.onload = function (ev) {
-            cropperImage.src = ev.target.result;
-            cropperModal.classList.add('open');
-            if (cropper) cropper.destroy();
-            cropper = new Cropper(cropperImage, { aspectRatio: 1, viewMode: 1, autoCropArea: 0.9, background: false });
-        };
-        reader.readAsDataURL(file);
-    });
-    cropperCancel.addEventListener('click', function () {
-        cropperModal.classList.remove('open');
-        if (cropper) { cropper.destroy(); cropper = null; }
-        avatarInput.value = '';
-    });
-    cropperSave.addEventListener('click', function () {
-        if (!cropper) return;
-        cropper.getCroppedCanvas({ width: 500, height: 500 }).toBlob(function (blob) {
-            const formData = new FormData();
-            formData.append('profile_picture', blob, 'profile-picture.jpg');
-            fetch("{% url 'upload_profile_picture' %}", {
-                method: 'POST',
-                headers: { 'X-CSRFToken': csrfToken },
-                body: formData,
-            })
-            .then(res => res.json().then(data => ({ ok: res.ok, data })))
-            .then(({ ok, data }) => {
-                if (!ok || !data.success) { showToast(data.message || 'Upload failed.', true); return; }
-                if (avatarImage.tagName === 'IMG') {
-                    avatarImage.src = data.image_url + '?t=' + Date.now();
-                } else {
-                    const img = document.createElement('img');
-                    img.id = 'avatar-image';
-                    img.src = data.image_url + '?t=' + Date.now();
-                    avatarImage.replaceWith(img);
-                }
-                showToast('Profile picture updated.');
-                cropperModal.classList.remove('open');
-                cropper.destroy();
-                cropper = null;
-                avatarInput.value = '';
-            })
-            .catch(() => showToast('Upload failed.', true));
-        }, 'image/jpeg', 0.92);
-    });
 })();
 </script>
 {% endblock %}
-
