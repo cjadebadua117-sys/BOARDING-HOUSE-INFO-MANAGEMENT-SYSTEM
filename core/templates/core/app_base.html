@@ -24,9 +24,35 @@
         </div>
     </main>
 </div>
+<nav class="bhims-bottom-nav" aria-label="Primary navigation">
+    <ul>
+        {% if request.user.is_authenticated %}
+            {% if request.user.role == 'student' %}
+                <li><a href="{% url 'listing_list' %}" {% if request.resolver_match.url_name == 'listing_list' %}aria-current="page"{% endif %}><i class="bi bi-search"></i><span>Browse</span></a></li>
+                <li><a href="{% url 'student_dashboard' %}" {% if request.resolver_match.url_name == 'student_dashboard' %}aria-current="page"{% endif %}><i class="bi bi-speedometer2"></i><span>Dashboard</span></a></li>
+                <li><a href="{% url 'student_inquiry_list' %}"><i class="bi bi-chat-dots"></i><span>Inquiries</span></a></li>
+                <li><a href="{% url 'student_bookings' %}"><i class="bi bi-patch-check"></i><span>Bookings</span></a></li>
+            {% elif request.user.role == 'landlord' %}
+                <li><a href="{% url 'landlord_dashboard' %}" {% if request.resolver_match.url_name == 'landlord_dashboard' %}aria-current="page"{% endif %}><i class="bi bi-speedometer2"></i><span>Dashboard</span></a></li>
+                <li><a href="{% url 'landlord_boarding_house_list' %}"><i class="bi bi-buildings"></i><span>Houses</span></a></li>
+                <li><a href="{% url 'landlord_inquiry_list' %}"><i class="bi bi-chat-dots"></i><span>Inquiries</span></a></li>
+                <li><a href="{% url 'landlord_bookings' %}"><i class="bi bi-patch-check"></i><span>Bookings</span></a></li>
+            {% elif request.user.role == 'admin' %}
+                <li><a href="{% url 'admin_dashboard' %}"><i class="bi bi-speedometer2"></i><span>Admin</span></a></li>
+                <li><a href="{% url 'listing_list' %}"><i class="bi bi-search"></i><span>Browse</span></a></li>
+                <li><a href="{% url 'admin_reports' %}"><i class="bi bi-flag"></i><span>Reports</span></a></li>
+                <li><a href="{% url 'profile' %}"><i class="bi bi-person"></i><span>Profile</span></a></li>
+            {% endif %}
+        {% else %}
+            <li><a href="{% url 'listing_list' %}"><i class="bi bi-search"></i><span>Browse</span></a></li>
+            <li><a href="{% url 'student_login' %}"><i class="bi bi-box-arrow-in-right"></i><span>Student</span></a></li>
+            <li><a href="{% url 'landlord_login' %}"><i class="bi bi-house-door"></i><span>Landlord</span></a></li>
+        {% endif %}
+    </ul>
+</nav>
 
 <style>
-    /* Ambient warm light field — gives the glass rail something to refract */
+    /* Ambient teal light field — gives the sidebar rail something to refract */
     .app-shell {
         position: relative;
         isolation: isolate;
@@ -113,8 +139,57 @@
 
     @media (max-width: 768px) {
         .app-content {
-            padding: 2rem 1.25rem 3rem;
+            padding: 2rem 1.25rem 4.5rem;
         }
+    }
+    /* ---- Mobile bottom-nav: thumb-friendly 44px targets, hidden on desktop ---- */
+    .bhims-bottom-nav {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1200;
+        background: var(--bhims-paper-raised);
+        border-top: 1px solid var(--bhims-ink-line);
+        box-shadow: 0 -4px 20px rgba(8, 79, 79, 0.08);
+        padding: 0.25rem 0 max(0.25rem, env(safe-area-inset-bottom));
+        padding-bottom: max(0.25rem, env(safe-area-inset-bottom));
+    }
+    .bhims-bottom-nav ul {
+        display: flex;
+        justify-content: space-around;
+        align-items: stretch;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+    .bhims-bottom-nav a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        min-height: 44px;
+        min-width: 44px;
+        padding: 0.35rem 0.6rem;
+        color: var(--bhims-text-muted);
+        text-decoration: none;
+        font-size: 0.70rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        border-radius: 10px;
+        transition: color 0.18s ease, background-color 0.18s ease;
+    }
+    .bhims-bottom-nav a i { font-size: 1.25rem; line-height: 1; }
+    .bhims-bottom-nav a:hover, .bhims-bottom-nav a:focus-visible { color: var(--bhims-teal); background: var(--bhims-icon-tint); }
+    .bhims-bottom-nav a[aria-current="page"] { color: var(--bhims-teal); background: rgba(13,122,123,0.08); }
+    @media (max-width: 768px) {
+        .bhims-bottom-nav { display: block; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .bhims-bottom-nav a { transition: none; }
     }
 </style>
 

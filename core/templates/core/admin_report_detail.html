@@ -33,7 +33,7 @@
     }
     .rd-meta-row { display: flex; gap: 10px; align-items: center; padding: 8px 0;
         border-bottom: 1px dashed rgba(109,92,83,0.25); color: var(--bhims-text); font-size: var(--fs-md); }
-    .rd-meta-label { min-width: 130px; color: #6d5c53; font-weight: 600; }
+    .rd-meta-label { min-width: 130px; color: #57706f; font-weight: 600; }
     .btn-rd { border-radius: 999px; padding: 9px 24px; font-weight: 700; text-decoration: none;
         display: inline-flex; align-items: center; gap: 6px; border: 1px solid transparent; }
     .btn-rd-back { background: #fffdfa; color: #1f3438; border-color: var(--bhims-border); }
@@ -61,7 +61,7 @@
     <div class="rd-card">
         <div class="row g-3 mb-4">
             <div class="col-md-6">
-                <div class="fw-bold mb-2" style="color:#6d5c53;"><i class="bi bi-person-x"></i> Reported User</div>
+                <div class="fw-bold mb-2" style="color:#57706f;"><i class="bi bi-person-x"></i> Reported User</div>
                 <div class="rd-person">
                     {% if report.reported_user.profile_picture %}
                         <span class="rd-avatar"><img src="{{ report.reported_user.profile_picture.url }}" alt=""></span>
@@ -79,7 +79,7 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="fw-bold mb-2" style="color:#6d5c53;"><i class="bi bi-flag"></i> Reported By</div>
+                <div class="fw-bold mb-2" style="color:#57706f;"><i class="bi bi-flag"></i> Reported By</div>
                 <div class="rd-person">
                     {% if report.reporter.profile_picture %}
                         <span class="rd-avatar"><img src="{{ report.reporter.profile_picture.url }}" alt=""></span>
@@ -97,7 +97,7 @@
         </div>
 
         <div class="mb-4">
-            <div class="fw-bold mb-2" style="color:#6d5c53;">Complaint Details</div>
+            <div class="fw-bold mb-2" style="color:#57706f;">Complaint Details</div>
             {% if report.details %}
                 <div class="rd-details-box">{{ report.details }}</div>
             {% else %}

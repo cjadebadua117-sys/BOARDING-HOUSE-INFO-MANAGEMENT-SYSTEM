@@ -1,258 +1,96 @@
 {% extends 'core/app_base.html' %}
 {% block title %}{{ title }}{% endblock %}
+
 {% block extra_css %}
 <style>
     .room-form-page {
-        background-color: #f7ede3;
+        background: transparent;
         min-height: calc(100vh - 72px);
         padding: 3rem 2rem;
         max-width: 900px;
         margin: 0 auto;
-        font-family: 'Inter', sans-serif;
     }
 
     .form-container {
-        background-color: var(--bhims-cream-light);
-        border: 1px solid #e9dcd0;
-        border-radius: 16px;
-        padding: 3rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        background: var(--bhims-paper-raised);
+        border: 1px solid var(--bhims-ink-line);
+        border-radius: var(--bhims-radius);
+        padding: 2.5rem;
+        box-shadow: var(--bhims-glass-shadow);
     }
 
-    .form-header {
-        text-align: center;
-        margin-bottom: 2.5rem;
-    }
+    .form-header { text-align: center; margin-bottom: 2rem; }
+    .form-header .form-icon { width: 4rem; height: 4rem; color: var(--bhims-teal); margin-bottom: 1rem; }
+    .form-header h2 { font-family: var(--font-display); font-size: 2rem; font-weight: 700; color: var(--bhims-text); margin-bottom: 0.5rem; }
+    .form-header p { color: var(--bhims-text-muted); font-size: var(--fs-lg); margin: 0; }
 
-    .form-header .form-icon {
-        width: 4rem;
-        height: 4rem;
-        color: #0d7a7b;
-        margin-bottom: 1rem;
-    }
-
-    .form-header h2 {
-        font-family: var(--font-display);
-        font-size: 2rem;
-        font-weight: 700;
-        color: #1f3438;
-        margin-bottom: 0.5rem;
-    }
-
-    .form-header p {
-        color: #6b5b53;
-        font-size: var(--fs-lg);
-        margin: 0;
-    }
-
-    .form-group {
-        margin-bottom: 1.75rem;
-    }
-
+    .form-group { margin-bottom: 1.5rem; }
     .form-label {
-        display: block;
-        font-weight: 500;
-        color: #1f3438;
-        margin-bottom: 0.5rem;
-        font-size: 1rem;
+        display: block; font-weight: 600; color: var(--bhims-text);
+        margin-bottom: 0.4rem; font-size: var(--fs-sm);
     }
-
-    .form-control {
-        width: 100%;
-        padding: 0.875rem 1rem;
-        border: 1px solid #d4c5b9;
-        border-radius: 10px;
-        font-size: 1rem;
-        color: #1f3438;
-        background-color: #fcf9f6;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    .form-control, .form-select {
+        width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--bhims-border);
+        border-radius: var(--bhims-radius-sm); font-size: var(--fs-base); color: var(--bhims-text);
+        background: var(--bhims-paper); transition: border-color 0.18s ease, box-shadow 0.18s ease;
     }
-
-    .form-control:focus {
-        outline: none;
-        border-color: #0d7a7b;
-        box-shadow: 0 0 0 3px rgba(13, 122, 123, 0.1);
-    }
+    .form-control:focus, .form-select:focus { outline: none; border-color: var(--bhims-teal); box-shadow: 0 0 0 3px rgba(13, 122, 123, 0.12); }
 
     .toggle-container {
-        background-color: #f7ede3;
-        border-radius: 10px;
-        padding: 1.5rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        background: var(--bhims-paper-sunken); border-radius: 10px; padding: 1.5rem;
+        display: flex; justify-content: space-between; align-items: center;
     }
+    .toggle-content h4 { font-weight: 600; color: var(--bhims-text); margin: 0 0 0.25rem 0; font-size: var(--fs-base); }
+    .toggle-content p { color: var(--bhims-text-muted); margin: 0; font-size: var(--fs-sm); }
 
-    .toggle-content h4 {
-        font-weight: 600;
-        color: #1f3438;
-        margin: 0 0 0.25rem 0;
-        font-size: 1rem;
-    }
-
-    .toggle-content p {
-        color: #6b5b53;
-        margin: 0;
-        font-size: var(--fs-sm);
-    }
-
-    .toggle-switch {
-        position: relative;
-        display: inline-block;
-        width: 52px;
-        height: 28px;
-    }
-
-    .toggle-switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-
+    .toggle-switch { position: relative; display: inline-block; width: 52px; height: 28px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
     .toggle-slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        transition: .3s;
-        border-radius: 28px;
+        position: absolute; cursor: pointer; inset: 0; background: var(--bhims-ink-line);
+        transition: background-color .3s ease; border-radius: 28px;
     }
-
     .toggle-slider:before {
-        position: absolute;
-        content: "";
-        height: 22px;
-        width: 22px;
-        left: 3px;
-        bottom: 3px;
-        background-color: white;
-        transition: .3s;
-        border-radius: 50%;
+        position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px;
+        background: #fff; transition: transform .3s ease; border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
+    input:checked + .toggle-slider { background: var(--bhims-teal); }
+    input:checked + .toggle-slider:before { transform: translateX(24px); }
 
-    input:checked + .toggle-slider {
-        background-color: #0d7a7b;
-    }
+    .amenities-section { background: var(--bhims-paper); border-radius: 10px; padding: 1.5rem; border: 1px solid var(--bhims-ink-line); }
+    .amenity-checkbox-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .amenity-checkbox-label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--bhims-text); font-weight: 500; }
+    input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--bhims-teal); }
 
-    input:checked + .toggle-slider:before {
-        transform: translateX(24px);
-    }
+    .bhims-field-error { color: #b3261e; font-size: var(--fs-sm); font-weight: 600; margin-top: 0.35rem; }
 
-    .amenities-section {
-        background-color: #fcf9f6;
-        border-radius: 10px;
-        padding: 1.5rem;
-        border: 1px solid #e9dcd0;
+    .form-actions { display: flex; gap: 1rem; margin-top: 2rem; }
+    .btn-cancel, .btn-submit {
+        flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+        padding: 0.875rem 1.5rem; border-radius: var(--bhims-radius-sm);
+        font-weight: 600; text-decoration: none; font-size: var(--fs-base); min-height: 44px;
     }
-
-    .amenity-checkbox-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 1rem;
-        margin-top: 1rem;
-    }
-
-    .amenity-checkbox-label {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        cursor: pointer;
-        color: #5a4a42;
-        font-weight: 500;
-    }
-
-    input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-        accent-color: #0d7a7b;
-    }
-
-    .error-message {
-        color: #dc2626;
-        font-size: var(--fs-sm);
-        margin-top: 0.5rem;
-    }
-
-    .form-actions {
-        display: flex;
-        gap: 1rem;
-        margin-top: 2.5rem;
-    }
-
-    .btn-cancel {
-        flex: 1;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        padding: 0.875rem 1.5rem;
-        border: 1px solid #0d7a7b;
-        border-radius: 10px;
-        background-color: transparent;
-        color: #0d7a7b;
-        font-weight: 500;
-        text-decoration: none;
-        transition: all 0.2s ease;
-        font-size: 1rem;
-    }
-
-    .btn-cancel:hover {
-        background-color: rgba(13, 122, 123, 0.05);
-        text-decoration: none;
-        color: #0d7a7b;
-    }
-
-    .btn-submit {
-        flex: 1;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        padding: 0.875rem 1.5rem;
-        border: none;
-        border-radius: 10px;
-        background-color: #0d7a7b;
-        color: white;
-        font-weight: 500;
-        text-decoration: none;
-        transition: all 0.2s ease;
-        font-size: 1rem;
-        cursor: pointer;
-    }
-
-    .btn-submit:hover {
-        background-color: #a04821;
-    }
+    .btn-cancel { border: 1px solid var(--bhims-teal); background: transparent; color: var(--bhims-teal); }
+    .btn-cancel:hover { background: var(--bhims-icon-tint); color: var(--bhims-teal); }
+    .btn-submit { border: none; background: var(--bhims-teal); color: white; cursor: pointer; }
+    .btn-submit:hover { background: var(--bhims-teal-hover); }
+    .btn-cancel:active, .btn-submit:active { transform: translateY(1px) scale(0.98); }
 
     @media (max-width: 768px) {
-        .room-form-page {
-            padding: 2rem 1rem;
-        }
-
-        .form-container {
-            padding: 2rem 1.5rem;
-        }
-
-        .form-header h2 {
-            font-size: var(--fs-2xl);
-        }
-
-        .amenity-checkbox-list {
-            grid-template-columns: 1fr 1fr;
-        }
-
-        .form-actions {
-            flex-direction: column;
-        }
+        .room-form-page { padding: 2rem 1rem; }
+        .form-container { padding: 2rem 1.5rem; }
+        .form-header h2 { font-size: var(--fs-2xl); }
+        .amenity-checkbox-list { grid-template-columns: 1fr 1fr; }
+        .form-actions { flex-direction: column; }
     }
+
+    @media (prefers-reduced-motion: reduce) { .btn-cancel, .btn-submit, .toggle-slider { transition: none !important; transform: none !important; } }
 </style>
 {% endblock %}
+
 {% block app_content %}
 <div class="room-form-page">
-    <div class="form-container">
+    <div class="form-container bhims-press">
         <div class="form-header">
             <svg class="form-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75" />
@@ -275,23 +113,19 @@
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
-                    {% if field.errors %}
-                        <div class="error-message">{{ field.errors|striptags }}</div>
-                    {% endif %}
+                    {% if field.errors %}<div class="bhims-field-error">{{ field.errors|striptags }}</div>{% endif %}
                 </div>
                 {% elif field.name == 'photo' %}
                 <div class="form-group">
                     <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                     {% if room and room.photos.first %}
-                        <div style="margin-bottom: 0.75rem;">
-                            <img src="{{ room.photos.first.image.url }}" alt="{{ room.room_type }}" style="width: 100%; max-width: 320px; border-radius: 10px; border: 1px solid #e9dcd0; object-fit: cover; display: block;">
-                        </div>
+                    <div style="margin-bottom: 0.75rem;">
+                        <img src="{{ room.photos.first.image.url }}" alt="{{ room.room_type }}" style="width: 100%; max-width: 320px; border-radius: 10px; border: 1px solid var(--bhims-ink-line); object-fit: cover; display: block;">
+                    </div>
                     {% endif %}
                     {{ field }}
-                    <div class="form-text" style="color: #8a7566; font-size: var(--fs-sm); margin-top: 0.5rem;">{{ field.help_text }}</div>
-                    {% if field.errors %}
-                        <div class="error-message">{{ field.errors|striptags }}</div>
-                    {% endif %}
+                    <div class="form-text" style="color: var(--bhims-text-muted); font-size: var(--fs-sm); margin-top: 0.5rem;">{{ field.help_text }}</div>
+                    {% if field.errors %}<div class="bhims-field-error">{{ field.errors|striptags }}</div>{% endif %}
                 </div>
                 {% elif field.name == 'amenities' %}
                 <div class="form-group">
@@ -299,30 +133,25 @@
                         <label class="form-label">{{ field.label }}</label>
                         <div class="amenity-checkbox-list">
                             {% for checkbox in field %}
-                                <label class="amenity-checkbox-label">
-                                    {{ checkbox.tag }}
-                                    {{ checkbox.choice_label }}
-                                </label>
+                            <label class="amenity-checkbox-label">
+                                {{ checkbox.tag }} {{ checkbox.choice_label }}
+                            </label>
                             {% endfor %}
                         </div>
                     </div>
-                    {% if field.errors %}
-                        <div class="error-message">{{ field.errors|striptags }}</div>
-                    {% endif %}
+                    {% if field.errors %}<div class="bhims-field-error">{{ field.errors|striptags }}</div>{% endif %}
                 </div>
                 {% else %}
                 <div class="form-group">
                     <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                     {{ field }}
-                    {% if field.errors %}
-                        <div class="error-message">{{ field.errors|striptags }}</div>
-                    {% endif %}
+                    {% if field.errors %}<div class="bhims-field-error">{{ field.errors|striptags }}</div>{% endif %}
                 </div>
                 {% endif %}
             {% endfor %}
             <div class="form-actions">
-                <a href="{% url 'landlord_boarding_house_detail' house.pk %}" class="btn-cancel">Cancel</a>
-                <button type="submit" class="btn-submit">Save Room</button>
+                <a href="{% url 'landlord_boarding_house_detail' house.pk %}" class="btn-cancel bhims-press">Cancel</a>
+                <button type="submit" class="btn-submit bhims-press">Save Room</button>
             </div>
         </form>
     </div>

@@ -1,13 +1,13 @@
 /* =====================================================================
-   BHIMS HERITAGE LAYER v3 — "Bacnotan Heritage"
-   Editorial print language: Fraunces display type, ink hairlines,
-   woven-paper ground, flat tactile controls. Loaded LAST in <head>.
+   BHIMS PREMIUM LAYER v4 — "Bacnotan Teal"
+   Editorial print language: Fraunces display type, teal ink hairlines,
+   paper elevation system, tactile controls. Loaded LAST in <head>.
    Motion stays transform/opacity only, with a global reduced-motion
-   kill-switch.
+   kill-switch. Depth via layered paper z-levels (bg / content / modals).
    ===================================================================== */
 
 /* ---------------------------------------------------------------
-   1. Tokens: signature easings + warm-ink shadows
+   1. Tokens: signature easings + teal-ink shadows + elevation
    --------------------------------------------------------------- */
 :root {
     --bhims-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -17,6 +17,14 @@
     --bhims-shadow-sm: 0 1px 2px rgba(8, 79, 79, 0.05), 0 4px 10px rgba(8, 79, 79, 0.06);
     --bhims-shadow-md: 0 2px 4px rgba(8, 79, 79, 0.05), 0 10px 22px rgba(8, 79, 79, 0.09);
     --bhims-shadow-lg: 0 4px 8px rgba(8, 79, 79, 0.06), 0 18px 40px rgba(8, 79, 79, 0.12);
+
+    /* Layered paper elevation — bg lowest, modals highest */
+    --z-bg: 0;
+    --z-content: 1;
+    --z-topbar: 1200;
+    --z-sidebar: 1300;
+    --z-modal: 2000;
+    --z-toast: 10000;
 }
 
 /* ---------------------------------------------------------------
@@ -35,7 +43,7 @@ body {
 }
 ::selection {
     background: #0d7a7b;
-    color: #fdf6ee;
+    color: #f8fbf8;
 }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -66,10 +74,16 @@ p, li { text-wrap: pretty; }
 
 /* Prices & stat numerals: serif figures give listings an editorial voice */
 .stat-card h2, .stat-card h3, .stat-card .stat-value,
-.price-tag, .listing-price, .house-price {
+.price-tag, .listing-price, .house-price,
+.room-price, .inq-price {
     font-family: var(--font-display);
     font-weight: 600;
     font-variant-numeric: lining-nums;
+}
+
+/* Section eyebrows & numeric data abide by the same scale */
+.page-header .eyebrow, .section-header .eyebrow, .landing-kicker, .landing-section-kicker {
+    font-family: 'Inter', sans-serif;
 }
 
 /* ---------------------------------------------------------------
@@ -87,26 +101,32 @@ p, li { text-wrap: pretty; }
 }
 
 /* ---------------------------------------------------------------
-   5. Buttons: tactile press (no sheen, no sweep)
+   5. Buttons & interactive controls: tactile press (no sheen, no sweep)
+      Hover lifts; active sinks + shadow collapses. Shared .bhims-press
+      utility for any tappable element (incl. listing cards' CTA pills).
    --------------------------------------------------------------- */
 .btn-primary, .btn-success, .btn-bhims, .create-btn, .submit-btn,
-.btn-submit, .btn-register-bhims, .btn-accept-bhims, .bhims-login-btn {
-    transition: transform 0.12s ease, box-shadow 0.18s ease !important;
+.btn-submit, .btn-register-bhims, .btn-accept-bhims, .bhims-login-btn,
+.btn-danger, .btn-warning, .btn-outline-primary, .view-all-btn, .manage-btn,
+.edit-btn, .view-thread-btn, .filter-reset, .inq-submit, .bhims-press {
+    transition: transform 0.12s ease, box-shadow 0.18s ease, background-color 0.18s ease !important;
 }
 .btn-primary:hover, .btn-success:hover, .btn-bhims:hover, .create-btn:hover,
 .submit-btn:hover, .btn-submit:hover, .btn-register-bhims:hover,
-.btn-accept-bhims:hover, .bhims-login-btn:hover {
+.btn-accept-bhims:hover, .bhims-login-btn:hover,
+.btn-danger:hover, .btn-warning:hover, .btn-outline-primary:hover,
+.view-all-btn:hover, .manage-btn:hover, .view-thread-btn:hover, .bhims-press:hover {
     transform: translateY(-1px) !important;
 }
 .btn-primary:active, .btn-success:active, .btn-bhims:active, .create-btn:active,
 .submit-btn:active, .btn-submit:active, .btn-register-bhims:active,
 .btn-accept-bhims:active, .bhims-login-btn:active,
-.btn-danger:active, .btn-warning:active, .btn-outline-primary:active {
-    transform: translateY(1px) !important;
+.btn-danger:active, .btn-warning:active, .btn-outline-primary:active,
+.view-all-btn:active, .manage-btn:active, .view-thread-btn:active,
+.filter-reset:active, .inq-submit:active, .bhims-press:active {
+    transform: translateY(1px) scale(0.98) !important;
     transition-duration: 0.08s !important;
-}
-.btn-danger, .btn-warning, .btn-outline-primary {
-    transition: transform 0.12s ease, box-shadow 0.18s ease !important;
+    box-shadow: 0 0 0 rgba(8, 79, 79, 0.12) !important;
 }
 
 /* ---------------------------------------------------------------
@@ -232,8 +252,14 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 }
 
 /* ---------------------------------------------------------------
-   12. Modals / dropdowns / toasts: measured entrances
+   12. Modals / dropdowns / toasts: measured entrances + z-layers
    --------------------------------------------------------------- */
+.modal { z-index: var(--z-modal) !important; }
+.modal-backdrop { z-index: calc(var(--z-modal) - 1) !important; }
+#toast-container { z-index: var(--z-toast) !important; }
+.app-topbar { z-index: var(--z-topbar) !important; }
+.app-sidebar { z-index: var(--z-sidebar) !important; }
+
 .modal-content {
     box-shadow: var(--bhims-shadow-lg) !important;
     animation: bhimsPop 0.32s var(--bhims-ease-out) both !important;
@@ -256,6 +282,43 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     from { transform: translateX(110%); opacity: 0; }
     to   { transform: translateX(0); opacity: 1; }
 }
+
+/* ---------------------------------------------------------------
+   13. Skeleton shimmer — used during AJAX filter + image lazy-load
+   --------------------------------------------------------------- */
+.skeleton {
+    background: linear-gradient(90deg, #eef4f2 25%, #f8fbf8 37%, #eef4f2 63%);
+    background-size: 400% 100%;
+    animation: bhimsShimmer 1.3s ease-in-out infinite;
+    border-radius: 8px;
+}
+@keyframes bhimsShimmer {
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+}
+.skeleton-card {
+    background: var(--bhims-paper-raised);
+    border: 1px solid var(--bhims-ink-line);
+    border-radius: var(--bhims-radius);
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(8, 79, 79, 0.05);
+}
+.skeleton-card .sk-img { height: 220px; }
+.skeleton-card .sk-body { padding: 1.5rem; }
+.skeleton-card .sk-line { height: 12px; margin-bottom: 10px; }
+.skeleton-card .sk-line.short { width: 58%; }
+.skeleton-card .sk-pill { height: 22px; width: 98px; border-radius: 999px; display: inline-block; }
+
+/* Shared empty-state polish — icon + editorial heading */
+.bhims-empty {
+    background: var(--bhims-paper-raised);
+    border: 1px dashed var(--bhims-ink-line-strong);
+    border-radius: var(--bhims-radius);
+    padding: 3.5rem 2rem;
+    text-align: center;
+}
+.bhims-empty i, .bhims-empty svg { color: var(--bhims-teal); opacity: 0.9; }
+.bhims-empty h3 { font-family: var(--font-display); color: var(--bhims-text); }
 
 /* ---------------------------------------------------------------
    14. Reduced motion: kill everything instantly

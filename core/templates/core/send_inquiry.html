@@ -19,7 +19,7 @@
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(180deg, rgba(250, 246, 240, 0.30) 0%, rgba(250, 246, 240, 0.62) 82%);
+        background: linear-gradient(180deg, rgba(237, 243, 238, 0.45) 0%, rgba(237, 243, 238, 0.78) 82%);
     }
     .inq-wrap { max-width: 880px; margin: 2rem auto 3rem; padding: 0 1rem; position: relative; z-index: 1; }
     .inq-back {
@@ -32,9 +32,9 @@
 
     .inq-card {
         background: var(--bhims-paper-raised);
-        border: 1px solid var(--bhims-border);
+        border: 1px solid var(--bhims-ink-line);
         border-radius: var(--bhims-radius-lg, 18px);
-        box-shadow: 0 10px 34px rgba(8, 79, 79, 0.10);
+        box-shadow: var(--bhims-glass-shadow-hover);
         overflow: hidden;
     }
     .inq-head {
@@ -95,7 +95,7 @@
         display: block; margin-bottom: .4rem;
         font-size: .78rem; font-weight: 700;
         letter-spacing: .06em; text-transform: uppercase;
-        color: #5f4a38;
+        color: var(--bhims-text-muted);
     }
     .inq-form-field label .opt { text-transform: none; font-weight: 500; color: var(--bhims-text-muted); letter-spacing: 0; }
     .inq-input {
@@ -225,10 +225,10 @@
                 </div>
 
                 <div class="inq-actions">
-                    <button type="submit" class="inq-submit" id="submitBtn">
+                    <button type="submit" class="inq-submit bhims-press" id="submitBtn">
                         <i class="bi bi-send"></i> Send Inquiry
                     </button>
-                    <a href="{% url 'boarding_detail' room.boarding_house.pk %}" class="inq-cancel">Cancel</a>
+                    <a href="{% url 'boarding_detail' room.boarding_house.pk %}" class="inq-cancel bhims-press">Cancel</a>
                 </div>
             </form>
         </div>

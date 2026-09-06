@@ -33,13 +33,19 @@
             --bhims-text: #1f3438;
             --bhims-text-muted: #57706f;
 
-            /* Heritage surface system — warm paper & ink instead of glass */
+            /* Paper surface system — teal paper & ink on layered elevation */
             --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
             --bhims-paper: #edf3ee;
             --bhims-paper-raised: #f8fbf8;
             --bhims-paper-sunken: #f2f6f0;
             --bhims-ink-line: #cfd9d5;
             --bhims-ink-line-strong: #b9cdc8;
+            --z-bg: 0;
+            --z-content: 1;
+            --z-topbar: 1200;
+            --z-sidebar: 1300;
+            --z-modal: 2000;
+            --z-toast: 10000;
 
             /* Type scale — single source of truth for font sizes.
                Inline styles across templates reference these via var(--fs-*). */
@@ -76,7 +82,7 @@
             --bhims-glass-subtle: none;
             --bhims-glass-bg-primary: var(--bhims-paper-raised);
             --bhims-glass-bg-secondary: var(--bhims-paper-sunken);
-            --bhims-glass-bg-subtle: rgba(253, 250, 243, 0.97);
+            --bhims-glass-bg-subtle: var(--bhims-paper-raised);
             --bhims-glass-inner-glow: 0 1px 2px rgba(8, 79, 79, 0.05);
             --bhims-glass-shadow: 0 1px 2px rgba(8, 79, 79, 0.05), 0 6px 18px rgba(8, 79, 79, 0.07);
             --bhims-glass-shadow-hover: 0 2px 4px rgba(8, 79, 79, 0.06), 0 14px 30px rgba(8, 79, 79, 0.11);
@@ -93,7 +99,7 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            /* Woven-paper ground: a faint banig-mat weave in warm ink.
+            /* Woven-paper ground: faint teal weave on layered elevation.
                Static by design — no animated gradients. */
             background-color: var(--bhims-paper);
             background-image:
@@ -441,7 +447,7 @@
         }
     </style>
 
-    <!-- Heritage surface system: flat warm papers, ink hairlines, no frost -->
+    <!-- Paper elevation system: layered z-levels, teal ink hairlines -->
     <style>
         /* Page containers sit directly on the paper ground */
         .detail-page, .browse-page, .dashboard-page, .landlord-page, .student-page,
@@ -450,7 +456,7 @@
             background: transparent !important;
         }
 
-        /* ---- Tier 1 Â· Primary surfaces (main cards & containers) ---- */
+        /* ---- Tier 1 · Primary surfaces (main cards & containers) ---- */
         .card, .stat-card, .hero-card, .image-gallery, .rooms-card, .rooms-section,
         .house-card, .house-content, .listing-card, .booking-card, .inquiries-card,
         .filter-card, .profile-card, .profile-main, .profile-sidebar,
@@ -461,15 +467,15 @@
             box-shadow: var(--bhims-glass-inner-glow) !important;
         }
 
-        /* ---- Tier 2 Â· Secondary surfaces (list items, small surfaces) ---- */
+        /* ---- Tier 2 · Secondary surfaces (list items, small surfaces) ---- */
         .list-group-item, .inquiry-item, .room-item, .room-card, .locked-note,
         .avatar-hint, .reply-form-container, .toggle-container, .amenities-section,
         .availability-toggle-container, .card .card-header, .card .card-footer {
             background: var(--bhims-paper-sunken) !important;
-            border: 1px solid rgba(228, 213, 194, 0.65) !important;
+            border: 1px solid var(--bhims-ink-line) !important;
         }
 
-        /* ---- Tier 3 Â· Toasts & insets ---- */
+        /* ---- Tier 3 · Toasts & insets ---- */
         .bhims-toast {
             background: var(--bhims-paper-raised) !important;
             border: 1px solid var(--bhims-ink-line) !important;
@@ -478,7 +484,7 @@
         .empty-state, .modal-header, .modal-footer,
         .house-image-placeholder, .inquiry-details {
             background: var(--bhims-paper-sunken) !important;
-            border: 1px solid rgba(228, 213, 194, 0.65) !important;
+            border: 1px solid var(--bhims-ink-line) !important;
         }
 
         /* ---- Auth / form cards: raised paper with a woven header strip ---- */

@@ -1,0 +1,41 @@
+{# Shared listing card — used by boardings_list and landing featured grid. Expects `house` in context. #}
+<article class="listing-card bhims-press">
+    <div class="card-image">
+        {% if house.image_ok %}
+            <img src="{{ house.image.url }}" alt="{{ house.name }}" loading="lazy" decoding="async">
+        {% else %}
+            <div class="no-photo" aria-label="No photo available">
+                <i class="bi bi-house-door"></i>
+                <span>No photo yet</span>
+            </div>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <h3 class="h5 card-title">{{ house.name }}</h3>
+        <p class="card-location">
+            <i class="bi bi-geo-alt"></i>
+            {{ house.barangay_display }}, {{ house.address }}
+        </p>
+        <div class="meta-row">
+            {% with first_room=house.rooms.all|first %}
+            <span class="room-type-pill"><i class="bi bi-grid-1x2"></i> {{ first_room.room_type|default:"Standard" }}</span>
+            {% endwith %}
+            <span class="price-pill">
+                {% if house.min_price %}
+                <i class="bi bi-cash"></i> ₱ {{ house.min_price|floatformat:0 }}
+                {% else %}
+                Price on request
+                {% endif %}
+            </span>
+        </div>
+        <p class="card-description">{{ house.description|truncatechars:160 }}</p>
+        <div class="card-footer">
+            {% if house.available_rooms_count %}
+            <span class="availability-badge"><i class="bi bi-check-circle"></i> {{ house.available_rooms_count }} Room{{ house.available_rooms_count|pluralize }} Available</span>
+            {% else %}
+            <span class="availability-badge" style="background:var(--bhims-paper-sunken);color:var(--bhims-teal);"><i class="bi bi-slash-circle"></i> Full</span>
+            {% endif %}
+            <a href="{% url 'boarding_detail' house.pk %}" class="btn-view-details">View Details <i class="bi bi-arrow-right"></i></a>
+        </div>
+    </div>
+</article>

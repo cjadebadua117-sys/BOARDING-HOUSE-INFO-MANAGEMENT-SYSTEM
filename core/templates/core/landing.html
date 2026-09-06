@@ -11,7 +11,7 @@
         min-height: calc(100vh - 72px);
         background:
             repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.022) 0 1px, transparent 1px 9px),
-            linear-gradient(to top, rgba(30, 21, 15, 0.92) 0%, rgba(51, 36, 26, 0.70) 48%, rgba(51, 36, 26, 0.42) 100%),
+            linear-gradient(to top, rgba(8, 49, 49, 0.78) 0%, rgba(8, 79, 79, 0.58) 48%, rgba(8, 79, 79, 0.32) 100%),
             url('{% static 'core/images/dmmmsu-campus.jpg' %}') center / cover no-repeat;
         display: flex;
         align-items: center;
@@ -110,7 +110,7 @@
     }
     .landing-section-title {
         font-family: var(--font-display);
-        color: #2C221E;
+        color: #1f3438;
         font-size: 2.25rem;
         font-weight: 800;
         margin: 0;
@@ -136,7 +136,7 @@
     .feature-icon-box {
         width: 60px;
         height: 60px;
-        background: #FBEAE3;
+        background: var(--bhims-icon-tint);
         border-radius: 12px;
         display: flex;
         align-items: center;
@@ -149,13 +149,13 @@
     }
     .feature-title {
         font-family: var(--font-display);
-        color: #2C221E;
+        color: #1f3438;
         font-size: var(--fs-2xl);
         font-weight: 700;
         margin-bottom: 1rem;
     }
     .feature-text {
-        color: #5A4A44;
+        color: #57706f;
         line-height: 1.7;
         margin: 0;
         font-size: 1rem;
@@ -387,39 +387,9 @@
         </div>
         <div class="landing-listings-grid">
             {% for house in listings %}
-            <article class="listing-card reveal">
-                <div class="card-image">
-                    {% if house.image_ok %}
-                        <img src="{{ house.image.url }}" alt="{{ house.name }}" loading="lazy" decoding="async">
-                    {% else %}
-                        <i class="bi bi-building" style="font-size: 3rem;"></i>
-                    {% endif %}
-                </div>
-                <div class="card-body">
-                    <h3 class="card-title">{{ house.name }}</h3>
-                    <p class="card-location">
-                        <i class="bi bi-geo-alt"></i>
-                        {{ house.barangay_display }}, {{ house.address }}
-                    </p>
-                    <div class="meta-row">
-                        {% with first_room=house.rooms.all|first %}
-                        <span class="room-type-pill"><i class="bi bi-grid-1x2"></i> {{ first_room.room_type|default:"Standard" }}</span>
-                        {% endwith %}
-                        <span class="price-pill">
-                            {% if house.min_price %}
-                            <i class="bi bi-cash"></i> ₱ {{ house.min_price|floatformat:0 }}
-                            {% else %}
-                            Price on request
-                            {% endif %}
-                        </span>
-                    </div>
-                    <p class="card-description">{{ house.description|truncatechars:160 }}</p>
-                    <div class="card-footer">
-                        <span class="availability-badge"><i class="bi bi-check-circle"></i> {{ house.available_rooms_count }} Room{{ house.available_rooms_count|pluralize }} Available</span>
-                        <a href="{% url 'boarding_detail' house.pk %}" class="btn-view-details">View Details <i class="bi bi-arrow-right"></i></a>
-                    </div>
-                </div>
-            </article>
+            <div class="reveal">
+                {% include 'core/includes/listing_card.html' with house=house %}
+            </div>
             {% endfor %}
         </div>
         <div class="reveal" style="text-align: center; margin-top: 3rem;">
@@ -447,5 +417,4 @@
     })();
 </script>
 
-<style>
 {% endblock %}

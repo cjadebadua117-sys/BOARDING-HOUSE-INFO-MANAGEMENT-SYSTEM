@@ -1,81 +1,219 @@
 {% extends 'core/app_base.html' %}
 {% block title %}{% if house %}Edit{% else %}Add New{% endif %} Boarding House{% endblock %}
+{% block extra_css %}
+<style>
+    .wizard-stepper {
+        display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+        margin-bottom: 1.75rem;
+    }
+    .wizard-stepper .step {
+        display: flex; align-items: center; gap: 0.5rem;
+        color: var(--bhims-text-muted);
+        font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+    .wizard-stepper .step-num {
+        width: 28px; height: 28px; border-radius: 50%;
+        display: inline-flex; align-items: center; justify-content: center;
+        border: 2px solid var(--bhims-ink-line);
+        background: #fff; color: var(--bhims-text-muted);
+        font-size: 0.8rem; font-weight: 800;
+        transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+    .wizard-stepper .step.active { color: var(--bhims-text); }
+    .wizard-stepper .step.active .step-num {
+        background: var(--bhims-teal); border-color: var(--bhims-teal); color: #fff;
+    }
+    .wizard-stepper .step.done .step-num {
+        background: var(--bhims-teal); border-color: var(--bhims-teal); color: #fff;
+    }
+    .wizard-stepper .step.done { color: var(--bhims-teal); }
+    .wizard-stepper .step-sep {
+        width: 28px; height: 2px; background: var(--bhims-ink-line);
+        border-radius: 1px;
+    }
+    .wizard-stepper .step-sep.filled { background: var(--bhims-teal); }
+    .wizard-step { display: none; }
+    .wizard-step.active { display: block; animation: bhimsRise 0.35s cubic-bezier(0.16,1,0.3,1) both; }
+    @keyframes bhimsRise { from { opacity:0; transform: translateY(8px);} to {opacity:1; transform:none;}}
+    @media (prefers-reduced-motion: reduce) { .wizard-step.active { animation: none; } }
+    .wizard-nav { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
+    .wizard-nav .btn { flex: 1; min-height: 44px; }
+</style>
+{% endblock %}
 {% block app_content %}
 <div class="row justify-content-center">
   <div class="col-lg-8">
     <div class="card shadow-sm border-0">
       <div class="card-body p-5">
-        <div class="text-center mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 3rem; height: 3rem; color: var(--bhims-teal); margin-bottom: 1rem;">
+        <div class="text-center mb-3">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 3rem; height: 3rem; color: var(--bhims-teal); margin-bottom: 0.75rem;">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3h1.5m-1.5 3h1.5M9 19.5v-3.375c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125V19.5" />
           </svg>
           <h2 class="mb-1">{% if house %}Edit{% else %}Add New{% endif %} Boarding House</h2>
-          <p class="text-muted">Fill in the details about your boarding house property</p>
+          <p class="text-muted">{% if house %}Update the details of your property.{% else %}Set up your boarding house in three quick steps.{% endif %}</p>
         </div>
-        <form method="post" novalidate data-validate enctype="multipart/form-data">
+
+        <div class="wizard-stepper" id="wizardStepper" aria-label="Progress">
+            <span class="step active" data-step-ind="1"><span class="step-num">1</span> Basics</span>
+            <span class="step-sep" id="sep1"></span>
+            <span class="step" data-step-ind="2"><span class="step-num">2</span> Pricing &amp; Policy</span>
+            <span class="step-sep" id="sep2"></span>
+            <span class="step" data-step-ind="3"><span class="step-num">3</span> Visuals &amp; Details</span>
+        </div>
+
+        <form method="post" novalidate data-validate enctype="multipart/form-data" id="bhForm">
           {% csrf_token %}
-          <div class="row">
-            <div class="col-md-12 mb-4">
-              <label class="form-label fw-medium" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
-              {{ form.name }}
-              {% if form.name.errors %}
-                <div class="text-danger small mt-2">{{ form.name.errors|striptags }}</div>
-              {% endif %}
-            </div>
-            <div class="col-md-12 mb-4">
-              <label class="form-label fw-medium" for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
-              {{ form.address }}
-              {% if form.address.errors %}
-                <div class="text-danger small mt-2">{{ form.address.errors|striptags }}</div>
-              {% endif %}
-            </div>
-            <div class="col-md-6 mb-4">
-              <label class="form-label fw-medium" for="{{ form.barangay.id_for_label }}">{{ form.barangay.label }}</label>
-              {{ form.barangay }}
-              {% if form.barangay.errors %}
-                <div class="text-danger small mt-2">{{ form.barangay.errors|striptags }}</div>
-              {% endif %}
-            </div>
-            <div class="col-md-6 mb-4">
-              <label class="form-label fw-medium" for="{{ form.price.id_for_label }}">{{ form.price.label }}</label>
-              <div class="input-group">
-                <span class="input-group-text">₱</span>
-                {{ form.price }}
+          <!-- Step 1: Basics -->
+          <div class="wizard-step active" data-step="1">
+            <div class="row">
+              <div class="col-md-12 mb-4">
+                <label class="form-label fw-medium" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+                {{ form.name }}
+                {% if form.name.errors %}<div class="text-danger small mt-2">{{ form.name.errors|striptags }}</div>{% endif %}
               </div>
-              {% if form.price.errors %}
-                <div class="text-danger small mt-2">{{ form.price.errors|striptags }}</div>
-              {% endif %}
+              <div class="col-md-12 mb-4">
+                <label class="form-label fw-medium" for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
+                {{ form.address }}
+                {% if form.address.errors %}<div class="text-danger small mt-2">{{ form.address.errors|striptags }}</div>{% endif %}
+              </div>
+              <div class="col-md-12 mb-4">
+                <label class="form-label fw-medium" for="{{ form.barangay.id_for_label }}">{{ form.barangay.label }}</label>
+                {{ form.barangay }}
+                {% if form.barangay.errors %}<div class="text-danger small mt-2">{{ form.barangay.errors|striptags }}</div>{% endif %}
+              </div>
             </div>
-            <div class="col-md-6 mb-4">
-              <label class="form-label fw-medium" for="{{ form.gender_allowed.id_for_label }}">{{ form.gender_allowed.label }}</label>
-              {{ form.gender_allowed }}
-              {% if form.gender_allowed.errors %}
-                <div class="text-danger small mt-2">{{ form.gender_allowed.errors|striptags }}</div>
-              {% endif %}
+            <div class="wizard-nav">
+              <a href="{% url 'landlord_dashboard' %}" class="btn btn-outline-primary">Cancel</a>
+              <button type="button" class="btn btn-primary" data-next="2">Next <i class="bi bi-arrow-right"></i></button>
             </div>
-            <div class="col-md-6 mb-4">
-              <label class="form-label fw-medium" for="{{ form.image.id_for_label }}">{{ form.image.label }}</label>
-              {{ form.image }}
-              {% if form.image.errors %}
-                <div class="text-danger small mt-2">{{ form.image.errors|striptags }}</div>
-              {% endif %}
-            </div>
-            <div class="col-md-12 mb-4">
-              <label class="form-label fw-medium" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
-              {{ form.description }}
-              <div class="form-text">{{ form.description.help_text }}</div>
-              {% if form.description.errors %}
-                <div class="text-danger small mt-2">{{ form.description.errors|striptags }}</div>
-              {% endif %}
-            </div>
+            <p class="text-muted small text-center mt-3">Step 1 of 3 — Property identity and location.</p>
           </div>
-          <div class="d-flex gap-3">
-            <a href="{% url 'landlord_dashboard' %}" class="btn btn-outline-primary flex-grow-1">Cancel</a>
-            <button type="submit" class="btn btn-primary flex-grow-1">{% if house %}Update{% else %}Create{% endif %} Boarding House</button>
+
+          <!-- Step 2: Pricing & Policy -->
+          <div class="wizard-step" data-step="2">
+            <div class="row">
+              <div class="col-md-6 mb-4">
+                <label class="form-label fw-medium" for="{{ form.price.id_for_label }}">{{ form.price.label }}</label>
+                <div class="input-group">
+                  <span class="input-group-text">₱</span>
+                  {{ form.price }}
+                </div>
+                {% if form.price.errors %}<div class="text-danger small mt-2">{{ form.price.errors|striptags }}</div>{% endif %}
+              </div>
+              <div class="col-md-6 mb-4">
+                <label class="form-label fw-medium" for="{{ form.gender_allowed.id_for_label }}">{{ form.gender_allowed.label }}</label>
+                {{ form.gender_allowed }}
+                {% if form.gender_allowed.errors %}<div class="text-danger small mt-2">{{ form.gender_allowed.errors|striptags }}</div>{% endif %}
+              </div>
+            </div>
+            <div class="alert" style="background: var(--bhims-paper-sunken); border: 1px solid var(--bhims-ink-line); border-radius: 12px; padding: 1rem 1.25rem;">
+                <strong style="color: var(--bhims-teal);"><i class="bi bi-info-circle"></i> Tip:</strong>
+                <span class="small text-muted">Set a competitive starting price — you can add individual room pricing later on the property page.</span>
+            </div>
+            <div class="wizard-nav">
+              <button type="button" class="btn btn-outline-primary" data-prev="1"><i class="bi bi-arrow-left"></i> Back</button>
+              <button type="button" class="btn btn-primary" data-next="3">Next <i class="bi bi-arrow-right"></i></button>
+            </div>
+            <p class="text-muted small text-center mt-3">Step 2 of 3 — Pricing and tenant policy.</p>
+          </div>
+
+          <!-- Step 3: Visuals & Details -->
+          <div class="wizard-step" data-step="3">
+            <div class="row">
+              <div class="col-md-12 mb-4">
+                <label class="form-label fw-medium" for="{{ form.image.id_for_label }}">{{ form.image.label }}</label>
+                {{ form.image }}
+                {% if form.image.errors %}<div class="text-danger small mt-2">{{ form.image.errors|striptags }}</div>{% endif %}
+              </div>
+              <div class="col-md-12 mb-4">
+                <label class="form-label fw-medium" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                {{ form.description }}
+                <div class="form-text">{{ form.description.help_text }}</div>
+                {% if form.description.errors %}<div class="text-danger small mt-2">{{ form.description.errors|striptags }}</div>{% endif %}
+              </div>
+            </div>
+            <div class="wizard-nav">
+              <button type="button" class="btn btn-outline-primary" data-prev="2"><i class="bi bi-arrow-left"></i> Back</button>
+              <button type="submit" class="btn btn-primary">{% if house %}Update{% else %}Create{% endif %} Boarding House</button>
+            </div>
+            <p class="text-muted small text-center mt-3">Step 3 of 3 — Add a photo and describe the property.</p>
           </div>
         </form>
+
       </div>
     </div>
   </div>
 </div>
+
+<script>
+(function () {
+    var form = document.getElementById('bhForm');
+    if (!form) return;
+    var steps = Array.prototype.slice.call(document.querySelectorAll('.wizard-step'));
+    var indicators = Array.prototype.slice.call(document.querySelectorAll('.wizard-stepper .step'));
+    var seps = [document.getElementById('sep1'), document.getElementById('sep2')];
+    var current = 1;
+
+    function show(n) {
+        current = n;
+        steps.forEach(function (el) { el.classList.toggle('active', parseInt(el.getAttribute('data-step'), 10) === n); });
+        indicators.forEach(function (el) {
+            var idx = parseInt(el.getAttribute('data-step-ind'), 10);
+            el.classList.toggle('active', idx === n);
+            el.classList.toggle('done', idx < n);
+            var num = el.querySelector('.step-num');
+            if (num) num.textContent = idx < n ? '\u2713' : String(idx);
+        });
+        seps.forEach(function (sep, i) {
+            if (sep) sep.classList.toggle('filled', (i + 2) <= n);
+        });
+        // Focus first field in step for keyboard users
+        var active = document.querySelector('.wizard-step.active');
+        if (active) {
+            var first = active.querySelector('input, select, textarea');
+            if (first) try { first.focus({ preventScroll: true }); } catch (e) { first.focus(); }
+        }
+    }
+
+    function validateStep(n) {
+        var stepEl = document.querySelector('.wizard-step[data-step="' + n + '"]');
+        if (!stepEl) return true;
+        var fields = stepEl.querySelectorAll('input, select, textarea');
+        for (var i = 0; i < fields.length; i++) {
+            if (!fields[i].checkValidity()) {
+                fields[i].reportValidity();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    document.addEventListener('click', function (e) {
+        var t = e.target;
+        while (t && t !== document) {
+            if (t.hasAttribute && t.hasAttribute('data-next')) {
+                var next = parseInt(t.getAttribute('data-next'), 10);
+                if (!validateStep(current)) return;
+                show(next);
+                return;
+            }
+            if (t.hasAttribute && t.hasAttribute('data-prev')) {
+                show(parseInt(t.getAttribute('data-prev'), 10));
+                return;
+            }
+            t = t.parentNode;
+        }
+    });
+
+    // If server returned validation errors, jump to the step containing the first error
+    var firstError = form.querySelector('.text-danger');
+    if (firstError) {
+        var stepWithError = firstError.closest('.wizard-step');
+        if (stepWithError) show(parseInt(stepWithError.getAttribute('data-step'), 10));
+    }
+    // Initialize
+    show(current);
+})();
+</script>
 {% endblock %}

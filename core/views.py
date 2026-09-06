@@ -205,6 +205,12 @@ def listing_list(request):
 
     decorated_houses = decorate_house_cards(houses)
 
+    # AJAX instant-filter: return only the grid fragment when requested via fetch.
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'core/includes/listing_grid_fragment.html', {
+            'houses': decorated_houses,
+        })
+
     # Keep full houses visible; the card template renders a "Full" badge
     return render(request, 'core/boardings_list.html', {
         'houses': decorated_houses,

@@ -1,285 +1,113 @@
 {% extends 'core/app_base.html' %}
 {% block title %}{{ house.name }}{% endblock %}
+
 {% block extra_css %}
 <style>
-    .detail-page {
-        background: transparent;
-        min-height: 0;
-        padding: 0;
-        max-width: none;
-        margin: 0;
-    }
+    .detail-page { background: transparent; min-height: 0; padding: 0; max-width: none; margin: 0; }
+
     .back-link {
-        display: inline-flex;
-        align-items: center;
-        color: #0d7a7b;
-        font-weight: 600;
-        text-decoration: none;
-        margin-bottom: 2rem;
-        transition: opacity 0.2s ease;
+        display: inline-flex; align-items: center; color: var(--bhims-teal);
+        font-weight: 600; text-decoration: none; margin-bottom: 2rem;
+        transition: opacity 0.2s ease, color 0.2s ease;
     }
-    .back-link:hover {
-        opacity: 0.8;
-        color: #0d7a7b;
+    .back-link:hover { opacity: 0.8; color: var(--bhims-teal-deep); }
+    .back-link i { margin-right: 0.5rem; }
+
+    /* Hero card uses premium.css .card styles + bhims-press for tactile */
+    .hero-card { padding: 2.5rem; margin-bottom: 2rem; }
+    .hero-card h1 { font-family: var(--font-display); font-weight: 800; color: var(--bhims-text); font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .location { display: flex; align-items: center; color: var(--bhims-text-muted); font-size: var(--fs-lg); margin-bottom: 1.5rem; }
+    .location i { margin-right: 0.5rem; color: var(--bhims-teal); font-size: var(--fs-xl); }
+    .description { color: var(--bhims-text); line-height: 1.7; font-size: 1.05rem; }
+    .owner-chip {
+        display: inline-flex; align-items: center; gap: 8px; margin: 4px 0 10px;
+        padding: 6px 16px; border-radius: 999px;
+        background: rgba(13,122,123,0.10); border: 1px solid rgba(13,122,123,0.35);
+        color: var(--bhims-teal); font-weight: 700; font-size: var(--fs-sm); text-decoration: none;
     }
-    .back-link i {
-        margin-right: 0.5rem;
-    }
-    .hero-card {
-        background: var(--bhims-cream-light);
-        border: 1px solid #e9dcd0;
-        border-radius: 16px;
-        padding: 2.5rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-    .hero-card h1 {
-        font-family: var(--font-display);
-        font-weight: 800;
-        color: #1f3438;
-        font-size: 2.5rem;
-        margin-bottom: 0.75rem;
-    }
-    .location {
-        display: flex;
-        align-items: center;
-        color: #6d5c53;
-        font-size: var(--fs-lg);
-        margin-bottom: 1.5rem;
-    }
-    .location i {
-        margin-right: 0.5rem;
-        color: #0d7a7b;
-        font-size: var(--fs-xl);
-    }
-    .description {
-        color: #1f3438;
-        line-height: 1.7;
-        font-size: 1.05rem;
-    }
-    .image-gallery {
-        background: var(--bhims-cream-light);
-        border: 1px solid #e9dcd0;
-        border-radius: 16px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-    .gallery-title {
-        font-family: var(--font-display);
-        font-weight: 700;
-        color: #1f3438;
-        font-size: var(--fs-2xl);
-        margin-bottom: 1.5rem;
-    }
-    .gallery-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1rem;
-    }
-    .gallery-item {
-        background: var(--bhims-cream);
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    .gallery-item img {
-        width: 100%;
-        height: 200px;
-        object-fit: contain;
-        border-radius: 8px;
-        background: var(--bhims-cream);
-        display: block;
-    }
-    .rooms-card {
-        background: var(--bhims-cream-light);
-        border: 1px solid #e9dcd0;
-        border-radius: 16px;
-        padding: 2.5rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-    .rooms-title {
-        font-family: var(--font-display);
-        font-weight: 700;
-        color: #1f3438;
-        font-size: 1.75rem;
-        margin-bottom: 2rem;
-    }
+    .owner-chip:hover { background: rgba(13,122,123,0.18); color: var(--bhims-teal-deep); }
+
+    /* Image gallery */
+    .image-gallery { padding: 2rem; margin-bottom: 2rem; }
+    .gallery-title { font-family: var(--font-display); font-weight: 700; color: var(--bhims-text); font-size: var(--fs-2xl); margin-bottom: 1.5rem; }
+    .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+    .gallery-item { border-radius: 8px; overflow: hidden; background: var(--bhims-paper-sunken); }
+    .gallery-item img { width: 100%; height: 200px; object-fit: contain; border-radius: 8px; display: block; }
+
+    /* Rooms section */
+    .rooms-card { padding: 2.5rem; }
+    .rooms-title { font-family: var(--font-display); font-weight: 700; color: var(--bhims-text); font-size: 1.75rem; margin-bottom: 2rem; }
     .room-item {
-        display: flex;
-        gap: 1.75rem;
-        border: 1px solid #e9dcd0;
-        border-radius: 12px;
-        padding: 1.75rem;
-        margin-bottom: 1.5rem;
-        background-color: #fdf6f0;
+        display: flex; gap: 1.75rem; border: 1px solid var(--bhims-ink-line);
+        border-radius: 12px; padding: 1.75rem; margin-bottom: 1.5rem;
+        background: var(--bhims-paper-sunken);
     }
-    .room-item-media {
-        flex: 0 0 300px;
-        min-width: 0;
-    }
+    .room-item-media { flex: 0 0 300px; min-width: 0; }
     .room-item-media img {
-        width: 100%;
-        height: 100%;
-        min-height: 200px;
-        max-height: 240px;
-        object-fit: contain;
-        border-radius: 10px;
-        display: block;
-        border: 1px solid #e9dcd0;
-        background: var(--bhims-cream);
+        width: 100%; height: 100%; min-height: 200px; max-height: 240px;
+        object-fit: contain; border-radius: 10px; display: block;
+        border: 1px solid var(--bhims-ink-line); background: var(--bhims-paper);
     }
     .room-item-placeholder {
-        width: 100%;
-        height: 100%;
-        min-height: 200px;
-        max-height: 240px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--bhims-paper-sunken);
-        color: #0d7a7b;
-        border-radius: 10px;
-        font-size: 2.5rem;
+        width: 100%; height: 100%; min-height: 200px; max-height: 240px;
+        display: flex; align-items: center; justify-content: center;
+        background: var(--bhims-paper-sunken); color: var(--bhims-teal);
+        border-radius: 10px; font-size: 2.5rem;
     }
-    .room-item-body {
-        flex: 1;
-        min-width: 0;
-    }
-    .room-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 1rem;
-    }
-    .room-name {
-        font-family: var(--font-display);
-        font-weight: 700;
-        color: #1f3438;
-        font-size: 1.375rem;
-        margin: 0;
-    }
-    .availability-badge {
-        background-color: var(--bhims-badge-verified-bg);
-        color: var(--bhims-badge-verified);
-        padding: 0.5rem 1rem;
-        border-radius: 9999px;
-        font-size: var(--fs-sm);
-        font-weight: 600;
-    }
-    .availability-badge.unavailable {
-        background-color: var(--bhims-badge-rejected-bg);
-        color: var(--bhims-badge-rejected);
-    }
-    .room-meta {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-        margin-bottom: 1.25rem;
-        color: #6d5c53;
-    }
-    .room-meta-item {
-        display: flex;
-        align-items: center;
-    }
-    .room-meta-item i {
-        margin-right: 0.5rem;
-        color: #0d7a7b;
-    }
-    .room-price {
-        font-size: var(--fs-2xl);
-        font-weight: 700;
-        color: #1f3438;
-        margin-bottom: 1rem;
-    }
-    .amenities-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-        margin-bottom: 1.5rem;
-    }
-    .amenity-tag {
-        background-color: #f8eae4;
-        color: #0d7a7b;
-        padding: 0.5rem 1rem;
-        border-radius: 9999px;
-        font-size: var(--fs-sm);
-        font-weight: 500;
-    }
+    .room-item-body { flex: 1; min-width: 0; }
+    .room-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+    .room-name { font-family: var(--font-display); font-weight: 700; color: var(--bhims-text); font-size: 1.375rem; margin: 0; }
+    .room-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.25rem; color: var(--bhims-text-muted); }
+    .room-meta-item { display: flex; align-items: center; }
+    .room-meta-item i { margin-right: 0.5rem; color: var(--bhims-teal); }
+    .room-price { font-family: var(--font-display); font-size: var(--fs-2xl); font-weight: 700; color: var(--bhims-text); margin-bottom: 1rem; }
+    .amenities-list { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem; }
+    .amenity-tag { background: var(--bhims-icon-tint); color: var(--bhims-teal); padding: 0.5rem 1rem; border-radius: 9999px; font-size: var(--fs-sm); font-weight: 500; }
+
+    /* Use premium.css .btn-primary + bhims-press for tactile */
     .btn-primary-bhims {
-        background-color: #0d7a7b;
-        color: white;
-        border: none;
-        border-radius: 10px;
-        padding: 0.75rem 2rem;
-        font-weight: 600;
-        font-size: 1rem;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        transition: background-color 0.2s ease;
+        background-color: var(--bhims-teal); color: white; border: none;
+        border-radius: 10px; padding: 0.75rem 2rem; font-weight: 600; font-size: 1rem;
+        text-decoration: none; display: inline-flex; align-items: center;
     }
-    .btn-primary-bhims:hover {
-        background-color: #0a5f60;
-        color: white;
-        text-decoration: none;
-    }
-    .btn-primary-bhims i {
-        margin-right: 0.5rem;
-    }
-    .empty-rooms {
-        text-align: center;
-        padding: 3rem 2rem;
-        color: #6d5c53;
-    }
-    .empty-rooms i {
-        font-size: 3rem;
-        color: #0d7a7b;
-        margin-bottom: 1.5rem;
-    }
-    .empty-rooms h3 {
-        font-family: var(--font-display);
-        font-weight: 700;
-        color: #1f3438;
-        font-size: var(--fs-2xl);
-        margin-bottom: 1rem;
-    }
+    .btn-primary-bhims:hover { background-color: var(--bhims-teal-hover); }
+    .btn-primary-bhims i { margin-right: 0.5rem; }
+
+    /* Empty state uses shared .bhims-empty */
+    .empty-rooms { text-align: center; padding: 3rem 2rem; color: var(--bhims-text-muted); }
+    .empty-rooms i { font-size: 3rem; color: var(--bhims-teal); margin-bottom: 1.5rem; }
+    .empty-rooms h3 { font-family: var(--font-display); font-weight: 700; color: var(--bhims-text); font-size: var(--fs-2xl); margin-bottom: 1rem; }
+
     @media (max-width: 768px) {
-        .hero-card h1 {
-            font-size: 2rem;
-        }
-        .room-item {
-            flex-direction: column;
-        }
-        .room-item-media {
-            flex: 1 1 auto;
-        }
-        .room-item-media img,
-        .room-item-placeholder {
-            min-height: 200px;
-            max-height: none;
-        }
-        .room-header {
-            flex-direction: column;
-            gap: 1rem;
-        }
+        .hero-card h1 { font-size: 2rem; }
+        .room-item { flex-direction: column; }
+        .room-item-media { flex: 1 1 auto; }
+        .room-item-media img, .room-item-placeholder { min-height: 200px; max-height: none; }
+        .room-header { flex-direction: column; gap: 1rem; }
     }
+
+    /* Scroll reveal - uses landing.html pattern */
+    .reveal { transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.16,1,0.3,1); }
+    html.fx .reveal { opacity: 0; transform: translateY(28px); will-change: opacity, transform; }
+    html.fx .reveal.in-view { opacity: 1; transform: none; will-change: auto; }
+    @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
 </style>
 {% endblock %}
+
 {% block app_content %}
 <div class="detail-page">
     <a href="{% url 'listing_list' %}" class="back-link">
-        <i class="bi bi-arrow-left"></i>
-        Back to all listings
+        <i class="bi bi-arrow-left"></i> Back to all listings
     </a>
 
     <div class="row">
         <div class="col-lg-10 mx-auto">
             <!-- Hero Card -->
-            <div class="hero-card">
+            <div class="card bhims-press hero-card reveal">
                 <h1>{{ house.name }}</h1>
-                <a href="{% url 'user_profile' house.owner.pk %}" class="owner-chip" style="display:inline-flex;align-items:center;gap:8px;margin:4px 0 10px;padding:6px 16px;border-radius:999px;background:rgba(13,122,123,0.10);border:1px solid rgba(13,122,123,0.35);color:#0d7a7b;font-weight:700;font-size: var(--fs-sm);text-decoration:none;">
+                <a href="{% url 'user_profile' house.owner.pk %}" class="owner-chip">
                     <i class="bi bi-person-circle"></i>
-                    Posted by {{ house.owner.get_full_name|default:house.owner.username }} &middot; View Profile
+                    Posted by {{ house.owner.get_full_name|default:house.owner.username }} · View Profile
                 </a>
                 <p class="location">
                     <i class="bi bi-geo-alt-fill"></i>
@@ -290,11 +118,11 @@
 
             <!-- Image Gallery -->
             {% if house.get_photo_list %}
-            <div class="image-gallery">
+            <div class="card image-gallery reveal">
                 <h2 class="gallery-title">Photos of this property</h2>
                 <div class="gallery-grid">
                     {% for photo in house.get_photo_list %}
-                    <div class="gallery-item">
+                    <div class="gallery-item reveal">
                         <img src="{{ photo }}" alt="Photo of {{ house.name }}" loading="lazy" decoding="async">
                     </div>
                     {% endfor %}
@@ -303,11 +131,11 @@
             {% endif %}
 
             <!-- Rooms Section -->
-            <div class="rooms-card">
+            <div class="card rooms-card reveal">
                 <h2 class="rooms-title">Available Rooms</h2>
                 {% if rooms %}
                     {% for room in rooms %}
-                    <div class="room-item">
+                    <div class="room-item reveal">
                         <div class="room-item-media">
                             {% if room.photo_ok %}
                                 <img src="{{ room.photos.first.image.url }}" alt="{{ room.name|default:room.room_type }}" loading="lazy" decoding="async">
@@ -324,15 +152,13 @@
                             </div>
                             <div class="room-meta">
                                 <div class="room-meta-item">
-                                    <i class="bi bi-people-fill"></i>
-                                    Capacity: {{ room.capacity }}
+                                    <i class="bi bi-people-fill"></i> Capacity: {{ room.capacity }}
                                 </div>
                                 <div class="room-meta-item">
-                                    <i class="bi bi-tag-fill"></i>
-                                    Room type: {{ room.room_type }}
+                                    <i class="bi bi-tag-fill"></i> Room type: {{ room.room_type }}
                                 </div>
                             </div>
-                            <p class="room-price">₱{{ room.price }}<span style="font-size: var(--fs-sm); font-weight:400; color:#6d5c53;">/month</span></p>
+                            <p class="room-price">₱{{ room.price }}<span style="font-size: var(--fs-sm); font-weight:400; color:var(--bhims-text-muted);">/month</span></p>
                             {% if room.amenities.all %}
                             <div class="amenities-list">
                                 {% for amenity in room.amenities.all %}
@@ -340,22 +166,39 @@
                                 {% endfor %}
                             </div>
                             {% endif %}
-                            <a href="{% url 'send_inquiry' room.pk %}" class="btn-primary-bhims">
-                                <i class="bi bi-chat-dots-fill"></i>
-                                Send Inquiry
+                            <a href="{% url 'send_inquiry' room.pk %}" class="btn-primary-bhims bhims-press">
+                                <i class="bi bi-chat-dots-fill"></i> Send Inquiry
                             </a>
                         </div>
                     </div>
                     {% endfor %}
                 {% else %}
-                <div class="empty-rooms">
+                <div class="bhims-empty">
                     <i class="bi bi-house-x"></i>
                     <h3>No rooms listed</h3>
-                    <p>There are currently no rooms listed for this boarding house. Please check back later or browse other listings.</p>
+                    <p style="color: var(--bhims-text-muted); max-width: 460px; margin: 0 auto 1.25rem;">There are currently no rooms listed for this boarding house. Please check back later or browse other listings.</p>
+                    <a href="{% url 'listing_list' %}" class="btn btn-primary">Browse Listings</a>
                 </div>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    document.documentElement.classList.add('fx');
+    var els = document.querySelectorAll('.reveal');
+    if (!els.length || !('IntersectionObserver' in window)) {
+        els.forEach(function (el) { el.classList.add('in-view'); });
+        return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in-view'); io.unobserve(en.target); } });
+    }, { threshold: 0.12 });
+    els.forEach(function (el) { io.observe(el); });
+})();
+</script>
 {% endblock %}
