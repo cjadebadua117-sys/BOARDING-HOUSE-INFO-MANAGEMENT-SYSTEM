@@ -12,7 +12,7 @@
     .back-link {
         display: inline-flex;
         align-items: center;
-        color: #c1592a;
+        color: #0d7a7b;
         font-weight: 600;
         text-decoration: none;
         margin-bottom: 2rem;
@@ -20,7 +20,7 @@
     }
     .back-link:hover {
         opacity: 0.8;
-        color: #c1592a;
+        color: #0d7a7b;
     }
     .back-link i {
         margin-right: 0.5rem;
@@ -49,7 +49,7 @@
     }
     .location i {
         margin-right: 0.5rem;
-        color: #c1592a;
+        color: #0d7a7b;
         font-size: var(--fs-xl);
     }
     .description {
@@ -137,7 +137,7 @@
         align-items: center;
         justify-content: center;
         background: var(--bhims-paper-sunken);
-        color: #c1592a;
+        color: #0d7a7b;
         border-radius: 10px;
         font-size: 2.5rem;
     }
@@ -183,7 +183,7 @@
     }
     .room-meta-item i {
         margin-right: 0.5rem;
-        color: #c1592a;
+        color: #0d7a7b;
     }
     .room-price {
         font-size: var(--fs-2xl);
@@ -199,14 +199,14 @@
     }
     .amenity-tag {
         background-color: #f8eae4;
-        color: #c1592a;
+        color: #0d7a7b;
         padding: 0.5rem 1rem;
         border-radius: 9999px;
         font-size: var(--fs-sm);
         font-weight: 500;
     }
     .btn-primary-bhims {
-        background-color: #c1592a;
+        background-color: #0d7a7b;
         color: white;
         border: none;
         border-radius: 10px;
@@ -219,7 +219,7 @@
         transition: background-color 0.2s ease;
     }
     .btn-primary-bhims:hover {
-        background-color: #a84d23;
+        background-color: #0a5f60;
         color: white;
         text-decoration: none;
     }
@@ -233,7 +233,7 @@
     }
     .empty-rooms i {
         font-size: 3rem;
-        color: #c1592a;
+        color: #0d7a7b;
         margin-bottom: 1.5rem;
     }
     .empty-rooms h3 {
@@ -277,7 +277,7 @@
             <!-- Hero Card -->
             <div class="hero-card">
                 <h1>{{ house.name }}</h1>
-                <a href="{% url 'user_profile' house.owner.pk %}" class="owner-chip" style="display:inline-flex;align-items:center;gap:8px;margin:4px 0 10px;padding:6px 16px;border-radius:999px;background:rgba(193,89,42,0.10);border:1px solid rgba(193,89,42,0.35);color:#c1592a;font-weight:700;font-size: var(--fs-sm);text-decoration:none;">
+                <a href="{% url 'user_profile' house.owner.pk %}" class="owner-chip" style="display:inline-flex;align-items:center;gap:8px;margin:4px 0 10px;padding:6px 16px;border-radius:999px;background:rgba(193,89,42,0.10);border:1px solid rgba(193,89,42,0.35);color:#0d7a7b;font-weight:700;font-size: var(--fs-sm);text-decoration:none;">
                     <i class="bi bi-person-circle"></i>
                     Posted by {{ house.owner.get_full_name|default:house.owner.username }} &middot; View Profile
                 </a>

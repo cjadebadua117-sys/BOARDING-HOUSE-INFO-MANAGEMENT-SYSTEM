@@ -34,23 +34,23 @@ body {
     text-rendering: optimizeLegibility;
 }
 ::selection {
-    background: #c1592a;
+    background: #0d7a7b;
     color: #fdf6ee;
 }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-    background: rgba(140, 74, 47, 0.30);
+    background: rgba(13, 122, 123, 0.30);
     border-radius: 999px;
     border: 3px solid transparent;
     background-clip: content-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(140, 74, 47, 0.48);
+    background: rgba(13, 122, 123, 0.48);
     border: 3px solid transparent;
     background-clip: content-box;
 }
-* { scrollbar-width: thin; scrollbar-color: rgba(140, 74, 47, 0.35) transparent; }
+* { scrollbar-width: thin; scrollbar-color: rgba(13, 122, 123, 0.35) transparent; }
 
 /* ---------------------------------------------------------------
    3. Typography rhythm — display serif carries the voice
@@ -77,13 +77,13 @@ p, li { text-wrap: pretty; }
    --------------------------------------------------------------- */
 :focus { outline: none; }
 :focus-visible {
-    outline: 2px solid rgba(193, 89, 42, 0.65) !important;
+    outline: 2px solid rgba(13, 122, 123, 0.65) !important;
     outline-offset: 2px;
     border-radius: 6px;
 }
 .btn:focus-visible, .form-control:focus-visible, .form-select:focus-visible {
     outline: none !important;
-    box-shadow: 0 0 0 3px rgba(193, 89, 42, 0.18), 0 0 0 1px rgba(193, 89, 42, 0.55) !important;
+    box-shadow: 0 0 0 3px rgba(13, 122, 123, 0.18), 0 0 0 1px rgba(13, 122, 123, 0.55) !important;
 }
 
 /* ---------------------------------------------------------------
@@ -137,8 +137,8 @@ p, li { text-wrap: pretty; }
     width: 64px;
     height: 6px;
     background:
-        repeating-linear-gradient(45deg, rgba(193, 89, 42, 0.55) 0 3px, transparent 3px 7px),
-        rgba(193, 89, 42, 0.18);
+        repeating-linear-gradient(45deg, rgba(13, 122, 123, 0.55) 0 3px, transparent 3px 7px),
+        rgba(13, 122, 123, 0.18);
     pointer-events: none;
 }
 
@@ -154,8 +154,8 @@ p, li { text-wrap: pretty; }
     transform: translateX(4px);
 }
 .app-sidebar .nav-link.active, .app-sidebar .active > a {
-    background: rgba(193, 89, 42, 0.28) !important;
-    box-shadow: inset 3px 0 0 var(--bhims-terracotta) !important;
+    background: rgba(13, 122, 123, 0.28) !important;
+    box-shadow: inset 3px 0 0 var(--bhims-teal) !important;
 }
 
 /* ---------------------------------------------------------------
@@ -166,9 +166,9 @@ p, li { text-wrap: pretty; }
                 border-color 0.18s var(--bhims-ease-smooth),
                 box-shadow 0.18s var(--bhims-ease-smooth) !important;
 }
-.form-control:hover, .form-select:hover { border-color: rgba(193, 89, 42, 0.40) !important; }
+.form-control:hover, .form-select:hover { border-color: rgba(13, 122, 123, 0.40) !important; }
 .form-control:focus, .form-select:focus, .bhims-input:focus, .bhims-textarea:focus {
-    box-shadow: 0 0 0 3px rgba(193, 89, 42, 0.12) !important;
+    box-shadow: 0 0 0 3px rgba(13, 122, 123, 0.12) !important;
 }
 
 /* ---------------------------------------------------------------
@@ -181,7 +181,7 @@ p, li { text-wrap: pretty; }
     color: var(--bhims-text-muted) !important;
 }
 .table tbody tr { transition: background-color 0.2s var(--bhims-ease-smooth); }
-.table tbody tr:hover { background-color: rgba(193, 89, 42, 0.05) !important; }
+.table tbody tr:hover { background-color: rgba(13, 122, 123, 0.05) !important; }
 
 .badge {
     letter-spacing: 0.02em;

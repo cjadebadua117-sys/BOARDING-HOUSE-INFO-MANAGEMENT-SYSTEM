@@ -4,23 +4,23 @@
 {% block app_content %}
 <style>
     :root {
-        --bhims-terracotta: #c1592a;
-        --bhims-terracotta-deep: #8c4a2f;
+        --bhims-teal: #0d7a7b;
+        --bhims-teal-deep: #084f4f;
         --bhims-cream: rgba(255, 255, 255, 0.42);
         --bhims-cream-light: rgba(255, 255, 255, 0.60);
         --bhims-text: #3a2a20;
         --bhims-text-muted: #8a7566;
-        --bhims-border: rgba(193, 89, 42, 0.16);
+        --bhims-border: rgba(13, 122, 123, 0.16);
     }
     .profile-page-wrap { min-height: 80vh; display: flex; justify-content: center; align-items: flex-start; padding: 0; }
-    .profile-card { background: #ffffff; width: 100%; max-width: 920px; border-radius: 24px; border: 1px solid var(--bhims-border); display: flex; overflow: hidden; box-shadow: 0 20px 45px rgba(140, 74, 47, 0.12); position: relative; }
-    .profile-role-bar { position: absolute; top: 0; left: 0; bottom: 0; width: 6px; background: {% if is_landlord %}var(--bhims-terracotta-deep){% else %}var(--bhims-terracotta){% endif %}; }
+    .profile-card { background: #ffffff; width: 100%; max-width: 920px; border-radius: 24px; border: 1px solid var(--bhims-border); display: flex; overflow: hidden; box-shadow: 0 20px 45px rgba(13, 122, 123, 0.12); position: relative; }
+    .profile-role-bar { position: absolute; top: 0; left: 0; bottom: 0; width: 6px; background: {% if is_landlord %}var(--bhims-teal-deep){% else %}var(--bhims-teal){% endif %}; }
     .profile-sidebar { flex: 1; background: var(--bhims-cream-light); padding: 44px 36px; display: flex; flex-direction: column; align-items: center; border-right: 1px solid var(--bhims-border); text-align: center; }
-    .avatar-ring { width: 140px; height: 140px; border-radius: 50%; padding: 4px; background: {% if is_landlord %}var(--bhims-terracotta-deep){% else %}var(--bhims-terracotta){% endif %}; margin-bottom: 16px; cursor: pointer; position: relative; }
+    .avatar-ring { width: 140px; height: 140px; border-radius: 50%; padding: 4px; background: {% if is_landlord %}var(--bhims-teal-deep){% else %}var(--bhims-teal){% endif %}; margin-bottom: 16px; cursor: pointer; position: relative; }
     .avatar-ring img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid #ffffff; background: var(--bhims-cream); display: block; }
-    .avatar-initial-fallback { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #ffffff; background: var(--bhims-terracotta); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: 700; }
+    .avatar-initial-fallback { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #ffffff; background: var(--bhims-teal); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: 700; }
     .avatar-hint { font-size: 11px; color: var(--bhims-text-muted); background: #ffffff; border: 1px solid var(--bhims-border); border-radius: 999px; padding: 4px 12px; margin-top: -14px; position: relative; z-index: 2; }
-    .role-badge { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; padding: 6px 16px; border-radius: 100px; background: {% if is_landlord %}rgba(140, 74, 47, 0.1){% else %}rgba(193, 89, 42, 0.1){% endif %}; color: {% if is_landlord %}var(--bhims-terracotta-deep){% else %}var(--bhims-terracotta){% endif %}; margin-top: 14px; }
+    .role-badge { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; padding: 6px 16px; border-radius: 100px; background: {% if is_landlord %}rgba(13, 122, 123, 0.1){% else %}rgba(13, 122, 123, 0.1){% endif %}; color: {% if is_landlord %}var(--bhims-teal-deep){% else %}var(--bhims-teal){% endif %}; margin-top: 14px; }
     .sidebar-stat { margin-top: 24px; font-size: 13px; color: var(--bhims-text-muted); }
     .sidebar-stat strong { display: block; font-size: 22px; color: var(--bhims-text); font-weight: 800; }
     .profile-main { flex: 2; padding: 44px 48px; }
@@ -30,19 +30,19 @@
     .data-cell label { display: block; font-size: 10px; font-weight: 700; color: var(--bhims-text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
     .data-cell p.readonly-value { font-size: 15px; color: var(--bhims-text); font-weight: 600; margin: 0; padding: 10px 0; }
     .bhims-input, .bhims-textarea, select.bhims-input { width: 100%; padding: 10px 12px; border: 1px solid var(--bhims-border); border-radius: 10px; color: var(--bhims-text); background: var(--bhims-cream-light); font-size: 14px; font-family: inherit; }
-    .bhims-input:focus, .bhims-textarea:focus { outline: none; border-color: var(--bhims-terracotta); box-shadow: 0 0 0 3px rgba(193, 89, 42, 0.15); }
+    .bhims-input:focus, .bhims-textarea:focus { outline: none; border-color: var(--bhims-teal); box-shadow: 0 0 0 3px rgba(13, 122, 123, 0.15); }
     .bhims-input:disabled { background: #f2ece5; color: var(--bhims-text-muted); cursor: not-allowed; }
     .field-errors { color: #c0392b; font-size: 12px; margin-top: 4px; min-height: 14px; }
     .locked-note { margin-top: 28px; padding: 14px 16px; background: var(--bhims-cream-light); border: 1px dashed var(--bhims-border); border-radius: 12px; font-size: 13px; color: var(--bhims-text-muted); }
     .btn-row { margin-top: 34px; display: flex; gap: 12px; flex-wrap: wrap; }
     .btn-bhims { display: inline-flex; align-items: center; gap: 8px; border: none; padding: 11px 22px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 14px; cursor: pointer; }
-    .btn-bhims.primary { background: {% if is_landlord %}var(--bhims-terracotta-deep){% else %}var(--bhims-terracotta){% endif %}; color: #ffffff; }
+    .btn-bhims.primary { background: {% if is_landlord %}var(--bhims-teal-deep){% else %}var(--bhims-teal){% endif %}; color: #ffffff; }
     .btn-bhims.secondary { background: #ffffff; color: var(--bhims-text); border: 1px solid var(--bhims-border); }
     .btn-bhims:disabled { opacity: 0.6; cursor: not-allowed; }
     .password-section { margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--bhims-border); }
     .password-section h3 { font-size: 16px; font-weight: 800; color: var(--bhims-text); margin: 0 0 16px; }
     .password-grid { display: grid; grid-template-columns: 1fr; gap: 16px; max-width: 360px; }
-    #bhims-toast { position: fixed; bottom: 24px; right: 24px; background: rgba(255, 255, 255, 0.85); -webkit-backdrop-filter: blur(14px) saturate(160%); backdrop-filter: blur(14px) saturate(160%); border: 1px solid var(--bhims-border); border-left: 4px solid var(--bhims-terracotta); border-radius: 10px; padding: 14px 18px; box-shadow: 0 10px 30px rgba(140,74,47,0.15); font-size: 14px; color: var(--bhims-text); display: none; z-index: 9999; max-width: 320px; }
+    #bhims-toast { position: fixed; bottom: 24px; right: 24px; background: rgba(255, 255, 255, 0.85); -webkit-backdrop-filter: blur(14px) saturate(160%); backdrop-filter: blur(14px) saturate(160%); border: 1px solid var(--bhims-border); border-left: 4px solid var(--bhims-teal); border-radius: 10px; padding: 14px 18px; box-shadow: 0 10px 30px rgba(140,74,47,0.15); font-size: 14px; color: var(--bhims-text); display: none; z-index: 9999; max-width: 320px; }
     #bhims-toast.error { border-left-color: #c0392b; }
     #bhims-toast.show { display: block; }
     .photo-modal { position: fixed; inset: 0; background: rgba(58, 42, 32, 0.50); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 99999; padding: 20px; }
@@ -53,7 +53,7 @@
     .cropper-stage img { max-width: 100%; display: block; }
     .cropper-actions { margin-top: 16px; display: flex; gap: 10px; justify-content: flex-end; }
     .crop-btn { border: none; border-radius: 10px; padding: 11px 22px; font-weight: 700; font-size: 14px; cursor: pointer; }
-    .crop-btn.crop-btn-primary { background: #c1592a; color: #ffffff; }
+    .crop-btn.crop-btn-primary { background: #0d7a7b; color: #ffffff; }
     .crop-btn.crop-btn-secondary { background: #ffffff; color: #3a2a20; border: 1px solid var(--bhims-border); }
     @media (max-width: 720px) {
         .profile-card { flex-direction: column; }

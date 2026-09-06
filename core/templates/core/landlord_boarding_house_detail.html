@@ -25,7 +25,7 @@
         font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        color: #c1592a;
+        color: #0d7a7b;
         margin-bottom: 0.5rem;
     }
 
@@ -55,19 +55,19 @@
         align-items: center;
         gap: 0.5rem;
         padding: 0.75rem 1.5rem;
-        border: 1px solid #c1592a;
+        border: 1px solid #0d7a7b;
         border-radius: 10px;
         background-color: transparent;
-        color: #c1592a;
+        color: #0d7a7b;
         font-weight: 500;
         text-decoration: none;
         transition: all 0.2s ease;
     }
 
     .btn-outline:hover {
-        background-color: rgba(193, 89, 42, 0.05);
+        background-color: rgba(13, 122, 123, 0.05);
         text-decoration: none;
-        color: #c1592a;
+        color: #0d7a7b;
     }
 
     .btn-primary {
@@ -77,7 +77,7 @@
         padding: 0.75rem 1.5rem;
         border: none;
         border-radius: 10px;
-        background-color: #c1592a;
+        background-color: #0d7a7b;
         color: white;
         font-weight: 500;
         text-decoration: none;
@@ -125,13 +125,13 @@
     }
 
     .stat-icon.total {
-        background-color: rgba(193, 89, 42, 0.1);
-        color: #c1592a;
+        background-color: rgba(13, 122, 123, 0.1);
+        color: #0d7a7b;
     }
 
     .stat-icon.available {
         background-color: var(--bhims-icon-tint);
-        color: var(--bhims-terracotta);
+        color: var(--bhims-teal);
     }
 
     .stat-icon.occupied {
@@ -262,7 +262,7 @@
     .room-price {
         font-size: var(--fs-xl);
         font-weight: 700;
-        color: #c1592a;
+        color: #0d7a7b;
         margin-bottom: 1rem;
     }
 
@@ -336,7 +336,7 @@
     }
 
     input:checked + .toggle-slider {
-        background-color: #c1592a;
+        background-color: #0d7a7b;
     }
 
     input:checked + .toggle-slider:before {
@@ -350,19 +350,19 @@
         gap: 0.5rem;
         width: 100%;
         padding: 0.75rem;
-        border: 1px solid #c1592a;
+        border: 1px solid #0d7a7b;
         border-radius: 10px;
         background-color: transparent;
-        color: #c1592a;
+        color: #0d7a7b;
         font-weight: 500;
         text-decoration: none;
         transition: all 0.2s ease;
     }
 
     .edit-room-btn:hover {
-        background-color: rgba(193, 89, 42, 0.05);
+        background-color: rgba(13, 122, 123, 0.05);
         text-decoration: none;
-        color: #c1592a;
+        color: #0d7a7b;
     }
 
     .empty-state {
@@ -455,7 +455,7 @@
             <div style="display: flex; flex-wrap: wrap; gap: 1.5rem;">
                 <div>
                     <p class="eyebrow" style="margin-bottom: 0.25rem;">Price</p>
-                    <div style="font-family: var(--font-display); font-weight: 800; font-size: var(--fs-2xl); color: var(--bhims-terracotta);">
+                    <div style="font-family: var(--font-display); font-weight: 800; font-size: var(--fs-2xl); color: var(--bhims-teal);">
                         {% if house.price %}₱{{ house.price|floatformat:2 }}<span class="text-muted" style="font-size: var(--fs-sm); font-weight: 500;">/month</span>{% else %}—{% endif %}
                     </div>
                 </div>

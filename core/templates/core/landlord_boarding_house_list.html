@@ -39,7 +39,7 @@
         <p class="text-muted mb-2">{{ house.barangay_display }}, {{ house.address }}</p>
 
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <div class="fw-bold" style="color: var(--bhims-terracotta); font-size: var(--fs-lg);">
+          <div class="fw-bold" style="color: var(--bhims-teal); font-size: var(--fs-lg);">
             {% if house.price %}₱{{ house.price|floatformat:0 }}<span class="text-muted small fw-normal">/month</span>{% endif %}
           </div>
           <span class="badge {% if house.gender_allowed == 'both' %}bg-info{% elif house.gender_allowed == 'female' %}bg-danger{% else %}bg-primary{% endif %}">

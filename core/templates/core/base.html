@@ -12,7 +12,7 @@
     <meta property="og:site_name" content="BHIMS NLUC Bacnotan">
     <meta property="og:title" content="{% block og_title %}BHIMS - Boarding House Information Management System{% endblock %}">
     <meta property="og:description" content="Verified boarding houses near the DMMMSU NLUC campus — browse listings, message landlords, and book your stay.">
-    <meta name="theme-color" content="#c1592a">
+    <meta name="theme-color" content="#0d7a7b">
     {% endblock %}
     
     <!-- Bootstrap CSS (local vendor copy - no internet required) -->
@@ -25,9 +25,9 @@
     <!-- Centralized Design Tokens -->
     <style>
         :root {
-            --bhims-terracotta: #c1592a;
-            --bhims-terracotta-hover: #a84d23;
-            --bhims-terracotta-deep: #8c4a2f;
+            --bhims-teal: #0d7a7b;
+            --bhims-teal-hover: #0a5f60;
+            --bhims-teal-deep: #084f4f;
             --bhims-cream: rgba(255, 255, 255, 0.42);
             --bhims-cream-light: rgba(255, 255, 255, 0.60);
             --bhims-text: #3a2a20;
@@ -50,10 +50,10 @@
             --fs-lg: 1.125rem;
             --fs-xl: 1.25rem;
             --fs-2xl: 1.5rem;
-            --bhims-border: rgba(193, 89, 42, 0.16);
+            --bhims-border: rgba(13, 122, 123, 0.16);
             --bhims-icon-tint: rgba(248, 234, 228, 0.60);
             --bhims-badge-verified-bg: rgba(248, 234, 228, 0.78);
-            --bhims-badge-verified: #c1592a;
+            --bhims-badge-verified: #0d7a7b;
             --bhims-badge-pending-bg: rgba(253, 240, 220, 0.78);
             --bhims-badge-pending: #9a6a1f;
             --bhims-badge-rejected-bg: rgba(251, 228, 222, 0.78);
@@ -82,10 +82,8 @@
             --bhims-glass-shadow-hover: 0 2px 4px rgba(58, 42, 32, 0.06), 0 14px 30px rgba(58, 42, 32, 0.11);
 
             /* Backward-compatible aliases for older templates */
-            --warm-green: var(--bhims-terracotta);
-            --terracotta: var(--bhims-terracotta);
-            --muted-terracotta: var(--bhims-terracotta-hover);
-            --landlord-accent: var(--bhims-terracotta-deep);
+            --warm-green: var(--bhims-teal);
+            --terracotta: var(--bhims-teal);
             --beige: var(--bhims-cream);
             --surface: var(--bhims-cream-light);
             --text-muted: var(--bhims-text-muted);
@@ -100,8 +98,8 @@
                Static by design — no animated gradients. */
             background-color: var(--bhims-paper);
             background-image:
-                repeating-linear-gradient(45deg, rgba(140, 74, 47, 0.030) 0 1px, transparent 1px 9px),
-                repeating-linear-gradient(-45deg, rgba(140, 74, 47, 0.022) 0 1px, transparent 1px 9px);
+                repeating-linear-gradient(45deg, rgba(13, 122, 123, 0.030) 0 1px, transparent 1px 9px),
+                repeating-linear-gradient(-45deg, rgba(13, 122, 123, 0.022) 0 1px, transparent 1px 9px);
             color: var(--bhims-text);
             margin: 0;
             padding: 0;
@@ -115,31 +113,31 @@
             letter-spacing: -0.01em;
         }
 
-        /* ---- Buttons: warm terracotta everywhere ---- */
+        /* ---- Buttons: warm teal everywhere ---- */
         .btn-primary {
-            background-color: var(--bhims-terracotta);
-            border-color: var(--bhims-terracotta);
+            background-color: var(--bhims-teal);
+            border-color: var(--bhims-teal);
         }
         .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
-            background-color: var(--bhims-terracotta-hover);
-            border-color: var(--bhims-terracotta-hover);
+            background-color: var(--bhims-teal-hover);
+            border-color: var(--bhims-teal-hover);
         }
         .btn-outline-primary {
-            color: var(--bhims-terracotta);
-            border-color: var(--bhims-terracotta);
+            color: var(--bhims-teal);
+            border-color: var(--bhims-teal);
         }
         .btn-outline-primary:hover, .btn-outline-primary:active {
-            background-color: var(--bhims-terracotta);
-            border-color: var(--bhims-terracotta);
+            background-color: var(--bhims-teal);
+            border-color: var(--bhims-teal);
             color: #fff;
         }
         .btn-success {
-            background-color: var(--bhims-terracotta);
-            border-color: var(--bhims-terracotta);
+            background-color: var(--bhims-teal);
+            border-color: var(--bhims-teal);
         }
         .btn-success:hover, .btn-success:focus, .btn-success:active {
-            background-color: var(--bhims-terracotta-hover);
-            border-color: var(--bhims-terracotta-hover);
+            background-color: var(--bhims-teal-hover);
+            border-color: var(--bhims-teal-hover);
         }
         .btn-danger { background-color: var(--bhims-badge-rejected); border-color: var(--bhims-badge-rejected); }
         .btn-danger:hover, .btn-danger:focus, .btn-danger:active {
@@ -150,12 +148,12 @@
             background-color: #7f5716; border-color: #7f5716; color: #fff;
         }
 
-        /* ---- Primary buttons: flat inked terracotta (no gradient/glow) ---- */
+        /* ---- Primary buttons: flat inked teal (no gradient/glow) ---- */
         .btn-primary, .btn-success, .btn-bhims, .create-btn, .submit-btn,
         .btn-submit, .btn-register-bhims, .btn-accept-bhims, .bhims-login-btn {
             background-image: none !important;
-            background-color: var(--bhims-terracotta) !important;
-            border: 1px solid var(--bhims-terracotta-deep) !important;
+            background-color: var(--bhims-teal) !important;
+            border: 1px solid var(--bhims-teal-deep) !important;
             box-shadow: 0 1px 2px rgba(58, 42, 32, 0.12) !important;
             transition: background-color 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease !important;
         }
@@ -165,7 +163,7 @@
         .btn-register-bhims:hover, .btn-accept-bhims:hover,
         .bhims-login-btn:hover, .bhims-login-btn:focus {
             background-image: none !important;
-            background-color: var(--bhims-terracotta-hover) !important;
+            background-color: var(--bhims-teal-hover) !important;
             transform: translateY(-1px) !important;
             box-shadow: 0 2px 6px rgba(58, 42, 32, 0.16) !important;
         }
@@ -199,8 +197,8 @@
             color: var(--bhims-text);
         }
         .form-control:focus, .form-select:focus {
-            border-color: var(--bhims-terracotta);
-            box-shadow: 0 0 0 0.25rem rgba(193, 89, 42, 0.12);
+            border-color: var(--bhims-teal);
+            box-shadow: 0 0 0 0.25rem rgba(13, 122, 123, 0.12);
         }
         .form-label { font-weight: 600; color: var(--bhims-text); }
 
@@ -209,7 +207,7 @@
         .bg-success { background-color: var(--bhims-badge-verified) !important; }
         .bg-danger { background-color: var(--bhims-badge-rejected) !important; }
         .bg-warning { background-color: var(--bhims-badge-pending) !important; }
-        .text-success { color: var(--bhims-terracotta-deep) !important; }
+        .text-success { color: var(--bhims-teal-deep) !important; }
         .text-danger { color: var(--bhims-badge-rejected) !important; }
         .text-warning { color: var(--bhims-badge-pending) !important; }
         .text-muted { color: var(--bhims-text-muted) !important; }
@@ -220,8 +218,8 @@
         .table thead th { font-family: 'Inter', sans-serif; font-weight: 700; color: var(--bhims-text); }
 
         /* ---- Links ---- */
-        a { color: var(--bhims-terracotta); }
-        a:hover { color: var(--bhims-terracotta-hover); }
+        a { color: var(--bhims-teal); }
+        a:hover { color: var(--bhims-teal-hover); }
 
         /* ---- Lists / modals ---- */
         .list-group-item { background-color: var(--bhims-cream-light); border-color: var(--bhims-border); }
@@ -237,9 +235,9 @@
         /* ---- Generic BHIMS button component ---- */
         .btn-bhims {
             display: inline-block;
-            background-color: var(--bhims-terracotta);
+            background-color: var(--bhims-teal);
             color: #fff;
-            border: 1px solid var(--bhims-terracotta-deep);
+            border: 1px solid var(--bhims-teal-deep);
             border-radius: var(--bhims-radius-sm);
             padding: 0.7rem 1.65rem;
             font-weight: 600;
@@ -247,13 +245,13 @@
             text-decoration: none;
             transition: background-color 0.18s ease, transform 0.12s ease;
         }
-        .btn-bhims:hover { background-color: var(--bhims-terracotta-hover); color: #fff; transform: translateY(-1px); }
+        .btn-bhims:hover { background-color: var(--bhims-teal-hover); color: #fff; transform: translateY(-1px); }
         .btn-bhims-outline {
             background-color: transparent;
-            color: var(--bhims-terracotta);
-            border: 2px solid var(--bhims-terracotta);
+            color: var(--bhims-teal);
+            border: 2px solid var(--bhims-teal);
         }
-        .btn-bhims-outline:hover { background-color: var(--bhims-icon-tint); color: var(--bhims-terracotta); }
+        .btn-bhims-outline:hover { background-color: var(--bhims-icon-tint); color: var(--bhims-teal); }
 
         /* ---- Page header flex (shared: student & landlord dashboards) ---- */
         .page-header {
@@ -270,7 +268,7 @@
             text-transform: uppercase;
             letter-spacing: 0.14em;
             font-size: var(--fs-xs);
-            color: var(--bhims-terracotta);
+            color: var(--bhims-teal);
             margin-bottom: 0.5rem;
             display: inline-flex;
             align-items: center;
@@ -280,7 +278,7 @@
             content: '';
             width: 22px;
             height: 2px;
-            background: var(--bhims-terracotta);
+            background: var(--bhims-teal);
             flex: 0 0 auto;
         }
         .page-header h1 {
@@ -295,9 +293,9 @@
             margin: 0;
         }
         .create-btn {
-            background-color: var(--bhims-terracotta);
+            background-color: var(--bhims-teal);
             color: #ffffff;
-            border: 1px solid var(--bhims-terracotta-deep);
+            border: 1px solid var(--bhims-teal-deep);
             border-radius: var(--bhims-radius-sm);
             padding: 0.7rem 1.65rem;
             font-weight: 600;
@@ -310,7 +308,7 @@
             gap: 0.5rem;
         }
         .create-btn:hover {
-            background-color: var(--bhims-terracotta-hover);
+            background-color: var(--bhims-teal-hover);
             transform: translateY(-1px);
             color: #ffffff;
         }
@@ -488,7 +486,7 @@
         .bhims-login-card, .form-card {
             background: var(--bhims-paper-raised) !important;
             border: 1px solid var(--bhims-ink-line) !important;
-            border-top: 4px solid var(--bhims-terracotta) !important;
+            border-top: 4px solid var(--bhims-teal) !important;
             border-radius: calc(var(--bhims-radius) + 2px) !important;
             box-shadow: var(--bhims-glass-shadow) !important;
             transition: transform 0.25s ease, box-shadow 0.25s ease !important;
@@ -527,7 +525,7 @@
 
         /* ---- Keyboard focus: keep a visible ring everywhere ---- */
         :focus-visible {
-            outline: 3px solid rgba(193, 89, 42, 0.65) !important;
+            outline: 3px solid rgba(13, 122, 123, 0.65) !important;
             outline-offset: 2px;
         }
 
