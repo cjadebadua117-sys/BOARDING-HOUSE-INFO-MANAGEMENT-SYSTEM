@@ -3,12 +3,14 @@
 
 {% block title %}Home - BHIMS NLUC Bacnotan{% endblock %}
 
+{% block breadcrumb_items %}{% endblock %}
+
 {% block extra_css %}
 <style>
     /* ---- Landing hero ---- */
     .landing-hero {
         width: 100%;
-        min-height: calc(100vh - 72px);
+        min-height: calc(100vh - var(--header-height, 72px));
         background:
             repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.022) 0 1px, transparent 1px 9px),
             linear-gradient(to top, rgba(8, 49, 49, 0.78) 0%, rgba(8, 79, 79, 0.58) 48%, rgba(8, 79, 79, 0.32) 100%),
@@ -17,10 +19,10 @@
         align-items: center;
         justify-content: flex-start;
         margin: 0;
-        padding: 4rem 2rem;
+        padding: var(--space-10) var(--space-6);
     }
     .landing-hero-inner {
-        max-width: 1140px;
+        max-width: var(--container-xl);
         width: 100%;
         margin: 0 auto;
     }
@@ -29,37 +31,37 @@
         text-transform: uppercase;
         font-weight: 700;
         letter-spacing: 0.12em;
-        font-size: var(--fs-sm);
-        margin-bottom: 1.5rem;
+        font-size: var(--text-xs);
+        margin-bottom: var(--space-4);
     }
     .landing-title {
         font-family: var(--font-display);
-        font-size: 3.5rem;
+        font-size: clamp(var(--text-3xl), 5vw, var(--text-5xl));
         font-weight: 800;
         line-height: 1.1;
         color: #FFFFFF;
         max-width: 700px;
-        margin-bottom: 1.5rem;
+        margin-bottom: var(--space-4);
     }
     .landing-sub {
         color: rgba(255, 255, 255, 0.9);
-        font-size: var(--fs-xl);
+        font-size: var(--text-lg);
         max-width: 600px;
         line-height: 1.7;
-        margin-bottom: 2.5rem;
+        margin-bottom: var(--space-6);
     }
     .landing-actions {
         display: flex;
-        gap: 1.25rem;
+        gap: var(--space-4);
         flex-wrap: wrap;
     }
     .landing-btn {
-        border-radius: var(--bhims-radius-sm);
-        padding: 0.9rem 2.25rem;
+        border-radius: var(--radius-md);
+        padding: var(--space-3) var(--space-6);
         font-weight: 600;
-        font-size: 1rem;
+        font-size: var(--text-sm);
         text-decoration: none;
-        transition: background-color 0.2s ease, transform 0.2s ease;
+        transition: background-color 0.18s ease, transform 0.12s ease;
     }
     .landing-btn-primary {
         background: var(--bhims-teal);
@@ -71,6 +73,9 @@
         color: #FFFFFF;
         transform: translateY(-1px);
     }
+    .landing-btn-primary:active {
+        transform: translateY(1px) scale(0.98);
+    }
     .landing-btn-outline {
         background: transparent;
         color: #FFFFFF;
@@ -81,37 +86,40 @@
         color: #FFFFFF;
         transform: translateY(-1px);
     }
+    .landing-btn-outline:active {
+        transform: translateY(1px) scale(0.98);
+    }
 
     /* ---- Shared landing sections ---- */
     .landing-section {
         width: 100%;
-        padding: 6rem 2rem;
+        padding: var(--space-12) var(--space-6);
         margin: 0;
     }
     .landing-section-tinted {
         background: var(--bhims-paper-sunken);
     }
     .landing-section-inner {
-        max-width: 1140px;
+        max-width: var(--container-xl);
         width: 100%;
         margin: 0 auto;
     }
     .landing-section-header {
         text-align: center;
-        margin-bottom: 4rem;
+        margin-bottom: var(--space-10);
     }
     .landing-section-kicker {
         color: var(--bhims-teal);
         text-transform: uppercase;
         font-weight: 700;
         letter-spacing: 0.1em;
-        font-size: var(--fs-sm);
-        margin-bottom: 0.75rem;
+        font-size: var(--text-xs);
+        margin-bottom: var(--space-2);
     }
     .landing-section-title {
         font-family: var(--font-display);
-        color: #1f3438;
-        font-size: 2.25rem;
+        color: var(--bhims-text);
+        font-size: clamp(var(--text-2xl), 4vw, var(--text-4xl));
         font-weight: 800;
         margin: 0;
     }
@@ -120,191 +128,59 @@
     .landing-features-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 2rem;
+        gap: var(--space-6);
     }
     .feature-card {
-        background: var(--bhims-cream-light);
-        border-radius: 12px;
-        padding: 2.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: var(--bhims-paper-raised);
+        border: 1px solid var(--bhims-ink-line);
+        border-radius: var(--radius-xl);
+        padding: var(--space-6);
+        box-shadow: var(--bhims-glass-inner-glow);
+        transition: transform 0.25s var(--bhims-ease-smooth), box-shadow 0.25s var(--bhims-ease-smooth), border-color 0.25s var(--bhims-ease-smooth);
     }
     .feature-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.09);
+        transform: translateY(-3px);
+        box-shadow: var(--bhims-glass-shadow-hover);
+        border-color: var(--bhims-ink-line-strong);
     }
     .feature-icon-box {
         width: 60px;
         height: 60px;
         background: var(--bhims-icon-tint);
-        border-radius: 12px;
+        border-radius: var(--radius-lg);
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 1.75rem;
+        margin-bottom: var(--space-4);
     }
     .feature-icon-box i {
         color: var(--bhims-teal);
-        font-size: var(--fs-2xl);
+        font-size: var(--text-2xl);
     }
     .feature-title {
         font-family: var(--font-display);
-        color: #1f3438;
-        font-size: var(--fs-2xl);
+        color: var(--bhims-text);
+        font-size: var(--text-2xl);
         font-weight: 700;
-        margin-bottom: 1rem;
+        margin-bottom: var(--space-3);
     }
     .feature-text {
-        color: #57706f;
+        color: var(--bhims-text-muted);
         line-height: 1.7;
         margin: 0;
-        font-size: 1rem;
+        font-size: var(--text-base);
     }
 
-    /* ---- Featured listings (matches boardings_list card styles) ---- */
-    .landing-listings-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 1.5rem;
-    }
-    .listing-card {
-        background: var(--bhims-glass-bg-primary);
-        border: 1px solid var(--bhims-border);
-        border-radius: var(--bhims-radius);
-        overflow: hidden;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        display: flex;
-        flex-direction: column;
-    }
-    .listing-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 6px 16px rgba(8, 79, 79, 0.09);
-    }
-    .listing-card .card-image {
-        height: 220px;
-        background: var(--bhims-paper-sunken);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--bhims-teal);
-        position: relative;
-        overflow: hidden;
-    }
-    .listing-card .card-image img {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        display: block;
-        background: var(--bhims-cream-light);
-    }
-    .listing-card .card-body {
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-    }
-    .listing-card .card-title {
-        font-family: var(--font-display);
-        font-weight: 700;
-        color: var(--bhims-text);
-        font-size: var(--fs-2xl);
-        margin-bottom: 0.5rem;
-    }
-    .listing-card .card-location {
-        display: flex;
-        align-items: center;
-        color: var(--bhims-text-muted);
-        font-size: var(--fs-md);
-        margin-bottom: 0.9rem;
-    }
-    .listing-card .card-location i {
-        margin-right: 0.5rem;
-        color: var(--bhims-teal);
-    }
-    .meta-row {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        margin-bottom: 0.9rem;
-    }
-    .room-type-pill,
-    .price-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        background: var(--bhims-icon-tint);
-        color: var(--bhims-text);
-        padding: 0.4rem 0.9rem;
-        border-radius: 9999px;
-        font-size: var(--fs-sm);
-        font-weight: 600;
-    }
-    .price-pill {
-        background: var(--bhims-text);
-        color: #fff;
-    }
-    .listing-card .card-description {
-        color: var(--bhims-text-muted);
-        font-size: var(--fs-md);
-        line-height: 1.6;
-        margin-bottom: 1.25rem;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        flex: 1;
-    }
-    .listing-card .card-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 1rem;
-        padding-top: 1.25rem;
-        border-top: 1px solid var(--bhims-border);
-    }
-    .availability-badge {
-        background-color: var(--bhims-badge-verified-bg);
-        color: var(--bhims-badge-verified);
-        padding: 0.4rem 0.9rem;
-        border-radius: 9999px;
-        font-size: var(--fs-sm);
-        font-weight: 600;
-        white-space: nowrap;
-    }
-    .btn-view-details {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.45rem;
-        background-color: var(--bhims-teal);
-        color: #fff;
-        border: none;
-        border-radius: var(--bhims-radius-sm);
-        padding: 0.55rem 1.4rem;
-        font-weight: 600;
-        font-size: var(--fs-sm);
-        text-decoration: none;
-        white-space: nowrap;
-        transition: background-color 0.2s ease, transform 0.2s ease;
-    }
-    .btn-view-details:hover {
-        background-color: var(--bhims-teal-hover);
-        color: #fff;
-        transform: translateY(-1px);
-    }
+    /* ---- Featured listings ----
+       Uses shared .listing-card from premium.css + .bhims-press for tactile press
+    */
 
     @media (max-width: 900px) {
         .landing-features-grid {
             grid-template-columns: 1fr;
         }
-        .landing-title {
-            font-size: 2.5rem;
-        }
         .landing-section {
-            padding: 4rem 1.5rem;
+            padding: var(--space-8) var(--space-4);
         }
     }
     /* ---- Entrance & scroll-reveal animations ---- */

@@ -1,6 +1,12 @@
 {% extends 'core/app_base.html' %}
 {% block title %}Available Boarding Houses{% endblock %}
 
+{% block breadcrumb_items %}
+<li><a href="{% url 'home' %}">Home</a></li>
+<li><a href="{% url 'listing_list' %}">Browse</a></li>
+<li><span>Available Boarding Houses</span></li>
+{% endblock %}
+
 {% block extra_css %}
 <style>
     .browse-page {
@@ -13,21 +19,21 @@
     .filter-card {
         background: var(--bhims-paper-raised);
         border: 1px solid var(--bhims-ink-line);
-        border-radius: var(--bhims-radius);
+        border-radius: var(--radius-xl);
         box-shadow: var(--bhims-glass-inner-glow);
-        padding: 1.75rem;
-        margin-bottom: 2.25rem;
+        padding: var(--space-6);
+        margin-bottom: var(--space-6);
     }
     .filter-card .form-label {
         font-weight: 600;
         color: var(--bhims-text);
-        font-size: var(--fs-sm);
-        margin-bottom: 0.4rem;
+        font-size: var(--text-sm);
+        margin-bottom: var(--space-1);
     }
     .filter-reset {
         display: inline-flex; align-items: center; text-decoration: none;
-        padding: 11px 22px; border-radius: 10px; border: 1px solid var(--bhims-ink-line);
-        background: var(--bhims-paper-raised); color: var(--bhims-text); font-weight: 700; font-size: 14px; cursor: pointer;
+        padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--bhims-ink-line);
+        background: var(--bhims-paper-raised); color: var(--bhims-text); font-weight: 700; font-size: var(--text-sm); cursor: pointer;
     }
     .filter-reset:hover { background: var(--bhims-paper-sunken); color: var(--bhims-teal); border-color: var(--bhims-teal); }
     .filter-reset:active { transform: translateY(1px) scale(0.98); }
@@ -59,34 +65,34 @@
     </div>
 
     <div class="filter-card">
-        <form method="get" class="row g-4" id="filterForm">
+        <form method="get" class="row g-3" id="filterForm">
             <div class="col-md-4 col-lg-3">
                 <label for="{{ form.price_min.id_for_label }}" class="form-label">{{ form.price_min.label }}</label>
-                {{ form.price_min }}
+                {{ form.price_min|add_class:"form-control" }}
             </div>
             <div class="col-md-4 col-lg-3">
                 <label for="{{ form.price_max.id_for_label }}" class="form-label">{{ form.price_max.label }}</label>
-                {{ form.price_max }}
+                {{ form.price_max|add_class:"form-control" }}
             </div>
             <div class="col-md-4 col-lg-3">
                 <label for="{{ form.room_type.id_for_label }}" class="form-label">{{ form.room_type.label }}</label>
-                {{ form.room_type }}
+                {{ form.room_type|add_class:"form-control" }}
             </div>
             <div class="col-md-4 col-lg-3">
                 <label for="{{ form.barangay.id_for_label }}" class="form-label">{{ form.barangay.label }}</label>
-                {{ form.barangay }}
+                {{ form.barangay|add_class:"form-select" }}
             </div>
             <div class="col-md-5">
                 <label for="{{ form.amenities.id_for_label }}" class="form-label">{{ form.amenities.label }}</label>
-                {{ form.amenities }}
+                {{ form.amenities|add_class:"form-control" }}
             </div>
             <div class="col-md-3">
                 <label for="{{ form.sort.id_for_label }}" class="form-label">{{ form.sort.label }}</label>
-                {{ form.sort }}
+                {{ form.sort|add_class:"form-select" }}
             </div>
             <div class="col-md-4 d-flex align-items-end gap-2">
-                <button type="submit" class="btn-bhims">Apply Filters</button>
-                <a href="{% url 'listing_list' %}" class="filter-reset" style="border-width: 1px;">Reset</a>
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <a href="{% url 'listing_list' %}" class="filter-reset">Reset</a>
             </div>
         </form>
     </div>
