@@ -3,7 +3,7 @@
 
 {% block title %}Home - BHIMS NLUC Bacnotan{% endblock %}
 
-{% block breadcrumb_items %}{% endblock %}
+{% block breadcrumb %}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -27,10 +27,10 @@
         margin: 0 auto;
     }
     .landing-kicker {
-        color: var(--bhims-teal);
+        color: rgba(255, 255, 255, 0.82);
         text-transform: uppercase;
         font-weight: 700;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.14em;
         font-size: var(--text-xs);
         margin-bottom: var(--space-4);
     }
@@ -203,6 +203,31 @@
     .listing-card.reveal:nth-child(3) { transition-delay: 0.16s; }
     .listing-card.reveal:nth-child(4) { transition-delay: 0.24s; }
 
+    .landing-trust {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-6);
+        margin-top: var(--space-10);
+        padding-top: var(--space-8);
+        border-top: 1px solid rgba(255,255,255,0.18);
+        max-width: 720px;
+    }
+    .landing-trust div { color: #fff; }
+    .landing-trust strong {
+        display: block;
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.15rem;
+    }
+    .landing-trust span {
+        font-size: var(--text-sm);
+        color: rgba(255,255,255,0.78);
+    }
+    @media (max-width: 700px) {
+        .landing-trust { grid-template-columns: 1fr; gap: var(--space-4); }
+    }
+
     @media (prefers-reduced-motion: reduce) {
         .landing-kicker, .landing-title, .landing-sub, .landing-actions { animation: none; }
         .reveal { opacity: 1; transform: none; transition: none; }
@@ -215,9 +240,15 @@
     <div class="landing-hero-inner">
         <p class="landing-kicker">NLUC Bacnotan Student Housing</p>
         <h1 class="landing-title">Your Home Away From Home, Near NLUC.</h1>
-        <p class="landing-sub">Find and book boarding houses, apartments, and rooms within walking distance of DMMMSU North Luzon Don Mariano Marcos Memorial State University. Secure, student-friendly, and convenient.</p>
+        <p class="landing-sub">Find boarding houses near DMMMSU–NLUC Bacnotan. Compare rooms, prices, and barangays — then message landlords and book with confidence.</p>
         <div class="landing-actions">
-            <a href="{% url 'listing_list' %}" class="landing-btn landing-btn-primary">Browse Listings</a>
+            <a href="{% url 'listing_list' %}" class="landing-btn landing-btn-primary">Browse listings</a>
+            <a href="{% url 'student_login' %}" class="landing-btn landing-btn-outline">Student sign in</a>
+        </div>
+        <div class="landing-trust">
+            <div><strong>Verified</strong><span>Admin-reviewed houses</span></div>
+            <div><strong>Direct chat</strong><span>Message landlords in-app</span></div>
+            <div><strong>Campus-near</strong><span>Barangays around NLUC</span></div>
         </div>
     </div>
 </section>

@@ -23,51 +23,32 @@
 </div>
 
 <!-- Stats Row -->
-<div class="row mb-4">
-  <div class="col-md-4">
-    <div class="card shadow-sm border-0 p-4">
-      <div class="d-flex align-items-center">
-        <div class="icon-box" style="background: var(--bhims-icon-tint); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1.5rem; height: 1.5rem; color: var(--bhims-teal);">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a3.375 3.375 0 00-3.375 3.375v.035a.675.675 0 00.235.505l2.035 1.782a.675.675 0 00.834 0l2.035-1.782a.675.675 0 00.235-.505v-.035A3.375 3.375 0 0010.5 12H8.625z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.375 12a3.375 3.375 0 00-3.375 3.375v.035a.675.675 0 00.235.505l2.035 1.782a.675.675 0 00.834 0l2.035-1.782a.675.675 0 00.235-.505v-.035A3.375 3.375 0 0018 12h-2.625z" />
-          </svg>
-        </div>
-        <div>
-          <h2 class="h3 mb-0">{{ inquiries|length }}</h2>
-          <p class="text-muted mb-0 small">Total Inquiries</p>
-        </div>
-      </div>
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-icon">
+      <i class="bi bi-chat-dots" style="font-size:1.4rem;color:var(--bhims-teal);"></i>
+    </div>
+    <div class="stat-content">
+      <h2 class="h3 stat-value">{{ inquiries|length }}</h2>
+      <p>Total inquiries</p>
     </div>
   </div>
-  <div class="col-md-4">
-    <div class="card shadow-sm border-0 p-4">
-      <div class="d-flex align-items-center">
-        <div class="icon-box" style="background: var(--bhims-icon-tint); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1.5rem; height: 1.5rem; color: var(--bhims-teal);">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-          </svg>
-        </div>
-        <div>
-          <h2 class="h3 mb-0">{{ active_inquiries }}</h2>
-          <p class="text-muted mb-0 small">Active Inquiries</p>
-        </div>
-      </div>
+  <div class="stat-card">
+    <div class="stat-icon">
+      <i class="bi bi-lightning" style="font-size:1.4rem;color:var(--bhims-teal);"></i>
+    </div>
+    <div class="stat-content">
+      <h2 class="h3 stat-value">{{ active_inquiries }}</h2>
+      <p>Open inquiries</p>
     </div>
   </div>
-  <div class="col-md-4">
-    <div class="card shadow-sm border-0 p-4">
-      <div class="d-flex align-items-center">
-        <div class="icon-box" style="background: var(--bhims-icon-tint); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1.5rem; height: 1.5rem; color: var(--bhims-teal);">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3h1.5m-1.5 3h1.5M9 19.5v-3.375c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125V19.5" />
-          </svg>
-        </div>
-        <div>
-          <h2 class="h3 mb-0">{{ confirmed_bookings }}</h2>
-          <p class="text-muted mb-0 small">Confirmed Bookings</p>
-        </div>
-      </div>
+  <div class="stat-card">
+    <div class="stat-icon">
+      <i class="bi bi-patch-check" style="font-size:1.4rem;color:var(--bhims-teal);"></i>
+    </div>
+    <div class="stat-content">
+      <h2 class="h3 stat-value">{{ confirmed_bookings }}</h2>
+      <p>Confirmed bookings</p>
     </div>
   </div>
 </div>

@@ -1,47 +1,57 @@
 {% load static %}
-<!-- FIGMA HEADER IMPLEMENTATION - Pure flexbox to override Bootstrap -->
-<header class="bhims-topbar" style="background: var(--bhims-paper-raised) !important; width: 100% !important; position: sticky !important; top: 0 !important; z-index: 9999 !important; box-shadow: 0 2px 14px rgba(8, 79, 79, 0.10) !important; padding: 0.5rem 0 !important; margin: 0 !important; height: auto !important; min-height: 0 !important; max-height: none !important; overflow: visible !important;">
-  <style>
-    .bhims-brand-link:focus-visible { outline: 2px solid rgba(13, 122, 123, 0.65); outline-offset: -2px; border-radius: 10px; }
-  </style>
-  <div style="max-width: 1140px !important; margin: 0 auto !important; padding: 0 2rem !important; display: flex !important; align-items: center !important; justify-content: space-between !important;">
+<header class="bhims-topbar" id="bhimsTopbar">
+  <div class="bhims-topbar-inner">
+    <a href="{% url 'home' %}" class="bhims-brand-link">
+      <img src="{% static 'core/images/bhims-logo.png' %}?v=8" alt="BHIMS">
+      <span class="bhims-brand-text">
+        <strong>BHIMS</strong>
+        <span>NLUC Bacnotan</span>
+      </span>
+    </a>
 
-    <!-- Left: Logo & Brand -->
-      <a href="{% url 'home' %}" class="bhims-brand-link" style="display: flex !important; align-items: center !important; text-decoration: none !important;">
-        <img src="{% static 'core/images/bhims-logo.png' %}?v=8" alt="BHIMS logo" style="height: 48px !important; width: auto !important; display: block !important; border-radius: 12px !important; flex-shrink: 0 !important; margin: 0 !important; padding: 0 !important; vertical-align: middle !important;">
-      </a>
+    <button type="button" class="bhims-menu-toggle" id="bhimsMenuToggle" aria-expanded="false" aria-controls="bhimsNav" aria-label="Open menu">
+      <i class="bi bi-list" aria-hidden="true"></i>
+    </button>
 
+    <nav class="bhims-nav" id="bhimsNav" aria-label="Primary">
+      <a href="{% url 'listing_list' %}" class="bhims-nav-link"{% if request.resolver_match.url_name == 'listing_list' %} aria-current="page"{% endif %}>Browse listings</a>
 
-
-    <!-- Right: Theme Toggle + Auth Links -->
-    <div style="display: flex !important; gap: 1.5rem !important; align-items: center !important;">
-      <!-- Theme Toggle -->
-      <div class="theme-switch-wrapper" style="display: flex; align-items: center; gap: 0.5rem;">
-        <span style="font-size: 0.85rem; color: var(--bhims-text-muted);">☀️</span>
-        <label class="theme-switch" style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer;">
-          <input type="checkbox" id="themeToggle" style="opacity: 0; width: 0; height: 0;">
-          <span class="theme-slider" style="position: absolute; cursor: pointer; inset: 0; background: var(--bhims-ink-line); border-radius: 24px; transition: background-color var(--bhims-ease-smooth);"></span>
+      <div class="theme-switch-wrapper" style="display:flex;align-items:center;gap:0.4rem;">
+        <span class="visually-hidden">Color theme</span>
+        <label class="theme-switch">
+          <input type="checkbox" class="theme-toggle-input" data-theme-toggle>
+          <span class="theme-slider"></span>
         </label>
-        <span style="font-size: 0.85rem; color: var(--bhims-text-muted);">🌙</span>
       </div>
 
       {% if not request.user.is_authenticated %}
-        <a href="/students/login/" style="color: var(--bhims-text) !important; font-weight: 500 !important; text-decoration: none !important; font-size: 1rem !important;">Student Login</a>
-        <a href="/landlords/login/" style="color: var(--bhims-text) !important; font-weight: 500 !important; text-decoration: none !important; font-size: 1rem !important;">Landlord Login</a>
+        <a href="{% url 'student_login' %}" class="bhims-nav-ghost">Student login</a>
+        <a href="{% url 'landlord_login' %}" class="bhims-nav-cta">Landlord login</a>
       {% else %}
         {% if request.user.role == 'student' %}
-          <a href="{% url 'student_dashboard' %}" style="color: var(--bhims-text) !important; font-weight: 500 !important; text-decoration: none !important; font-size: 1rem !important;">My Dashboard</a>
+          <a href="{% url 'student_dashboard' %}" class="bhims-nav-link">Dashboard</a>
         {% elif request.user.role == 'landlord' %}
-          <a href="{% url 'landlord_dashboard' %}" style="color: var(--bhims-text) !important; font-weight: 500 !important; text-decoration: none !important; font-size: 1rem !important;">Landlord Dashboard</a>
+          <a href="{% url 'landlord_dashboard' %}" class="bhims-nav-link">Dashboard</a>
         {% elif request.user.role == 'admin' %}
-          <a href="/admin/dashboard/" style="color: var(--bhims-text) !important; font-weight: 500 !important; text-decoration: none !important; font-size: 1rem !important;">Admin Dashboard</a>
+          <a href="{% url 'admin_dashboard' %}" class="bhims-nav-link">Admin</a>
         {% endif %}
         <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit" style="background: var(--bhims-teal) !important; color: #FFFFFF !important; border: 1px solid var(--bhims-teal-deep) !important; border-radius: var(--bhims-radius-sm) !important; padding: 0.6rem 1.75rem !important; font-weight: 600 !important; cursor: pointer; font-size: 1rem !important; box-shadow: 0 1px 2px rgba(8, 79, 79, 0.12) !important;">Logout</button>
+          {% csrf_token %}
+          <button type="submit" class="bhims-logout-btn">Log out</button>
         </form>
       {% endif %}
-    </div>
-
+    </nav>
   </div>
 </header>
+<script>
+(function () {
+  var bar = document.getElementById('bhimsTopbar');
+  var btn = document.getElementById('bhimsMenuToggle');
+  if (!bar || !btn) return;
+  btn.addEventListener('click', function () {
+    var open = bar.classList.toggle('is-open');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  });
+})();
+</script>

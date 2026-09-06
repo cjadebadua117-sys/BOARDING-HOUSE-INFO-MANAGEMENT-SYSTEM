@@ -17,7 +17,13 @@
                     <line x1="3" y1="18" x2="21" y2="18"></line>
                 </svg>
             </button>
-            <span class="topbar-page-title">{% block topbar_title %}<img src="{% static 'core/images/bhims-logo.png' %}" alt="BHIMS logo" style="height: 48px !important; width: auto !important; display: block !important; border-radius: 12px !important;">{% endblock %}</span>
+            <span class="topbar-page-title">{% block topbar_title %}<img src="{% static 'core/images/bhims-logo.png' %}" alt="BHIMS" class="topbar-logo">{% endblock %}</span>
+            <div class="topbar-tools">
+                <label class="theme-switch" title="Toggle color theme">
+                    <input type="checkbox" class="theme-toggle-input" data-theme-toggle>
+                    <span class="theme-slider"></span>
+                </label>
+            </div>
         </div>
         <div class="app-content">
             {% block app_content %}{% endblock %}
@@ -124,6 +130,12 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+    .topbar-logo {
+        height: 40px;
+        width: auto;
+        display: block;
+        border-radius: 10px;
     }
 
     .app-content {

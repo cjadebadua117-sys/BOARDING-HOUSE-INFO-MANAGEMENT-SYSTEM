@@ -14,6 +14,14 @@
     <meta property="og:description" content="Verified boarding houses near the DMMMSU NLUC campus — browse listings, message landlords, and book your stay.">
     <meta name="theme-color" content="#0d7a7b">
     {% endblock %}
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('bhims-theme');
+                if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+            } catch (e) {}
+        })();
+    </script>
     
     <!-- Bootstrap CSS (local vendor copy - no internet required) -->
     <link href="{% static 'vendor/bootstrap.min.css' %}" rel="stylesheet">
@@ -648,8 +656,9 @@
     <link rel="stylesheet" href="{% static 'core/css/premium.css' %}">
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <!-- Toast notifications -->
-    <div id="toast-container"></div>
+    <div id="toast-container" aria-live="polite"></div>
 
     <!-- NAVBAR -->
     {% block navbar %}{% include 'core/includes/navbar.html' %}{% endblock %}
@@ -658,10 +667,10 @@
 
     <!-- Breadcrumb -->
     {% block breadcrumb %}
-    <nav class="breadcrumb-nav" aria-label="Breadcrumb" style="padding: var(--space-4) 0; border-bottom: 1px solid var(--bhims-border);">
-        <div class="container" style="max-width: var(--container-2xl); margin: 0 auto; padding: 0 var(--space-6);">
-            <ol class="breadcrumb" style="display: flex; flex-wrap: wrap; gap: var(--space-2); list-style: none; margin: 0; padding: 0; font-size: var(--text-sm);">
-                <li><a href="{% url 'home' %}" style="color: var(--bhims-text-muted); text-decoration: none; transition: color 0.18s ease;">Home</a></li>
+    <nav class="breadcrumb-nav" aria-label="Breadcrumb">
+        <div class="container">
+            <ol class="breadcrumb">
+                <li><a href="{% url 'home' %}">Home</a></li>
                 {% block breadcrumb_items %}{% endblock %}
             </ol>
         </div>
@@ -669,7 +678,7 @@
     {% endblock %}
 
     <!-- MAIN PAGE CONTENT -->
-    <main style="margin:0; padding:0;">
+    <main id="main-content">
         {% block content %}{% endblock %}
     </main>
 
@@ -867,20 +876,19 @@
     <!-- Theme Toggle Script -->
     <script>
     (function () {
-        var toggle = document.getElementById('themeToggle');
         var html = document.documentElement;
-        if (!toggle) return;
-
-        // Load saved theme
-        var savedTheme = localStorage.getItem('bhims-theme') || 'light';
+        var toggles = document.querySelectorAll('[data-theme-toggle]');
+        var savedTheme = 'light';
+        try { savedTheme = localStorage.getItem('bhims-theme') || 'light'; } catch (e) {}
         html.setAttribute('data-theme', savedTheme);
-        toggle.checked = savedTheme === 'dark';
-
-        // Toggle handler
-        toggle.addEventListener('change', function () {
-            var theme = this.checked ? 'dark' : 'light';
-            html.setAttribute('data-theme', theme);
-            localStorage.setItem('bhims-theme', theme);
+        toggles.forEach(function (toggle) {
+            toggle.checked = savedTheme === 'dark';
+            toggle.addEventListener('change', function () {
+                var theme = this.checked ? 'dark' : 'light';
+                html.setAttribute('data-theme', theme);
+                try { localStorage.setItem('bhims-theme', theme); } catch (e) {}
+                document.querySelectorAll('[data-theme-toggle]').forEach(function (el) { el.checked = theme === 'dark'; });
+            });
         });
     })();
     </script>

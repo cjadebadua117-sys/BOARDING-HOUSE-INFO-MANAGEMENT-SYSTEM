@@ -1,14 +1,33 @@
 {# Shared listing card — used by boardings_list and landing featured grid. Expects `house` in context. #}
-<article class="listing-card bhims-press">
+<a class="listing-card bhims-press" href="{% url 'boarding_detail' house.pk %}">
     <div class="card-image">
         {% if house.image_ok %}
-            <img src="{{ house.image.url }}" alt="{{ house.name }}" loading="lazy" decoding="async">
+            <img src="{{ house.image.url }}" alt="" loading="lazy" decoding="async">
         {% else %}
-            <div class="no-photo" aria-label="No photo available">
+            <div class="no-photo" aria-hidden="true">
                 <i class="bi bi-house-door"></i>
                 <span>No photo yet</span>
             </div>
         {% endif %}
+        <div class="card-overlay" aria-hidden="true"></div>
+        <div class="card-badges">
+            {% if house.gender_allowed and house.gender_allowed != 'both' %}
+            <span class="gender-pill">{{ house.get_gender_allowed_display }}</span>
+            {% endif %}
+            {% if house.available_rooms_count %}
+            <span class="room-type-pill">{{ house.available_rooms_count }} open</span>
+            {% else %}
+            <span class="room-type-pill">Full</span>
+            {% endif %}
+        </div>
+        <div class="card-price-overlay">
+            {% if house.min_price %}
+            ₱{{ house.min_price|floatformat:0 }}
+            <small>per month from</small>
+            {% else %}
+            Price on request
+            {% endif %}
+        </div>
     </div>
     <div class="card-body">
         <h3 class="h5 card-title">{{ house.name }}</h3>
@@ -20,22 +39,15 @@
             {% with first_room=house.rooms.all|first %}
             <span class="room-type-pill"><i class="bi bi-grid-1x2"></i> {{ first_room.room_type|default:"Standard" }}</span>
             {% endwith %}
-            <span class="price-pill">
-                {% if house.min_price %}
-                <i class="bi bi-cash"></i> ₱ {{ house.min_price|floatformat:0 }}
-                {% else %}
-                Price on request
-                {% endif %}
-            </span>
         </div>
-        <p class="card-description">{{ house.description|truncatechars:160 }}</p>
-        <div class="card-footer">
+        <p class="card-description">{{ house.description|truncatechars:140 }}</p>
+        <div class="card-actions">
             {% if house.available_rooms_count %}
-            <span class="availability-badge"><i class="bi bi-check-circle"></i> {{ house.available_rooms_count }} Room{{ house.available_rooms_count|pluralize }} Available</span>
+            <span class="availability-badge"><i class="bi bi-check-circle"></i> Rooms available</span>
             {% else %}
-            <span class="availability-badge" style="background:var(--bhims-paper-sunken);color:var(--bhims-teal);"><i class="bi bi-slash-circle"></i> Full</span>
+            <span class="availability-badge is-full"><i class="bi bi-slash-circle"></i> Currently full</span>
             {% endif %}
-            <a href="{% url 'boarding_detail' house.pk %}" class="btn-view-details">View Details <i class="bi bi-arrow-right"></i></a>
+            <span class="btn-view-details">Details <i class="bi bi-arrow-right"></i></span>
         </div>
     </div>
-</article>
+</a>
