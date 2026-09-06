@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.utils.translation import gettext_lazy as _
@@ -401,6 +401,41 @@ class Booking(models.Model):
 
     def __str__(self):
         return f'Booking #{self.pk or "new"} for {self.student}'
+
+
+class LandlordRating(models.Model):
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='landlord_ratings_given',
+    )
+    landlord = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='landlord_ratings_received',
+    )
+    booking = models.OneToOneField(
+        Booking,
+        on_delete=models.CASCADE,
+        related_name='landlord_rating',
+    )
+    rating = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+    )
+    comment = models.TextField(blank=True, max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['student', 'landlord'],
+                name='unique_student_landlord_rating',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.student} rated {self.landlord} ({self.rating}/5)'
 
 
 class SiteSetting(models.Model):

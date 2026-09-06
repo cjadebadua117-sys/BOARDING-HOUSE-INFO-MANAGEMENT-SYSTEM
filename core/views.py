@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.db import DatabaseError, transaction
-from django.db.models import Count, Min, Prefetch, Q
+from django.db.models import Avg, Count, Min, Prefetch, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.http import Http404
 from django.core.exceptions import ValidationError
@@ -31,6 +31,7 @@ from .forms import (
     LandlordProfileUpdateForm,
     BHIMSPasswordChangeForm,
     UserReportForm,
+    LandlordRatingForm,
 )
 from .models import (
     BoardingHouse,
@@ -44,6 +45,7 @@ from .models import (
     RoomPhoto,
     SiteSetting,
     UserReport,
+    LandlordRating,
     site_setting,
     MAX_MESSAGE_CHARS,
 )
@@ -521,10 +523,30 @@ def user_profile(request, pk):
         houses = person.boarding_houses.filter(
             is_active=True, status=BoardingHouse.Status.APPROVED
         ).order_by('-id')
+        ratings = person.landlord_ratings_received.select_related('student')
+        eligible_booking = None
+        can_rate = False
+        has_rated = False
+        if viewer.role == User.Role.STUDENT:
+            has_rated = LandlordRating.objects.filter(
+                student=viewer,
+                landlord=person,
+            ).exists()
+            eligible_booking = Booking.objects.filter(
+                student=viewer,
+                status=Booking.Status.CONFIRMED,
+                room__boarding_house__owner=person,
+            ).select_related('room__boarding_house').first() if not has_rated else None
+            can_rate = eligible_booking is not None
         return render(request, 'core/user_profile.html', {
             'person': person,
             'viewed_is_landlord': True,
             'houses': houses,
+            'ratings': ratings,
+            'average_rating': ratings.aggregate(Avg('rating'))['rating__avg'],
+            'rating_count': ratings.count(),
+            'can_rate': can_rate,
+            'has_rated': has_rated,
         })
 
     phone_visible = False
@@ -540,6 +562,35 @@ def user_profile(request, pk):
         'viewed_is_landlord': False,
         'phone_visible': phone_visible,
     })
+
+
+@login_required
+@user_passes_test(student_required)
+@require_POST
+def rate_landlord(request, pk):
+    landlord = get_object_or_404(User, pk=pk, role=User.Role.LANDLORD)
+    if LandlordRating.objects.filter(student=request.user, landlord=landlord).exists():
+        messages.info(request, 'You have already rated this landlord.')
+        return redirect('user_profile', pk=landlord.pk)
+
+    booking = Booking.objects.filter(
+        student=request.user,
+        status=Booking.Status.CONFIRMED,
+        room__boarding_house__owner=landlord,
+    ).select_related('room__boarding_house').first()
+    if not booking:
+        messages.error(request, 'You can rate a landlord only after a confirmed booking.')
+        return redirect('user_profile', pk=landlord.pk)
+
+    form = LandlordRatingForm(request.POST)
+    if form.is_valid():
+        rating = form.save(commit=False)
+        rating.student = request.user
+        rating.landlord = landlord
+        rating.booking = booking
+        rating.save()
+        messages.success(request, 'Your rating has been submitted.')
+    return redirect('user_profile', pk=landlord.pk)
 
 
 @login_required
@@ -1515,16 +1566,12 @@ def update_avatar(request):
 
 def search_results(request):
     """Search listings with filters - supports AJAX for instant filtering."""
-    # Same filter logic as listing_list but with all listings
-    try:
-        houses = BoardingHouse.objects.filter(status=BoardingHouse.Status.APPROVED, is_active=True)
-        houses = decorate_house_cards(houses)
-    except DatabaseError:
-        houses = BoardingHouse.objects.none()
+    # Base queryset
+    qs = BoardingHouse.objects.filter(status=BoardingHouse.Status.APPROVED, is_active=True)
 
     barangays = []
     try:
-        barangays = list(BoardingHouse.objects.filter(status=BoardingHouse.Status.APPROVED, is_active=True).values_list('barangay', flat=True).distinct())
+        barangays = list(qs.values_list('barangay', flat=True).distinct())
     except Exception:
         pass
     try:
@@ -1549,11 +1596,11 @@ def search_results(request):
         sort = form.cleaned_data.get('sort')
 
         if price_min:
-            houses = houses.filter(rooms__monthly_rate__gte=price_min)
+            qs = qs.filter(rooms__monthly_rate__gte=price_min)
         if price_max:
-            houses = houses.filter(rooms__monthly_rate__lte=price_max)
+            qs = qs.filter(rooms__monthly_rate__lte=price_max)
         if room_type:
-            houses = houses.filter(rooms__room_type__icontains=room_type)
+            qs = qs.filter(rooms__room_type__icontains=room_type)
         if amenities_text:
             amenity_names = [s.strip() for s in amenities_text.split(',') if s.strip()]
             try:
@@ -1561,19 +1608,22 @@ def search_results(request):
             except DatabaseError:
                 amenity_ids = []
             if amenity_ids:
-                houses = houses.filter(rooms__amenities__in=amenity_ids)
+                qs = qs.filter(rooms__amenities__in=amenity_ids)
             else:
-                houses = houses.none()
+                qs = qs.none()
         if barangay:
-            houses = houses.filter(barangay=barangay)
+            qs = qs.filter(barangay=barangay)
         if sort == 'lowest_price':
-            houses = houses.order_by('rooms__monthly_rate')
+            qs = qs.order_by('rooms__monthly_rate')
         elif sort == 'newest':
-            houses = houses.order_by('-id')
+            qs = qs.order_by('-id')
+
+    # Decorate AFTER filtering
+    houses = decorate_house_cards(qs)
 
     # Pagination
     from django.core.paginator import Paginator
-    paginator = Paginator(houses.distinct(), 12)
+    paginator = Paginator(houses, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 

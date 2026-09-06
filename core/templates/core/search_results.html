@@ -3,6 +3,12 @@
 
 {% block title %}Search Results - BHIMS{% endblock %}
 
+{% block breadcrumb_items %}
+<li><a href="{% url 'home' %}">Home</a></li>
+<li><a href="{% url 'listing_list' %}">Browse</a></li>
+<li><span>Search Results</span></li>
+{% endblock %}
+
 {% block extra_css %}
 <style>
     .search-page {

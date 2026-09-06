@@ -2,7 +2,7 @@ from django import forms as django_forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from .models import Booking, BoardingHouse, Inquiry, InquiryMessage, Room, Amenity, Barangay, RoomPhoto, User, SiteSetting
+from .models import Booking, BoardingHouse, Inquiry, InquiryMessage, LandlordRating, Room, Amenity, Barangay, RoomPhoto, User, SiteSetting
 
 
 @admin.register(SiteSetting)
@@ -101,3 +101,11 @@ class BookingAdmin(admin.ModelAdmin):
     search_fields = ('student__email', 'room__room_type')
     list_filter = ('status', 'requested_at', 'confirmed_at')
     readonly_fields = ('requested_at',)
+
+
+@admin.register(LandlordRating)
+class LandlordRatingAdmin(admin.ModelAdmin):
+    list_display = ('landlord', 'student', 'rating', 'created_at')
+    search_fields = ('landlord__email', 'student__email', 'comment')
+    list_filter = ('rating', 'created_at')
+    readonly_fields = ('created_at',)

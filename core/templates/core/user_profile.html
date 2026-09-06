@@ -51,6 +51,13 @@
     .up-listing-title { margin: 0 0 4px; font-weight: 700; color: var(--bhims-text); font-size: var(--fs-md); }
     .up-listing-meta { margin: 0; color: #57706f; font-size: var(--fs-xs); }
     .up-listing-price { margin-top: 6px; color: #0d7a7b; font-weight: 800; font-size: var(--fs-md); }
+    .up-rating-panel { margin: 22px 0 6px; padding: 16px 18px; background: var(--bhims-paper-sunken); border: 1px solid var(--bhims-ink-line); border-radius: 12px; }
+    .up-rating-summary { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .up-rating-stars { color: #b7791f; letter-spacing: 2px; font-size: 1.1rem; }
+    .up-rating-score { color: var(--bhims-text); font-weight: 800; }
+    .up-rating-count { color: var(--bhims-text-muted); font-size: var(--fs-sm); }
+    .up-rating-form { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--bhims-ink-line); }
+    .up-rating-form label { display: block; color: var(--bhims-text); font-weight: 700; margin-bottom: 6px; }
     .up-id-chip {
         display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.7);
         border: 1px dashed rgba(168, 76, 35, 0.5); border-radius: 10px; padding: 6px 14px;
@@ -101,6 +108,33 @@
             <div class="up-info-row">
                 <i class="bi bi-houses"></i><span class="up-info-label">Houses Managed</span>
                 <span>{{ houses|length }}</span>
+            </div>
+
+            <div class="up-rating-panel">
+                <div class="up-rating-summary">
+                    <span class="up-rating-stars" aria-label="{{ average_rating|default:0|floatformat:1 }} out of 5 stars">
+                        {% if average_rating %}★ ★ ★ ★ ★{% else %}☆ ☆ ☆ ☆ ☆{% endif %}
+                    </span>
+                    <span class="up-rating-score">{% if average_rating %}{{ average_rating|floatformat:1 }} / 5{% else %}No rating yet{% endif %}</span>
+                    <span class="up-rating-count">({{ rating_count }} review{{ rating_count|pluralize }})</span>
+                </div>
+                {% if can_rate %}
+                    <form method="post" action="{% url 'rate_landlord' person.pk %}" class="up-rating-form">
+                        {% csrf_token %}
+                        <label for="landlord-rating">Rate this landlord</label>
+                        <select id="landlord-rating" name="rating" class="form-select mb-2" required>
+                            <option value="5">5 stars - Excellent</option>
+                            <option value="4">4 stars - Very good</option>
+                            <option value="3">3 stars - Good</option>
+                            <option value="2">2 stars - Needs improvement</option>
+                            <option value="1">1 star - Poor</option>
+                        </select>
+                        <textarea name="comment" class="form-control mb-2" rows="3" maxlength="500" placeholder="Share a short, respectful experience (optional)"></textarea>
+                        <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-star-fill me-1"></i>Submit rating</button>
+                    </form>
+                {% elif has_rated %}
+                    <p class="up-since mb-0 mt-2">You have already rated this landlord.</p>
+                {% endif %}
             </div>
 
             <h2 class="up-section-title">Active Listings</h2>

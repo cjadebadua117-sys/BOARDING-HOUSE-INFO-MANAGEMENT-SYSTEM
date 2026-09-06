@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.forms import PasswordChangeForm as DjangoPasswordChangeForm
 from django.core.validators import MinValueValidator, RegexValidator
 
-from .models import BoardingHouse, User, Inquiry, Room, Barangay, SiteSetting, UserReport
+from .models import BoardingHouse, User, Inquiry, Room, Barangay, SiteSetting, UserReport, LandlordRating
 from .models import BACNOTAN_BARANGAYS, BARANGAY_DISTANCES
 
 
@@ -246,6 +246,26 @@ class InquiryForm(forms.ModelForm):
                 'placeholder': 'Subject (optional)',
             }),
             'message_text': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Write your inquiry here...'}),
+        }
+
+
+class LandlordRatingForm(forms.ModelForm):
+    class Meta:
+        model = LandlordRating
+        fields = ['rating', 'comment']
+        widgets = {
+            'rating': forms.Select(
+                choices=[(5, '5 stars'), (4, '4 stars'), (3, '3 stars'), (2, '2 stars'), (1, '1 star')],
+                attrs={'class': 'form-select'},
+            ),
+            'comment': forms.Textarea(
+                attrs={
+                    'class': 'form-control',
+                    'rows': 3,
+                    'maxlength': 500,
+                    'placeholder': 'Share a short, respectful experience (optional)',
+                },
+            ),
         }
 
 

@@ -1,6 +1,11 @@
 {% extends 'core/app_base.html' %}
 {% block title %}My Profile - BHIMS{% endblock %}
 
+{% block breadcrumb_items %}
+<li><a href="{% url 'home' %}">Home</a></li>
+<li><span>Profile</span></li>
+{% endblock %}
+
 {% block extra_css %}
 <style>
     .profile-page-wrap {

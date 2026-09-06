@@ -1,6 +1,12 @@
 {% extends 'core/app_base.html' %}
 {% block title %}Edit Profile - BHIMS{% endblock %}
 
+{% block breadcrumb_items %}
+<li><a href="{% url 'home' %}">Home</a></li>
+<li><a href="{% url 'profile' %}">Profile</a></li>
+<li><span>Edit</span></li>
+{% endblock %}
+
 {% block extra_css %}
 <style>
     .edit-profile-page {

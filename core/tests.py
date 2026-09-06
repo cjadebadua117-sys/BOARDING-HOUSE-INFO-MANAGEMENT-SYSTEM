@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from .forms import StudentRegistrationForm
-from .models import BoardingHouse, Room, User
+from .models import BoardingHouse, Booking, LandlordRating, Room, User
 
 
 class StudentRegistrationFlowTests(TestCase):
@@ -108,3 +108,62 @@ class ListingPriceValidationTests(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn('monthly_rate', form.errors)
         self.assertIn('capacity', form.errors)
+
+
+class LandlordRatingTests(TestCase):
+    def setUp(self):
+        self.student = User.objects.create_user(
+            username='student@gmail.com', email='student@gmail.com',
+            password='StudentPass123', role=User.Role.STUDENT,
+        )
+        self.other_student = User.objects.create_user(
+            username='other@gmail.com', email='other@gmail.com',
+            password='OtherPass123', role=User.Role.STUDENT,
+        )
+        self.landlord = User.objects.create_user(
+            username='landlord-rating@gmail.com', email='landlord-rating@gmail.com',
+            password='LandlordPass123', role=User.Role.LANDLORD,
+        )
+        house = BoardingHouse.objects.create(
+            owner=self.landlord, name='Rating House', address='Main Street',
+            barangay='Sapilang', status=BoardingHouse.Status.APPROVED,
+        )
+        room = Room.objects.create(
+            boarding_house=house, room_type='Single', monthly_rate=2500, capacity=1,
+        )
+        self.booking = Booking.objects.create(
+            student=self.student, room=room, status=Booking.Status.CONFIRMED,
+        )
+
+    def test_student_with_confirmed_booking_can_rate_once(self):
+        self.client.login(username='student@gmail.com', password='StudentPass123')
+        response = self.client.post(
+            f'/users/{self.landlord.pk}/rate/',
+            {'rating': 5, 'comment': 'Helpful and responsive.'},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, f'/users/{self.landlord.pk}/')
+        self.assertEqual(LandlordRating.objects.get().rating, 5)
+        duplicate = self.client.post(
+            f'/users/{self.landlord.pk}/rate/', {'rating': 4},
+        )
+        self.assertEqual(duplicate.status_code, 302)
+        self.assertEqual(duplicate.url, f'/users/{self.landlord.pk}/')
+        self.assertEqual(LandlordRating.objects.count(), 1)
+
+    def test_student_without_confirmed_booking_cannot_rate(self):
+        self.client.login(username='other@gmail.com', password='OtherPass123')
+        response = self.client.post(
+            f'/users/{self.landlord.pk}/rate/', {'rating': 5},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, f'/users/{self.landlord.pk}/')
+        self.assertFalse(LandlordRating.objects.exists())
+
+    def test_landlord_cannot_submit_rating(self):
+        self.client.login(username='landlord-rating@gmail.com', password='LandlordPass123')
+        response = self.client.post(
+            f'/users/{self.landlord.pk}/rate/', {'rating': 5},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(LandlordRating.objects.exists())

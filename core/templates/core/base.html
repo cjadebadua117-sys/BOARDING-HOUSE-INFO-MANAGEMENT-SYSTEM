@@ -656,6 +656,18 @@
 
     {% block pre_content %}{% endblock %}
 
+    <!-- Breadcrumb -->
+    {% block breadcrumb %}
+    <nav class="breadcrumb-nav" aria-label="Breadcrumb" style="padding: var(--space-4) 0; border-bottom: 1px solid var(--bhims-border);">
+        <div class="container" style="max-width: var(--container-2xl); margin: 0 auto; padding: 0 var(--space-6);">
+            <ol class="breadcrumb" style="display: flex; flex-wrap: wrap; gap: var(--space-2); list-style: none; margin: 0; padding: 0; font-size: var(--text-sm);">
+                <li><a href="{% url 'home' %}" style="color: var(--bhims-text-muted); text-decoration: none; transition: color 0.18s ease;">Home</a></li>
+                {% block breadcrumb_items %}{% endblock %}
+            </ol>
+        </div>
+    </nav>
+    {% endblock %}
+
     <!-- MAIN PAGE CONTENT -->
     <main style="margin:0; padding:0;">
         {% block content %}{% endblock %}

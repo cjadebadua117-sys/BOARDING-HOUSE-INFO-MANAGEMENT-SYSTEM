@@ -62,6 +62,7 @@ urlpatterns = [
     path('profile/upload-picture/', views.upload_profile_picture, name='upload_profile_picture'),
     path('profile/change-password/', views.change_password, name='change_password'),
     path('users/<int:pk>/', views.user_profile, name='user_profile'),
+    path('users/<int:pk>/rate/', views.rate_landlord, name='rate_landlord'),
     path('users/<int:pk>/report/', views.report_user, name='report_user'),
 
     # Profile
