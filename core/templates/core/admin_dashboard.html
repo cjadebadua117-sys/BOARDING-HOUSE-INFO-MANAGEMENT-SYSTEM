@@ -159,7 +159,7 @@
                             <form method="post" action="{% url 'toggle_landlord_active' landlord.id %}" class="d-inline"
                                   onsubmit="return confirm(({% if landlord.is_active %}'Deactivate'{% else %}'Activate'{% endif %}) + ' this landlord\'s account?');">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-uppercase btn-outline-primary btn-sm">
+                                <button type="submit" class="btn btn-uppercase {% if landlord.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %} btn-sm">
                                     {% if landlord.is_active %}Deactivate{% else %}Activate{% endif %}
                                 </button>
                             </form>

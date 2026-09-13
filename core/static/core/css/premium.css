@@ -838,6 +838,39 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     transform: translateY(-1px);
 }
 
+/* Admin action buttons: outline style with real contrast in dark header panels.
+   - deactivate/unset use a muted red outline so the action reads as destructive
+   - activate uses a muted teal outline so the action reads as positive
+   Both gain a subtle filled hover so they never look like dead text on dark glass. */
+.btn-outline-danger {
+    background: rgba(162, 50, 31, 0.12);
+    color: #e8856e;
+    border: 1px solid rgba(232, 133, 110, 0.45);
+    box-shadow: var(--bhims-glass-shadow-xs);
+    transform: translateZ(0);
+}
+.btn-outline-danger:hover {
+    background: rgba(162, 50, 31, 0.28);
+    color: #ffe1d6;
+    border-color: rgba(232, 133, 110, 0.85);
+    box-shadow: var(--bhims-glass-shadow-sm);
+    transform: translateY(-1px) translateZ(0);
+}
+.btn-outline-success {
+    background: rgba(27, 184, 154, 0.12);
+    color: #7be3c8;
+    border: 1px solid rgba(123, 227, 200, 0.45);
+    box-shadow: var(--bhims-glass-shadow-xs);
+    transform: translateZ(0);
+}
+.btn-outline-success:hover {
+    background: rgba(27, 184, 154, 0.28);
+    color: #eafff8;
+    border-color: rgba(123, 227, 200, 0.85);
+    box-shadow: var(--bhims-glass-shadow-sm);
+    transform: translateY(-1px) translateZ(0);
+}
+
 .btn-warning {
     background: #8a5a14;
     color: #fff;

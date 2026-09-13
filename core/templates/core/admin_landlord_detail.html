@@ -108,7 +108,7 @@
                 <a href="{% url 'admin_edit_landlord' landlord.pk %}" class="btn btn-uppercase btn-primary">Edit Landlord</a>
                 <form method="post" action="{% url 'toggle_landlord_active' landlord.pk %}" class="d-inline">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-uppercase btn-outline-primary">
+                    <button type="submit" class="btn btn-uppercase {% if landlord.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}">
                         {% if landlord.is_active %}Deactivate Account{% else %}Activate Account{% endif %}
                     </button>
                 </form>
