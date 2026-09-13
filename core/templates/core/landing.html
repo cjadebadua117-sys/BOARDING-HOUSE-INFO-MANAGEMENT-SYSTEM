@@ -11,34 +11,78 @@
     .landing-hero {
         width: 100%;
         min-height: calc(100vh - var(--header-height, 72px));
-        background:
-            linear-gradient(to top, rgba(8, 49, 49, 0.82) 0%, rgba(8, 79, 79, 0.42) 55%, rgba(8, 79, 79, 0.22) 100%),
-            url('{% static 'core/images/dmmmsu-campus.jpg' %}') center / cover no-repeat;
+        background: url("{% static 'core/images/dmmmsu-campus.jpg' %}") center/cover no-repeat;
+        position: relative;
         display: flex;
         align-items: center;
         justify-content: flex-start;
         margin: 0;
         padding: var(--space-10) var(--space-6);
+        border-radius: 0;
+    }
+    .landing-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(0,0,0,0.70) 0%, rgba(0,0,0,0.40) 100%);
+        border-radius: inherit;
     }
     .landing-hero-inner {
+        position: relative;
+        z-index: 1;
         max-width: var(--container-xl);
         width: 100%;
         margin: 0 auto;
     }
     .landing-kicker {
-        color: rgba(255, 255, 255, 0.82);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: rgba(255, 255, 255, 0.10);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 999px;
+        padding: 0.45rem 1rem;
+        color: rgba(255, 255, 255, 0.92);
         text-transform: uppercase;
         font-weight: 700;
-        letter-spacing: 0.14em;
+        letter-spacing: 0.12em;
         font-size: var(--text-xs);
-        margin-bottom: var(--space-4);
+        margin: 0 0 var(--space-4);
+    }
+    .landing-kicker::before {
+        content: '';
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--bhims-teal-light);
+        box-shadow: 0 0 10px rgba(46, 224, 187, 0.85);
+    }
+    .landing-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.9rem;
+        margin: 0 0 var(--space-4);
+    }
+    .landing-brand img.landing-brand-mark {
+        height: clamp(56px, 9vw, 92px);
+        width: auto;
+        display: block;
+        filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.35));
+    }
+    .landing-brand img.landing-brand-word {
+        height: clamp(34px, 5.5vw, 56px);
+        width: auto;
+        display: block;
+        filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.35));
     }
     .landing-title {
         font-family: var(--font-display);
-        font-size: clamp(var(--text-3xl), 5vw, var(--text-5xl));
-        font-weight: 800;
-        line-height: 1.1;
-        color: #FFFFFF;
+        font-size: clamp(var(--text-2xl), 3.8vw, 3rem);
+        font-weight: 700;
+        line-height: 1.15;
+        color: #fff;
         max-width: 700px;
         margin-bottom: var(--space-4);
     }
@@ -63,13 +107,13 @@
         transition: background-color 0.18s ease, transform 0.12s ease;
     }
     .landing-btn-primary {
-        background: var(--bhims-teal);
-        color: #FFFFFF;
+        background: #0c7f67;
+        color: #fff;
         border: none;
     }
     .landing-btn-primary:hover {
-        background: var(--bhims-teal-hover);
-        color: #FFFFFF;
+        background: #0d8a70;
+        color: #fff;
         transform: translateY(-1px);
     }
     .landing-btn-primary:active {
@@ -77,13 +121,23 @@
     }
     .landing-btn-outline {
         background: transparent;
-        color: #FFFFFF;
-        border: 2px solid #FFFFFF;
+        color: #fff;
+        border: 2px solid #fff;
     }
     .landing-btn-outline:hover {
         background: rgba(255, 255, 255, 0.15);
-        color: #FFFFFF;
+        color: #fff;
         transform: translateY(-1px);
+    }
+    [data-theme="light"] .landing-btn-outline {
+        color: var(--bhims-teal-deep);
+        border-color: var(--bhims-teal);
+        background: rgba(255, 255, 255, 0.50);
+    }
+    [data-theme="light"] .landing-btn-outline:hover {
+        background: var(--bhims-teal);
+        color: #fff;
+        border-color: var(--bhims-teal);
     }
     .landing-btn-outline:active {
         transform: translateY(1px) scale(0.98);
@@ -96,8 +150,31 @@
         margin: 0;
     }
     .landing-section-tinted {
-        background: var(--bhims-paper-sunken);
+        background: var(--bhims-glass-bg-secondary);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid var(--bhims-border);
+        border-radius: 24px;
     }
+    .landing-cta {
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+        padding: var(--space-10) var(--space-6);
+        background: var(--bhims-glass-bg-primary);
+        -webkit-backdrop-filter: blur(16px);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--bhims-border);
+        border-radius: 24px;
+    }
+    .landing-cta p {
+        color: var(--bhims-text-secondary);
+        max-width: 560px;
+        margin: 0 auto var(--space-6);
+        line-height: 1.7;
+    }
+    .landing-cta .landing-btn { display: inline-flex; }
+    .landing-cta-inner { max-width: 640px; margin: 0 auto; }
     .landing-section-inner {
         max-width: var(--container-xl);
         width: 100%;
@@ -108,7 +185,7 @@
         margin-bottom: var(--space-10);
     }
     .landing-section-kicker {
-        color: var(--bhims-teal);
+        color: var(--bhims-teal-strong);
         text-transform: uppercase;
         font-weight: 700;
         letter-spacing: 0.1em;
@@ -130,21 +207,37 @@
         gap: var(--space-6);
     }
     .feature-card {
-        background: var(--bhims-paper-raised);
-        border: 1px solid var(--bhims-ink-line);
-        border-radius: var(--radius-xl);
+        background: var(--bhims-glass-bg-primary);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid var(--bhims-border);
+        border-top: 1px solid var(--bhims-glass-border-top-color, rgba(255, 255, 255, 0.14));
+        border-radius: 20px;
         padding: var(--space-6);
-        box-shadow: var(--bhims-glass-inner-glow);
-        transition: transform 0.25s var(--bhims-ease-smooth), box-shadow 0.25s var(--bhims-ease-smooth), border-color 0.25s var(--bhims-ease-smooth);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        transform: translateZ(0);
+        transition: transform 0.25s var(--bhims-ease-smooth), box-shadow 0.25s var(--bhims-ease-smooth);
     }
     .feature-card:hover {
-        border-color: var(--bhims-ink-line-strong);
-        box-shadow: var(--bhims-shadow-xs);
+        box-shadow: var(--bhims-glass-shadow-hover);
+        transform: translateY(-3px) translateZ(0);
+    }
+    [data-theme="light"] .feature-card {
+        background: var(--bhims-glass-bg-primary);
+        -webkit-backdrop-filter: blur(40px) saturate(200%);
+        backdrop-filter: blur(40px) saturate(200%);
+        border-top: 1px solid rgba(255, 255, 255, 0.60);
+        border-left: 1px solid rgba(255, 255, 255, 0.35);
+        border-right: 1px solid rgba(255, 255, 255, 0.35);
+        border-bottom: 1px solid rgba(13, 122, 123, 0.10);
+        box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.40), 0 12px 32px 0 rgba(0, 0, 0, 0.08);
     }
     .feature-icon-box {
         width: 60px;
         height: 60px;
-        background: var(--bhims-icon-tint);
+        background: rgba(27, 184, 154, 0.10);
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
         border-radius: var(--radius-lg);
         display: flex;
         align-items: center;
@@ -187,8 +280,9 @@
         to { opacity: 1; transform: none; }
     }
     .landing-kicker { animation: bhimsRise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
-    .landing-title { animation: bhimsRise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both; }
-    .landing-sub { animation: bhimsRise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.16s both; }
+    .landing-brand { animation: bhimsRise 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.04s both; }
+    .landing-title { animation: bhimsRise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
+    .landing-sub { animation: bhimsRise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both; }
     .landing-actions { animation: bhimsRise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.28s both; }
 
     .reveal { transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -201,36 +295,38 @@
     .listing-card.reveal:nth-child(3) { transition-delay: 0.16s; }
     .listing-card.reveal:nth-child(4) { transition-delay: 0.24s; }
 
-    .landing-trust {
+    .landing-trust-bar {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: var(--space-6);
-        margin-top: var(--space-10);
-        padding: var(--space-5) var(--space-6);
-        border-top: 0;
-        max-width: 720px;
-        background: rgba(8, 49, 49, 0.42);
-        border-radius: 14px;
-        backdrop-filter: blur(8px);
+        padding: var(--space-6) var(--space-4);
+        border-top: 1px solid var(--bhims-border);
+        border-bottom: 1px solid var(--bhims-border);
+        max-width: 900px;
+        margin: 0 auto;
+        text-align: center;
     }
-    .landing-trust div { color: #fff; }
-    .landing-trust strong {
+    .landing-trust-bar strong {
         display: block;
         font-family: var(--font-display);
-        font-size: 1.5rem;
+        font-size: 1.35rem;
         font-weight: 700;
-        margin-bottom: 0.15rem;
+        color: var(--bhims-teal);
+        margin-bottom: 0.2rem;
     }
-    .landing-trust span {
+    .landing-trust-bar span {
         font-size: var(--text-sm);
-        color: rgba(255,255,255,0.78);
+        color: var(--bhims-text-muted);
     }
     @media (max-width: 700px) {
-        .landing-trust { grid-template-columns: 1fr; gap: var(--space-4); }
+        .landing-trust-bar { grid-template-columns: 1fr; gap: var(--space-4); }
+        .landing-hero { min-height: 88vh; padding: var(--space-8) var(--space-4); }
+        .landing-btn { width: 100%; text-align: center; justify-content: center; display: inline-flex; }
+        .landing-actions { width: 100%; flex-direction: column; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .landing-kicker, .landing-title, .landing-sub, .landing-actions { animation: none; }
+        .landing-kicker, .landing-brand, .landing-title, .landing-sub, .landing-actions { animation: none; }
         .reveal { opacity: 1; transform: none; transition: none; }
     }
 </style>
@@ -240,13 +336,22 @@
 <section class="landing-hero">
     <div class="landing-hero-inner">
         <p class="landing-kicker">NLUC Bacnotan Student Housing</p>
-        <h1 class="landing-title">Find a room near NLUC without the group-chat hunt.</h1>
-        <p class="landing-sub">Boarding houses around DMMMSU–NLUC Bacnotan, with prices, barangays, and a direct line to the landlord.</p>
-        <div class="landing-actions">
-            <a href="{% url 'listing_list' %}" class="landing-btn landing-btn-primary">Browse listings</a>
-            <a href="{% url 'student_login' %}" class="landing-btn landing-btn-outline">Student sign in</a>
+        <div class="landing-brand">
+            <img class="landing-brand-mark" src="{% static 'core/images/logo_mark.png' %}" alt="" aria-hidden="true">
+            <img class="landing-brand-word" src="{% static 'core/images/logo_text_dark.png' %}" alt="BHIMS — Boarding House Information Management System">
         </div>
-        <div class="landing-trust">
+        <h1 class="landing-title">Find a room near NLUC without the group-chat hunt.</h1>
+        <p class="landing-sub">Verified boarding houses around DMMMSU–NLUC Bacnotan — prices, barangays, and a direct line to the landlord.</p>
+        <div class="landing-actions">
+            <a href="{% url 'student_login' %}" class="landing-btn landing-btn-primary">Student sign in</a>
+            <a href="{% url 'landlord_login' %}" class="landing-btn landing-btn-outline">Landlord sign in</a>
+        </div>
+    </div>
+</section>
+
+<section class="landing-section">
+    <div class="landing-section-inner">
+        <div class="landing-trust-bar reveal">
             <div><strong>Verified</strong><span>Admin-reviewed houses</span></div>
             <div><strong>Direct chat</strong><span>Message landlords in-app</span></div>
             <div><strong>Campus-near</strong><span>Barangays around NLUC</span></div>
@@ -296,16 +401,32 @@
         <div class="landing-listings-grid">
             {% for house in listings %}
             <div class="reveal">
-                {% include 'core/includes/listing_card.html' with house=house %}
+                {% include 'core/includes/listing_card.html' with house=house landing=True %}
             </div>
             {% endfor %}
         </div>
         <div class="reveal" style="text-align: center; margin-top: 3rem;">
-            <a href="{% url 'listing_list' %}" class="landing-btn landing-btn-primary" style="display: inline-block;">See all listings</a>
+            <a href="{% url 'student_login' %}" class="landing-btn landing-btn-primary" style="display: inline-block;">Sign in to browse</a>
         </div>
     </div>
 </section>
 {% endif %}
+
+<section class="landing-section">
+    <div class="landing-section-inner">
+        <div class="landing-cta reveal">
+            <div class="landing-cta-inner">
+                <p class="landing-section-kicker">Get started</p>
+                <h2 class="landing-section-title">Your next room is a few taps away</h2>
+                <p>Browse verified listings for free, message landlords directly, and book your stay — all in one place, built for the NLUC community.</p>
+                <div class="landing-actions" style="justify-content: center;">
+                    <a href="{% url 'student_login' %}" class="landing-btn landing-btn-primary">Student sign in</a>
+                    <a href="{% url 'landlord_login' %}" class="landing-btn landing-btn-outline">Landlord sign in</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <script>
     (function () {

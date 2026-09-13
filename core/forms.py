@@ -46,10 +46,8 @@ class StudentRegistrationForm(UserCreationForm):
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if email and not email.lower().endswith('@gmail.com'):
-            raise forms.ValidationError('Please register with a valid Gmail address that ends in @gmail.com.')
         if email and User.objects.filter(email__iexact=email).exists():
-            raise forms.ValidationError('A student account with this Gmail address already exists.')
+            raise forms.ValidationError('A student account with this email address already exists.')
         return email
 
     def clean(self):
@@ -230,10 +228,9 @@ class RoomForm(forms.ModelForm):
         return capacity
 
     def clean_photo(self):
-        photo = self.cleaned_data.get('photo')
-        if not photo and not self.instance.pk:
-            raise forms.ValidationError('Please upload a room photo before saving. A photo is required so students can see the room.')
-        return photo
+        # Photo is optional — listings without one fall back to the house image
+        # or a placeholder in the card templates.
+        return self.cleaned_data.get('photo')
 
 
 class InquiryForm(forms.ModelForm):

@@ -1,454 +1,877 @@
 {% extends 'core/app_base.html' %}
+{% load static %}
+
 {% block title %}My Profile - BHIMS{% endblock %}
 
-{% block breadcrumb_items %}
-<li><a href="{% url 'home' %}">Home</a></li>
-<li><span>Profile</span></li>
-{% endblock %}
-
-{% block extra_css %}
+{% block app_content %}
 <style>
-    .profile-page-wrap {
-        background: transparent;
-        min-height: 0;
-        padding: 0;
-        max-width: none;
-        margin: 0;
+    :root {
+        --student-glow: #0ea5e9;
+        --landlord-glow: #1bb89a;
+        --panel-bg: rgba(15, 23, 42, 0.8);
     }
-    .profile-header {
-        background: var(--bhims-paper-raised);
-        border: 1px solid var(--bhims-ink-line);
-        border-radius: var(--bhims-radius);
-        padding: 2.5rem;
-        margin-bottom: 2rem;
-        box-shadow: var(--bhims-glass-shadow);
-        text-align: center;
+    [data-theme="light"] :root {
+        --panel-bg: rgba(255, 255, 255, 0.7);
     }
-    .profile-avatar {
-        width: 100px;
-        height: 100px;
+
+    .profile-center-container {
+        min-height: 70vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .id-card-premium {
+        background: var(--bhims-glass-bg-primary);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        backdrop-filter: blur(24px) saturate(180%);
+        width: 100%;
+        max-width: 940px;
+        border-radius: 28px;
+        border: var(--bhims-glass-border);
+        border-top: var(--bhims-glass-border-top);
+        display: flex;
+        overflow: hidden;
+        box-shadow: var(--bhims-glass-shadow-lg), var(--bhims-glass-inner-glow);
+        position: relative;
+    }
+
+    .role-indicator {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 6px;
+        background: {% if is_instructor %}var(--landlord-glow){% else %}var(--student-glow){% endif %};
+        box-shadow: 4px 0 20px {% if is_instructor %}rgba(27, 184, 154, 0.4){% else %}rgba(14, 165, 233, 0.4){% endif %};
+    }
+
+    .id-sidebar {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.03);
+        -webkit-backdrop-filter: blur(12px) saturate(150%);
+        backdrop-filter: blur(12px) saturate(150%);
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        border-right: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    [data-theme="light"] .id-sidebar {
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .avatar-ring {
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        padding: 4px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+        margin-bottom: 20px;
+        cursor: {% if is_own_profile %}pointer{% else %}default{% endif %};
+        position: relative;
+    }
+
+    .avatar-ring img {
+        width: 100%;
+        height: 100%;
         border-radius: 50%;
         object-fit: cover;
-        border: 4px solid var(--bhims-teal);
-        margin-bottom: 1rem;
+        border: 4px solid var(--bhims-paper);
     }
-    .profile-avatar-placeholder {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        background: var(--bhims-teal);
-        color: #fff;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-family: var(--font-display);
-        font-weight: 700;
-        font-size: 2.5rem;
-        border: 4px solid var(--bhims-teal);
-        margin-bottom: 1rem;
+
+    .avatar-hint {
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        color: var(--bhims-text-muted);
+        background: rgba(255, 255, 255, 0.05);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 999px;
+        padding: 4px 10px;
+        white-space: nowrap;
     }
-    .profile-role {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: var(--bhims-icon-tint);
-        color: var(--bhims-teal);
-        padding: 0.35rem 1rem;
-        border-radius: 9999px;
-        font-size: var(--fs-sm);
-        font-weight: 600;
-        margin-top: 0.5rem;
+
+    .user-badge {
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        padding: 6px 16px;
+        border-radius: 100px;
+        background: {% if is_instructor %}rgba(27, 184, 154, 0.1){% else %}rgba(14, 165, 233, 0.1){% endif %};
+        color: {% if is_instructor %}var(--bhims-teal-strong){% else %}var(--student-glow){% endif %};
+        border: 1px solid var(--bhims-glass-border);
+        margin-top: 8px;
     }
-    .profile-stats {
-        display: flex;
-        justify-content: center;
-        gap: 2rem;
-        margin-top: 1.5rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid var(--bhims-ink-line);
+
+    .id-main {
+        flex: 2;
+        padding: 50px;
     }
-    .profile-stat-item {
-        text-align: center;
+
+    .welcome-text {
+        margin-bottom: 34px;
     }
-    .profile-stat-value {
-        font-family: var(--font-display);
-        font-size: 1.75rem;
-        font-weight: 700;
+
+    .welcome-text h1 {
+        font-size: 34px;
+        font-weight: 800;
         color: var(--bhims-text);
+        margin: 0;
+        letter-spacing: -1px;
     }
-    .profile-stat-label {
-        font-size: var(--fs-sm);
+
+    .welcome-text span {
+        color: var(--bhims-text-muted);
+        font-size: 14px;
+    }
+
+    .info-grid-premium {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px 30px;
+    }
+
+    .data-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .data-cell label {
+        font-size: 10px;
+        font-weight: 700;
         color: var(--bhims-text-muted);
         text-transform: uppercase;
-        letter-spacing: 0.06em;
+        letter-spacing: 1px;
     }
-    .profile-card {
-        background: var(--bhims-paper-raised);
-        border: 1px solid var(--bhims-ink-line);
-        border-radius: var(--bhims-radius);
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        box-shadow: var(--bhims-glass-shadow);
-    }
-    .profile-card h6 {
-        font-family: var(--font-display);
-        color: var(--bhims-teal);
-        margin-bottom: 1rem;
-        font-size: var(--fs-lg);
-    }
-    .profile-info-row {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 0.5rem 0;
+
+    .data-cell p {
+        font-size: 16px;
         color: var(--bhims-text);
+        font-weight: 500;
+        margin: 0;
     }
-    .profile-info-row i {
-        color: var(--bhims-teal);
-        width: 20px;
-        text-align: center;
+
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        color: var(--bhims-text);
+        background: rgba(255, 255, 255, 0.03);
+        -webkit-backdrop-filter: blur(8px) saturate(120%);
+        backdrop-filter: blur(8px) saturate(120%);
     }
-    .nav-tabs-custom {
-        border-bottom: 2px solid var(--bhims-ink-line);
-        margin-bottom: 1.5rem;
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--bhims-teal);
+        box-shadow: 0 0 0 3px rgba(27, 184, 154, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.04);
     }
-    .nav-tabs-custom .nav-link {
-        color: var(--bhims-text-muted);
-        font-weight: 600;
+
+    .field-errors {
+        color: #fca5a5;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    .field-errors:empty {
+        display: none;
+    }
+
+    .btn-row {
+        margin-top: 34px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn-action-premium {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
         border: none;
-        padding: 0.75rem 1.25rem;
-        border-radius: 0;
-        position: relative;
-        transition: color 0.2s ease;
-    }
-    .nav-tabs-custom .nav-link:hover {
-        color: var(--bhims-teal);
-        background: transparent;
-    }
-    .nav-tabs-custom .nav-link.active {
-        color: var(--bhims-teal);
-        background: transparent;
-    }
-    .nav-tabs-custom .nav-link.active::after {
-        content: '';
-        position: absolute;
-        bottom: -2px;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: var(--bhims-teal);
-        border-radius: 3px 3px 0 0;
-    }
-    .timeline-item {
-        display: flex;
-        gap: 1rem;
-        padding: 1rem 0;
-        border-bottom: 1px solid var(--bhims-border);
-    }
-    .timeline-item:last-child { border-bottom: none; }
-    .timeline-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: var(--bhims-icon-tint);
-        color: var(--bhims-teal);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-    .timeline-content { flex: 1; }
-    .timeline-description { color: var(--bhims-text); margin: 0 0 0.25rem; }
-    .timeline-time { font-size: var(--fs-xs); color: var(--bhims-text-muted); }
-    .list-group-item-custom {
-        background: transparent;
-        border-color: var(--bhims-border);
-        color: var(--bhims-text);
-    }
-    .list-group-item-custom:hover {
-        background: var(--bhims-paper-sunken);
-    }
-    .booking-card {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem 0;
-        border-bottom: 1px solid var(--bhims-border);
-    }
-    .booking-card:last-child { border-bottom: none; }
-    .booking-info { flex: 1; }
-    .booking-name { font-weight: 600; color: var(--bhims-text); }
-    .booking-date { font-size: var(--fs-sm); color: var(--bhims-text-muted); }
-    .inquiry-card {
-        padding: 1rem 0;
-        border-bottom: 1px solid var(--bhims-border);
-    }
-    .inquiry-card:last-child { border-bottom: none; }
-    .inquiry-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 0.5rem;
-    }
-    .inquiry-property { font-weight: 600; color: var(--bhims-text); }
-    .inquiry-time { font-size: var(--fs-xs); color: var(--bhims-text-muted); }
-    .inquiry-message { font-size: var(--fs-sm); color: var(--bhims-text-muted); margin: 0; }
-    .empty-state-custom {
-        text-align: center;
-        padding: 3rem 1rem;
-        color: var(--bhims-text-muted);
-    }
-    .empty-state-custom i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
-    .avatar-upload {
-        position: relative;
-        display: inline-block;
-    }
-    .avatar-upload input { display: none; }
-    .avatar-upload-label {
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
         background: var(--bhims-teal);
         color: #fff;
-        display: flex;
+        padding: 12px 24px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .btn-action-premium:hover {
+        background: var(--bhims-teal-hover);
+        box-shadow: var(--bhims-glass-shadow);
+    }
+
+    .btn-action-premium.secondary {
+        background: var(--bhims-glass-bg-secondary);
+        color: var(--bhims-text);
+        border: 1px solid var(--bhims-border);
+        backdrop-filter: blur(8px);
+    }
+    .btn-action-premium.secondary:hover {
+        background: var(--bhims-glass-bg-primary);
+    }
+
+    .btn-action-premium {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: none;
+        background: rgba(27, 184, 154, 0.85);
+        -webkit-backdrop-filter: blur(8px) saturate(140%);
+        backdrop-filter: blur(8px) saturate(140%);
+        color: #fff;
+        padding: 12px 24px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 16px rgba(27, 184, 154, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+    .btn-action-premium:hover {
+        background: rgba(46, 224, 187, 0.90);
+        box-shadow: 0 6px 24px rgba(27, 184, 154, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    }
+    .btn-action-premium.secondary {
+        background: rgba(255, 255, 255, 0.03);
+        -webkit-backdrop-filter: blur(8px) saturate(120%);
+        backdrop-filter: blur(8px) saturate(120%);
+        color: var(--bhims-teal);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .btn-action-premium.secondary:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    .cropper-modal {
+        position: fixed;
+        inset: 0;
+        background: var(--bhims-paper);
+        display: none;
         align-items: center;
         justify-content: center;
-        cursor: pointer;
-        box-shadow: 0 2px 8px rgba(13, 122, 123, 0.3);
-        transition: transform 0.2s ease;
+        z-index: 2147483647;
+        padding: 20px;
     }
-    .avatar-upload-label:hover { transform: scale(1.1); }
-    @media (max-width: 768px) {
-        .profile-stats { gap: 1rem; }
-        .profile-header { padding: 1.5rem; }
+
+    .cropper-panel {
+        width: min(92vw, 560px);
+        background: rgba(255, 255, 255, 0.03);
+        -webkit-backdrop-filter: blur(16px) saturate(120%);
+        backdrop-filter: blur(16px) saturate(120%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        box-shadow: var(--bhims-glass-shadow), var(--bhims-glass-inner-glow);
+        padding: 16px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .cropper-panel h3 {
+        margin: 0 0 12px;
+        font-size: 16px;
+        color: var(--bhims-text);
+    }
+
+    .cropper-stage {
+        width: 100%;
+        height: min(62vh, 420px);
+        background: #000;
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+        isolation: isolate;
+    }
+
+    .cropper-stage img {
+        max-width: 100%;
+        display: block;
+    }
+
+    .cropper-view-box {
+        outline: 2px solid var(--bhims-teal) !important;
+        outline-color: var(--bhims-teal) !important;
+    }
+
+    .cropper-dashed {
+        border-color: rgba(255, 255, 255, 0.85) !important;
+    }
+
+    .cropper-center::before,
+    .cropper-center::after {
+        background-color: rgba(255, 255, 255, 0.95) !important;
+    }
+
+    .cropper-line {
+        background-color: rgba(27, 184, 154, 0.95) !important;
+    }
+
+    .cropper-point {
+        background-color: var(--bhims-teal) !important;
+        width: 12px !important;
+        height: 12px !important;
+        opacity: 1 !important;
+        border-radius: 2px;
+    }
+
+    .cropper-modal {
+        background-color: rgba(0, 0, 0, 0.68) !important;
+        opacity: 1 !important;
+    }
+
+    .cropper-stage,
+    .cropper-container,
+    .cropper-wrap-box,
+    .cropper-canvas {
+        touch-action: none;
+    }
+
+    body.cropper-open > *:not(#cropper-modal) {
+        visibility: hidden !important;
+    }
+
+    body.cropper-open #cropper-modal {
+        visibility: visible !important;
+    }
+
+    .cropper-actions {
+        margin-top: 14px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    @media (max-width: 800px) {
+        .id-card-premium {
+            flex-direction: column;
+        }
+
+        .id-sidebar {
+            border-right: none;
+            border-bottom: 1px solid var(--bhims-ink-faint);
+            padding: 24px 16px;
+        }
+
+        .avatar-ring {
+            width: 120px;
+            height: 120px;
+        }
+
+        .avatar-hint {
+            font-size: 12px;
+        }
+
+        .user-badge {
+            font-size: 11px;
+        }
+
+        .data-cell label {
+            font-size: 11px;
+        }
+
+        .id-main {
+            padding: 32px 20px;
+        }
+
+        .info-grid-premium {
+            grid-template-columns: 1fr;
+        }
+
+        .welcome-text h1 {
+            font-size: 24px;
+        }
+
+        .btn-action-premium {
+            padding: 14px 24px;
+        }
     }
 </style>
-{% endblock %}
 
-{% block topbar_title %}
-    <span style="font-family: var(--font-display); font-weight: 700; color: var(--bhims-text);">My Profile</span>
-{% endblock %}
+<div class="profile-center-container">
+    <div class="id-card-premium">
+        <div class="role-indicator"></div>
 
-{% block app_content %}
-<div class="profile-page-wrap">
-    <div class="app-content" style="max-width: 1000px; padding-top: 2rem; padding-bottom: 3rem;">
-        <!-- Profile Header -->
-        <div class="profile-header bhims-press">
-            <div class="avatar-upload">
-                {% if user.profile_picture %}
-                <img src="{{ user.profile_picture.url }}" alt="{{ user.get_full_name|default:user.username }}" class="profile-avatar" id="avatarPreview">
-                {% else %}
-                <div class="profile-avatar-placeholder" id="avatarPlaceholder">{{ user.get_full_name|first|upper|default:user.username|first|upper }}</div>
+        <div class="id-sidebar">
+            <input type="file" id="profile-picture-input" accept="image/*" class="hidden">
+
+            <div class="avatar-ring" id="avatar-trigger" {% if is_own_profile %}title="Click to change photo"{% endif %}>
+                <img
+                    id="profile-avatar"
+                    src="{% if profile and profile.profile_picture %}{{ profile.profile_picture.url }}{% else %}{% static 'images/default-avatar.png' %}{% endif %}"
+                    alt="Profile"
+                >
+                {% if is_own_profile %}<span class="avatar-hint">Change Photo</span>{% endif %}
+            </div>
+
+            <span class="user-badge">{% if is_instructor %}LANDLORD{% else %}STUDENT{% endif %}</span>
+            <p style="color: var(--bhims-text-muted); font-size: 13px; margin-top: 15px;">@{{ profile_user.username }}</p>
+        </div>
+
+        <div class="id-main">
+            <div class="welcome-text">
+                <h1 id="profile-title">{{ profile_user.first_name|default:profile_user.username|capfirst }}'s Profile</h1>
+                <span>Manage your identity and account settings.</span>
+            </div>
+
+            <div id="profile-display" class="info-grid-premium">
+                <div class="data-cell">
+                    <label>Full Name</label>
+                    <p id="profile-display-full-name">{{ profile_user.get_full_name|default:"Not Provided" }}</p>
+                </div>
+                <div class="data-cell">
+                    <label>Email Address</label>
+                    <p id="profile-display-email">{{ profile_user.email|default:"Not Provided" }}</p>
+                </div>
+                <div class="data-cell">
+                    <label>{% if is_instructor %}Landlord ID{% else %}Student ID{% endif %}</label>
+                    <p id="profile-display-student-id">{{ profile.student_id|default:"Pending" }}</p>
+                </div>
+                <div class="data-cell">
+                    <label>Phone Number</label>
+                    <p id="profile-display-phone">{{ profile.phone_number|default:"Not Provided" }}</p>
+                </div>
+                <div class="data-cell" style="grid-column: 1 / -1;">
+                    <label>Bio</label>
+                    <p id="profile-display-bio">{{ profile.bio|default:"No bio yet." }}</p>
+                </div>
+                <div class="data-cell">
+                    <label>Member Since</label>
+                    <p>{{ profile_user.date_joined|date:"F Y" }}</p>
+                </div>
+            </div>
+
+            {% if is_own_profile %}
+            <form id="profile-edit-form" method="post" action="" class="hidden">
+                {% csrf_token %}
+                <div class="info-grid-premium">
+                    <div class="data-cell">
+                        <label>First Name</label>
+                        {{ form.first_name }}
+                        <div class="field-errors" id="error-first_name">{% if form.first_name.errors %}{{ form.first_name.errors|striptags }}{% endif %}</div>
+                    </div>
+                    <div class="data-cell">
+                        <label>Last Name</label>
+                        {{ form.last_name }}
+                        <div class="field-errors" id="error-last_name">{% if form.last_name.errors %}{{ form.last_name.errors|striptags }}{% endif %}</div>
+                    </div>
+                    <div class="data-cell">
+                        <label>Phone Number</label>
+                        {{ form.phone_number }}
+                        <div class="field-errors" id="error-phone_number">{% if form.phone_number.errors %}{{ form.phone_number.errors|striptags }}{% endif %}</div>
+                    </div>
+                    {% if form.bio %}
+                    <div class="data-cell" style="grid-column: 1 / -1;">
+                        <label>Bio</label>
+                        {{ form.bio }}
+                        <div class="field-errors" id="error-bio">{% if form.bio.errors %}{{ form.bio.errors|striptags }}{% endif %}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </form>
+
+            <div class="btn-row">
+                <button type="button" id="edit-profile-btn" class="btn-action-premium">Edit Profile</button>
+                <button type="button" id="cancel-edit-btn" class="btn-action-premium secondary hidden">Cancel</button>
+
+                {% if user.is_staff or user.is_superuser %}
+                    {% if is_own_profile %}
+                        <button type="button" class="btn-action-premium secondary" onclick="clearProfilePicture()" style="background: #dc2626; color: white;">Clear Profile Picture</button>
+                        <button type="button" class="btn-action-premium secondary" onclick="clearBio()" style="background: #dc2626; color: white;">Clear Bio</button>
+                    {% endif %}
                 {% endif %}
-                <label for="avatarInput" class="avatar-upload-label" aria-label="Change avatar">
-                    <i class="fas fa-camera" style="font-size: 0.85rem;"></i>
-                </label>
-                <form method="post" action="{% url 'update_avatar' %}" enctype="multipart/form-data" style="display: none;" id="avatarForm">
-                    {% csrf_token %}
-                    <input type="file" id="avatarInput" name="avatar" accept="image/*" onchange="document.getElementById('avatarForm').submit();">
-                </form>
-            </div>
-            <h2 style="font-family: var(--font-display); font-weight: 700; color: var(--bhims-text); margin: 0;">{{ user.get_full_name|default:user.username }}</h2>
-            <span class="profile-role">
-                <i class="fas fa-tag"></i> {{ user.get_role_display }}
-            </span>
-
-            <div class="profile-stats">
-                <div class="profile-stat-item">
-                    <div class="profile-stat-value">{% if user.role == 'student' %}{{ user.bookings.count }}{% else %}{{ user.properties.count }}{% endif %}</div>
-                    <div class="profile-stat-label">{% if user.role == 'student' %}Bookings{% else %}Properties{% endif %}</div>
-                </div>
-                <div class="profile-stat-item">
-                    <div class="profile-stat-value">{{ user.inquiries.count }}</div>
-                    <div class="profile-stat-label">Inquiries</div>
-                </div>
-                <div class="profile-stat-item">
-                    <div class="profile-stat-value">{{ user.date_joined|date:"M Y" }}</div>
-                    <div class="profile-stat-label">Member Since</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Profile Tabs -->
-        <ul class="nav nav-tabs nav-tabs-custom" id="profileTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity" type="button" role="tab">
-                    <i class="fas fa-clock me-1"></i> Activity
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="bookings-tab" data-bs-toggle="tab" data-bs-target="#bookings" type="button" role="tab">
-                    <i class="fas fa-calendar-check me-1"></i> Bookings
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="inquiries-tab" data-bs-toggle="tab" data-bs-target="#inquiries" type="button" role="tab">
-                    <i class="fas fa-envelope me-1"></i> Inquiries
-                </button>
-            </li>
-            {% if user.role == 'landlord' %}
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="properties-tab" data-bs-toggle="tab" data-bs-target="#properties" type="button" role="tab">
-                    <i class="fas fa-building me-1"></i> Properties
-                </button>
-            </li>
-            {% endif %}
-        </ul>
-
-        <!-- Tab Content -->
-        <div class="tab-content" id="profileTabContent">
-            <!-- Activity Tab -->
-            <div class="tab-pane fade show active" id="activity" role="tabpanel">
-                <div class="profile-card">
-                    <h6><i class="fas fa-clock text-teal me-1"></i> Recent Activity</h6>
-                    {% if activities %}
-                    <div class="timeline">
-                        {% for activity in activities %}
-                        <div class="timeline-item">
-                            <div class="timeline-icon">
-                                <i class="fas fa-{{ activity.icon|default:'circle' }}"></i>
-                            </div>
-                            <div class="timeline-content">
-                                <p class="timeline-description">{{ activity.description }}</p>
-                                <small class="timeline-time">{{ activity.created_at|timesince }} ago</small>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <p class="text-center text-muted py-3">No recent activity</p>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Bookings Tab -->
-            <div class="tab-pane fade" id="bookings" role="tabpanel">
-                <div class="profile-card">
-                    <h6><i class="fas fa-calendar-check text-teal me-1"></i> Your Bookings</h6>
-                    {% if user.bookings.all %}
-                    {% for booking in user.bookings.all %}
-                    <div class="booking-card">
-                        <div class="booking-info">
-                            <div class="booking-name">{{ booking.property.name|default:booking.room.boarding_house.name }}</div>
-                            <div class="booking-date">
-                                <i class="fas fa-calendar me-1"></i> {{ booking.created_at|date:"M d, Y" }}
-                                {% if booking.move_in_date %} · Move-in: {{ booking.move_in_date|date:"M d, Y" }}{% endif %}
-                            </div>
-                        </div>
-                        <span class="badge {% if booking.status == 'confirmed' %}bg-success{% elif booking.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
-                            {{ booking.get_status_display }}
-                        </span>
-                    </div>
-                    {% endfor %}
-                    {% else %}
-                    <div class="empty-state-custom">
-                        <i class="fas fa-calendar-check"></i>
-                        <p class="mt-2">No bookings yet</p>
-                        <a href="{% url 'listing_list' %}" class="btn btn-sm btn-primary mt-2">Browse Listings</a>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Inquiries Tab -->
-            <div class="tab-pane fade" id="inquiries" role="tabpanel">
-                <div class="profile-card">
-                    <h6><i class="fas fa-envelope text-teal me-1"></i> Your Inquiries</h6>
-                    {% if user.inquiries.all %}
-                    {% for inquiry in user.inquiries.all %}
-                    <div class="inquiry-card">
-                        <div class="inquiry-header">
-                            <strong class="inquiry-property">{{ inquiry.property.name|default:inquiry.room.boarding_house.name }}</strong>
-                            <small class="inquiry-time">{{ inquiry.created_at|timesince }} ago</small>
-                        </div>
-                        <p class="inquiry-message">{{ inquiry.message|truncatechars:120 }}</p>
-                        <span class="badge {% if inquiry.is_replied %}bg-success{% else %}bg-warning{% endif %}">
-                            {% if inquiry.is_replied %}Replied{% else %}Awaiting Reply{% endif %}
-                        </span>
-                    </div>
-                    {% endfor %}
-                    {% else %}
-                    <div class="empty-state-custom">
-                        <i class="fas fa-envelope"></i>
-                        <p class="mt-2">No inquiries sent yet</p>
-                        <a href="{% url 'listing_list' %}" class="btn btn-sm btn-primary mt-2">Browse & Inquire</a>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Properties Tab (Landlord only) -->
-            {% if user.role == 'landlord' %}
-            <div class="tab-pane fade" id="properties" role="tabpanel">
-                <div class="profile-card">
-                    <h6><i class="fas fa-building text-teal me-1"></i> Your Properties</h6>
-                    {% if user.properties.all %}
-                    <div class="row g-3">
-                        {% for property in user.properties.all %}
-                        <div class="col-md-6">
-                            <div class="profile-card h-100">
-                                <h6 style="margin: 0 0 0.5rem;">{{ property.name }}</h6>
-                                <p class="text-muted small mb-2">
-                                    <i class="fas fa-map-pin me-1"></i> {{ property.barangay.name }}
-                                </p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="badge badge-teal">₱{{ property.price_per_month }}/mo</span>
-                                    <span class="badge {% if property.is_approved %}bg-success{% else %}bg-warning{% endif %}">
-                                        {{ property.is_approved|yesno:"Approved,Pending" }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <div class="empty-state-custom">
-                        <i class="fas fa-building"></i>
-                        <p class="mt-2">No properties listed yet</p>
-                        <a href="{% url 'boarding_house_create' %}" class="btn btn-sm btn-primary mt-2">Add Your First Property</a>
-                    </div>
-                    {% endif %}
-                </div>
             </div>
             {% endif %}
-        </div>
-
-        <!-- Edit Profile Button -->
-        <div class="text-center mt-4">
-            <a href="{% url 'edit_profile' %}" class="btn btn-primary">
-                <i class="fas fa-edit me-1"></i> Edit Profile
-            </a>
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
+{% if is_own_profile %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+<div id="cropper-modal" class="cropper-modal" aria-hidden="true">
+    <div class="cropper-panel">
+        <h3>Adjust your photo</h3>
+        <div class="cropper-stage">
+            <img id="cropper-image" alt="Crop Preview">
+        </div>
+        <div class="cropper-actions">
+            <button type="button" id="cropper-cancel-btn" class="btn-action-premium secondary">Cancel</button>
+            <button type="button" id="cropper-save-btn" class="btn-action-premium">Save Photo</button>
+        </div>
+    </div>
+</div>
+
 <script>
 (function () {
-    // Avatar preview
-    var avatarInput = document.getElementById('avatarInput');
-    var avatarPreview = document.getElementById('avatarPreview');
-    var avatarPlaceholder = document.getElementById('avatarPlaceholder');
-    if (avatarInput) {
-        avatarInput.addEventListener('change', function () {
-            var file = this.files[0];
-            if (file) {
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    if (avatarPreview) {
-                        avatarPreview.src = e.target.result;
-                        avatarPreview.style.display = 'block';
-                    }
-                    if (avatarPlaceholder) avatarPlaceholder.style.display = 'none';
-                };
-                reader.readAsDataURL(file);
+    const avatarTrigger = document.getElementById('avatar-trigger');
+    const avatarInput = document.getElementById('profile-picture-input');
+    const avatarImage = document.getElementById('profile-avatar');
+    const editBtn = document.getElementById('edit-profile-btn');
+    const cancelBtn = document.getElementById('cancel-edit-btn');
+    const profileDisplay = document.getElementById('profile-display');
+    const editForm = document.getElementById('profile-edit-form');
+    const csrfTokenInput = document.querySelector('#profile-edit-form input[name="csrfmiddlewaretoken"]');
+    const csrfToken = (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || (csrfTokenInput ? csrfTokenInput.value : '');
+    const cropperModal = document.getElementById('cropper-modal');
+    const cropperImage = document.getElementById('cropper-image');
+    const cropperSaveBtn = document.getElementById('cropper-save-btn');
+    const cropperCancelBtn = document.getElementById('cropper-cancel-btn');
+    let cropper = null;
+
+    if (cropperModal && cropperModal.parentElement !== document.body) {
+        document.body.appendChild(cropperModal);
+    }
+
+    let editMode = {{ form.errors|yesno:'true,false' }};
+
+    function applyEditMode(enabled) {
+        editMode = enabled;
+        if (enabled) {
+            profileDisplay.classList.add('hidden');
+            editForm.classList.remove('hidden');
+            cancelBtn.classList.remove('hidden');
+            editBtn.textContent = 'Save Changes';
+        } else {
+            profileDisplay.classList.remove('hidden');
+            editForm.classList.add('hidden');
+            cancelBtn.classList.add('hidden');
+            editBtn.textContent = 'Edit Profile';
+        }
+    }
+
+    applyEditMode(editMode);
+
+    function captureEditValues() {
+        const values = {};
+        if (!editForm) return values;
+        const fd = new FormData(editForm);
+        fd.forEach((value, key) => {
+            if (key === 'csrfmiddlewaretoken') return;
+            values[key] = value;
+        });
+        return values;
+    }
+
+    function restoreEditValues(values) {
+        if (!editForm) return;
+        Object.keys(values || {}).forEach((key) => {
+            const field = editForm.querySelector(`[name="${key}"]`);
+            if (field) field.value = values[key] ?? '';
+        });
+    }
+
+    function clearFieldErrors() {
+        if (editForm) {
+            editForm.querySelectorAll('.field-errors').forEach(el => { el.textContent = ''; });
+            editForm.querySelectorAll('[aria-invalid="true"]').forEach(el => el.removeAttribute('aria-invalid'));
+        }
+    }
+
+    function applyFieldErrors(errors) {
+        if (!errors) return;
+        Object.keys(errors).forEach((fieldName) => {
+            const target = document.getElementById(`error-${fieldName}`);
+            if (target) target.textContent = (errors[fieldName] || []).join(' ');
+            if (editForm) {
+                const input = editForm.querySelector(`[name="${fieldName}"]`);
+                if (input) input.setAttribute('aria-invalid', 'true');
             }
         });
     }
+
+    function updateProfileDisplay(profileData) {
+        if (!profileData) return;
+
+        const fullNameEl = document.getElementById('profile-display-full-name');
+        const emailEl = document.getElementById('profile-display-email');
+        const studentIdEl = document.getElementById('profile-display-student-id');
+        const phoneEl = document.getElementById('profile-display-phone');
+        const bioEl = document.getElementById('profile-display-bio');
+        const titleEl = document.getElementById('profile-title');
+
+        const fullName = profileData.full_name || profileData.username || '';
+        const email = profileData.email || '';
+        const studentId = profileData.student_id || '';
+        const phone = profileData.phone_number || '';
+        const bio = profileData.bio || '';
+
+        if (fullNameEl) fullNameEl.textContent = fullName || 'Not Provided';
+        if (emailEl) emailEl.textContent = email || 'Not Provided';
+        if (studentIdEl) studentIdEl.textContent = studentId || 'Pending';
+        if (phoneEl) phoneEl.textContent = phone || 'Not Provided';
+        if (bioEl) bioEl.textContent = bio || 'No bio yet.';
+
+        if (titleEl) {
+            const displayName = profileData.first_name || profileData.username || 'User';
+            const cap = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+            titleEl.textContent = `${cap}'s Profile`;
+        }
+
+        const navUser = document.querySelector('a.nav-link.user');
+        if (navUser) navUser.textContent = fullName || (profileData.username || navUser.textContent);
+    }
+
+    let savedValues = captureEditValues();
+
+    async function saveProfileChanges() {
+        if (!editForm) return;
+        clearFieldErrors();
+
+        const payload = captureEditValues();
+        editBtn.disabled = true;
+        const prevText = editBtn.textContent;
+        editBtn.textContent = 'Saving...';
+
+        fetch(editForm.action || window.location.pathname, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json().then(data => ({ ok: res.ok, data })))
+        .then(({ ok, data }) => {
+            if (!ok || !data.success) {
+                createToast('error', 'Error', data.message || 'Could not save changes.');
+                applyFieldErrors(data.errors || {});
+                return;
+            }
+
+            createToast('success', 'Done', data.message || 'Profile updated.');
+            if (data.profile) {
+                updateProfileDisplay(data.profile);
+                restoreEditValues({
+                    first_name: data.profile.first_name || '',
+                    last_name: data.profile.last_name || '',
+                    phone_number: data.profile.phone_number || '',
+                    bio: data.profile.bio || '',
+                });
+                savedValues = captureEditValues();
+            } else {
+                savedValues = captureEditValues();
+            }
+            applyEditMode(false);
+        })
+        .catch((err) => {
+            createToast('error', 'Error', err.message || 'Could not save changes.');
+        })
+        .finally(() => {
+            editBtn.disabled = false;
+            if (editMode) {
+                editBtn.textContent = prevText;
+            }
+        });
+    }
+
+    editBtn.addEventListener('click', function () {
+        if (!editMode) {
+            savedValues = captureEditValues();
+            applyEditMode(true);
+            return;
+        }
+        saveProfileChanges();
+    });
+
+    cancelBtn.addEventListener('click', function () {
+        restoreEditValues(savedValues);
+        clearFieldErrors();
+        applyEditMode(false);
+    });
+
+    if (editForm) {
+        editForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            if (editMode) {
+                saveProfileChanges();
+            }
+        });
+    }
+
+    avatarTrigger.addEventListener('click', function () {
+        avatarInput.click();
+    });
+
+    function closeCropper() {
+        cropperModal.style.display = 'none';
+        cropperModal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('cropper-open');
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        avatarInput.value = '';
+    }
+
+    avatarInput.addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        if (!file) {
+            return;
+        }
+
+        if (!file.type.startsWith('image/')) {
+            createToast('error', 'Error', 'Please select an image file.');
+            avatarInput.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (loadEvent) {
+            cropperImage.src = loadEvent.target.result;
+            document.body.classList.add('cropper-open');
+            cropperModal.style.display = 'flex';
+            cropperModal.setAttribute('aria-hidden', 'false');
+
+            if (cropper) {
+                cropper.destroy();
+            }
+
+            cropper = new Cropper(cropperImage, {
+                aspectRatio: 1,
+                viewMode: 1,
+                dragMode: 'crop',
+                autoCropArea: 0.8,
+                background: false,
+                guides: true,
+                center: true,
+                highlight: true,
+                movable: true,
+                zoomable: true,
+                zoomOnTouch: true,
+                zoomOnWheel: true,
+                wheelZoomRatio: 0.1,
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                minContainerWidth: 260,
+                minContainerHeight: 260,
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+
+    cropperCancelBtn.addEventListener('click', closeCropper);
+
+    cropperModal.addEventListener('click', function (event) {
+        if (event.target === cropperModal) {
+            closeCropper();
+        }
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && cropperModal.style.display === 'flex') {
+            closeCropper();
+        }
+    });
+
+    cropperSaveBtn.addEventListener('click', function () {
+        if (!cropper) {
+            return;
+        }
+        cropper.getCroppedCanvas({ width: 800, height: 800 }).toBlob(function (blob) {
+            if (!blob) {
+                createToast('error', 'Error', 'Could not process image.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('profile_picture', blob, 'profile-picture.jpg');
+
+            fetch("{% url 'update_avatar' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            .then(function (response) {
+                return response.json().then(function (data) {
+                    if (!response.ok || (data && data.success === false)) {
+                        throw new Error((data && data.message) ? data.message : 'Upload failed.');
+                    }
+                    return data;
+                });
+            })
+            .then(function (data) {
+                avatarImage.src = data.image_url + '?t=' + Date.now();
+                createToast('success', 'Done', data.message || 'Profile picture updated.');
+                closeCropper();
+            })
+            .catch(function (error) {
+                createToast('error', 'Error', error.message || 'Could not upload profile picture.');
+            });
+        }, 'image/jpeg', 0.92);
+    });
+
+    function clearProfilePicture() {
+        if (!confirm('Are you sure you want to remove your profile picture?')) return;
+
+        fetch(window.location.pathname, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ clear_profile_picture: true })
+        })
+        .then(res => res.json().then(data => ({ ok: res.ok, data })))
+        .then(({ ok, data }) => {
+            if (!ok) {
+                createToast('error', 'Error', 'Could not clear profile picture.');
+                return;
+            }
+            createToast('success', 'Done', 'Profile picture cleared.');
+            location.reload();
+        })
+        .catch(error => createToast('error', 'Error', error.message));
+    }
+
+    function clearBio() {
+        if (!confirm('Are you sure you want to clear your bio?')) return;
+
+        fetch(window.location.pathname, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ clear_bio: true })
+        })
+        .then(res => res.json().then(data => ({ ok: res.ok, data })))
+        .then(({ ok, data }) => {
+            if (!ok) {
+                createToast('error', 'Error', 'Could not clear bio.');
+                return;
+            }
+            createToast('success', 'Done', 'Bio cleared.');
+            const bioEl = document.getElementById('profile-display-bio');
+            if (bioEl) bioEl.textContent = 'No bio yet.';
+        })
+        .catch(error => createToast('error', 'Error', error.message));
+    }
 })();
 </script>
+{% endif %}
 {% endblock %}

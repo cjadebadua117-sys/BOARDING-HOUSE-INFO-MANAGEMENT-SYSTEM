@@ -4,6 +4,10 @@
 
 {% block extra_css %}
 {% include 'core/includes/admin_styles.html' %}
+<style>
+    .chart-wrap { position: relative; height: 200px; }
+    .chart-wrap canvas { width: 100% !important; height: 100% !important; }
+</style>
 {% endblock %}
 
 {% block app_content %}
@@ -51,7 +55,7 @@
         <div class="col-md-6">
             <div class="admin-table-wrap p-4">
                 <h2 class="h5 mb-4 fw-bold" style="color: var(--bhims-text);">Monthly Registrations (Last 6 Months)</h2>
-                <div style="height: 200px;"><canvas id="registrationChart"></canvas></div>
+                <div class="chart-wrap"><canvas id="registrationChart"></canvas></div>
                 <p class="text-muted mt-2 mb-0 small">
                     Shows the number of new student and landlord registrations per month over the last 6 months.
                 </p>
@@ -60,7 +64,7 @@
         <div class="col-md-6">
             <div class="admin-table-wrap p-4">
                 <h2 class="h5 mb-4 fw-bold" style="color: var(--bhims-text);">Boarding House Status Distribution</h2>
-                <div style="height: 200px;"><canvas id="statusChart"></canvas></div>
+                <div class="chart-wrap"><canvas id="statusChart"></canvas></div>
                 <p class="text-muted mt-2 mb-0 small">
                     Distribution of boarding houses by their current status (Available, Full, Unavailable).
                 </p>
@@ -139,8 +143,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }, {
                 label: 'Landlords',
                 data: {{ landlord_data|safe }},
-                borderColor: '#0d7a7b',
-                backgroundColor: '#0d7a7b',
+                borderColor: '#1bb89a',
+                backgroundColor: '#1bb89a',
                 tension: 0.35,
                 borderWidth: 2,
                 pointRadius: 3,
@@ -152,11 +156,11 @@ document.addEventListener('DOMContentLoaded', function() {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { labels: { color: '#1f3438', boxWidth: 14 } }
+                legend: { labels: { color: '#ffffff', boxWidth: 14 } }
             },
             scales: {
-                x: { ticks: { color: '#57706f' }, grid: { display: false } },
-                y: { beginAtZero: true, ticks: { color: '#57706f', precision: 0 }, grid: { color: 'rgba(8,79,79,0.08)' } }
+                x: {                ticks: { color: 'rgba(255,255,255,0.55)' }, grid: { display: false } },
+                y: { beginAtZero: true,                ticks: { color: 'rgba(255,255,255,0.55)', precision: 0 }, grid: { color: 'rgba(8,79,79,0.08)' } }
             }
         }
     });
@@ -168,8 +172,8 @@ document.addEventListener('DOMContentLoaded', function() {
             labels: ['Available', 'Full', 'Unavailable'],
             datasets: [{
                 data: {{ status_data|safe }},
-                backgroundColor: ['#3d8f6e', '#0a5f60', '#0d7a7b'],
-                borderColor: '#f8fbf8',
+                backgroundColor: ['#3d8f6e', '#12967c', '#1bb89a'],
+                borderColor: 'rgba(255,255,255,0.08)',
                 borderWidth: 2,
                 hoverOffset: 6
             }]
@@ -179,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
             maintainAspectRatio: false,
             cutout: '62%',
             plugins: {
-                legend: { position: 'bottom', labels: { color: '#1f3438', boxWidth: 14 } }
+                legend: { position: 'bottom', labels: { color: '#ffffff', boxWidth: 14 } }
             }
         }
     });

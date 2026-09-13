@@ -22,8 +22,8 @@
     }
     .rejected-badge {
         background-color: rgba(179, 38, 30, 0.12);
-        color: #b3261e;
-        border-left: 4px solid #b3261e;
+        color: var(--bhims-danger-text);
+        border-left: 4px solid var(--bhims-danger-text);
         border-radius: 12px;
         padding: 0.5rem 1rem;
         font-weight: 600;
@@ -78,9 +78,12 @@
 
 <div class="row justify-content-center">
     <div class="col-lg-10">
-        <div class="mb-4">
-            <h1>Inquiries</h1>
-            <p class="text-muted">Track all inquiries for your boarding houses</p>
+        <div class="page-header">
+            <div>
+                <p class="eyebrow">Inquiries</p>
+                <h1>Student Inquiries</h1>
+                <p>Track all inquiries for your boarding houses.</p>
+            </div>
         </div>
 
         {% if inquiries %}
@@ -103,7 +106,7 @@
                                 <strong>Room:</strong> {{ inquiry.room.boarding_house.name }} - {{ inquiry.room.name|default:inquiry.room.room_type }}
                             </p>
 
-                            <p class="card-text text-truncate mb-3">{{ inquiry.message }}</p>
+                            <p class="card-text text-truncate mb-3">{{ inquiry.message_text }}</p>
 
                             <div class="d-flex justify-content-between align-items-center">
                                 <small class="text-muted">
@@ -117,13 +120,9 @@
                 {% endfor %}
             </div>
         {% else %}
-            <div class="empty-state">
-                <div class="mb-4">
-                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="var(--beige)" stroke-width="1.5">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                    </svg>
-                </div>
-                <h2 class="h3">You haven't received any inquiries yet</h2>
+            <div class="bhims-empty">
+                <i class="bi bi-chat-dots"></i>
+                <h3>No inquiries yet</h3>
                 <p>When students send inquiries about your rooms, they'll appear here.</p>
                 <a href="{% url 'boarding_house_create' %}" class="btn btn-primary">Add a Boarding House</a>
             </div>

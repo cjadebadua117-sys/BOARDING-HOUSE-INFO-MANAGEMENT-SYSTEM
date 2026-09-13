@@ -1,0 +1,165 @@
+{# Shared Browse page body - included by boardings_list.html (public shell) and boardings_list_app.html (sidebar app shell) so markup, CSS and JS live in exactly one place. #}
+
+<style>
+    /* Center the page inside whichever shell hosts it */
+    .browse-page {
+        width: 100%;
+        max-width: var(--container-xl);
+        margin: 0 auto;
+        padding: var(--space-8) var(--space-6) 4rem;
+    }
+    /* Inside the app shell, .app-content already pads and centers */
+    .app-content .browse-page {
+        max-width: none;
+        padding: 0 0 2rem;
+    }
+    @media (max-width: 640px) {
+        .browse-page { padding: var(--space-6) var(--space-4) 3rem; }
+    }
+</style>
+
+<div class="browse-page">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Browse</p>
+            <h1>Boarding houses near NLUC</h1>
+            <p>
+                {% if request.user.is_authenticated %}Hi {{ request.user.first_name|default:request.user.username }}. {% endif %}
+                Filter by rent and barangay, then message the landlord from the listing.
+            </p>
+        </div>
+        {% if request.user.is_authenticated %}
+            {% if request.user.role == 'student' %}
+            <a href="{% url 'student_inquiry_list' %}" class="create-btn"><i class="bi bi-chat-dots"></i> My Inquiries</a>
+            {% elif request.user.role == 'landlord' %}
+            <a href="{% url 'landlord_boarding_house_list' %}" class="create-btn"><i class="bi bi-buildings"></i> My Boarding Houses</a>
+            {% else %}
+            <a href="{% url 'admin_dashboard' %}" class="create-btn"><i class="bi bi-speedometer2"></i> Admin Dashboard</a>
+            {% endif %}
+        {% else %}
+        <a href="{% url 'student_register' %}" class="create-btn"><i class="bi bi-person-plus"></i> Create an Account</a>
+        {% endif %}
+    </div>
+
+    <div class="filter-card">
+        <form method="get" class="row g-3" id="filterForm">
+            <div class="col-md-4 col-lg-3">
+                <label for="{{ form.price_min.id_for_label }}" class="form-label">{{ form.price_min.label }}</label>
+                {{ form.price_min }}
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <label for="{{ form.price_max.id_for_label }}" class="form-label">{{ form.price_max.label }}</label>
+                {{ form.price_max }}
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <label for="{{ form.room_type.id_for_label }}" class="form-label">{{ form.room_type.label }}</label>
+                {{ form.room_type }}
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <label for="{{ form.barangay.id_for_label }}" class="form-label">{{ form.barangay.label }}</label>
+                {{ form.barangay }}
+            </div>
+            <div class="col-md-5">
+                <label for="{{ form.amenities.id_for_label }}" class="form-label">{{ form.amenities.label }}</label>
+                {{ form.amenities }}
+            </div>
+            <div class="col-md-3">
+                <label for="{{ form.sort.id_for_label }}" class="form-label">{{ form.sort.label }}</label>
+                {{ form.sort }}
+            </div>
+            <div class="col-md-4 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary glass-btn-apply">Apply</button>
+                <a href="{% url 'listing_list' %}" class="filter-reset glass-btn-reset">Reset</a>
+            </div>
+        </form>
+    </div>
+
+    <p id="filterStatus" class="visually-hidden" aria-live="polite" aria-atomic="true"></p>
+    <div class="listing-grid" id="listingGrid" aria-live="polite" aria-busy="false">
+        {% include 'core/includes/listing_grid_fragment.html' %}
+    </div>
+    <div id="listingSkeleton" class="listing-grid" style="display:none;" aria-hidden="true">
+        {% for i in "123456" %}
+        <div class="skeleton-card" aria-hidden="true">
+            <div class="skeleton sk-img"></div>
+            <div class="sk-body">
+                <div class="skeleton sk-line"></div>
+                <div class="skeleton sk-line short"></div>
+                <div class="skeleton sk-pill" style="margin-top: 10px;"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+(function () {
+    var form = document.getElementById('filterForm');
+    var grid = document.getElementById('listingGrid');
+    var skeleton = document.getElementById('listingSkeleton');
+    var statusEl = document.getElementById('filterStatus');
+    if (!form || !grid || !skeleton) return;
+
+    var debounceTimer;
+    var controller;
+
+    function showSkeleton(show) {
+        skeleton.style.display = show ? 'grid' : 'none';
+        grid.style.display = show ? 'none' : 'grid';
+        grid.setAttribute('aria-busy', show ? 'true' : 'false');
+        skeleton.setAttribute('aria-hidden', show ? 'false' : 'true');
+    }
+
+    function fetchGrid(url, push) {
+        if (controller) controller.abort();
+        controller = new AbortController();
+        showSkeleton(true);
+        if (statusEl) statusEl.textContent = 'Loading listings…';
+        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, signal: controller.signal })
+            .then(function (r) { return r.text(); })
+            .then(function (html) {
+                grid.innerHTML = html;
+                showSkeleton(false);
+                if (push) history.pushState(null, '', url);
+                if (statusEl) {
+                    var count = grid.querySelectorAll('.listing-card').length;
+                    statusEl.textContent = count ? count + ' listing' + (count === 1 ? '' : 's') + ' found.' : 'No listings match your filters.';
+                }
+            })
+            .catch(function (e) {
+                if (e.name === 'AbortError') return;
+                showSkeleton(false);
+                if (statusEl) statusEl.textContent = 'Could not load listings. Showing last results.';
+            });
+    }
+
+    function buildUrl() {
+        var params = new URLSearchParams(new FormData(form));
+        // Remove empty params for cleaner URLs
+        for (var pair of Array.from(params.entries())) {
+            if (!pair[1]) params.delete(pair[0]);
+        }
+        var base = form.getAttribute('action') || window.location.pathname;
+        var qs = params.toString();
+        return qs ? base + '?' + qs : base;
+    }
+
+    form.addEventListener('submit', function (e) {
+        if (!window.fetch) return;
+        e.preventDefault();
+        fetchGrid(buildUrl(), true);
+    });
+
+    // Instant (debounced 320ms) filtering as the user types
+    ['input', 'change'].forEach(function (evt) {
+        form.addEventListener(evt, function () {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(function () { fetchGrid(buildUrl(), true); }, 320);
+        });
+    });
+
+    window.addEventListener('popstate', function () {
+        fetchGrid(window.location.pathname + window.location.search, false);
+    });
+})();
+</script>

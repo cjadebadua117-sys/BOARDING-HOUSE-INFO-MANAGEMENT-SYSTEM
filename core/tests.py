@@ -5,18 +5,18 @@ from .models import BoardingHouse, Booking, LandlordRating, Room, User
 
 
 class StudentRegistrationFlowTests(TestCase):
-    def test_registration_rejects_invalid_gmail_and_student_id(self):
+    def test_registration_rejects_invalid_email_and_student_id(self):
         form = StudentRegistrationForm(data={
             'username': 'juan',
             'full_name': 'Juan dela Cruz',
-            'email': 'juan@yahoo.com',
+            'email': 'not-an-email',
             'student_id': '24102731',
             'program': 'CIS',
             'password1': 'StrongPass123',
             'password2': 'StrongPass123',
         })
         self.assertFalse(form.is_valid())
-        self.assertIn('Please register with a valid Gmail address that ends in @gmail.com.', form.errors['email'])
+        self.assertIn('email', form.errors)
         self.assertIn('Student ID must be in the format 241-0273-1.', form.errors['student_id'])
 
     def test_duplicate_email_and_student_id_are_rejected(self):
@@ -39,7 +39,7 @@ class StudentRegistrationFlowTests(TestCase):
             'password2': 'StrongPass123',
         })
         self.assertFalse(form.is_valid())
-        self.assertIn('A student account with this Gmail address already exists.', form.errors['email'])
+        self.assertIn('A student account with this email address already exists.', form.errors['email'])
         self.assertTrue(
             any('already exists' in err for err in form.errors.get('student_id', [])),
             f'Expected duplicate student ID error, got: {form.errors.get("student_id")}',

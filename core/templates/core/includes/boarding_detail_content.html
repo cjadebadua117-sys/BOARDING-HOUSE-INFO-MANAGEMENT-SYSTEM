@@ -1,0 +1,165 @@
+{# Shared listing detail body - included by boarding_detail.html (public shell) and boarding_detail_app.html (sidebar app shell). #}
+<style>
+    .detail-page {
+        width: 100%;
+        max-width: var(--container-xl);
+        margin: 0 auto;
+        padding: var(--space-6) var(--space-6) 4rem;
+    }
+    /* Inside the app shell, .app-content already pads and centers */
+    .app-content .detail-page {
+        max-width: none;
+        padding: 0 0 2rem;
+    }
+    @media (max-width: 640px) {
+        .detail-page { padding: var(--space-4) var(--space-4) 3rem; }
+    }
+    .back-link {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        color: var(--bhims-teal); font-weight: 600; text-decoration: none;
+        margin-bottom: 1.15rem;
+    }
+    .back-link:hover { color: var(--bhims-teal-deep); }
+    .owner-chip {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 6px 14px; border-radius: 999px;
+        background: rgba(13,122,123,0.10); border: 1px solid rgba(13,122,123,0.28);
+        color: var(--bhims-teal); font-weight: 650; font-size: 0.85rem; text-decoration: none;
+    }
+    .owner-chip:hover { background: rgba(13,122,123,0.16); color: var(--bhims-teal-deep); }
+    .gallery-title, .rooms-title {
+        font-family: var(--font-display); font-weight: 700;
+        color: var(--bhims-text); font-size: 1.45rem; margin: 0 0 1.1rem;
+    }
+    .room-item {
+        display: flex; gap: 1.5rem; border: 1px solid var(--bhims-ink-line);
+        border-radius: 14px; padding: 1.25rem; margin-bottom: 1rem;
+        background: var(--bhims-paper-raised);
+    }
+    .room-item-media { flex: 0 0 240px; min-width: 0; }
+    .room-item-media img {
+        width: 100%; height: 100%; min-height: 180px; max-height: 220px;
+        object-fit: cover; border-radius: 10px; display: block;
+        background: var(--bhims-paper-sunken);
+    }
+    .room-item-placeholder {
+        width: 100%; min-height: 180px;
+        display: flex; align-items: center; justify-content: center;
+        background: var(--bhims-paper-sunken); color: var(--bhims-teal);
+        border-radius: 10px; font-size: 2rem;
+    }
+    .room-item-body { flex: 1; min-width: 0; }
+    .room-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 0.65rem; }
+    .room-name { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; margin: 0; }
+    .room-meta { display: flex; flex-wrap: wrap; gap: 0.85rem 1.25rem; margin-bottom: 0.75rem; color: var(--bhims-text-muted); font-size: 0.9rem; }
+    .room-meta i { color: var(--bhims-teal); margin-right: 0.3rem; }
+    .room-price { font-family: var(--font-display); font-size: 1.45rem; font-weight: 700; margin: 0 0 0.75rem; }
+    .amenities-list { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 1rem; }
+    .amenity-tag { background: var(--bhims-icon-tint); color: var(--bhims-teal-deep); padding: 0.3rem 0.7rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600; }
+    @media (max-width: 768px) {
+        .room-item { flex-direction: column; }
+        .room-item-media { flex: 1 1 auto; }
+    }
+</style>
+<div class="detail-page">
+    <a href="{% url 'listing_list' %}" class="back-link">
+        <i class="bi bi-arrow-left"></i> All listings
+    </a>
+
+    {% with photos=house.get_photo_list %}
+    {% if photos %}
+    <div class="listing-hero{% if photos|length == 1 %} is-single{% endif %}">
+        {% for photo in photos|slice:":5" %}
+        <img src="{{ photo }}" alt="{% if forloop.first %}{{ house.name }}{% else %}Photo of {{ house.name }}{% endif %}" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}" decoding="async">
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="listing-hero is-empty" aria-hidden="true">
+        <i class="bi bi-house-door"></i>
+        <span>Photos coming soon</span>
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <div class="listing-layout">
+        <div class="listing-copy">
+            <h1>{{ house.name }}</h1>
+            <a href="{% url 'user_profile' house.owner.pk %}" class="owner-chip">
+                <i class="bi bi-person-circle"></i>
+                {{ house.owner.get_full_name|default:house.owner.username }}
+            </a>
+            {% if house.description %}
+            <p class="description">{{ house.description }}</p>
+            {% endif %}
+
+            <h2 class="rooms-title">Rooms</h2>
+            {% if rooms %}
+                {% for room in rooms %}
+                <div class="room-item">
+                    <div class="room-item-media">
+                        {% if room.photo_ok %}
+                            <img src="{{ room.photos.first.image.url }}" alt="{{ room.name|default:room.room_type }}" loading="lazy" decoding="async">
+                        {% else %}
+                            <div class="room-item-placeholder"><i class="bi bi-image"></i></div>
+                        {% endif %}
+                    </div>
+                    <div class="room-item-body">
+                        <div class="room-header">
+                            <h3 class="room-name">{{ room.name|default:room.room_type }}</h3>
+                            <span class="availability-badge">{{ room.occupied_count }}/{{ room.capacity }} filled</span>
+                        </div>
+                        <div class="room-meta">
+                            <span><i class="bi bi-people"></i>{{ room.capacity }} beds</span>
+                            <span><i class="bi bi-grid-1x2"></i>{{ room.room_type }}</span>
+                        </div>
+                        <p class="room-price">₱{{ room.price|floatformat:0 }}<span class="text-muted" style="font-size:0.85rem;font-weight:500;"> / month</span></p>
+                        {% if room.amenities.all %}
+                        <div class="amenities-list">
+                            {% for amenity in room.amenities.all %}
+                            <span class="amenity-tag">{{ amenity.name }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <a href="{% url 'send_inquiry' room.pk %}" class="btn btn-primary">
+                            <i class="bi bi-chat-dots"></i> Inquire about this room
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="bhims-empty">
+                <i class="bi bi-house-x"></i>
+                <h3>No rooms listed</h3>
+                <p>This house has no rooms yet. Try another listing nearby.</p>
+                <a href="{% url 'listing_list' %}" class="btn btn-primary">Browse listings</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <aside class="listing-summary">
+            <h2>{{ house.name }}</h2>
+            <p class="summary-loc"><i class="bi bi-geo-alt"></i> {{ house.barangay_display }}, {{ house.address }}</p>
+            <dl>
+                <div>
+                    <dt>From</dt>
+                    <dd>
+                        {% with cheapest=rooms|dictsort:'monthly_rate'|first %}
+                        {% if cheapest %}₱{{ cheapest.price|floatformat:0 }} / month{% else %}Ask landlord{% endif %}
+                        {% endwith %}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Who can stay</dt>
+                    <dd>{{ house.get_gender_allowed_display }}</dd>
+                </div>
+                <div>
+                    <dt>Open rooms</dt>
+                    <dd>{% if rooms %}{{ rooms|length }} available{% else %}Currently full{% endif %}</dd>
+                </div>
+            </dl>
+            {% if rooms %}
+            <a href="{% url 'send_inquiry' rooms.0.pk %}" class="btn btn-primary" style="width:100%;">Message landlord</a>
+            {% endif %}
+        </aside>
+    </div>
+</div>

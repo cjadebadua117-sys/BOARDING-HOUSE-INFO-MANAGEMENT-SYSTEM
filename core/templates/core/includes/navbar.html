@@ -1,59 +1,74 @@
 {% load static %}
-<header class="bhims-topbar" id="bhimsTopbar">
-  <div class="bhims-topbar-inner">
-    <a href="{% url 'home' %}" class="bhims-brand-link">
-      <img src="{% static 'core/images/bhims-icon.png' %}?v=8" alt="">
+<header class="bhims-topbar" id="bhimsTopbar">  <div class="bhims-topbar-inner">
+    <div class="bhims-topbar-left">
+    {% if app_shell %}
+    <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar" aria-controls="appShell" aria-expanded="false" title="Open/close menu">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--bhims-teal)" stroke-width="2.5" stroke-linecap="round" style="width: 1.5rem; height: 1.5rem;">
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+    {% endif %}
+
+    <a href="{% url 'home' %}" class="bhims-brand" aria-label="BHIMS — go to homepage">
+      <img class="bhims-brand-mark" src="{% static 'core/images/logo_mark.png' %}" alt="" aria-hidden="true">
       <span class="bhims-brand-text">
-        <strong>BHIMS</strong>
-        <span>NLUC Bacnotan</span>
+        <img class="bhims-word" src="{% static 'core/images/logo_text_dark.png' %}"
+             alt="BHIMS — Boarding House Information Management System"
+             data-light-src="{% static 'core/images/logo_text_light.png' %}"
+             data-dark-src="{% static 'core/images/logo_text_dark.png' %}">
       </span>
     </a>
+    </div>
 
-    <button type="button" class="bhims-menu-toggle" id="bhimsMenuToggle" aria-expanded="false" aria-controls="bhimsNav" aria-label="Open menu">
-      <i class="bi bi-list" aria-hidden="true"></i>
-    </button>
+    <div class="bhims-topbar-actions">
+      <nav class="bhims-nav" id="bhimsNav" aria-label="Primary">
+        {% if not request.user.is_authenticated %}
+          <a href="{% url 'student_login' %}" class="bhims-nav-link {% if request.resolver_match.url_name == 'student_login' %}is-active{% endif %}">Sign in</a>
+          <a href="{% url 'landlord_login' %}" class="bhims-nav-link {% if request.resolver_match.url_name == 'landlord_login' %}is-active{% endif %}">Landlord</a>
+        {% endif %}
+      </nav>
 
-    <nav class="bhims-nav" id="bhimsNav" aria-label="Primary">
-      <div class="theme-switch-wrapper" title="Switch light or dark theme">
-        <span class="visually-hidden">Color theme</span>
-        <label class="theme-switch">
-          <input type="checkbox" class="theme-toggle-input" data-theme-toggle>
-          <span class="theme-slider"></span>
-        </label>
-      </div>
+      <button type="button" class="bhims-theme-btn" data-theme-switch aria-label="Switch between dark and light mode" title="Toggle dark / light mode">
+        <i class="bi bi-moon-stars" aria-hidden="true"></i>
+        <i class="bi bi-sun" aria-hidden="true"></i>
+      </button>
 
       {% if not request.user.is_authenticated %}
-        <a href="{% url 'student_login' %}" class="bhims-nav-ghost">Student</a>
-        <a href="{% url 'landlord_login' %}" class="bhims-nav-ghost">Landlord</a>
-        <a href="{% url 'listing_list' %}" class="bhims-nav-cta">Browse listings</a>
-      {% else %}
-        {% if request.user.role == 'student' %}
-          <a href="{% url 'listing_list' %}" class="bhims-nav-link">Browse</a>
-          <a href="{% url 'student_dashboard' %}" class="bhims-nav-link">Dashboard</a>
-        {% elif request.user.role == 'landlord' %}
-          <a href="{% url 'listing_list' %}" class="bhims-nav-link">Browse</a>
-          <a href="{% url 'landlord_dashboard' %}" class="bhims-nav-link">Dashboard</a>
-        {% elif request.user.role == 'admin' %}
-          <a href="{% url 'listing_list' %}" class="bhims-nav-link">Browse</a>
-          <a href="{% url 'admin_dashboard' %}" class="bhims-nav-link">Admin</a>
-        {% endif %}
-        <form method="post" action="{% url 'logout' %}">
-          {% csrf_token %}
-          <button type="submit" class="bhims-logout-btn">Log out</button>
-        </form>
+      <button type="button" class="bhims-menu-toggle" id="bhimsMenuToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="bhimsNav">
+        <i class="bi bi-list" aria-hidden="true"></i>
+      </button>
       {% endif %}
-    </nav>
+    </div>
   </div>
 </header>
+
 <script>
 (function () {
-  var bar = document.getElementById('bhimsTopbar');
-  var btn = document.getElementById('bhimsMenuToggle');
-  if (!bar || !btn) return;
-  btn.addEventListener('click', function () {
-    var open = bar.classList.toggle('is-open');
-    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
-  });
+  // Theme-adaptive logo wordmark: swap white / dark-ink text when theme changes
+  var words = document.querySelectorAll('.bhims-word[data-light-src]');
+  if (words.length) {
+    var html = document.documentElement;
+    function syncLogo() {
+      var light = html.getAttribute('data-theme') !== 'dark';
+      words.forEach(function (img) {
+        var next = light ? img.getAttribute('data-light-src') : img.getAttribute('data-dark-src');
+        if (next && img.getAttribute('src') !== next) img.setAttribute('src', next);
+      });
+    }
+    syncLogo();
+    window.addEventListener('bhims-theme-change', syncLogo);
+  }
+
+  // Collapsible primary nav on narrow screens (<= 820px, matches premium.css)
+  var topbar = document.querySelector('.bhims-topbar');
+  var menuBtn = document.getElementById('bhimsMenuToggle');
+  if (topbar && menuBtn) {
+    menuBtn.addEventListener('click', function () {
+      var open = topbar.classList.toggle('is-open');
+      menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }
 })();
 </script>

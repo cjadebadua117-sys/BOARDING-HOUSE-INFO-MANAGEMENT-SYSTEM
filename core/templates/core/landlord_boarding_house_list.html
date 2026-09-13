@@ -2,74 +2,63 @@
 {% block title %}My Boarding Houses - Boarding House Information Management System{% endblock %}
 {% block app_content %}
 <div class="landlord-page">
-<div class="row mb-4">
-  <div class="col-md-8">
-    <h1>My Boarding Houses</h1>
-    <p>Manage your boarding houses and rooms.</p>
-  </div>
-  <div class="col-md-4 text-end">
-    <a href="{% url 'boarding_house_create' %}" class="btn btn-primary">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-      </svg>
-      Add New Boarding House
+<div class="page-header">
+    <div>
+        <p class="eyebrow">Properties</p>
+        <h1>My Boarding Houses</h1>
+        <p>Manage your boarding houses and rooms.</p>
+    </div>
+    <a href="{% url 'boarding_house_create' %}" class="create-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 1.1rem; height: 1.1rem;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        Add Boarding House
     </a>
-  </div>
 </div>
 
 {% if houses %}
-<div class="row g-4">
+<div class="houses-grid">
   {% for house in houses %}
-  <div class="col-lg-4">
-    <div class="card h-100 border-0 shadow-sm">
-      <div class="ratio ratio-16x9 bg-light">
-        {% if house.image %}
-          <img src="{{ house.image.url }}" alt="{{ house.name }}" loading="lazy" decoding="async" class="w-100 h-100" style="object-fit: contain; background: var(--bhims-cream-light);">
-        {% else %}
-          <div class="d-flex align-items-center justify-content-center h-100">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 3rem; height: 3rem; color: var(--text-muted);">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 6h14M5 10h14a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2z" />
-            </svg>
-          </div>
-        {% endif %}
+  <article class="listing-card bhims-press house-card">
+    <div class="card-image">
+      {% if house.image %}
+      <img src="{{ house.image.url }}" alt="{{ house.name }}" loading="lazy" decoding="async">
+      {% else %}
+      <div class="no-photo" aria-hidden="true">
+        <i class="bi bi-house-door"></i>
+        <span>No photo yet</span>
       </div>
-      <div class="card-body p-4">
-        <h2 class="h5 mb-2">{{ house.name }}</h2>
-        <p class="text-muted mb-2">{{ house.barangay_display }}, {{ house.address }}</p>
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div class="fw-bold" style="color: var(--bhims-teal); font-size: var(--fs-lg);">
-            {% if house.price %}₱{{ house.price|floatformat:0 }}<span class="text-muted small fw-normal">/month</span>{% endif %}
-          </div>
-          <span class="badge {% if house.gender_allowed == 'both' %}bg-info{% elif house.gender_allowed == 'female' %}bg-danger{% else %}bg-primary{% endif %}">
-            {{ house.get_gender_allowed_display }}
-          </span>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-start mb-3">
-          <div>
-            <span class="badge {% if house.is_active %}bg-success{% else %}bg-secondary{% endif %} me-2">
-              {% if house.is_active %}Active{% else %}Inactive{% endif %}
-            </span>
-            <span class="text-muted">Rooms: {{ house.rooms.count }}</span>
-          </div>
-          <a href="{% url 'landlord_boarding_house_detail' house.pk %}" class="btn btn-sm btn-outline-primary">Manage</a>
-        </div>
+      {% endif %}
+      <div class="card-overlay" aria-hidden="true"></div>
+      <div class="card-badges">
+        {% if house.is_active %}<span class="gender-pill"><i class="bi bi-check-circle"></i> Active</span>{% else %}<span class="gender-pill" style="opacity:0.6;">Inactive</span>{% endif %}
+        {% if house.gender_allowed and house.gender_allowed != 'both' %}<span class="gender-pill">{{ house.get_gender_allowed_display }}</span>{% endif %}
       </div>
     </div>
-  </div>
+    <div class="card-body">
+      <h3 class="card-title">{{ house.name }}</h3>
+      <p class="card-location">
+        <i class="bi bi-geo-alt-fill"></i>
+        {{ house.barangay_display }}, {{ house.address }}
+      </p>
+      <div class="meta-row">
+        <span class="room-type-pill"><i class="bi bi-grid-1x2"></i> {{ house.rooms.count }} total rooms</span>
+      </div>
+      <p class="card-description">{{ house.description|truncatechars:120 }}</p>
+      <div class="card-actions">
+        <a href="{% url 'landlord_boarding_house_detail' house.pk %}" class="manage-btn">Manage <i class="bi bi-arrow-right"></i></a>
+        <a href="{% url 'boarding_house_edit' house.pk %}" class="edit-btn"><i class="bi bi-pencil-square"></i></a>
+      </div>
+    </div>
+  </article>
   {% endfor %}
 </div>
 {% else %}
-<div class="card p-5 text-center">
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 4rem; height: 4rem; margin: 0 auto 1.5rem; color: var(--text-muted);">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3" />
-    <path stroke-linecap="round" stroke-linejoin="round" d="M5 6h14M5 10h14a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2z" />
-  </svg>
-  <h2 class="h5 mb-2">You haven't created any boarding houses yet</h2>
-  <p class="text-muted mb-4">Create your first boarding house to start managing rooms and receiving inquiries from students.</p>
-  <a href="{% url 'boarding_house_create' %}" class="btn btn-primary">Create Your First Boarding House</a>
+<div class="bhims-empty">
+    <i class="bi bi-buildings"></i>
+    <h3>No boarding houses yet</h3>
+    <p>Create your first boarding house to start managing rooms and receiving student inquiries.</p>
+    <a href="{% url 'boarding_house_create' %}" class="btn btn-primary">Create Your First Boarding House</a>
 </div>
 {% endif %}
 </div>

@@ -9,35 +9,43 @@
         background: var(--bhims-glass-bg-primary);
         -webkit-backdrop-filter: var(--bhims-glass-primary);
         backdrop-filter: var(--bhims-glass-primary);
-        border: 1px solid var(--bhims-glass-border);
-        border-radius: 16px;
+        border: var(--bhims-glass-border);
+        border-top: var(--bhims-glass-border-top);
+        border-radius: 20px;
         padding: 32px;
-        box-shadow: 0 10px 30px rgba(8, 79, 79, 0.08);
+        box-shadow: var(--bhims-glass-shadow), var(--bhims-glass-inner-glow);
         margin-top: 1.5rem;
     }
     .rd-person {
-        display: flex; align-items: center; gap: 14px; background: rgba(255,255,255,0.55);
-        border: 1px solid var(--bhims-border); border-radius: 12px; padding: 14px 18px;
+        display: flex; align-items: center; gap: 14px;
+        background: rgba(255,255,255,0.03);
+        -webkit-backdrop-filter: blur(16px) saturate(150%);
+        backdrop-filter: blur(16px) saturate(150%);
+        border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px 18px;
     }
     .rd-avatar {
         width: 52px; height: 52px; border-radius: 50%; object-fit: cover;
         display: inline-flex; align-items: center; justify-content: center;
-        background: #f2ece5; color: #0d7a7b; font-weight: 800; font-size: var(--fs-xl);
+        background: var(--bhims-paper-sunken); color: var(--bhims-teal); font-weight: 800; font-size: var(--fs-xl);
         overflow: hidden; flex-shrink: 0;
     }
     .rd-avatar img { width: 100%; height: 100%; object-fit: cover; }
     .rd-details-box {
-        background: rgba(255,255,255,0.65); border: 1px solid var(--bhims-border);
+        background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
         border-radius: 12px; padding: 18px 20px; white-space: pre-wrap;
         color: var(--bhims-text); line-height: 1.6;
     }
     .rd-meta-row { display: flex; gap: 10px; align-items: center; padding: 8px 0;
-        border-bottom: 1px dashed rgba(109,92,83,0.25); color: var(--bhims-text); font-size: var(--fs-md); }
-    .rd-meta-label { min-width: 130px; color: #57706f; font-weight: 600; }
+        border-bottom: 1px dashed rgba(255,255,255,0.08); color: var(--bhims-text); font-size: var(--fs-md); }
+    .rd-meta-label { min-width: 130px; color: var(--bhims-text-muted); font-weight: 600; }
     .btn-rd { border-radius: 999px; padding: 9px 24px; font-weight: 700; text-decoration: none;
         display: inline-flex; align-items: center; gap: 6px; border: 1px solid transparent; }
-    .btn-rd-back { background: #fffdfa; color: #1f3438; border-color: var(--bhims-border); }
-    .btn-rd-back:hover { background: #f3ece5; color: #1f3438; }
+    .btn-rd-back {
+        background: rgba(255,255,255,0.03); color: var(--bhims-text);
+        -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+        border-color: rgba(255,255,255,0.08);
+    }
+    .btn-rd-back:hover { background: rgba(255,255,255,0.06); color: var(--bhims-text); }
 </style>
 {% endblock %}
 
@@ -61,7 +69,7 @@
     <div class="rd-card">
         <div class="row g-3 mb-4">
             <div class="col-md-6">
-                <div class="fw-bold mb-2" style="color:#57706f;"><i class="bi bi-person-x"></i> Reported User</div>
+                <div class="fw-bold mb-2" style="color:var(--bhims-text-muted);"><i class="bi bi-person-x"></i> Reported User</div>
                 <div class="rd-person">
                     {% if report.reported_user.profile_picture %}
                         <span class="rd-avatar"><img src="{{ report.reported_user.profile_picture.url }}" alt=""></span>
@@ -79,7 +87,7 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="fw-bold mb-2" style="color:#57706f;"><i class="bi bi-flag"></i> Reported By</div>
+                <div class="fw-bold mb-2" style="color:var(--bhims-text-muted);"><i class="bi bi-flag"></i> Reported By</div>
                 <div class="rd-person">
                     {% if report.reporter.profile_picture %}
                         <span class="rd-avatar"><img src="{{ report.reporter.profile_picture.url }}" alt=""></span>
@@ -97,7 +105,7 @@
         </div>
 
         <div class="mb-4">
-            <div class="fw-bold mb-2" style="color:#57706f;">Complaint Details</div>
+            <div class="fw-bold mb-2" style="color:var(--bhims-text-muted);">Complaint Details</div>
             {% if report.details %}
                 <div class="rd-details-box">{{ report.details }}</div>
             {% else %}

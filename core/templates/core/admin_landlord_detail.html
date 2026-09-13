@@ -41,6 +41,16 @@
                     </dd>
                     <dt class="fw-semibold" style="color: var(--bhims-text);">Member Since</dt>
                     <dd>{{ landlord.date_joined|date:"M d, Y" }}</dd>
+                    <dt class="fw-semibold" style="color: var(--bhims-text);">Student Rating</dt>
+                    <dd>
+                        {% if average_rating %}
+                        <span style="color: var(--bhims-badge-pending); letter-spacing: 1px;">★★★★★</span>
+                        <span class="fw-bold" style="color: var(--bhims-text);">{{ average_rating|floatformat:1 }} / 5</span>
+                        <small class="text-muted d-block">{{ rating_count }} rating{{ rating_count|pluralize }}</small>
+                        {% else %}
+                        <span class="text-muted">No ratings yet</span>
+                        {% endif %}
+                    </dd>
                 </dl>
             </div>
         </div>
@@ -109,6 +119,52 @@
                 </form>
             </div>
         </div>
+    </div>
+
+    <div class="admin-table-wrap mt-4">
+        <div class="p-4 d-flex justify-content-between align-items-center" style="border-bottom: 1px solid var(--bhims-border);">
+            <h2 class="h5 mb-0 fw-bold" style="color: var(--bhims-text);">Rating History</h2>
+            {% if average_rating %}
+            <span class="pill pill-approved">{{ average_rating|floatformat:1 }} / 5 · {{ rating_count }} total</span>
+            {% endif %}
+        </div>
+        {% if ratings %}
+        <div class="table-responsive">
+            <table class="table admin-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Rating</th>
+                        <th>Comment</th>
+                        <th>Booking</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rating in ratings %}
+                    <tr>
+                        <td>
+                            <div class="fw-semibold" style="color: var(--bhims-text);">{{ rating.student.full_name|default:rating.student.username }}</div>
+                            <small class="text-muted">@{{ rating.student.username }}</small>
+                        </td>
+                        <td>
+                            <span style="color: var(--bhims-badge-pending); letter-spacing: 1px;" aria-label="{{ rating.rating }} out of 5">{% if rating.rating == 5 %}★★★★★{% elif rating.rating == 4 %}★★★★{% elif rating.rating == 3 %}★★★{% elif rating.rating == 2 %}★★{% else %}★{% endif %}</span>
+                            <span class="fw-bold ms-1" style="color: var(--bhims-text);">{{ rating.rating }}/5</span>
+                        </td>
+                        <td style="max-width: 320px;">{{ rating.comment|default:"—" }}</td>
+                        <td>{{ rating.booking.room.boarding_house.name|default:"—" }}</td>
+                        <td>{{ rating.created_at|date:"M d, Y" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-star"></i>
+            <p class="mb-0">No student has rated this landlord yet. Ratings appear after a student completes a confirmed booking.</p>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

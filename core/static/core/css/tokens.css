@@ -1,0 +1,250 @@
+/* BHIMS Design Tokens — Maxed-Out Glassmorphism
+   Inspired by Prism Dashboard, Horizon UI, shadcn/ui, and the "human glass" recipe.
+   Default = dark mode. Light mode via [data-theme="light"] */
+
+:root {
+    /* ---- Core palette ---- */
+    --bhims-teal: #1bb89a;
+    --bhims-teal-hover: #2ee0bb;
+    /* Contrast-safe teal for teal-on-glass TEXT (labels, text buttons).
+       Dark bg: a lighter teal reads best; it flips deep in light mode. */
+    --bhims-teal-strong: #3ecfae;
+    --bhims-teal-deep: #12967c;
+    --bhims-teal-light: #5ee6c8;
+
+    /* ---- Text (white hierarchy on dark) ---- */
+    --bhims-text: #ffffff;
+    --bhims-text-secondary: rgba(255, 255, 255, 0.85);
+    --bhims-text-muted: rgba(255, 255, 255, 0.72);
+    --bhims-text-faint: rgba(255, 255, 255, 0.50);
+
+    /* ---- Surfaces ---- */
+    --bhims-paper: #0a0a0a;
+    --bhims-paper-raised: rgba(255, 255, 255, 0.04);
+    --bhims-paper-sunken: rgba(255, 255, 255, 0.02);
+    --bhims-ink-line: rgba(255, 255, 255, 0.08);
+    --bhims-ink-line-strong: rgba(255, 255, 255, 0.14);
+    --bhims-border: rgba(255, 255, 255, 0.08);
+    --bhims-icon-tint: rgba(255, 255, 255, 0.06);
+
+    /* ---- Glass system — maxed-out frost ---- */
+    --bhims-glass-blur: 24px;
+    --bhims-glass-saturate: 1.8;
+    --bhims-glass-primary: blur(24px) saturate(180%);
+    --bhims-glass-secondary: blur(16px) saturate(150%);
+    --bhims-glass-subtle: blur(10px) saturate(130%);
+
+    /* Glass backgrounds — near-invisible fill, blur does the work */
+    --bhims-glass-bg-primary: rgba(255, 255, 255, 0.03);
+    --bhims-glass-bg-secondary: rgba(255, 255, 255, 0.02);
+    --bhims-glass-bg-subtle: rgba(255, 255, 255, 0.01);
+
+    /* Border — sharp glass edges (top catches light) */
+    --bhims-glass-border: 1px solid rgba(255, 255, 255, 0.08);
+    --bhims-glass-border-top: 1px solid rgba(255, 255, 255, 0.12);
+    --bhims-glass-border-side: 1px solid rgba(255, 255, 255, 0.06);
+
+    /* Inner glow — Prism-style top-edge highlight */
+    --bhims-glass-inner-glow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+    /* Shadow — deep real-world depth (Google AI recipe) */
+    --bhims-glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    --bhims-glass-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.18);
+    --bhims-glass-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.24);
+    --bhims-glass-shadow-md: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    --bhims-glass-shadow-lg: 0 16px 48px 0 rgba(0, 0, 0, 0.50);
+    --bhims-glass-shadow-hover: 0 16px 48px 0 rgba(0, 0, 0, 0.50);
+
+    /* Neumorphic inset — for pressed/active states (Prism) */
+    --bhims-glass-inset: inset 2px 2px 5px rgba(0, 0, 0, 0.50), inset -1px -1px 2px rgba(255, 255, 255, 0.04);
+
+    /* ---- Typography ---- */
+    --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+    /* ---- Badges ---- */
+    --bhims-badge-verified-bg: rgba(27, 184, 154, 0.15);
+    --bhims-badge-verified: #1bb89a;
+    --bhims-badge-pending-bg: rgba(253, 240, 220, 0.15);
+    --bhims-badge-pending: #f0c050;
+    --bhims-badge-rejected-bg: rgba(251, 228, 222, 0.15);
+    --bhims-badge-rejected: #f07070;
+
+    /* ---- Greens / Info ---- */
+    --bhims-moss: #3d8f6e;
+    --bhims-moss-hover: #32785b;
+    --bhims-moss-bg: rgba(61, 143, 110, 0.15);
+    --bhims-moss-border: rgba(61, 143, 110, 0.25);
+    --bhims-info: #60b0d0;
+
+    /* ---- Danger tokens ---- */
+    --bhims-danger-text: #f07070;
+    --bhims-danger-hover: #e05050;
+    --bhims-danger-bg: rgba(240, 112, 112, 0.12);
+    --bhims-danger-border: rgba(240, 112, 112, 0.25);
+
+    /* ---- Type scale ---- */
+    --fs-xs: 0.75rem;
+    --fs-sm: 0.8125rem;
+    --fs-md: 0.9rem;
+    --fs-base: 1rem;
+    --fs-lg: 1.125rem;
+    --fs-xl: 1.25rem;
+    --fs-2xl: 1.5rem;
+
+    /* ---- Radii — softer geometry (Google AI recipe: 20px) ---- */
+    --bhims-radius: 16px;
+    --bhims-radius-sm: 10px;
+    --radius-none: 0;
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-2xl: 1.5rem;
+    --radius-full: 9999px;
+
+    /* ---- Z-layers ---- */
+    --z-bg: 0;
+    --z-content: 1;
+    --z-topbar: 1200;
+    --z-sidebar: 1300;
+    --z-modal: 2000;
+    --z-toast: 10000;
+
+    /* ---- App shell layout ---- */
+    --bhims-topbar-h: 64px;   /* sticky topbar height — sidebar rails start below it */
+    --bhims-sidebar-w: 264px; /* desktop sidebar rail width — content margin-left must match */
+
+    /* ---- Spacing ---- */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+
+    /* ---- Containers ---- */
+    --container-sm: 640px;
+    --container-md: 768px;
+    --container-lg: 1024px;
+    --container-xl: 1280px;
+    --container-2xl: 1440px;
+
+    /* ---- Type scale (display) ---- */
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 1.875rem;
+    --text-4xl: 2.25rem;
+    --text-5xl: 3rem;
+
+    /* ---- Easing / Shadows ---- */
+    --bhims-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --bhims-ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --bhims-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.22);
+    --bhims-shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.28);
+    --bhims-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.34);
+    --bhims-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.40);
+
+    /* ---- Legacy shadows ---- */
+    --bhims-shadow: rgba(0, 0, 0, 0.28);
+    --bhims-shadow-hover: rgba(0, 0, 0, 0.40);
+    --bhims-shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.28);
+    --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.40);
+
+    /* ---- Legacy aliases ---- */
+    --warm-green: var(--bhims-teal);
+    --beige: transparent;
+    --surface: var(--bhims-paper-raised);
+    --text-muted: var(--bhims-text-muted);
+    --text-dark: var(--bhims-text);
+    --cream: transparent;
+    --cream-light: transparent;
+    --bhims-cream-light: var(--bhims-glass-bg-primary);
+    --bhims-bg: var(--bhims-paper);
+}
+
+/* ---- Light mode (opt-in via data-theme="light") ---- */
+[data-theme="light"] {
+    --bhims-teal: #0e7d6b;
+    --bhims-teal-hover: #0b6558;
+    --bhims-teal-strong: #0a6b57;
+    --bhims-teal-deep: #085248;
+    --bhims-teal-light: #2bc4a8;
+
+    --bhims-text: #1f3438;
+    --bhims-text-secondary: rgba(31, 52, 56, 0.82);
+    --bhims-text-muted: rgba(31, 52, 56, 0.72);
+    --bhims-text-faint: rgba(31, 52, 56, 0.50);
+
+    --bhims-paper: #e8efeb;
+    --bhims-paper-raised: rgba(255, 255, 255, 0.55);
+    --bhims-paper-sunken: rgba(255, 255, 255, 0.35);
+    --bhims-ink-line: rgba(13, 122, 123, 0.14);
+    --bhims-ink-line-strong: rgba(13, 122, 123, 0.22);
+    --bhims-border: rgba(13, 122, 123, 0.14);
+    --bhims-icon-tint: rgba(13, 122, 123, 0.08);
+
+    --bhims-glass-blur: 24px;
+    --bhims-glass-saturate: 1.8;
+    --bhims-glass-primary: blur(24px) saturate(180%);
+    --bhims-glass-secondary: blur(16px) saturate(150%);
+    --bhims-glass-subtle: blur(10px) saturate(130%);
+
+    --bhims-glass-bg-primary: rgba(255, 255, 255, 0.50);
+    --bhims-glass-bg-secondary: rgba(255, 255, 255, 0.35);
+    --bhims-glass-bg-subtle: rgba(255, 255, 255, 0.22);
+
+    --bhims-glass-border: 1px solid rgba(255, 255, 255, 0.50);
+    --bhims-glass-border-top: 1px solid rgba(255, 255, 255, 0.60);
+    --bhims-glass-border-side: 1px solid rgba(255, 255, 255, 0.25);
+
+    --bhims-glass-inner-glow: inset 0 1px 0 rgba(255, 255, 255, 0.50);
+    --bhims-glass-shadow: 0 8px 32px 0 rgba(8, 79, 79, 0.10);
+    --bhims-glass-shadow-xs: 0 1px 2px rgba(8, 79, 79, 0.06);
+    --bhims-glass-shadow-sm: 0 2px 8px rgba(8, 79, 79, 0.08);
+    --bhims-glass-shadow-md: 0 8px 32px 0 rgba(8, 79, 79, 0.10);
+    --bhims-glass-shadow-lg: 0 16px 48px 0 rgba(8, 79, 79, 0.14);
+    --bhims-glass-shadow-hover: 0 16px 48px 0 rgba(8, 79, 79, 0.14);
+
+    --bhims-glass-inset: inset 1px 1px 3px rgba(8, 79, 79, 0.08), inset -1px -1px 2px rgba(255, 255, 255, 0.50);
+
+    --bhims-badge-verified-bg: rgba(224, 240, 240, 0.78);
+    --bhims-badge-verified: #0a645f;
+    --bhims-badge-pending-bg: rgba(253, 240, 220, 0.78);
+    --bhims-badge-pending: #9a6a1f;
+    --bhims-badge-rejected-bg: rgba(251, 228, 222, 0.78);
+    --bhims-badge-rejected: #b3402a;
+
+    --bhims-moss-bg: #e8f5ec;
+    --bhims-moss-border: #bfe0c9;
+    --bhims-info: #3f7d8c;
+
+    --bhims-danger-text: #b3261e;
+    --bhims-danger-hover: #8c1d18;
+    --bhims-danger-bg: #fdeceb;
+    --bhims-danger-border: #f3c1bd;
+
+    --bhims-shadow-xs: 0 1px 2px rgba(8, 79, 79, 0.06);
+    --bhims-shadow-sm: 0 1px 2px rgba(8, 79, 79, 0.05), 0 4px 10px rgba(8, 79, 79, 0.06);
+    --bhims-shadow-md: 0 2px 4px rgba(8, 79, 79, 0.05), 0 10px 22px rgba(8, 79, 79, 0.09);
+    --bhims-shadow-lg: 0 4px 8px rgba(8, 79, 79, 0.06), 0 18px 40px rgba(8, 79, 79, 0.12);
+
+    --bhims-shadow: rgba(8, 79, 79, 0.06);
+    --bhims-shadow-hover: rgba(8, 79, 79, 0.12);
+    --bhims-shadow-soft: 0 4px 12px rgba(8, 79, 79, 0.06);
+    --shadow-hover: 0 8px 24px rgba(8, 79, 79, 0.12);
+
+    --bhims-cream-light: var(--bhims-glass-bg-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}

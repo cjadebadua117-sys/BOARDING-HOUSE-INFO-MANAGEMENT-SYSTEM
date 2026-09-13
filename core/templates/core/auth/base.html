@@ -38,11 +38,17 @@
         flex-direction: column;
         justify-content: flex-end;
         padding: 3.5rem 3rem 3rem;
-        color: #f4fbf9;
+        color: #fff;
+        /* Deep scrim through the whole text band — bright photo areas
+           (sky, signage) used to bleed through and wash out the copy. */
         background:
-            linear-gradient(to top, rgba(8, 49, 49, 0.88) 0%, rgba(8, 79, 79, 0.52) 52%, rgba(8, 79, 79, 0.28) 100%),
+            linear-gradient(to top, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.78) 48%, rgba(0, 0, 0, 0.45) 80%, rgba(0, 0, 0, 0.35) 100%),
             url('{% static 'core/images/dmmmsu-campus.jpg' %}') center / cover no-repeat;
     }
+    .auth-hero .hero-eyebrow,
+    .auth-hero h1,
+    .auth-hero .hero-copy,
+    .auth-hero .hero-foot { text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); }
     .auth-hero > * { animation: authRise 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }
     .auth-hero .hero-eyebrow { animation-delay: 0.05s; }
     .auth-hero h1            { animation-delay: 0.12s; }
@@ -65,7 +71,7 @@
         font-weight: 700;
         letter-spacing: 0.22em;
         text-transform: uppercase;
-        opacity: 0.85;
+        color: rgba(255, 255, 255, 0.85);
         margin: 0 0 1rem;
     }
     .auth-hero h1 {
@@ -74,7 +80,7 @@
         font-size: clamp(2.6rem, 5vw, 4.2rem);
         line-height: 1.02;
         margin: 0 0 1.1rem;
-        color: #fdf8ef;
+        color: #fff;
     }
     .auth-hero .hero-rule {
         width: 52px;
@@ -87,15 +93,15 @@
         font-size: 1.02rem;
         line-height: 1.55;
         max-width: 34ch;
-        opacity: 0.92;
+        color: rgba(255, 255, 255, 0.92);
         margin: 0 0 2.4rem;
     }
     .auth-hero .hero-foot {
-        border-top: 1px solid rgba(246, 239, 228, 0.22);
+        border-top: 1px solid rgba(255, 255, 255, 0.22);
         padding-top: 1rem;
         font-size: 0.82rem;
         letter-spacing: 0.04em;
-        opacity: 0.75;
+        color: rgba(255, 255, 255, 0.75);
     }
 
     /* ---- Right: form side on paper ---- */
@@ -107,8 +113,14 @@
         justify-content: center;
         padding: 2.75rem 2rem;
         overflow-y: auto;
-        background: var(--bhims-paper);
-        background-image: repeating-linear-gradient(0deg, rgba(8, 79, 79, 0.014) 0 1px, transparent 1px 7px);
+        background: var(--bhims-glass-bg-primary);
+        -webkit-backdrop-filter: var(--bhims-glass-primary);
+        backdrop-filter: var(--bhims-glass-primary);
+    }
+    [data-theme="light"] .auth-main {
+        background: rgba(255, 255, 255, 0.35);
+        -webkit-backdrop-filter: blur(40px) saturate(200%);
+        backdrop-filter: blur(40px) saturate(200%);
     }
 
     .pane-inner { width: 100%; max-width: 440px; margin: auto 0; min-width: 0; }
@@ -145,9 +157,9 @@
     }
 
     .auth-error {
-        background: #f9e9e4;
-        border-left: 3px solid #b3402a;
-        color: #7c2d1c;
+        background: var(--bhims-danger-bg);
+        border-left: 3px solid var(--bhims-badge-rejected);
+        color: var(--bhims-danger-hover);
         font-size: 0.92rem;
         line-height: 1.45;
         padding: 0.85rem 1rem;
@@ -175,7 +187,7 @@
     .auth-input-wrap select {
         width: 100%;
         border: 0;
-        border-bottom: 1.5px solid #d9c9b2;
+        border-bottom: 1.5px solid var(--bhims-ink-line-strong);
         border-radius: 0;
         background: transparent;
         padding: 0.6rem 0.1rem;
@@ -192,7 +204,7 @@
         box-shadow: 0 1px 0 var(--bhims-teal);
     }
     .field-error {
-        color: #b3402a;
+        color: var(--bhims-badge-rejected);
         font-size: 0.84rem;
         margin-top: 0.35rem;
     }
@@ -205,7 +217,7 @@
         background: none;
         border: none;
         cursor: pointer;
-        color: #a08c76;
+        color: var(--bhims-text-muted);
         padding: 0.5rem;
         border-radius: 6px;
         line-height: 0;
@@ -213,7 +225,7 @@
     }
     .eye-toggle:hover { color: var(--bhims-teal); }
     .eye-toggle:focus-visible {
-        outline: 2px solid rgba(13, 122, 123, 0.65);
+        outline: 2px solid rgba(27, 184, 154, 0.50);
         outline-offset: 1px;
     }
 
@@ -237,9 +249,9 @@
 
     .auth-submit {
         width: 100%;
-        background: var(--bhims-teal);
+        background: #0c7f67;
         color: #fff;
-        border: 1px solid var(--bhims-teal-deep);
+        border: 1px solid #0a6b57;
         border-radius: var(--bhims-radius-sm);
         padding: 0.85rem 2rem;
         font-family: 'Inter', sans-serif;
@@ -247,17 +259,17 @@
         font-size: 1rem;
         letter-spacing: 0.02em;
         cursor: pointer;
-        box-shadow: 0 1px 2px rgba(8, 79, 79, 0.18);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.20);
         transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.18s ease;
         margin-top: 0.5rem;
     }
-    .auth-submit:hover { background: var(--bhims-teal); border-color: var(--bhims-teal-deep); }
+    .auth-submit:hover { background: #0d8a70; border-color: #0c7f67; }
     .auth-submit:active { transform: translateY(1px); box-shadow: none; }
 
     .pane-foot {
         margin-top: 2rem;
         padding-top: 1.2rem;
-        border-top: 1px solid #e5d8c4;
+        border-top: 1px solid var(--bhims-ink-line);
         font-size: 0.88rem;
         color: var(--bhims-text-muted);
     }
@@ -271,7 +283,7 @@
 
     .auth-submit:focus-visible,
     .pane-foot a:focus-visible {
-        outline: 2px solid rgba(13, 122, 123, 0.8);
+        outline: 2px solid rgba(27, 184, 154, 0.50);
         outline-offset: 2px;
     }
 
@@ -296,7 +308,7 @@
             padding: 2.25rem 1.5rem 1.75rem;
             min-height: 220px;
             background:
-                linear-gradient(to bottom, rgba(8, 49, 49, 0.72), rgba(8, 79, 79, 0.62)),
+                linear-gradient(to bottom, rgba(8, 49, 49, 0.78), rgba(8, 79, 79, 0.68)),
                 url('{% static 'core/images/dmmmsu-campus.jpg' %}') center / cover no-repeat;
         }
         .auth-hero h1 { font-size: 2.1rem; margin-bottom: 0.7rem; }
@@ -309,7 +321,7 @@
 <div class="auth-shell">
     <!-- Left: campus duotone panel -->
     <div class="auth-hero">
-        <p class="hero-eyebrow">DMMMSU &middot; NLUC &middot; Bacnotan, La Union</p>
+        <p class="hero-eyebrow">BHIMS · DMMMSU NLUC Bacnotan</p>
         <h1>{% block hero_title %}Welcome.{% endblock %}</h1>
         <hr class="hero-rule">
         <p class="hero-copy">{% block hero_copy %}{% endblock %}</p>

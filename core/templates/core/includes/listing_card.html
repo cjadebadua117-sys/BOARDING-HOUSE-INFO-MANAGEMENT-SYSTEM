@@ -1,5 +1,4 @@
-{# Shared listing card — used by boardings_list and landing featured grid. Expects `house` in context. #}
-<a class="listing-card bhims-press" href="{% url 'boarding_detail' house.pk %}">
+<a class="listing-card bhims-press" href="{% if landing %}{% url 'student_login' %}{% else %}{% url 'boarding_detail' house.pk %}{% endif %}">
     <div class="card-image">
         {% if house.image_ok %}
             <img src="{{ house.image.url }}" alt="" loading="lazy" decoding="async">
@@ -11,6 +10,9 @@
         {% endif %}
         <div class="card-overlay" aria-hidden="true"></div>
         <div class="card-badges">
+            {% if house.status == 'approved' %}
+            <span class="gender-pill"><i class="bi bi-shield-check"></i> Verified</span>
+            {% endif %}
             {% if house.gender_allowed and house.gender_allowed != 'both' %}
             <span class="gender-pill">{{ house.get_gender_allowed_display }}</span>
             {% endif %}

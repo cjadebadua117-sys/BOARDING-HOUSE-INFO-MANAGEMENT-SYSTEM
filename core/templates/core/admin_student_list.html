@@ -32,6 +32,7 @@
                         <th>Email</th>
                         <th>Program</th>
                         <th>Status</th>
+                        <th>Ratings Given</th>
                         <th class="text-end">Actions</th>
                     </tr>
                 </thead>
@@ -41,7 +42,7 @@
                         <td>
                             <div class="d-flex align-items-center">
                                 <div class="text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                                     style="width: 38px; height: 38px; font-size: var(--fs-sm); font-weight: 700; background: var(--bhims-teal);">
+                                     style="width: 38px; height: 38px; font-size: var(--fs-sm); font-weight: 700; background: #0c7f67;">
                                     {{ student.full_name|first|default:student.username|first|upper }}
                                 </div>
                                 <div class="ms-3">
@@ -58,6 +59,15 @@
                             <span class="pill pill-approved">Active</span>
                             {% else %}
                             <span class="pill pill-rejected">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if student.rating_total %}
+                            <span style="color: var(--bhims-badge-pending);" aria-label="average {{ student.avg_rating|floatformat:1 }} out of 5">★</span>
+                            <span class="fw-semibold" style="color: var(--bhims-text);">{{ student.avg_rating|floatformat:1 }}</span>
+                            <small class="text-muted">({{ student.rating_total }} given)</small>
+                            {% else %}
+                            <span class="text-muted">None yet</span>
                             {% endif %}
                         </td>
                         <td class="text-end">

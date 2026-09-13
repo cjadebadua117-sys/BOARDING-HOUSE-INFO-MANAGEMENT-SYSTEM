@@ -58,7 +58,7 @@
       navigator.clipboard.writeText(btn.getAttribute('data-copy')).then(function () {
         var icon = btn.querySelector('i');
         icon.classList.replace('bi-clipboard', 'bi-check2');
-        btn.style.color = 'var(--bhims-moss)';
+        btn.style.color = '#3d8f6e';
         setTimeout(function () {
           icon.classList.replace('bi-check2', 'bi-clipboard');
           btn.style.color = '';

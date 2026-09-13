@@ -9,8 +9,9 @@
     <p>Your inquiries and bookings with boarding houses near NLUC.</p>
   </div>
   <div class="header-actions">
-    <a class="btn btn-outline-primary" href="{% url 'student_bookings' %}"><i class="bi bi-patch-check"></i> Bookings</a>
-    <a class="create-btn" href="{% url 'listing_list' %}"><i class="bi bi-search"></i> Browse listings</a>
+    <a href="{% url 'listing_list' %}" class="btn btn-primary btn-uppercase">
+      <i class="bi bi-house-door"></i> Browse Listings
+    </a>
   </div>
 </div>
 
@@ -18,21 +19,21 @@
   <div class="stat-card">
     <div class="stat-icon"><i class="bi bi-chat-dots"></i></div>
     <div class="stat-content">
-      <h2 class="h3 stat-value">{{ total_inquiries }}</h2>
+      <h2 class="h3 stat-value stat-number" data-count="{{ total_inquiries }}">{{ total_inquiries }}</h2>
       <p>Total inquiries</p>
     </div>
   </div>
   <div class="stat-card">
     <div class="stat-icon"><i class="bi bi-lightning"></i></div>
     <div class="stat-content">
-      <h2 class="h3 stat-value">{{ active_inquiries }}</h2>
+      <h2 class="h3 stat-value stat-number" data-count="{{ active_inquiries }}">{{ active_inquiries }}</h2>
       <p>Open inquiries</p>
     </div>
   </div>
   <div class="stat-card">
     <div class="stat-icon"><i class="bi bi-patch-check"></i></div>
     <div class="stat-content">
-      <h2 class="h3 stat-value">{{ confirmed_bookings }}</h2>
+      <h2 class="h3 stat-value stat-number" data-count="{{ confirmed_bookings }}">{{ confirmed_bookings }}</h2>
       <p>Confirmed bookings</p>
     </div>
   </div>
@@ -47,13 +48,13 @@
 
 {% if inquiries %}
 <div class="inquiry-stack">
-  {% for inquiry in inquiries %}
-  <a class="inquiry-row" href="{% url 'student_inquiry_thread' inquiry.pk %}">
+  {% for inquiry in inquiries %}    <a class="inquiry-row" href="{% url 'student_inquiry_thread' inquiry.pk %}">
     <div>
       <h3>{{ inquiry.room.boarding_house.name }}</h3>
       <p>{{ inquiry.room.name|default:inquiry.room.room_type }} · {{ inquiry.room.boarding_house.barangay_display }}</p>
       <div class="inquiry-meta">
         <span class="status-chip {% if inquiry.status == 'open' %}is-open{% elif inquiry.status == 'pending' %}is-pending{% elif inquiry.status == 'declined' %}is-declined{% else %}is-closed{% endif %}">{{ inquiry.get_status_display }}</span>
+        <span>{{ inquiry.message_text|truncatechars:80 }}</span>
         <span>{{ inquiry.last_activity|date:"M j" }}</span>
       </div>
     </div>
@@ -66,7 +67,9 @@
   <i class="bi bi-chat-dots"></i>
   <h3>No inquiries yet</h3>
   <p>Browse houses near campus and message a landlord when a room looks right.</p>
-  <a href="{% url 'listing_list' %}" class="btn btn-primary">Browse listings</a>
+  <a href="{% url 'listing_list' %}" class="btn btn-primary btn-uppercase" style="margin-top: 0.75rem;">
+    <i class="bi bi-house-door"></i> Browse Listings
+  </a>
 </div>
 {% endif %}
 </div>

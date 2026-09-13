@@ -3,19 +3,22 @@
 {% block app_content %}
 <style>
     .booking-table-wrap {
-        background: var(--surface);
+        background: var(--bhims-glass-bg-primary);
+        -webkit-backdrop-filter: var(--bhims-glass-primary);
+        backdrop-filter: var(--bhims-glass-primary);
+        border: var(--bhims-glass-border);
         border-radius: 20px;
-        box-shadow: var(--shadow-soft);
         overflow: hidden;
+        box-shadow: var(--bhims-glass-shadow), var(--bhims-glass-inner-glow);
     }
     .booking-table-wrap table {
         margin: 0;
     }
     .booking-table-wrap thead {
-        background: rgba(13, 122, 123, 0.08);
+        background: var(--bhims-icon-tint);
     }
     .booking-table-wrap thead th {
-        color: var(--text-dark);
+        color: var(--bhims-text);
         font-weight: 700;
         font-size: var(--fs-sm);
         text-transform: uppercase;
@@ -26,13 +29,14 @@
     .booking-table-wrap tbody td {
         padding: 1rem 1.25rem;
         vertical-align: middle;
-        border-color: rgba(0, 0, 0, 0.05);
+        border-color: var(--bhims-border);
+        color: var(--bhims-text-muted);
     }
     .tenant-avatar {
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: var(--bhims-icon-tint);
+        background: linear-gradient(135deg, rgba(27, 184, 154, 0.20), rgba(94, 230, 200, 0.10));
         color: var(--bhims-teal);
         display: flex;
         align-items: center;
@@ -40,47 +44,18 @@
         font-weight: 700;
         font-size: var(--fs-md);
         flex-shrink: 0;
-    }
-    .status-badge {
-        border-radius: 12px;
-        padding: 0.4rem 0.9rem;
-        font-weight: 600;
-        font-size: var(--fs-xs);
-        white-space: nowrap;
-    }
-    .status-confirmed {
-        background-color: rgba(45, 125, 70, 0.12);
-        color: #2d7d46;
-    }
-    .status-pending {
-        background-color: rgba(154, 106, 31, 0.12);
-        color: var(--bhims-badge-pending);
-    }
-    .status-declined,
-    .status-cancelled {
-        background-color: rgba(179, 64, 42, 0.12);
-        color: var(--bhims-badge-rejected);
-    }
-    .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-    }
-    .empty-state h3 {
-        margin-bottom: 1rem;
-        color: var(--text-muted);
-    }
-    .empty-state p {
-        color: var(--text-muted);
-        max-width: 400px;
-        margin: 0 auto 2rem auto;
+        border: 1px solid rgba(27, 184, 154, 0.20);
     }
 </style>
 
 <div class="row justify-content-center">
     <div class="col-lg-11">
-        <div class="mb-4">
-            <h1>Bookings &amp; Tenants</h1>
-            <p class="text-muted">Students who have been accepted into your rooms</p>
+        <div class="page-header">
+            <div>
+                <p class="eyebrow">Bookings</p>
+                <h1>Bookings &amp; Tenants</h1>
+                <p>Students who have been accepted into your rooms.</p>
+            </div>
         </div>
 
         {% if bookings %}
@@ -142,13 +117,9 @@
                 </div>
             </div>
         {% else %}
-            <div class="empty-state">
-                <div class="mb-3">
-                    <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="var(--beige)" stroke-width="1.5">
-                        <path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5z"></path>
-                    </svg>
-                </div>
-                <h2 class="h3">No bookings yet</h2>
+            <div class="bhims-empty">
+                <i class="bi bi-people"></i>
+                <h3>No bookings yet</h3>
                 <p>When you accept a student from an inquiry thread, they will show up here as a confirmed booking.</p>
                 <a href="{% url 'landlord_inquiry_list' %}" class="btn btn-primary">View Inquiries</a>
             </div>

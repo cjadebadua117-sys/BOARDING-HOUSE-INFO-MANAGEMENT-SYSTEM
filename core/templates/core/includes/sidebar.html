@@ -1,17 +1,12 @@
-{% load static %}
 <aside class="app-sidebar" aria-label="Main navigation">
     <!-- Ambient sheen so the frost reads as glass -->
     <div class="sidebar-sheen" aria-hidden="true"></div>
 
-    <!-- Brand -->
+    <!-- Sidebar content - centered, max width 264px -->
+    <div class="sidebar-content">
+
+    <!-- Drawer header: close button only (logo lives in the topbar) -->
     <div class="sidebar-brand">
-        <a href="{% url 'home' %}" style="display: flex; align-items: center; text-decoration: none; min-width: 0;">
-            <img src="{% static 'core/images/bhims-icon.png' %}" alt="BHIMS logo" style="width: 56px; height: 56px; object-fit: cover; border-radius: 14px; margin-right: 0.75rem; flex-shrink: 0; display: block; box-shadow: 0 4px 14px rgba(0,0,0,0.28);">
-            <span class="sidebar-wordmark">
-                BHIMS
-                <span>NLUC Bacnotan</span>
-            </span>
-        </a>
         <button type="button" class="sidebar-close" id="sidebarClose" aria-label="Close sidebar">
             <i class="bi bi-x-lg" aria-hidden="true"></i>
         </button>
@@ -27,7 +22,7 @@
                 <i class="bi bi-grid-1x2"></i><span>Dashboard</span>
             </a>
             <a href="{% url 'listing_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'listing_list' or request.resolver_match.url_name == 'boarding_detail' %}active{% endif %}">
-                <i class="bi bi-buildings"></i><span>Browse Listings</span>
+                <i class="bi bi-house-door"></i><span>Browse Listings</span>
             </a>
             <a href="{% url 'student_inquiry_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'student_inquiry_list' or request.resolver_match.url_name == 'student_inquiry_thread' %}active{% endif %}">
                 <i class="bi bi-chat-dots"></i><span>My Inquiries</span>
@@ -44,7 +39,7 @@
             </a>
             <a href="{% url 'landlord_inquiry_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'landlord_inquiry_list' or request.resolver_match.url_name == 'landlord_inquiry_thread' %}active{% endif %}">
                 <i class="bi bi-chat-dots"></i><span>Inquiries</span>
-                {% if pending_inquiries_count %}<span style="display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;margin-left:auto;border-radius:999px;background:var(--bhims-teal);color:#fff;font-size:0.75rem;font-weight:700;box-shadow:0 2px 8px rgba(13,122,123,0.35);">{{ pending_inquiries_count }}</span>{% endif %}
+                {% if pending_inquiries_count %}<span class="sidebar-badge">{{ pending_inquiries_count }}</span>{% endif %}
             </a>
             <a href="{% url 'landlord_bookings' %}" class="sidebar-link {% if request.resolver_match.url_name == 'landlord_bookings' %}active{% endif %}">
                 <i class="bi bi-people"></i><span>Bookings</span>
@@ -81,9 +76,6 @@
             </a>
             {% endif %}
             {% else %}
-            <a href="{% url 'listing_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'listing_list' or request.resolver_match.url_name == 'boarding_detail' %}active{% endif %}">
-                <i class="bi bi-buildings"></i><span>Browse Listings</span>
-            </a>
             <a href="{% url 'student_login' %}" class="sidebar-link">
                 <i class="bi bi-box-arrow-in-right"></i><span>Student Login</span>
             </a>
@@ -117,27 +109,46 @@
 </aside>
 
 <style>
-    /* ---- Teal glassmorphism rail (BHIMS teal palette) ---- */
+    /* ---- Maxed-out glassmorphism rail ---- */
     .app-sidebar {
-        width: 264px;
+        width: var(--bhims-sidebar-w, 264px);
         flex-shrink: 0;
-        position: sticky;
-        top: 0;
-        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: var(--bhims-topbar-h, 56px);
+        bottom: 0;
+        height: auto;
         overflow-y: auto;
         overflow-x: hidden;
         display: flex;
         flex-direction: column;
         color: #fff;
-        background:
-            linear-gradient(188deg, rgba(10, 66, 67, 0.86) 0%, rgba(7, 51, 52, 0.90) 58%, rgba(5, 42, 43, 0.94) 100%);
-        -webkit-backdrop-filter: blur(18px) saturate(1.25);
-        backdrop-filter: blur(18px) saturate(1.25);
-        border-right: 1px solid rgba(206, 234, 234, 0.16);
-        box-shadow: 8px 0 32px rgba(5, 51, 52, 0.30);
-        scrollbar-width: thin;
-        scrollbar-color: rgba(206, 234, 234, 0.28) transparent;
-        z-index: 5;
+        background: rgba(8, 20, 18, 0.98);
+        -webkit-backdrop-filter: blur(60px) saturate(150%);
+        backdrop-filter: blur(60px) saturate(150%);
+        z-index: var(--z-sidebar, 1300);
+        transition: background 0.4s ease;
+    }
+    
+    /* Sidebar content container - fixed rail width */
+    .app-sidebar .sidebar-content {
+        width: 100%;
+        max-width: 264px;
+        margin: 0 auto;
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Keep sidebar header out from under the topbar when sidebar is open */
+    .app-sidebar .sidebar-brand {
+        padding-top: 0;
+    }
+
+    @media (min-width: 769px) {
+        /* Desktop: the sticky topbar (which slides right beside the rail)
+           is the header — no duplicate logo row inside the rail itself. */
+        .app-sidebar .sidebar-brand { display: none; }
     }
     .app-sidebar::-webkit-scrollbar { width: 6px; }
     .app-sidebar::-webkit-scrollbar-thumb {
@@ -152,8 +163,8 @@
         position: absolute;
         inset: 0;
         background:
-            radial-gradient(420px 260px at -60px 8%, rgba(13, 122, 123, 0.25), transparent 62%),
-            radial-gradient(360px 300px at 130% 96%, rgba(61, 143, 110, 0.18), transparent 60%);
+            radial-gradient(500px 300px at -80px 5%, rgba(27, 184, 154, 0.15), transparent 60%),
+            radial-gradient(400px 350px at 140% 92%, rgba(61, 143, 110, 0.10), transparent 55%);
         z-index: 0;
     }
     .sidebar-brand,
@@ -163,44 +174,26 @@
     .sidebar-brand {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: flex-end;
         gap: 0.75rem;
-        padding: 1.6rem 1rem 1.2rem 1.6rem;
-        border-bottom: 1px solid rgba(206, 234, 234, 0.12);
+        padding: 0.85rem 1rem 0.85rem 1.6rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
-    .sidebar-wordmark {
-        font-family: var(--font-display);
-        font-weight: 800;
-        color: #fff;
-        font-size: 1.05rem;
-        line-height: 1.15;
-        white-space: nowrap;
-        display: block;
-    }
-    .sidebar-wordmark span {
-        display: block;
-        font-size: 0.68rem;
-        font-weight: 600;
-        letter-spacing: 0.18em;
-        color: rgba(206, 234, 234, 0.58);
-        text-transform: uppercase;
-    }
-
     .sidebar-close {
-        background: rgba(206, 234, 234, 0.10);
-        border: 1px solid rgba(206, 234, 234, 0.16);
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 10px;
         width: 34px;
         height: 34px;
-        display: inline-flex;
+        display: none; /* only meaningful inside the mobile drawer */
         align-items: center;
         justify-content: center;
-        color: rgba(212, 238, 238, 0.8);
+        color: rgba(255, 255, 255, 0.60);
         cursor: pointer;
         flex-shrink: 0;
         transition: background-color 0.2s ease, color 0.2s ease;
     }
-    .sidebar-close:hover { background: rgba(206, 234, 234, 0.2); color: #fff; }
+    .sidebar-close:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
 
     .sidebar-nav { flex: 1; padding: 1.4rem 1rem; }
     .sidebar-heading {
@@ -209,7 +202,7 @@
         font-weight: 700;
         letter-spacing: 0.18em;
         text-transform: uppercase;
-        color: rgba(206, 234, 234, 0.44);
+        color: rgba(255, 255, 255, 0.40);
     }
     .sidebar-links { display: flex; flex-direction: column; gap: 0.35rem; }
 
@@ -219,42 +212,62 @@
         align-items: center;
         gap: 0.85rem;
         padding: 0.72rem 1rem;
-        border-radius: 14px;
-        color: rgba(219, 241, 241, 0.80);
+        border-radius: 12px;
+        color: rgba(255, 255, 255, 0.60);
         text-decoration: none;
         font-size: var(--fs-md);
         font-weight: 500;
-        transition: background-color 0.22s ease, color 0.22s ease, box-shadow 0.22s ease;
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .sidebar-link i { font-size: var(--fs-lg); min-width: 22px; text-align: center; }
+    .sidebar-link i { font-size: var(--fs-lg); min-width: 22px; text-align: center; transition: transform 0.22s ease; }
     .sidebar-link:focus-visible {
-        outline: 2px solid rgba(111, 205, 206, 0.85);
+        outline: 2px solid rgba(27, 184, 154, 0.60);
         outline-offset: 2px;
     }
-    /* Frosted hover with the demo's inner light ring */
     .sidebar-link:hover {
-        background: rgba(206, 234, 234, 0.10);
-        box-shadow: inset 0 0 0 1px rgba(206, 234, 234, 0.22);
+        background: rgba(255, 255, 255, 0.08);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
         color: #fff;
+        transform: translateX(3px);
     }
+    .sidebar-link:hover i { transform: scale(1.08); }
     .sidebar-link.active {
-        background: linear-gradient(92deg, rgba(13, 122, 123, 0.95), rgba(8, 79, 79, 0.92));
-        box-shadow: inset 0 0 0 1px rgba(111, 205, 206, 0.34), 0 6px 18px rgba(8, 79, 79, 0.35);
+        background: rgba(255, 255, 255, 0.10);
+        -webkit-backdrop-filter: blur(16px);
+        backdrop-filter: blur(16px);
         color: #fff;
         font-weight: 600;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
     }
-    /* Teal accent bar on the active item */
     .sidebar-link.active::before {
         content: '';
         position: absolute;
         left: -1rem;
         top: 50%;
         transform: translateY(-50%);
-        width: 4px;
+        width: 3px;
+        height: 20px;
+        border-radius: 0 3px 3px 0;
+        background: var(--bhims-teal);
+        box-shadow: 0 0 10px rgba(27, 184, 154, 0.50);
+    }
+
+    /* Inline badge (e.g. pending inquiries count) */
+    .sidebar-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 22px;
         height: 22px;
-        border-radius: 0 4px 4px 0;
-        background: #8fd9d9;
-        box-shadow: 0 0 12px rgba(111, 205, 206, 0.55);
+        padding: 0 6px;
+        margin-left: auto;
+        border-radius: 999px;
+        background: var(--bhims-teal);
+        color: #fff;
+        font-size: 0.75rem;
+        font-weight: 700;
+        box-shadow: 0 2px 8px rgba(13, 122, 123, 0.35);
     }
 
     /* Profile card pinned to the bottom, avatar wired to user.profile_picture */
@@ -264,11 +277,13 @@
         display: flex;
         align-items: center;
         gap: 0.7rem;
-        background: rgba(206, 234, 234, 0.09);
-        border: 1px solid rgba(206, 234, 234, 0.16);
+        background: rgba(255, 255, 255, 0.05);
+        -webkit-backdrop-filter: blur(16px) saturate(150%);
+        backdrop-filter: blur(16px) saturate(150%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 16px;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 4px 16px rgba(0, 0, 0, 0.15);
     }
     .sidebar-avatar {
         width: 42px;
@@ -276,13 +291,13 @@
         border-radius: 50%;
         object-fit: cover;
         flex-shrink: 0;
-        border: 2px solid rgba(111, 205, 206, 0.4);
+        border: 2px solid rgba(27, 184, 154, 0.30);
     }
     .sidebar-avatar-initial {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        background: rgba(13, 122, 123, 0.85);
+        background: var(--bhims-teal);
         color: #fff;
         font-family: var(--font-display);
         font-weight: 700;
@@ -301,7 +316,7 @@
     .sidebar-profile-role {
         margin: 0;
         font-size: 0.72rem;
-        color: rgba(206, 234, 234, 0.55);
+        color: rgba(255, 255, 255, 0.50);
         text-transform: capitalize;
     }
     .sidebar-logout {
@@ -309,33 +324,35 @@
         border: none;
         padding: 0.35rem;
         cursor: pointer;
-        color: rgba(206, 234, 234, 0.65);
+        color: rgba(255, 255, 255, 0.55);
         font-size: var(--fs-lg);
         line-height: 1;
         border-radius: 8px;
         transition: color 0.2s ease, background-color 0.2s ease;
     }
-    .sidebar-logout:hover { color: #fff; background: rgba(206, 234, 234, 0.12); }
+    .sidebar-logout:hover { color: #fff; background: rgba(255, 255, 255, 0.10); }
 
-    @media (max-width: 768px) {
-        .app-shell { flex-direction: column; }
-        .app-main { order: 1; }
+@media (max-width: 768px) {
+        /* Off-canvas drawer. Visibility itself (the collapsed transform and
+           the dim overlay) is owned by app_base.html — do NOT add display
+           rules here, they would fight the drawer open/close animation. */
         .app-sidebar {
-            order: 2;
-            width: 100%;
-            height: auto;
-            position: static;
-            flex-direction: row;
-            flex-wrap: wrap;
-            align-items: center;
+            top: 0;
+            width: min(280px, 86vw);
+            height: 100vh;
+            height: 100dvh;
+            z-index: var(--z-sidebar, 1300);
+            transition: transform 0.22s ease;
+            box-shadow: 12px 0 40px rgba(0, 0, 0, 0.35);
         }
-        .sidebar-nav { padding: 0.5rem 1rem; }
-        .sidebar-links { flex-direction: row; flex-wrap: wrap; }
-        .sidebar-profile { display: none; }
-        .sidebar-sheen, .sidebar-close { display: none; }
+        .app-sidebar .sidebar-content { max-width: none; }
+        
+        .sidebar-close { display: inline-flex; }
+        .app-sidebar .sidebar-brand { padding-top: 1rem; }
     }
 
     @media (prefers-reduced-motion: reduce) {
         .sidebar-link, .sidebar-close, .sidebar-logout { transition: none; }
     }
 </style>
+

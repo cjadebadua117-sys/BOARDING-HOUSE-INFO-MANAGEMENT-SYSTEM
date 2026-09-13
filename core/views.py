@@ -213,8 +213,10 @@ def listing_list(request):
             'houses': decorated_houses,
         })
 
-    # Keep full houses visible; the card template renders a "Full" badge
-    return render(request, 'core/boardings_list.html', {
+    # Keep full houses visible; the card template renders a "Full" badge.
+    # Logged-in users get the sidebar app shell; visitors get the public navbar.
+    template = 'core/boardings_list_app.html' if request.user.is_authenticated else 'core/boardings_list.html'
+    return render(request, template, {
         'houses': decorated_houses,
         'boarding_houses': decorated_houses,
         'form': form
@@ -245,7 +247,9 @@ def boarding_detail(request, pk):
             return redirect('listing_list')
 
     rooms = [room for room in house.rooms.prefetch_related('photos', 'amenities').all() if room.has_space()]
-    return render(request, 'core/boarding_detail.html', {'house': house, 'rooms': rooms})
+    # Logged-in users keep their sidebar shell; visitors get the public navbar.
+    template = 'core/boarding_detail_app.html' if request.user.is_authenticated else 'core/boarding_detail.html'
+    return render(request, template, {'house': house, 'rooms': rooms})
 
 
 _ROLE_DASHBOARDS = {
@@ -310,7 +314,9 @@ def accounts_login(request):
         if user is not None and user.is_active:
             login(request, user)
             if remember_me:
-                request.session.set_expiry(1209600)
+                request.session.set_expiry(1209600)  # 2 weeks
+            else:
+                request.session.set_expiry(0)  # expire when the browser closes
             role_dashboards = {
                 User.Role.STUDENT: 'student_dashboard',
                 User.Role.LANDLORD: 'landlord_dashboard',
@@ -354,7 +360,9 @@ def student_login(request):
         if user is not None and user.is_active and user.role == User.Role.STUDENT:
             login(request, user)
             if remember_me:
-                request.session.set_expiry(1209600)
+                request.session.set_expiry(1209600)  # 2 weeks
+            else:
+                request.session.set_expiry(0)  # expire when the browser closes
             return redirect(next_url or 'student_dashboard')
         else:
             messages.error(request, 'Invalid credentials or account disabled.')
@@ -384,7 +392,9 @@ def landlord_login(request):
         if user is not None and user.is_active and user.role == User.Role.LANDLORD:
             login(request, user)
             if remember_me:
-                request.session.set_expiry(1209600)
+                request.session.set_expiry(1209600)  # 2 weeks
+            else:
+                request.session.set_expiry(0)  # expire when the browser closes
             return redirect(next_url or 'landlord_dashboard')
         else:
             messages.error(request, 'Invalid credentials or not an active landlord account.')
@@ -406,7 +416,9 @@ def admin_login(request):
         if user is not None and user.is_active and user.role == User.Role.ADMIN:
             login(request, user)
             if remember_me:
-                request.session.set_expiry(1209600)
+                request.session.set_expiry(1209600)  # 2 weeks
+            else:
+                request.session.set_expiry(0)  # expire when the browser closes
             return redirect(next_url or 'admin_dashboard')
         else:
             messages.error(request, 'Invalid credentials or not an admin account.')
@@ -495,21 +507,18 @@ def upload_profile_picture(request):
 
 @login_required
 def change_password(request):
-    if request.method != 'POST':
-        return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=405)
-
-    try:
-        payload = json.loads(request.body)
-    except (json.JSONDecodeError, TypeError):
-        return JsonResponse({'success': False, 'message': 'Invalid data received.'}, status=400)
-
-    form = BHIMSPasswordChangeForm(user=request.user, data=payload)
-    if form.is_valid():
-        user = form.save()
-        update_session_auth_hash(request, user)
-        return JsonResponse({'success': True, 'message': 'Password changed successfully.'})
+    """Change-password page: GET renders the form, POST validates and saves."""
+    if request.method == 'POST':
+        form = BHIMSPasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Keep the user logged in after their password changed
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Password changed successfully!')
+            return redirect('change_password')
     else:
-        return JsonResponse({'success': False, 'message': 'Please correct the errors.', 'errors': form.errors}, status=400)
+        form = BHIMSPasswordChangeForm(user=request.user)
+    return render(request, 'core/change_password.html', {'form': form})
 
 
 @login_required
@@ -1307,7 +1316,10 @@ def admin_landlord_list(request):
             | Q(email__icontains=search)
             | Q(phone_number__icontains=search)
         )
-    paginator = Paginator(landlords, 10)
+    paginator = Paginator(landlords.annotate(
+        avg_rating=Avg('landlord_ratings_received__rating'),
+        rating_total=Count('landlord_ratings_received'),
+    ).order_by('-date_joined'), 10)
     page_obj = paginator.get_page(request.GET.get('page'))
     return render(request, 'core/admin_landlord_list.html', {'landlords': page_obj, 'page_obj': page_obj})
 
@@ -1317,7 +1329,14 @@ def admin_landlord_list(request):
 def admin_landlord_detail(request, pk):
     landlord = get_object_or_404(User, pk=pk, role=User.Role.LANDLORD)
     houses = BoardingHouse.objects.filter(owner=landlord)
-    return render(request, 'core/admin_landlord_detail.html', {'landlord': landlord, 'houses': houses})
+    ratings = landlord.landlord_ratings_received.select_related('student', 'booking__room__boarding_house')
+    return render(request, 'core/admin_landlord_detail.html', {
+        'landlord': landlord,
+        'houses': houses,
+        'ratings': ratings,
+        'average_rating': ratings.aggregate(Avg('rating'))['rating__avg'],
+        'rating_count': ratings.count(),
+    })
 
 
 @login_required
@@ -1374,7 +1393,10 @@ def admin_student_list(request):
             | Q(email__icontains=search)
             | Q(student_id__icontains=search)
         )
-    paginator = Paginator(students, 10)
+    paginator = Paginator(students.annotate(
+        avg_rating=Avg('landlord_ratings_given__rating'),
+        rating_total=Count('landlord_ratings_given'),
+    ).order_by('-date_joined'), 10)
     page_obj = paginator.get_page(request.GET.get('page'))
     return render(request, 'core/admin_student_list.html', {'students': page_obj, 'page_obj': page_obj})
 
@@ -1528,11 +1550,11 @@ def profile(request):
     """User profile with tabs for activity, bookings, inquiries, properties."""
     activities = []
     # Build activity feed from recent actions
-    for booking in request.user.bookings.order_by('-created_at')[:5]:
+    for booking in request.user.bookings.order_by('-requested_at')[:5]:
         activities.append({
             'icon': 'calendar-check',
             'description': f'Booked <strong>{booking.room.boarding_house.name}</strong> (Room: {booking.room.name})',
-            'created_at': booking.created_at,
+            'created_at': booking.requested_at,
         })
     for inquiry in request.user.inquiries.order_by('-created_at')[:5]:
         activities.append({
@@ -1542,8 +1564,19 @@ def profile(request):
         })
     activities.sort(key=lambda x: x['created_at'], reverse=True)
 
+    # Profile edit form
+    if request.user.role == 'student':
+        form = StudentProfileUpdateForm(instance=request.user)
+    else:
+        form = LandlordProfileUpdateForm(instance=request.user)
+
     return render(request, 'core/profile.html', {
         'activities': activities,
+        'profile': request.user,
+        'profile_user': request.user,
+        'is_instructor': request.user.role == 'landlord',
+        'is_own_profile': True,
+        'form': form,
     })
 
 
@@ -1563,13 +1596,19 @@ def edit_profile(request):
 
 @login_required
 def update_avatar(request):
-    """Update user avatar."""
-    if request.method == 'POST':
-        form = LandlordProfilePictureForm(request.POST, request.FILES, instance=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Avatar updated!')
-    return redirect('profile')
+    """Update user avatar — returns JSON for AJAX requests."""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=405)
+
+    form = LandlordProfilePictureForm(request.POST, request.FILES, instance=request.user)
+    if form.is_valid():
+        form.save()
+        return JsonResponse({
+            'success': True,
+            'message': 'Profile picture updated.',
+            'image_url': request.user.profile_picture.url if request.user.profile_picture else '',
+        })
+    return JsonResponse({'success': False, 'message': 'Could not process image.'}, status=400)
 
 
 def search_results(request):
@@ -1657,32 +1696,8 @@ def search_results(request):
 
 @login_required
 def chat_list(request):
-    """List user's conversations."""
-    # Get conversations where user is participant
-    # This assumes an Inquiry/Message model structure
-    conversations = []
-    return render(request, 'core/chat.html', {
-        'conversations': conversations,
-        'active_conversation': None,
-    })
-
-
-@login_required
-def chat_detail(request, pk):
-    """View a conversation and its messages."""
-    # Placeholder - requires Inquiry/Message model
-    return render(request, 'core/chat.html', {
-        'conversations': [],
-        'active_conversation': None,
-        'messages': [],
-    })
-
-
-@login_required
-@require_POST
-def send_message(request, pk):
-    """Send a message in a conversation."""
-    return redirect('chat_detail', pk=pk)
+    """Removed: real-time messaging lives inside inquiry threads."""
+    return redirect('home')
 
 
 def listing_detail(request, pk):

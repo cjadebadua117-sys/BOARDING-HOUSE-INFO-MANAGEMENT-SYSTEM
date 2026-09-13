@@ -18,7 +18,7 @@
     <a class="inquiry-row" href="{% url 'student_inquiry_thread' inquiry.pk %}">
         <div>
             <h3>{{ inquiry.room.boarding_house.name }}</h3>
-            <p>{{ inquiry.message|truncatechars:110 }}</p>
+            <p>{{ inquiry.message_text|truncatechars:110 }}</p>
             <div class="inquiry-meta">
                 <span class="status-chip {% if inquiry.status == 'open' %}is-open{% elif inquiry.status == 'pending' %}is-pending{% elif inquiry.status == 'declined' %}is-declined{% else %}is-closed{% endif %}">{{ inquiry.get_status_display }}</span>
                 <span>{{ inquiry.room.name|default:inquiry.room.room_type }}</span>

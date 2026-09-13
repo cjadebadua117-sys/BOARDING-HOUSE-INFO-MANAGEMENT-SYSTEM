@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,9 +17,17 @@
     <script>
         (function () {
             try {
-                var t = localStorage.getItem('bhims-theme');
-                if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
-            } catch (e) {}
+                // One-time reset after the black-theme breakage — restore teal paper default
+                if (localStorage.getItem('bhims-theme-version') !== 'teal-v2') {
+                    localStorage.setItem('bhims-theme', 'light');
+                    localStorage.setItem('bhims-theme-version', 'teal-v2');
+                }
+                var t = localStorage.getItem('bhims-theme') || 'light';
+                if (t !== 'dark' && t !== 'light') t = 'light';
+                document.documentElement.setAttribute('data-theme', t);
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
         })();
     </script>
     
@@ -29,120 +37,33 @@
     <link rel="stylesheet" href="{% static 'vendor/bootstrap-icons.css' %}">
     <!-- Google Fonts: Urbanist (display) + Inter (body) - self-hosted -->
     <link href="{% static 'vendor/fonts.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'core/css/tokens.css' %}">
     
-    <!-- Centralized Design Tokens -->
+    <!-- Design tokens: tokens.css is the single source of truth -->
     <style>
-        :root {
-            --bhims-teal: #0e7d6b;
-            --bhims-teal-hover: #0b6558;
-            --bhims-teal-deep: #085248;
-            --bhims-cream: rgba(255, 255, 255, 0.42);
-            --bhims-cream-light: rgba(255, 255, 255, 0.60);
-            --bhims-text: #1f3438;
-            --bhims-text-muted: #57706f;
-
-            /* Paper surface system — teal paper & ink on layered elevation */
-            --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
-            --bhims-paper: #edf3ee;
-            --bhims-paper-raised: #f8fbf8;
-            --bhims-paper-sunken: #f2f6f0;
-            --bhims-ink-line: #cfd9d5;
-            --bhims-ink-line-strong: #b9cdc8;
-            --z-bg: 0;
-            --z-content: 1;
-            --z-topbar: 1200;
-            --z-sidebar: 1300;
-            --z-modal: 2000;
-            --z-toast: 10000;
-
-            /* Type scale — single source of truth for font sizes.
-               Inline styles across templates reference these via var(--fs-*). */
-            --fs-xs: 0.8125rem;
-            --fs-sm: 0.875rem;
-            --fs-md: 0.95rem;
-            --fs-base: 1rem;
-            --fs-lg: 1.125rem;
-            --fs-xl: 1.25rem;
-            --fs-2xl: 1.5rem;
-            --bhims-border: rgba(13, 122, 123, 0.16);
-            --bhims-icon-tint: rgba(224, 240, 240, 0.60);
-            --bhims-badge-verified-bg: rgba(224, 240, 240, 0.78);
-            --bhims-badge-verified: #0d7a7b;
-            --bhims-badge-pending-bg: rgba(253, 240, 220, 0.78);
-            --bhims-badge-pending: #9a6a1f;
-            --bhims-badge-rejected-bg: rgba(251, 228, 222, 0.78);
-            --bhims-badge-rejected: #b3402a;
-            --bhims-shadow: rgba(8, 79, 79, 0.06);
-            --bhims-shadow-hover: rgba(8, 79, 79, 0.12);
-            --bhims-radius: 12px;
-            --bhims-radius-sm: 8px;
-            --bhims-moss: #3d8f6e;
-            --bhims-moss-hover: #32785b;
-            --bhims-info: #3f7d8c;
-
-            /* Legacy glass variables now map onto the paper system so every
-               template that references them gets the flat heritage look. */
-            --bhims-glass-border: var(--bhims-ink-line);
-            --bhims-glass-blur: none;
-
-            --bhims-glass-primary: none;
-            --bhims-glass-secondary: none;
-            --bhims-glass-subtle: none;
-            --bhims-glass-bg-primary: var(--bhims-paper-raised);
-            --bhims-glass-bg-secondary: var(--bhims-paper-sunken);
-            --bhims-glass-bg-subtle: var(--bhims-paper-raised);
-            --bhims-glass-inner-glow: 0 1px 2px rgba(8, 79, 79, 0.05);
-            --bhims-glass-shadow: 0 1px 2px rgba(8, 79, 79, 0.05), 0 6px 18px rgba(8, 79, 79, 0.07);
-            --bhims-glass-shadow-hover: 0 2px 4px rgba(8, 79, 79, 0.06), 0 14px 30px rgba(8, 79, 79, 0.11);
-
-            /* Backward-compatible aliases for older templates */
-            --warm-green: var(--bhims-teal);
-            --beige: var(--bhims-cream);
-            --surface: var(--bhims-cream-light);
-            --text-muted: var(--bhims-text-muted);
-            --text-dark: var(--bhims-text);
-            --shadow-soft: 0 4px 12px rgba(8, 79, 79, 0.06);
-            --shadow-hover: 0 8px 24px rgba(8, 79, 79, 0.12);
-        }
-
-        /* ---- Dark mode overrides (paper/ink inverted) ---- */
-        [data-theme="dark"] {
-            --bhims-teal: #1bb89a;
-            --bhims-teal-hover: #2ee0bb;
-            --bhims-teal-deep: #12967c;
-            --bhims-text: #e8f0ee;
-            --bhims-text-muted: #a5c4be;
-            --bhims-paper: #0f1a18;
-            --bhims-paper-raised: #152320;
-            --bhims-paper-sunken: #0d1815;
-            --bhims-ink-line: #1e3a35;
-            --bhims-ink-line-strong: #2a5048;
-            --bhims-border: rgba(20, 168, 168, 0.2);
-            --bhims-icon-tint: rgba(20, 168, 168, 0.15);
-            --bhims-badge-verified-bg: rgba(20, 168, 168, 0.2);
-            --bhims-badge-pending-bg: rgba(253, 240, 220, 0.15);
-            --bhims-badge-rejected-bg: rgba(251, 228, 222, 0.15);
-            --bhims-shadow: rgba(20, 168, 168, 0.1);
-            --bhims-shadow-hover: rgba(20, 168, 168, 0.18);
-            --bhims-glass-inner-glow: 0 1px 2px rgba(20, 168, 168, 0.08);
-            --bhims-glass-shadow: 0 1px 2px rgba(20, 168, 168, 0.08), 0 6px 18px rgba(20, 168, 168, 0.12);
-            --bhims-glass-shadow-hover: 0 2px 4px rgba(20, 168, 168, 0.1), 0 14px 30px rgba(20, 168, 168, 0.16);
-            --bhims-glass-bg-primary: var(--bhims-paper-raised);
-            --bhims-glass-bg-secondary: var(--bhims-paper-sunken);
-            --bhims-glass-bg-subtle: var(--bhims-paper-raised);
-        }
-
+        /* ---- Body: dark backdrop with vibrant ambient blobs ---- */
         body {
-            font-family: 'Inter', sans-serif;
-            /* Woven-paper ground: faint teal weave on layered elevation.
-               Static by design — no animated gradients. */
-            background-color: var(--bhims-paper);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #060608;
             background-image:
-                repeating-linear-gradient(45deg, rgba(13, 122, 123, 0.030) 0 1px, transparent 1px 9px),
-                repeating-linear-gradient(-45deg, rgba(13, 122, 123, 0.022) 0 1px, transparent 1px 9px);
+                radial-gradient(ellipse 900px 700px at 8% 4%, rgba(27, 184, 154, 0.20) 0%, transparent 70%),
+                radial-gradient(ellipse 700px 550px at 92% 12%, rgba(94, 230, 200, 0.12) 0%, transparent 65%),
+                radial-gradient(ellipse 800px 600px at 50% 90%, rgba(27, 184, 154, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 350px 350px at 72% 45%, rgba(18, 150, 124, 0.10) 0%, transparent 55%);
+            background-attachment: fixed;
+            min-height: 100vh;
             color: var(--bhims-text);
             margin: 0;
             padding: 0;
+            transition: background 0.4s ease;
+        }
+        [data-theme="light"] body {
+            background-color: #e0ede8;
+            background-image:
+                radial-gradient(ellipse 900px 700px at 8% 4%, rgba(27, 184, 154, 0.12) 0%, transparent 70%),
+                radial-gradient(ellipse 700px 550px at 92% 12%, rgba(27, 184, 154, 0.08) 0%, transparent 65%),
+                radial-gradient(ellipse 800px 600px at 50% 90%, rgba(27, 184, 154, 0.05) 0%, transparent 60%);
+            background-attachment: fixed;
         }
 
         h1, h2, h3, h4, h5, h6,
@@ -153,92 +74,109 @@
             letter-spacing: -0.01em;
         }
 
-        /* ---- Buttons: warm teal everywhere ---- */
+        /* ---- Buttons: frosted teal glass ---- */
+        /* [a11y] Solid deep teal instead of translucent bright teal:
+           white text needs ~L≤0.34 for 4.5:1; rgba(27,184,154,.85) was ≈2.3:1. */
         .btn-primary {
-            background-color: var(--bhims-teal);
-            border-color: var(--bhims-teal);
+            background: #0c7f67;
+            border: 1px solid rgba(27, 184, 154, 0.60);
+            box-shadow: 0 4px 16px rgba(13, 138, 112, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.12);
         }
         .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
-            background-color: var(--bhims-teal-hover);
-            border-color: var(--bhims-teal-hover);
+            background: #0d8a70;
+            box-shadow: 0 6px 24px rgba(13, 138, 112, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.16);
         }
         .btn-outline-primary {
+            background: var(--bhims-glass-bg-secondary);
+            -webkit-backdrop-filter: var(--bhims-glass-subtle);
+            backdrop-filter: var(--bhims-glass-subtle);
             color: var(--bhims-teal);
-            border-color: var(--bhims-teal);
+            border: 1px solid rgba(27, 184, 154, 0.25);
         }
         .btn-outline-primary:hover, .btn-outline-primary:active {
-            background-color: var(--bhims-teal);
+            background: rgba(27, 184, 154, 0.12);
             border-color: var(--bhims-teal);
-            color: #fff;
+            color: var(--bhims-teal);
         }
         .btn-success {
-            background-color: var(--bhims-teal);
-            border-color: var(--bhims-teal);
+            background: #0c7f67;
+            border: 1px solid rgba(27, 184, 154, 0.60);
+            box-shadow: 0 4px 16px rgba(13, 138, 112, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.12);
         }
         .btn-success:hover, .btn-success:focus, .btn-success:active {
-            background-color: var(--bhims-teal-hover);
-            border-color: var(--bhims-teal-hover);
+            background: #0d8a70;
+            box-shadow: 0 6px 24px rgba(13, 138, 112, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.16);
         }
         .btn-danger { background-color: var(--bhims-badge-rejected); border-color: var(--bhims-badge-rejected); }
         .btn-danger:hover, .btn-danger:focus, .btn-danger:active {
-            background-color: #932e1c; border-color: #932e1c;
+            background-color: var(--bhims-danger-text); border-color: var(--bhims-danger-text);
         }
         .btn-warning { background-color: var(--bhims-badge-pending); border-color: var(--bhims-badge-pending); color: #fff; }
         .btn-warning:hover, .btn-warning:focus, .btn-warning:active {
-            background-color: #7f5716; border-color: #7f5716; color: #fff;
+            background-color: var(--bhims-badge-pending); border-color: var(--bhims-badge-pending); color: #fff;
         }
 
-        /* ---- Primary buttons: flat inked teal (no gradient/glow) ---- */
+        /* ---- Primary buttons: glass teal ---- */
         .btn-primary, .btn-success, .btn-bhims, .create-btn, .submit-btn,
         .btn-submit, .btn-register-bhims, .btn-accept-bhims, .bhims-login-btn {
-            background-image: none !important;
-            background-color: var(--bhims-teal) !important;
-            border: 1px solid var(--bhims-teal-deep) !important;
-            box-shadow: 0 1px 2px rgba(8, 79, 79, 0.12) !important;
-            transition: background-color 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease !important;
+            background: #0c7f67 !important;
+            border: 1px solid rgba(27, 184, 154, 0.60) !important;
+            box-shadow: 0 4px 16px rgba(13, 138, 112, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+            transition: background 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease !important;
         }
         .btn-primary:hover, .btn-primary:focus, .btn-primary:active,
         .btn-success:hover, .btn-success:focus, .btn-success:active,
         .btn-bhims:hover, .create-btn:hover, .submit-btn:hover, .btn-submit:hover,
         .btn-register-bhims:hover, .btn-accept-bhims:hover,
         .bhims-login-btn:hover, .bhims-login-btn:focus {
-            background-image: none !important;
-            background-color: var(--bhims-teal-hover) !important;
+            background: #0d8a70 !important;
             transform: translateY(-1px) !important;
-            box-shadow: 0 2px 6px rgba(8, 79, 79, 0.16) !important;
+            box-shadow: 0 6px 24px rgba(13, 138, 112, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
         }
         .btn-primary:active, .btn-success:active, .btn-bhims:active,
         .create-btn:active, .submit-btn:active, .btn-submit:active,
         .btn-register-bhims:active, .btn-accept-bhims:active, .bhims-login-btn:active {
             transform: translateY(1px) !important;
-            box-shadow: 0 0 0 rgba(8, 79, 79, 0.12) !important;
+            box-shadow: var(--bhims-glass-inset) !important;
         }
 
-        /* ---- Cards & surfaces: raised warm paper ---- */
+        /* ---- Cards & surfaces: maxed-out glass panels ---- */
         .card {
-            background-color: var(--bhims-paper-raised);
-            border: 1px solid var(--bhims-ink-line);
-            border-radius: var(--bhims-radius);
-            box-shadow: 0 1px 2px rgba(8, 79, 79, 0.05);
-            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            background: var(--bhims-glass-bg-primary);
+            -webkit-backdrop-filter: var(--bhims-glass-primary);
+            backdrop-filter: var(--bhims-glass-primary);
+            border: var(--bhims-glass-border);
+            border-top: var(--bhims-glass-border-top);
+            border-radius: 20px;
+            box-shadow: var(--bhims-glass-shadow), var(--bhims-glass-inner-glow);
+            transition: transform 0.25s var(--bhims-ease-smooth), box-shadow 0.25s var(--bhims-ease-smooth), border-color 0.25s var(--bhims-ease-smooth);
         }
         .card:hover {
-            transform: translateY(-2px);
+            transform: translateY(-4px);
             border-color: var(--bhims-ink-line-strong);
-            box-shadow: 0 6px 16px rgba(8, 79, 79, 0.09);
+            box-shadow: var(--bhims-glass-shadow-hover), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.04);
         }
-        .card .card-header { background-color: var(--bhims-icon-tint); border-bottom: 1px solid var(--bhims-border); }
-        .card .card-footer { background-color: transparent; border-top: 1px solid var(--bhims-border); }
+        .card .card-header {
+            background: var(--bhims-glass-bg-secondary);
+            -webkit-backdrop-filter: var(--bhims-glass-secondary);
+            backdrop-filter: var(--bhims-glass-secondary);
+            border-bottom: 1px solid var(--bhims-border);
+        }
+        .card .card-footer { background: transparent; border-top: 1px solid var(--bhims-border); }
 
-        /* ---- Forms ---- */
+        /* ---- Forms: frosted glass slots ---- */
         .form-control, .form-select {
+            background: var(--bhims-glass-bg-secondary);
+            -webkit-backdrop-filter: var(--bhims-glass-subtle);
+            backdrop-filter: var(--bhims-glass-subtle);
             border: 1px solid var(--bhims-border);
             border-radius: var(--bhims-radius-sm);
             color: var(--bhims-text);
         }
+        .form-control:hover, .form-select:hover { border-color: var(--bhims-ink-line-strong); }
         .form-control:focus, .form-select:focus {
             border-color: var(--bhims-teal);
-            box-shadow: 0 0 0 0.25rem rgba(13, 122, 123, 0.12);
+            box-shadow: 0 0 0 3px rgba(27, 184, 154, 0.12), var(--bhims-glass-inner-glow);
         }
         .form-label { font-weight: 600; color: var(--bhims-text); }
 
@@ -261,9 +199,20 @@
         a { color: var(--bhims-teal); }
         a:hover { color: var(--bhims-teal-hover); }
 
-        /* ---- Lists / modals ---- */
-        .list-group-item { background-color: var(--bhims-cream-light); border-color: var(--bhims-border); }
-        .modal-content { background-color: var(--bhims-cream-light); border: 1px solid var(--bhims-border); border-radius: var(--bhims-radius); }
+        /* ---- Lists / modals: full glass ---- */
+        .list-group-item {
+            background: var(--bhims-glass-bg-secondary);
+            -webkit-backdrop-filter: var(--bhims-glass-subtle);
+            backdrop-filter: var(--bhims-glass-subtle);
+            border-color: var(--bhims-border);
+        }
+        .modal-content {
+            background: var(--bhims-glass-bg-primary);
+            -webkit-backdrop-filter: var(--bhims-glass-primary);
+            backdrop-filter: var(--bhims-glass-primary);
+            border: var(--bhims-glass-border);
+            border-radius: 20px;
+        }
         .modal-header { border-bottom: 1px solid var(--bhims-border); }
         .modal-footer { border-top: 1px solid var(--bhims-border); }
 
@@ -275,9 +224,9 @@
         /* ---- Generic BHIMS button component ---- */
         .btn-bhims {
             display: inline-block;
-            background-color: var(--bhims-teal);
+            background-color: #0c7f67;
             color: #fff;
-            border: 1px solid var(--bhims-teal-deep);
+            border: 1px solid #0a6b57;
             border-radius: var(--bhims-radius-sm);
             padding: 0.7rem 1.65rem;
             font-weight: 600;
@@ -333,9 +282,9 @@
             margin: 0;
         }
         .create-btn {
-            background-color: var(--bhims-teal);
-            color: #ffffff;
-            border: 1px solid var(--bhims-teal-deep);
+            background-color: #0c7f67;
+            color: #fff;
+            border: 1px solid #0a6b57;
             border-radius: var(--bhims-radius-sm);
             padding: 0.7rem 1.65rem;
             font-weight: 600;
@@ -350,9 +299,10 @@
         .create-btn:hover {
             background-color: var(--bhims-teal-hover);
             transform: translateY(-1px);
-            color: #ffffff;
+            color: #fff;
         }
-    </style>
+
+</style>
 
     <!-- Toast notifications (BHIMS style) -->
     <style>
@@ -368,16 +318,19 @@
         }
         .bhims-toast {
             width: min(400px, calc(100vw - 40px));
-            background: var(--bhims-cream-light);
+            background: var(--bhims-glass-bg-primary);
+            -webkit-backdrop-filter: var(--bhims-glass-primary);
+            backdrop-filter: var(--bhims-glass-primary);
             color: var(--bhims-text);
-            border-radius: var(--bhims-radius-sm);
-            box-shadow: 0 8px 24px rgba(8, 79, 79, 0.18);
+            border-radius: 16px;
+            box-shadow: var(--bhims-glass-shadow), var(--bhims-glass-inner-glow);
             display: flex;
             align-items: flex-start;
             padding: 15px 18px;
             position: relative;
             overflow: hidden;
-            border-left: 6px solid;
+            border: var(--bhims-glass-border);
+            border-left: 4px solid;
             pointer-events: auto;
             animation: bhimsSlideInRight 0.4s ease forwards;
             font-family: 'Inter', sans-serif;
@@ -491,81 +444,101 @@
             background: transparent !important;
         }
 
-        /* ---- Tier 1 · Primary surfaces (main cards & containers) ---- */
+        /* ---- Tier 1 · Glass primary surfaces ---- */
         .card, .stat-card, .hero-card, .image-gallery, .rooms-card, .rooms-section,
         .house-card, .house-content, .listing-card, .booking-card, .inquiries-card,
         .filter-card, .profile-card, .profile-main, .profile-sidebar,
         .admin-table-wrap, .form-container, .landing-feature-card,
         .thread-header, .messages-container {
             background: var(--bhims-glass-bg-primary) !important;
-            border: 1px solid var(--bhims-ink-line) !important;
-            box-shadow: var(--bhims-glass-inner-glow) !important;
+            -webkit-backdrop-filter: var(--bhims-glass-primary);
+            backdrop-filter: var(--bhims-glass-primary);
+            border: var(--bhims-glass-border) !important;
+            border-top: var(--bhims-glass-border-top) !important;
+            border-radius: 20px !important;
+            box-shadow: var(--bhims-glass-shadow), var(--bhims-glass-inner-glow) !important;
         }
 
-        /* ---- Tier 2 · Secondary surfaces (list items, small surfaces) ---- */
+        /* ---- Tier 2 · Glass secondary surfaces ---- */
         .list-group-item, .inquiry-item, .room-item, .room-card, .locked-note,
         .avatar-hint, .reply-form-container, .toggle-container, .amenities-section,
         .availability-toggle-container, .card .card-header, .card .card-footer {
-            background: var(--bhims-paper-sunken) !important;
-            border: 1px solid var(--bhims-ink-line) !important;
+            background: var(--bhims-glass-bg-secondary) !important;
+            -webkit-backdrop-filter: var(--bhims-glass-secondary);
+            backdrop-filter: var(--bhims-glass-secondary);
+            border: var(--bhims-glass-border) !important;
+            border-radius: 16px !important;
         }
 
         /* ---- Tier 3 · Toasts & insets ---- */
         .bhims-toast {
-            background: var(--bhims-paper-raised) !important;
-            border: 1px solid var(--bhims-ink-line) !important;
-            border-left-width: 6px !important;
+            background: var(--bhims-glass-bg-primary) !important;
+            -webkit-backdrop-filter: var(--bhims-glass-primary);
+            backdrop-filter: var(--bhims-glass-primary);
+            border: var(--bhims-glass-border) !important;
+            border-radius: 16px !important;
+            border-left-width: 4px !important;
         }
         .empty-state, .modal-header, .modal-footer,
         .house-image-placeholder, .inquiry-details {
-            background: var(--bhims-paper-sunken) !important;
-            border: 1px solid var(--bhims-ink-line) !important;
+            background: var(--bhims-glass-bg-subtle) !important;
+            -webkit-backdrop-filter: var(--bhims-glass-secondary);
+            backdrop-filter: var(--bhims-glass-secondary);
+            border: var(--bhims-glass-border) !important;
         }
 
-        /* ---- Auth / form cards: raised paper with a woven header strip ---- */
+        /* ---- Auth / form cards: glass with teal accent ---- */
         .bhims-login-card, .form-card {
-            background: var(--bhims-paper-raised) !important;
-            border: 1px solid var(--bhims-ink-line) !important;
-            border-top: 4px solid var(--bhims-teal) !important;
-            border-radius: calc(var(--bhims-radius) + 2px) !important;
-            box-shadow: var(--bhims-glass-shadow) !important;
-            transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+            background: var(--bhims-glass-bg-primary) !important;
+            -webkit-backdrop-filter: var(--bhims-glass-primary);
+            backdrop-filter: var(--bhims-glass-primary);
+            border: var(--bhims-glass-border) !important;
+            border-top: 3px solid var(--bhims-teal) !important;
+            border-radius: 24px !important;
+            box-shadow: var(--bhims-glass-shadow-lg), var(--bhims-glass-inner-glow) !important;
+            transition: transform 0.25s var(--bhims-ease-smooth), box-shadow 0.25s var(--bhims-ease-smooth) !important;
         }
         .bhims-login-card:hover, .form-card:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: var(--bhims-glass-shadow-hover) !important;
+            transform: translateY(-3px) !important;
+            box-shadow: var(--bhims-glass-shadow-lg), var(--bhims-glass-inner-glow), 0 0 0 1px rgba(255, 255, 255, 0.04) !important;
         }
 
-        /* ---- Card hover: calm print-like lift (no scale morphing) ---- */
+        /* ---- Card hover: glass lift ---- */
         .card, .stat-card, .listing-card, .house-card, .room-card, .booking-card,
         .filter-card, .hero-card, .inquiry-item, .landing-feature-card {
-            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease !important;
+            transition: transform 0.25s var(--bhims-ease-smooth), box-shadow 0.25s var(--bhims-ease-smooth), border-color 0.25s var(--bhims-ease-smooth) !important;
         }
         .card:hover, .stat-card:hover, .listing-card:hover, .house-card:hover,
         .room-card:hover, .booking-card:hover, .filter-card:hover,
         .inquiry-item:hover, .landing-feature-card:hover {
-            transform: translateY(-3px) !important;
-            box-shadow: 0 10px 24px rgba(8, 79, 79, 0.10) !important;
+            transform: translateY(-4px) !important;
+            box-shadow: var(--bhims-glass-shadow-hover), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.04) !important;
             border-color: var(--bhims-ink-line-strong) !important;
         }
         .hero-card:hover {
             transform: translateY(-2px) !important;
-            box-shadow: 0 8px 20px rgba(8, 79, 79, 0.08) !important;
         }
 
-        /* ---- Form inputs: solid paper with teal-tinted hairline ---- */
+        /* ---- Form inputs: frosted glass surface ---- */
         .form-control, .form-select, .bhims-input, .bhims-textarea {
-            background: #f7fbf8 !important;
-            border: 1px solid var(--bhims-ink-line-strong) !important;
+            background: var(--bhims-glass-bg-secondary) !important;
+            -webkit-backdrop-filter: var(--bhims-glass-subtle);
+            backdrop-filter: var(--bhims-glass-subtle);
+            border: 1px solid var(--bhims-ink-line) !important;
             transition: background 0.2s ease, border-color 0.18s ease, box-shadow 0.18s ease !important;
         }
         .form-control:focus, .form-select:focus, .bhims-input:focus, .bhims-textarea:focus {
-            background: #ffffff !important;
+            background: rgba(255, 255, 255, 0.06) !important;
+            border-color: var(--bhims-teal) !important;
+            box-shadow: 0 0 0 3px rgba(27, 184, 154, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+        }
+        [data-theme="light"] .form-control:focus, [data-theme="light"] .form-select:focus {
+            background: rgba(255, 255, 255, 0.72) !important;
         }
 
         /* ---- Keyboard focus: keep a visible ring everywhere ---- */
         :focus-visible {
-            outline: 3px solid rgba(13, 122, 123, 0.65) !important;
+            outline: 3px solid rgba(27, 184, 154, 0.50) !important;
             outline-offset: 2px;
         }
 
@@ -582,57 +555,65 @@
 
         /* ---- Inline form validation (client-side helper over Django's server rules) ---- */
         .bhims-field-error {
-            color: #b3261e;
+            color: var(--bhims-danger-text);
             font-size: var(--fs-sm);
             font-weight: 600;
             margin-top: 0.35rem;
         }
         .bhims-error-summary {
-            background: #fdeceb;
-            border: 1px solid #f3c1bd;
-            border-left: 4px solid #b3261e;
+            background: var(--bhims-danger-bg);
+            border: 1px solid var(--bhims-danger-border);
+            border-left: 4px solid var(--bhims-danger-text);
             border-radius: 10px;
             padding: 1rem 1.25rem;
             margin-bottom: 1.25rem;
-            color: #8c1d18;
+            color: var(--bhims-danger-hover);
         }
         .bhims-error-summary:focus { outline: none; }
-        .bhims-error-summary a { color: #b3261e; font-weight: 600; }
+        .bhims-error-summary a { color: var(--bhims-danger-text); font-weight: 600; }
         form [aria-invalid="true"] {
-            border-color: #dc3545 !important;
+            border-color: var(--bhims-danger-text) !important;
         }
 
-        /* ---- Modals: solid paper, ink hairline ---- */
+        /* ---- Modals: glass ---- */
         .modal-content {
-            background: var(--bhims-paper-raised) !important;
-            border: 1px solid var(--bhims-ink-line) !important;
-            border-radius: calc(var(--bhims-radius) + 2px) !important;
+            background: var(--bhims-glass-bg-primary) !important;
+            -webkit-backdrop-filter: var(--bhims-glass-primary);
+            backdrop-filter: var(--bhims-glass-primary);
+            border: 1px solid var(--bhims-glass-border) !important;
+            border-radius: calc(var(--bhims-radius) + 4px) !important;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25), 0 4px 16px rgba(0, 0, 0, 0.12) !important;
         }
         .modal-backdrop {
-            -webkit-backdrop-filter: blur(2px) !important;
-            backdrop-filter: blur(2px) !important;
+            -webkit-backdrop-filter: blur(8px) saturate(1.2) !important;
+            backdrop-filter: blur(8px) saturate(1.2) !important;
+            background: rgba(0, 0, 0, 0.35) !important;
         }
 
-        /* ---- Dashboard shell: paper topbar over a hairline.
-            NOTE: never put backdrop-filter (or transform/filter) on
-            .app-shell — it becomes the containing block for position:fixed
-            descendants and traps modals/toasts. */
+        /* ---- Dashboard shell: glass topbar ---- */
         .app-topbar {
-            -webkit-backdrop-filter: none !important;
-            backdrop-filter: none !important;
+            -webkit-backdrop-filter: blur(20px) saturate(1.8) !important;
+            backdrop-filter: blur(20px) saturate(1.8) !important;
+            background: var(--bhims-glass-bg-primary) !important;
+            border-bottom: 1px solid var(--bhims-border) !important;
         }
 
-        /* ---- Deep teal sidebar ---- */
+        /* ---- Deep teal sidebar — frosted glass ---- */
         .app-sidebar {
-            background:
-                linear-gradient(188deg, #0b6558 0%, #085248 52%, #064038 100%) !important;
-            border-right: 1px solid rgba(206, 234, 234, 0.16) !important;
+            background: rgba(10, 66, 67, 0.88) !important;
+            -webkit-backdrop-filter: blur(24px) saturate(1.6) !important;
+            backdrop-filter: blur(24px) saturate(1.6) !important;
+            border-right: 1px solid rgba(206, 234, 234, 0.12) !important;
+        }
+        [data-theme="dark"] .app-sidebar {
+            background: rgba(10, 15, 14, 0.92) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
         }
 
-        /* ---- Header & footer sit on raised paper strips ---- */
+        /* ---- Header & footer: glass strips ---- */
         header, footer {
-            -webkit-backdrop-filter: none !important;
-            backdrop-filter: none !important;
+            -webkit-backdrop-filter: blur(16px) saturate(1.5) !important;
+            backdrop-filter: blur(16px) saturate(1.5) !important;
         }
         footer {
             border-top: 1px solid var(--bhims-ink-line);
@@ -654,7 +635,7 @@
     <!-- BHIMS Premium Layer: pure visual polish, loads last -->
     <link rel="stylesheet" href="{% static 'core/css/premium.css' %}">
 </head>
-<body>
+<body class="has-motion">
     <a class="skip-link" href="#main-content">Skip to content</a>
     <!-- Toast notifications -->
     <div id="toast-container" aria-live="polite"></div>
@@ -876,17 +857,55 @@
     <script>
     (function () {
         var html = document.documentElement;
-        var toggles = document.querySelectorAll('[data-theme-toggle]');
         var savedTheme = 'light';
         try { savedTheme = localStorage.getItem('bhims-theme') || 'light'; } catch (e) {}
         html.setAttribute('data-theme', savedTheme);
-        toggles.forEach(function (toggle) {
-            toggle.checked = savedTheme === 'dark';
-            toggle.addEventListener('change', function () {
-                var theme = this.checked ? 'dark' : 'light';
-                html.setAttribute('data-theme', theme);
-                try { localStorage.setItem('bhims-theme', theme); } catch (e) {}
-                document.querySelectorAll('[data-theme-toggle]').forEach(function (el) { el.checked = theme === 'dark'; });
+
+        // Wordmark images that must re-ink when the theme flips (navbar, sidebar, footer)
+        function syncLogos() {
+            var light = html.getAttribute('data-theme') !== 'dark';
+            document.querySelectorAll('.bhims-word[data-light-src]').forEach(function (img) {
+                var next = light ? img.getAttribute('data-light-src') : img.getAttribute('data-dark-src');
+                if (next && img.getAttribute('src') !== next) img.setAttribute('src', next);
+            });
+        }
+        syncLogos();
+        // Any widget may flip the theme (topbar/sidebar buttons); keep every wordmark in sync
+        window.addEventListener('bhims-theme-change', syncLogos);
+
+        function setTheme(theme) {
+            html.setAttribute('data-theme', theme);
+            try { localStorage.setItem('bhims-theme', theme); } catch (e) {}
+            document.querySelectorAll('[data-theme-toggle]').forEach(function (el) { el.checked = theme === 'dark'; });
+            syncLogos();
+            try { window.dispatchEvent(new Event('bhims-theme-change')); } catch (e) {}
+        }
+
+        // Checkbox-style switches
+        togglesInit();
+        function togglesInit() {
+            document.querySelectorAll('[data-theme-toggle]').forEach(function (toggle) {
+                toggle.checked = html.getAttribute('data-theme') === 'dark';
+                if (toggle.dataset.bhimsThemeBound) return;
+                toggle.dataset.bhimsThemeBound = '1';
+                toggle.addEventListener('change', function () {
+                    setTheme(this.checked ? 'dark' : 'light');
+                });
+            });
+        }
+        // Button-style toggles (navbar, sidebar, topbar)
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest('[data-theme-switch]');
+            if (!btn) return;
+            e.preventDefault();
+            setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+        });
+        // Sync any logos/toggles that were added after load
+        window.addEventListener('bhims-theme-request', function () {
+            togglesInit();
+            syncLogos();
+            document.querySelectorAll('[data-theme-toggle]').forEach(function (el) {
+                el.checked = html.getAttribute('data-theme') === 'dark';
             });
         });
     })();

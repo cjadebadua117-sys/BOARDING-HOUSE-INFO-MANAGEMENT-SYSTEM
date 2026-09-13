@@ -1,8 +1,8 @@
 <style>
     /* ---- Shared admin page styling (BHIMS design system) ---- */
     :root {
-        --bhims-moss: #3d8f6e;
-        --bhims-moss-hover: #32785b;
+        --bhims-moss: #2f7a5c;
+        --bhims-moss-hover: #28674d;
     }
     .admin-page h1 { font-family: var(--font-display); font-weight: 800; color: var(--bhims-text); margin: 0 0 0.5rem; }
     .admin-page .subtitle { color: var(--bhims-text-muted); font-size: 1.05rem; margin: 0; }
@@ -20,19 +20,22 @@
         margin-bottom: 3rem;
     }
     .stat-card {
-        background: var(--bhims-cream-light);
-        border: 1px solid var(--bhims-border);
-        border-radius: 16px;
+        background: rgba(255,255,255,0.03);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-top: 3px solid var(--bhims-teal);
+        border-radius: 20px;
         padding: 1.75rem;
         display: flex;
         align-items: center;
         gap: 1.25rem;
-        box-shadow: 0 4px 20px var(--bhims-shadow);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 32px 0 rgba(0,0,0,0.37);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
     .stat-card:hover {
-        transform: none;
-        box-shadow: 0 4px 20px var(--bhims-shadow);
+        transform: translateY(-2px);
+        box-shadow: var(--bhims-shadow-sm);
         border-color: var(--bhims-ink-line-strong);
     }
     .stat-icon {
@@ -75,13 +78,13 @@
     }
     /* Primary = teal */
     .btn-uppercase.btn-primary {
-        background-color: var(--bhims-teal);
-        border-color: var(--bhims-teal);
+        background: #0c7f67;
+        border-color: #0c7f67;
         color: #fff;
     }
     .btn-uppercase.btn-primary:hover, .btn-uppercase.btn-primary:focus, .btn-uppercase.btn-primary:active {
-        background-color: var(--bhims-teal-hover);
-        border-color: var(--bhims-teal-hover);
+        background: #0d8a70;
+        border-color: #0d8a70;
         color: #fff;
     }
     /* Success = moss green */
@@ -97,43 +100,46 @@
     }
     /* Danger = brick */
     .btn-uppercase.btn-danger {
-        background-color: var(--bhims-badge-rejected);
-        border-color: var(--bhims-badge-rejected);
+        background-color: #a2321f;
+        border-color: #a2321f;
+        color: #fff;
     }
     .btn-uppercase.btn-danger:hover, .btn-uppercase.btn-danger:focus, .btn-uppercase.btn-danger:active {
-        background-color: #932e1c;
-        border-color: #932e1c;
+        background-color: var(--bhims-danger-text);
+        border-color: var(--bhims-danger-text);
     }
     /* Warning = pending gold */
     .btn-uppercase.btn-warning {
-        background-color: var(--bhims-badge-pending);
-        border-color: var(--bhims-badge-pending);
+        background-color: #8a5a14;
+        border-color: #8a5a14;
         color: #fff;
     }
     .btn-uppercase.btn-warning:hover, .btn-uppercase.btn-warning:focus, .btn-uppercase.btn-warning:active {
-        background-color: #7f5716;
-        border-color: #7f5716;
+        background-color: #8a5a14;
+        border-color: #8a5a14;
         color: #fff;
     }
     /* Outline = teal */
     .btn-uppercase.btn-outline-primary {
         background: transparent;
-        color: var(--bhims-teal);
-        border: 2px solid var(--bhims-teal);
+        color: var(--bhims-teal-strong);
+        border: 2px solid var(--bhims-teal-strong);
     }
     .btn-uppercase.btn-outline-primary:hover, .btn-uppercase.btn-outline-primary:focus, .btn-uppercase.btn-outline-primary:active {
         background: var(--bhims-icon-tint);
-        color: var(--bhims-teal);
-        border-color: var(--bhims-teal-hover);
+        color: var(--bhims-teal-strong);
+        border-color: var(--bhims-teal-strong);
     }
 
     /* Admin tables */
     .admin-table-wrap {
-        background: var(--bhims-cream-light);
-        border: 1px solid var(--bhims-border);
-        border-radius: 16px;
+        background: rgba(255,255,255,0.03);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 20px;
         overflow: hidden;
-        box-shadow: 0 4px 20px var(--bhims-shadow);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 32px 0 rgba(0,0,0,0.37);
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .admin-table-wrap:hover {
@@ -141,6 +147,7 @@
         box-shadow: 0 8px 24px var(--bhims-shadow-hover);
     }
     .admin-table { margin: 0; --bs-table-color: var(--bhims-text); --bs-table-bg: transparent; }
+    table { background: transparent; }
     .admin-table thead th {
         font-family: var(--font-display);
         font-weight: 700;
@@ -182,8 +189,10 @@
     .pagination { gap: 0.35rem; }
     .pagination .page-link {
         border-radius: 9999px;
-        border: 1px solid var(--bhims-border);
-        background: var(--bhims-cream-light);
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.03);
+        -webkit-backdrop-filter: blur(12px) saturate(150%);
+        backdrop-filter: blur(12px) saturate(150%);
         color: var(--bhims-text-muted);
         min-width: 40px;
         text-align: center;
@@ -218,5 +227,14 @@
     }
     @media (max-width: 576px) {
         .stat-grid { grid-template-columns: 1fr; }
+        .btn-uppercase.btn-sm {
+            padding: 0.55rem 1rem;
+            font-size: 0.8rem;
+        }
+        .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
     }
 </style>

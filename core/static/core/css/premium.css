@@ -7,25 +7,11 @@
    ===================================================================== */
 
 /* ---------------------------------------------------------------
-   1. Tokens: signature easings + teal-ink shadows + elevation
+   1. Tokens: signature easings + elevation (shadows in tokens.css)
+   NOTE: all design tokens (easings, z-layers, glass system) live in
+   tokens.css — the single source of truth. Do not redefine them here;
+   this file loads last and would silently override them.
    --------------------------------------------------------------- */
-:root {
-    --bhims-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-    --bhims-ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
-
-    --bhims-shadow-xs: 0 1px 2px rgba(8, 79, 79, 0.06);
-    --bhims-shadow-sm: 0 1px 2px rgba(8, 79, 79, 0.05), 0 4px 10px rgba(8, 79, 79, 0.06);
-    --bhims-shadow-md: 0 2px 4px rgba(8, 79, 79, 0.05), 0 10px 22px rgba(8, 79, 79, 0.09);
-    --bhims-shadow-lg: 0 4px 8px rgba(8, 79, 79, 0.06), 0 18px 40px rgba(8, 79, 79, 0.12);
-
-    /* Layered paper elevation — bg lowest, modals highest */
-    --z-bg: 0;
-    --z-content: 1;
-    --z-topbar: 1200;
-    --z-sidebar: 1300;
-    --z-modal: 2000;
-    --z-toast: 10000;
-}
 
 /* ---------------------------------------------------------------
    2. Base feel: paper, ink, selection, scrollbar
@@ -42,23 +28,30 @@ body {
     text-rendering: optimizeLegibility;
 }
 ::selection {
-    background: #0d7a7b;
-    color: #f8fbf8;
+    background: var(--bhims-teal);
+    color: #fff;
 }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-    background: rgba(13, 122, 123, 0.30);
+    background: rgba(255, 255, 255, 0.15);
     border-radius: 999px;
     border: 3px solid transparent;
     background-clip: content-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(13, 122, 123, 0.48);
+    background: rgba(255, 255, 255, 0.25);
     border: 3px solid transparent;
     background-clip: content-box;
 }
-* { scrollbar-width: thin; scrollbar-color: rgba(13, 122, 123, 0.35) transparent; }
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+    background: rgba(13, 122, 123, 0.30);
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+    background: rgba(13, 122, 123, 0.48);
+}
+* { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.15) transparent; }
+[data-theme="light"] * { scrollbar-color: rgba(13, 122, 123, 0.35) transparent; }
 
 /* ---------------------------------------------------------------
    3. Typography rhythm — display serif carries the voice
@@ -91,13 +84,13 @@ p, li { text-wrap: pretty; }
    --------------------------------------------------------------- */
 :focus { outline: none; }
 :focus-visible {
-    outline: 2px solid rgba(13, 122, 123, 0.65) !important;
+    outline: 2px solid rgba(27, 184, 154, 0.50) !important;
     outline-offset: 2px;
     border-radius: 6px;
 }
 .btn:focus-visible, .form-control:focus-visible, .form-select:focus-visible {
     outline: none !important;
-    box-shadow: 0 0 0 3px rgba(13, 122, 123, 0.18), 0 0 0 1px rgba(13, 122, 123, 0.55) !important;
+    box-shadow: 0 0 0 3px rgba(27, 184, 154, 0.15), 0 0 0 1px rgba(27, 184, 154, 0.40) !important;
 }
 
 /* ---------------------------------------------------------------
@@ -126,11 +119,11 @@ p, li { text-wrap: pretty; }
 .filter-reset:active, .inq-submit:active, .bhims-press:active {
     transform: translateY(1px) scale(0.98) !important;
     transition-duration: 0.08s !important;
-    box-shadow: 0 0 0 rgba(8, 79, 79, 0.12) !important;
+    box-shadow: none !important;
 }
 
 /* ---------------------------------------------------------------
-   6. Cards: quiet depth — border darkens, shadow lifts
+   6. Cards: glass depth — translucent panels with subtle lift
    --------------------------------------------------------------- */
 .card, .stat-card, .hero-card, .listing-card, .house-card, .room-card,
 .booking-card, .filter-card, .inquiries-card, .profile-card, .form-card,
@@ -142,14 +135,11 @@ p, li { text-wrap: pretty; }
 .card:hover, .stat-card:hover, .listing-card:hover, .house-card:hover,
 .room-card:hover, .booking-card:hover, .filter-card:hover,
 .inquiry-item:hover, .landing-feature-card:hover {
-    transform: none !important;
-    box-shadow: var(--bhims-shadow-sm) !important;
+    transform: translateY(-4px) !important;
+    box-shadow: var(--bhims-glass-shadow-hover) !important;
     border-color: var(--bhims-ink-line-strong) !important;
 }
-.hero-card:hover { transform: none !important; }
-
-.stat-card { overflow: hidden; }
-.stat-card::after { content: none !important; display: none; }
+.hero-card:hover { transform: translateY(-2px) !important; }
 
 /* ---------------------------------------------------------------
    7. Sidebar / shell
@@ -162,8 +152,9 @@ p, li { text-wrap: pretty; }
 .app-sidebar .nav-link:hover, .app-sidebar a:hover {
     transform: translateX(4px);
 }
+.app-sidebar a:hover i, .app-sidebar a:hover svg { transform: none; }
 .app-sidebar .nav-link.active, .app-sidebar .active > a {
-    background: rgba(13, 122, 123, 0.28) !important;
+    background: rgba(27, 184, 154, 0.15) !important;
     box-shadow: inset 3px 0 0 var(--bhims-teal) !important;
 }
 
@@ -175,9 +166,9 @@ p, li { text-wrap: pretty; }
                 border-color 0.18s var(--bhims-ease-smooth),
                 box-shadow 0.18s var(--bhims-ease-smooth) !important;
 }
-.form-control:hover, .form-select:hover { border-color: rgba(13, 122, 123, 0.40) !important; }
+.form-control:hover, .form-select:hover { border-color: var(--bhims-ink-line-strong) !important; }
 .form-control:focus, .form-select:focus, .bhims-input:focus, .bhims-textarea:focus {
-    box-shadow: 0 0 0 3px rgba(13, 122, 123, 0.12) !important;
+    box-shadow: 0 0 0 3px rgba(27, 184, 154, 0.12) !important;
 }
 
 /* ---------------------------------------------------------------
@@ -190,7 +181,8 @@ p, li { text-wrap: pretty; }
     color: var(--bhims-text-muted) !important;
 }
 .table tbody tr { transition: background-color 0.2s var(--bhims-ease-smooth); }
-.table tbody tr:hover { background-color: rgba(13, 122, 123, 0.05) !important; }
+.table tbody tr:hover { background-color: rgba(27, 184, 154, 0.06) !important; }
+[data-theme="light"] .table tbody tr:hover { background-color: rgba(13, 122, 123, 0.06) !important; }
 
 .badge {
     letter-spacing: 0.02em;
@@ -248,6 +240,8 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 #toast-container { z-index: var(--z-toast) !important; }
 .app-topbar { z-index: var(--z-topbar) !important; }
 .app-sidebar { z-index: var(--z-sidebar) !important; }
+.bhims-topbar { position: sticky; top: 0; z-index: var(--z-topbar) !important; }
+.bhims-topbar .bhims-topbar-inner { position: relative; z-index: 2; }
 
 .modal-content {
     box-shadow: var(--bhims-shadow-lg) !important;
@@ -276,7 +270,7 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
    13. Skeleton shimmer — used during AJAX filter + image lazy-load
    --------------------------------------------------------------- */
 .skeleton {
-    background: linear-gradient(90deg, #eef4f2 25%, #f8fbf8 37%, #eef4f2 63%);
+    background: linear-gradient(90deg, rgba(200, 220, 215, 0.30) 25%, rgba(255, 255, 255, 0.50) 37%, rgba(200, 220, 215, 0.30) 63%);
     background-size: 400% 100%;
     animation: bhimsShimmer 1.3s ease-in-out infinite;
     border-radius: 8px;
@@ -286,11 +280,14 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     100% { background-position: -100% 0; }
 }
 .skeleton-card {
-    background: var(--bhims-paper-raised);
+    background: var(--bhims-glass-bg-secondary);
+    -webkit-backdrop-filter: var(--bhims-glass-secondary);
+    backdrop-filter: var(--bhims-glass-secondary);
     border: 1px solid var(--bhims-ink-line);
     border-radius: var(--bhims-radius);
     overflow: hidden;
-    box-shadow: 0 1px 2px rgba(8, 79, 79, 0.05);
+    box-shadow: var(--bhims-glass-shadow);
+    transform: translateZ(0);
 }
 .skeleton-card .sk-img { height: 220px; }
 .skeleton-card .sk-body { padding: 1.5rem; }
@@ -300,11 +297,20 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 
 /* Shared empty-state polish — icon + editorial heading */
 .bhims-empty {
-    background: var(--bhims-paper-raised);
-    border: 1px dashed var(--bhims-ink-line-strong);
-    border-radius: var(--bhims-radius);
+    background: var(--bhims-glass-bg-secondary);
+    -webkit-backdrop-filter: var(--bhims-glass-secondary);
+    backdrop-filter: var(--bhims-glass-secondary);
+    border: 1px dashed var(--bhims-ink-line);
+    border-radius: var(--radius-xl);
     padding: 3.5rem 2rem;
     text-align: center;
+    box-shadow: var(--bhims-glass-shadow);
+    transform: translateZ(0);
+}
+[data-theme="dark"] .bhims-empty {
+    background: rgba(20, 20, 25, 0.35);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06), 0 8px 24px 0 rgba(0, 0, 0, 0.30);
 }
 .bhims-empty i, .bhims-empty svg { color: var(--bhims-teal); opacity: 0.9; }
 .bhims-empty h3 { font-family: var(--font-display); color: var(--bhims-text); }
@@ -341,7 +347,8 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 .theme-slider {
     position: absolute;
     inset: 0;
-    background: #c5d4cf;
+    background: var(--bhims-glass-bg-secondary);
+    border: 1px solid var(--bhims-border);
     border-radius: 999px;
     transition: background 0.2s var(--bhims-ease-smooth);
 }
@@ -352,10 +359,10 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     width: 18px;
     left: 3px;
     bottom: 3px;
-    background: #fff;
+    background: var(--bhims-teal);
     border-radius: 50%;
     transition: transform var(--bhims-ease-smooth);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.30);
 }
 .theme-switch input:checked + .theme-slider {
     background: var(--bhims-teal);
@@ -364,7 +371,7 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     transform: translateX(20px);
 }
 .theme-switch input:focus-visible + .theme-slider {
-    outline: 2px solid rgba(13, 122, 123, 0.65);
+    outline: 2px solid rgba(27, 184, 154, 0.50);
     outline-offset: 2px;
 }
 
@@ -446,7 +453,7 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     text-transform: uppercase;
     letter-spacing: 0.12em;
     font-size: var(--text-xs);
-    color: var(--bhims-teal);
+    color: var(--bhims-teal-strong);
     margin-bottom: var(--space-2);
     display: inline-flex;
     align-items: center;
@@ -456,8 +463,9 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     content: '';
     width: 28px;
     height: 2px;
-    background: var(--bhims-teal);
+    background: linear-gradient(90deg, #1bb89a, #5ee6c8);
     flex: 0 0 auto;
+    border-radius: 1px;
 }
 .page-header h1 {
     font-family: var(--font-display);
@@ -484,6 +492,18 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     justify-content: space-between;
     gap: var(--space-4);
     margin-bottom: var(--space-6);
+    position: relative;
+    padding-left: var(--space-4);
+}
+.section-header::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 3px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #1bb89a, #5ee6c8);
 }
 .section-header h2 {
     font-family: var(--font-display);
@@ -504,34 +524,74 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 .listing-card,
 .result-card,
 .glass-card {
-    background: var(--bhims-paper-raised);
-    border: 1px solid var(--bhims-ink-line);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--bhims-glass-inner-glow);
+    border-radius: 20px;
+    background: var(--bhims-glass-bg-primary);
+    -webkit-backdrop-filter: var(--bhims-glass-primary);
+    backdrop-filter: var(--bhims-glass-primary);
+    border: 1px solid var(--bhims-glass-border);
+    box-shadow: var(--bhims-glass-shadow);
+    transform: translateZ(0);
     transition: transform 0.25s var(--bhims-ease-smooth),
                 box-shadow 0.25s var(--bhims-ease-smooth),
                 border-color 0.25s var(--bhims-ease-smooth);
+}
+[data-theme="light"] .profile-card,
+[data-theme="light"] .inquiry-card,
+[data-theme="light"] .booking-card,
+[data-theme="light"] .room-card,
+[data-theme="light"] .listing-card,
+[data-theme="light"] .result-card,
+[data-theme="light"] .glass-card {
+    border-top: 1px solid rgba(255, 255, 255, 0.55);
+    border-left: 1px solid rgba(255, 255, 255, 0.20);
+    border-right: 1px solid rgba(255, 255, 255, 0.20);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.40), 0 12px 32px 0 rgba(0, 0, 0, 0.08);
 }
 .card:hover,
 .stat-card:hover,
 .listing-card:hover,
 .result-card:hover {
-    transform: none;
-    box-shadow: var(--bhims-shadow-sm);
-    border-color: var(--bhims-ink-line-strong);
+    transform: translateY(-4px) translateZ(0);
+    box-shadow: var(--bhims-glass-shadow-hover);
+}
+[data-theme="light"] .card:hover,
+[data-theme="light"] .stat-card:hover,
+[data-theme="light"] .listing-card:hover,
+[data-theme="light"] .result-card:hover {
+    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.45), 0 16px 40px 0 rgba(0, 0, 0, 0.12), 0 4px 12px 0 rgba(0, 0, 0, 0.06);
 }
 
 /* Card variants */
 .card-header {
     padding: var(--space-4) var(--space-6);
-    border-bottom: 1px solid var(--bhims-ink-line);
-    background: var(--bhims-paper-sunken);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.15);
+    -webkit-backdrop-filter: var(--bhims-glass-secondary);
+    backdrop-filter: var(--bhims-glass-secondary);
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    border-top: 2px solid transparent;
+    background-image: linear-gradient(rgba(255,255,255,0.15), rgba(255,255,255,0.15)),
+                      linear-gradient(135deg, #1bb89a, #5ee6c8);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    background-size: 100% 100%, 100% 2px;
+}
+.card-header .card-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--text-base);
+    color: var(--bhims-text);
+    margin: 0;
+}
+[data-theme="dark"] .card-header {
+    background: rgba(20, 20, 25, 0.25);
+    border-bottom-color: rgba(255, 255, 255, 0.05);
 }
 .card-body { padding: var(--space-6); }
 .card-footer {
     padding: var(--space-4) var(--space-6);
-    border-top: 1px solid var(--bhims-ink-line);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
     background: transparent;
     border-radius: 0 0 var(--radius-xl) var(--radius-xl);
 }
@@ -544,16 +604,29 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     padding: var(--space-6);
     position: relative;
     overflow: hidden;
+    border-top: 2px solid transparent;
+    background-image: linear-gradient(var(--bhims-paper), var(--bhims-paper)),
+                      linear-gradient(135deg, #1bb89a, #5ee6c8);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    background-size: 100% 100%, 100% 2px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(27, 184, 154, 0.15);
 }
 .stat-card::after { content: none; display: none; }
 .stat-icon {
     width: 56px; height: 56px;
     border-radius: var(--radius-lg);
-    background: var(--bhims-icon-tint);
+    background: linear-gradient(135deg, rgba(27, 184, 154, 0.20), rgba(94, 230, 200, 0.10));
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
+    border: 1px solid rgba(27, 184, 154, 0.20);
+    box-shadow: 0 2px 8px rgba(27, 184, 154, 0.15);
 }
-.stat-icon svg { width: 1.5rem; height: 1.5rem; color: var(--bhims-teal); }
+.stat-icon svg { width: 1.5rem; height: 1.5rem; color: var(--bhims-teal-light); filter: drop-shadow(0 0 4px rgba(27, 184, 154, 0.40)); }
 .stat-content h3,
 .stat-content .stat-value {
     font-family: var(--font-display);
@@ -613,7 +686,9 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 .btn-base { padding: var(--space-3) var(--space-5); font-size: var(--text-sm); }
 .btn-lg { padding: var(--space-4) var(--space-8); font-size: var(--text-base); }
 
-/* Variants */
+/* Variants — gradient-primary (non-generic accent) */
+/* [a11y] Deep-teal gradient instead of bright teal: white text needs
+   L ≤ ~0.34 for 4.5:1; #1bb89a (L≈0.40) only reached ~2.6:1. */
 .btn-primary,
 .btn-success,
 .btn-bhims,
@@ -624,10 +699,12 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 .btn-accept-bhims,
 .bhims-login-btn,
 .btn-teal {
-    background: var(--bhims-teal);
+    background: linear-gradient(135deg, #0c7f67 0%, #095e4d 60%, #084a3d 100%);
     color: #fff;
-    border-color: var(--bhims-teal-deep);
-    box-shadow: 0 1px 2px rgba(8, 79, 79, 0.12);
+    border: 1px solid rgba(27, 184, 154, 0.30);
+    box-shadow: 0 2px 12px rgba(27, 184, 154, 0.20),
+                inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    transform: translateZ(0);
 }
 .btn-primary:hover,
 .btn-success:hover,
@@ -639,10 +716,12 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 .btn-accept-bhims:hover,
 .bhims-login-btn:hover,
 .btn-teal:hover {
-    background: var(--bhims-teal-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(8, 79, 79, 0.2);
+    background: linear-gradient(135deg, #0d8a70 0%, #0c7f67 60%, #095e4d 100%);
+    transform: translateY(-2px) translateZ(0);
+    box-shadow: 0 6px 24px rgba(27, 184, 154, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
     color: #fff;
+    border-color: rgba(27, 184, 154, 0.45);
 }
 .btn-primary:active,
 .btn-success:active,
@@ -655,35 +734,102 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 .bhims-login-btn:active,
 .btn-teal:active {
     transform: translateY(1px) scale(0.98);
-    box-shadow: 0 0 0 rgba(8, 79, 79, 0.12);
+    box-shadow: 0 1px 4px rgba(27, 184, 154, 0.20);
     transition-duration: 0.08s;
 }
 
+/* Gradient glow underline for text-based CTAs */
+.view-all-btn,
+.manage-btn,
+.btn-view-details,
+.btn-teal-outline {
+    background: transparent;
+    color: var(--bhims-teal-strong);
+    border: none;
+    box-shadow: none;
+    padding: var(--space-1) var(--space-2);
+    min-height: auto;
+    font-weight: 700;
+    position: relative;
+}
+.view-all-btn::after,
+.manage-btn::after,
+.btn-view-details::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 0; height: 2px;
+    background: linear-gradient(90deg, #1bb89a, #5ee6c8);
+    border-radius: 1px;
+    transition: width 0.25s ease;
+}
+.view-all-btn:hover::after,
+.manage-btn:hover::after,
+.btn-view-details:hover::after {
+    width: 100%;
+}
+.view-all-btn:hover,
+.manage-btn:hover,
+.btn-view-details:hover {
+    background: transparent;
+    color: #fff;
+    box-shadow: none;
+    border: none;
+}
+.view-all-btn:focus-visible,
+.manage-btn:focus-visible,
+.btn-view-details:focus-visible {
+    outline: 2px solid var(--bhims-teal);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
+/* Glass filter buttons � gradient apply, glass reset */
+.glass-btn-reset,
+.filter-card .filter-reset {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.10) !important;
+    color: var(--bhims-text-muted) !important;
+}
+.glass-btn-reset:hover,
+.filter-card .filter-reset:hover {
+    background: rgba(255, 255, 255, 0.10) !important;
+    color: var(--bhims-text) !important;
+    border-color: var(--bhims-teal) !important;
+}
+
+/* [a11y] Teal text-buttons use the contrast token (deep teal in light
+   mode — bright #1bb89a on white glass was 1.8–2.3:1, unreadable). */
 .btn-outline-primary,
 .btn-teal-outline,
-.view-all-btn,
 .edit-btn,
 .filter-reset {
-    background: transparent;
-    color: var(--bhims-teal);
-    border: 2px solid var(--bhims-teal);
+    background: var(--bhims-glass-bg-secondary);
+    -webkit-backdrop-filter: var(--bhims-glass-secondary);
+    backdrop-filter: var(--bhims-glass-secondary);
+    color: var(--bhims-teal-strong);
+    border: 1px solid var(--bhims-glass-border);
+    box-shadow: var(--bhims-glass-shadow-xs);
+    transform: translateZ(0);
 }
 .btn-outline-primary:hover,
 .btn-teal-outline:hover,
-.view-all-btn:hover,
 .edit-btn:hover,
 .filter-reset:hover {
-    background: var(--bhims-icon-tint);
+    background: var(--bhims-glass-bg-primary);
     color: var(--bhims-teal);
-    border-color: var(--bhims-teal);
-    transform: translateY(-1px);
+    border-color: var(--bhims-ink-line-strong);
+    box-shadow: var(--bhims-glass-shadow-sm);
+    transform: translateY(-1px) translateZ(0);
 }
 
+/* [a11y] Danger/warning get deep washes so white text stays ≥4.5:1
+   in BOTH themes (light tokens #f07070 / #f0c050 are pastel). */
 .btn-danger,
 .reject-btn {
-    background: var(--bhims-badge-rejected);
+    background: #a2321f;
     color: #fff;
-    border-color: var(--bhims-badge-rejected);
+    border-color: #a2321f;
 }
 .btn-danger:hover,
 .reject-btn:hover {
@@ -693,9 +839,9 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 }
 
 .btn-warning {
-    background: var(--bhims-badge-pending);
+    background: #8a5a14;
     color: #fff;
-    border-color: var(--bhims-badge-pending);
+    border-color: #8a5a14;
 }
 .btn-warning:hover {
     background: #7f5716;
@@ -735,12 +881,12 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 .bhims-textarea:focus {
     outline: none;
     border-color: var(--bhims-teal);
-    box-shadow: 0 0 0 3px rgba(13, 122, 123, 0.12);
-    background: #fff;
+    box-shadow: 0 0 0 3px rgba(27, 184, 154, 0.12);
+    background: var(--bhims-glass-bg-secondary);
 }
 .form-control:hover,
 .form-select:hover {
-    border-color: rgba(13, 122, 123, 0.4);
+    border-color: var(--bhims-ink-line-strong);
 }
 .form-control-sm { padding: var(--space-2) var(--space-3); font-size: var(--text-xs); }
 .form-control-base { padding: var(--space-2) var(--space-4); font-size: var(--text-sm); }
@@ -791,13 +937,13 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     margin-top: var(--space-1);
 }
 .bhims-error-summary {
-    background: #fdeceb;
-    border: 1px solid #f3c1bd;
+    background: var(--bhims-danger-bg);
+    border: 1px solid var(--bhims-danger-border);
     border-left: 4px solid var(--bhims-badge-rejected);
     border-radius: var(--radius-lg);
     padding: var(--space-4) var(--space-5);
     margin-bottom: var(--space-4);
-    color: #8c1d18;
+    color: var(--bhims-danger-text);
 }
 .bhims-error-summary h3 { margin: 0 0 var(--space-2); font-size: var(--text-sm); font-weight: 700; }
 .bhims-error-summary ul { margin: 0; padding-left: var(--space-5); }
@@ -826,7 +972,7 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 .badge-danger { background: var(--bhims-badge-rejected-bg); color: var(--bhims-badge-rejected); }
 .badge-warning { background: var(--bhims-badge-pending-bg); color: var(--bhims-badge-pending); }
 .badge-teal { background: var(--bhims-icon-tint); color: var(--bhims-teal); }
-.badge-secondary { background: var(--bhims-paper-sunken); color: var(--bhims-text-muted); border: 1px solid var(--bhims-ink-line); }
+.badge-secondary { background: rgba(255, 255, 255, 0.30); color: var(--bhims-text-muted); border: 1px solid rgba(255, 255, 255, 0.20); }
 
 /* ---- Component: Empty State (unified) ---- */
 .empty-state,
@@ -837,9 +983,13 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     justify-content: center;
     text-align: center;
     padding: var(--space-12) var(--space-6);
-    background: var(--bhims-paper-raised);
-    border: 1px dashed var(--bhims-ink-line-strong);
+    background: rgba(255, 255, 255, 0.30);
+    -webkit-backdrop-filter: var(--bhims-glass-primary);
+    backdrop-filter: var(--bhims-glass-primary);
+    border: 1px dashed rgba(255, 255, 255, 0.30);
     border-radius: var(--radius-xl);
+    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.30), 0 8px 24px 0 rgba(0, 0, 0, 0.06);
+    transform: translateZ(0);
 }
 .empty-state i,
 .bhims-empty i,
@@ -871,7 +1021,7 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 
 /* ---- Component: Skeleton Loading (unified) ---- */
 .skeleton {
-    background: linear-gradient(90deg, #eef4f2 25%, #f8fbf8 37%, #eef4f2 63%);
+    background: linear-gradient(90deg, rgba(200, 220, 215, 0.30) 25%, rgba(255, 255, 255, 0.50) 37%, rgba(200, 220, 215, 0.30) 63%);
     background-size: 400% 100%;
     animation: bhimsShimmer 1.3s ease-in-out infinite;
     border-radius: var(--radius-md);
@@ -881,11 +1031,17 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     100% { background-position: -100% 0; }
 }
 .skeleton-card {
-    background: var(--bhims-paper-raised);
-    border: 1px solid var(--bhims-ink-line);
+    background: rgba(255, 255, 255, 0.30);
+    -webkit-backdrop-filter: var(--bhims-glass-primary);
+    backdrop-filter: var(--bhims-glass-primary);
+    border-top: 1px solid rgba(255, 255, 255, 0.45);
+    border-left: 1px solid rgba(255, 255, 255, 0.18);
+    border-right: 1px solid rgba(255, 255, 255, 0.18);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: var(--radius-xl);
     overflow: hidden;
-    box-shadow: var(--bhims-glass-inner-glow);
+    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.30), 0 8px 24px 0 rgba(0, 0, 0, 0.06);
+    transform: translateZ(0);
 }
 .skeleton-card .sk-img { height: 220px; }
 .skeleton-card .sk-body { padding: var(--space-6); }
@@ -1013,7 +1169,7 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     top: -4rem;
     z-index: 20000;
     padding: 0.65rem 1.1rem;
-    background: var(--bhims-teal);
+    background: #0a6b57;
     color: #fff !important;
     font-weight: 700;
     border-radius: var(--radius-md);
@@ -1028,55 +1184,153 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 
 /* Public header */
 .bhims-topbar {
-    background: var(--bhims-paper-raised);
+    background: var(--bhims-glass-bg-primary);
+    -webkit-backdrop-filter: var(--bhims-glass-primary);
+    backdrop-filter: var(--bhims-glass-primary);
     width: 100%;
     position: sticky;
     top: 0;
     z-index: var(--z-topbar);
-    box-shadow: 0 1px 0 var(--bhims-ink-line), 0 8px 24px rgba(8, 79, 79, 0.06);
-    padding: 0.55rem 0;
+    box-shadow: 0 1px 0 var(--bhims-border), 0 8px 24px rgba(0, 0, 0, 0.15);
+    border-bottom: 1px solid var(--bhims-border);
+    padding: 0.35rem 0;
+    transform: translateZ(0);
+}
+[data-theme="light"] .bhims-topbar {
+    background: rgba(255, 255, 255, 0.35);
+    -webkit-backdrop-filter: var(--bhims-glass-primary);
+    backdrop-filter: var(--bhims-glass-primary);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.20);
+    border-top: 1px solid rgba(255, 255, 255, 0.45);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.20), 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 .bhims-topbar-inner {
     max-width: var(--container-xl);
     margin: 0 auto;
-    padding: 0 var(--space-6);
+    padding: 0.35rem var(--space-6);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-4);
 }
-.bhims-brand-link {
+.bhims-topbar-left {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
+}
+/* Shared brand layout for navbar and sidebar */
+.bhims-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
     text-decoration: none;
+    flex-shrink: 0;
     min-width: 0;
 }
-.bhims-brand-link img {
-    height: 40px;
-    width: 40px;
-    object-fit: cover;
+.bhims-brand-mark {
+    height: 38px;
+    width: auto;
     display: block;
-    border-radius: 10px;
+    flex-shrink: 0;
+    transition: transform 0.25s var(--bhims-ease-smooth);
+}
+.bhims-brand:hover .bhims-brand-mark { transform: translateY(-1px) scale(1.03); }
+.bhims-brand-text {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+}
+.bhims-word {
+    height: 30px;
+    width: auto;
+    display: block;
+    transition: opacity 0.25s ease;
+}
+/* Legacy hook (old single-image logo) */
+.bhims-brand-logo {
+    height: 44px;
+    width: auto;
+    display: block;
+}
+/* Theme toggle button in the public navbar */
+.bhims-topbar-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     flex-shrink: 0;
 }
-.bhims-brand-text {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.1;
+.bhims-theme-btn {
+    background: var(--bhims-glass-bg-secondary);
+    border: 1px solid var(--bhims-border);
+    border-radius: 12px;
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--bhims-text-muted);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, transform 0.12s ease;
 }
-.bhims-brand-text strong {
-    font-family: var(--font-display);
-    font-size: 1.05rem;
-    color: var(--bhims-teal-deep);
-    font-weight: 700;
-}
-.bhims-brand-text span {
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+.bhims-theme-btn:hover {
     color: var(--bhims-teal);
+    background: var(--bhims-icon-tint);
+    border-color: var(--bhims-ink-line-strong);
+}
+.bhims-theme-btn:active { transform: scale(0.94); }
+.bhims-theme-btn .bi-sun { display: none; }
+[data-theme="dark"] .bhims-theme-btn .bi-sun { display: inline-block; }
+[data-theme="dark"] .bhims-theme-btn .bi-moon-stars { display: none; }
+.bhims-nav-form { display: inline-flex; margin: 0; }
+.bhims-brand-layout {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    min-width: 0;
+    color: #fff;
+    flex-shrink: 0;
+}
+.bhims-brand-layout svg {
+    height: 56px;
+    width: 56px;
+    flex-shrink: 0;
+    display: block;
+    vertical-align: middle;
+}
+/* Sidebar wordmark styles — shared globally for navbar and sidebar */
+.sidebar-wordmark {
+    font-family: var(--font-display) !important;
+    font-weight: 800 !important;
+    color: #fff !important;
+    font-size: 1.05rem !important;
+    line-height: 1.15 !important;
+    white-space: nowrap !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+.sidebar-wordmark span {
+    display: block !important;
+    font-size: 0.68rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.18em !important;
+    color: #c8d6e5 !important;
+    text-transform: uppercase !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8) !important;
+}
+[data-theme="light"] .bhims-brand-layout {
+    color: var(--bhims-text);
+}
+[data-theme="light"] .sidebar-wordmark {
+    color: #1f3438;
+}
+[data-theme="light"] .sidebar-wordmark span {
+    color: #4a5568 !important;
+    text-shadow: none !important;
 }
 .bhims-nav {
     display: flex;
@@ -1108,7 +1362,7 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     font-weight: 700;
     font-size: var(--text-sm);
     text-decoration: none;
-    box-shadow: 0 1px 2px rgba(8, 79, 79, 0.12);
+    box-shadow: var(--bhims-glass-shadow-xs);
 }
 .bhims-nav-cta:hover { background: var(--bhims-teal-hover); color: #fff !important; }
 .bhims-nav-ghost {
@@ -1130,8 +1384,10 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 }
 .bhims-menu-toggle {
     display: none;
-    background: var(--bhims-paper-sunken);
-    border: 1px solid var(--bhims-ink-line);
+    background: rgba(255, 255, 255, 0.30);
+    -webkit-backdrop-filter: var(--bhims-glass-secondary);
+    backdrop-filter: var(--bhims-glass-secondary);
+    border: 1px solid rgba(255, 255, 255, 0.20);
     border-radius: 10px;
     width: 44px;
     height: 44px;
@@ -1142,6 +1398,8 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 }
 @media (max-width: 820px) {
     .bhims-menu-toggle { display: inline-flex; }
+    .bhims-word { height: 26px; }
+    .bhims-brand-mark { height: 34px; }
     .bhims-nav {
         display: none;
         position: absolute;
@@ -1149,21 +1407,57 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
         top: 100%;
         flex-direction: column;
         align-items: stretch;
-        gap: 0.35rem;
-        padding: 0.85rem 1.25rem 1.15rem;
-        background: var(--bhims-paper-raised);
-        border-bottom: 1px solid var(--bhims-ink-line);
+        gap: 0.25rem;
+        padding: 0.6rem var(--space-4) 1rem;
+        margin: 0;
+        background: var(--bhims-glass-bg-primary);
+        -webkit-backdrop-filter: var(--bhims-glass-primary);
+        backdrop-filter: var(--bhims-glass-primary);
+        border-bottom: 1px solid var(--bhims-border);
+        border-radius: 0 0 20px 20px;
         box-shadow: var(--bhims-shadow-md);
     }
     .bhims-topbar.is-open .bhims-nav { display: flex; }
-    .bhims-nav-link { border-bottom: 0; padding: 0.7rem 0.4rem; }
-    .bhims-brand-text { display: none; }
+    [data-theme="dark"] .bhims-topbar.is-open .bhims-nav {
+        background: rgba(12, 16, 15, 0.92);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    [data-theme="light"] .bhims-topbar.is-open .bhims-nav {
+        background: rgba(255, 255, 255, 0.94);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.10);
+    }
+    .bhims-nav-link {
+        border-bottom: 0;
+        min-height: 48px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0.6rem 0.75rem;
+        border-radius: 12px;
+        color: var(--bhims-text);
+        font-size: 1rem;
+    }
+    .bhims-nav-link:hover,
+    .bhims-nav-link.is-active {
+        background: var(--bhims-icon-tint);
+        border-bottom-color: transparent;
+        color: var(--bhims-teal);
+    }
+    .bhims-nav-form { width: 100%; margin-top: 0.35rem; }
+    .bhims-nav-form .bhims-logout-btn { width: 100%; }
 }
 
-/* Site footer */
+/* If the viewport grows past the mobile breakpoint, reset any open panel */
+@media (min-width: 821px) {
+    .bhims-topbar.is-open .bhims-nav { display: flex; }
+}
+
+/* Site footer — maxed-out glass */
 .bhims-footer {
-    background: #085248;
-    border-top: 1px solid rgba(206, 234, 234, 0.16);
+    background: rgba(8, 55, 56, 0.65);
+    -webkit-backdrop-filter: blur(40px) saturate(200%);
+    backdrop-filter: blur(40px) saturate(200%);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
     color: #fff;
     width: 100%;
 }
@@ -1182,10 +1476,9 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     margin-bottom: 1.15rem;
 }
 .bhims-footer-brand img {
-    height: 40px; width: 40px;
-    border-radius: 10px;
-    background: rgba(255,255,255,0.12);
-    padding: 4px;
+    height: 48px;
+    width: auto;
+    flex-shrink: 0;
 }
 .bhims-footer h2, .bhims-footer h3 {
     font-family: var(--font-display);
@@ -1234,12 +1527,13 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     color: inherit;
     background-image: none !important;
     min-height: 100%;
+    border-radius: 20px !important;
 }
 .listing-card .card-image {
     position: relative;
     height: 210px;
     overflow: hidden;
-    background: var(--bhims-paper-sunken);
+    background: rgba(255, 255, 255, 0.05);
 }
 .listing-card .card-image img,
 .listing-card .house-image {
@@ -1255,19 +1549,22 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.4rem;
-    color: var(--bhims-teal);
-    background:
-        repeating-linear-gradient(45deg, rgba(13,122,123,0.05) 0 8px, transparent 8px 16px),
-        var(--bhims-paper-sunken);
+    gap: 0.5rem;
+    color: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.03);
 }
-.listing-card .no-photo i { font-size: 2rem; }
-.listing-card .no-photo span { font-size: var(--text-xs); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+[data-theme="light"] .listing-card .no-photo,
+[data-theme="light"] .listing-card .house-image-placeholder {
+    color: var(--bhims-teal);
+    background: rgba(255, 255, 255, 0.18);
+}
+.listing-card .no-photo i { font-size: 2.2rem; opacity: 0.5; }
+.listing-card .no-photo span { font-size: var(--text-xs); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.6; }
 .listing-card .card-overlay {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: linear-gradient(to top, rgba(8, 49, 49, 0.62) 0%, transparent 48%);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, transparent 48%);
 }
 .listing-card .card-badges {
     position: absolute;
@@ -1279,6 +1576,9 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     gap: 0.4rem;
     z-index: 1;
 }
+/* [a11y] Price sits directly on photos — a solid gradient wash plus a
+   stronger shadow keeps white text ≥4.5:1 over any bright image area
+   (bare text-shadow over a bright wall measured 1.1:1). */
 .listing-card .card-price-overlay {
     position: absolute;
     left: 0.85rem;
@@ -1288,7 +1588,11 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     font-family: var(--font-display);
     font-weight: 700;
     font-size: 1.15rem;
-    text-shadow: 0 1px 8px rgba(0,0,0,0.35);
+    background: linear-gradient(90deg, rgba(10, 46, 42, 0.82) 0%, rgba(10, 46, 42, 0.55) 75%, rgba(10, 46, 42, 0.35) 100%);
+    padding: 0.3rem 0.6rem;
+    margin-left: -0.25rem;
+    border-radius: 8px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65), 0 0 1px rgba(0, 0, 0, 0.85);
 }
 .listing-card .card-price-overlay small {
     display: block;
@@ -1336,12 +1640,23 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    padding: 0.22rem 0.6rem;
+    padding: 0.25rem 0.65rem;
     border-radius: 999px;
-    background: var(--bhims-icon-tint);
-    color: var(--bhims-teal-deep);
+    background: rgba(27, 184, 154, 0.10);
+    border: 1px solid rgba(27, 184, 154, 0.25);
+    color: var(--bhims-teal-light);
     font-size: 0.72rem;
     font-weight: 700;
+    letter-spacing: 0.02em;
+    text-shadow: 0 0 8px rgba(27, 184, 154, 0.30);
+}
+[data-theme="light"] .room-type-pill,
+[data-theme="light"] .price-pill,
+[data-theme="light"] .gender-pill {
+    background: var(--bhims-icon-tint);
+    border: 1px solid transparent;
+    color: var(--bhims-teal-deep);
+    text-shadow: none;
 }
 .listing-card .card-description {
     color: var(--bhims-text-muted);
@@ -1406,15 +1721,19 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
 [data-theme="dark"] .form-select,
 [data-theme="dark"] .bhims-input,
 [data-theme="dark"] .bhims-textarea {
-    background: var(--bhims-paper-sunken) !important;
+    background: rgba(20, 20, 25, 0.50) !important;
+    -webkit-backdrop-filter: var(--bhims-glass-secondary);
+    backdrop-filter: var(--bhims-glass-secondary);
     color: var(--bhims-text) !important;
 }
 [data-theme="dark"] .form-control:focus,
 [data-theme="dark"] .form-select:focus {
-    background: var(--bhims-paper-raised) !important;
+    background: rgba(20, 20, 25, 0.60) !important;
+    -webkit-backdrop-filter: var(--bhims-glass-secondary);
+    backdrop-filter: var(--bhims-glass-secondary);
 }
 [data-theme="dark"] .skeleton {
-    background: linear-gradient(90deg, #152320 25%, #1c322e 37%, #152320 63%);
+    background: linear-gradient(90deg, rgba(30, 58, 53, 0.30) 25%, rgba(40, 70, 64, 0.35) 37%, rgba(30, 58, 53, 0.30) 63%);
     background-size: 400% 100%;
 }
 
@@ -1455,13 +1774,23 @@ main#main-content {
 .listing-card:hover img { transform: scale(1.03); }
 
 .filter-card {
-    padding: 1.15rem 1.25rem !important;
+    padding: 28px !important;
 }
-.filter-card .form-label {
-    font-size: 0.72rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--bhims-text-muted);
+.filter-card .form-label,
+.filter-card label {
+    font-size: 0.72rem !important;
+    letter-spacing: 0.075em !important;
+    text-transform: uppercase !important;
+    font-weight: 700 !important;
+    color: rgba(255, 255, 255, 0.65) !important;
+    margin-bottom: 8px !important;
+    display: block;
+}
+[data-theme="light"] .filter-card .form-label,
+[data-theme="light"] .filter-card label {
+    /* [a11y] was rgba(255,255,255,.55) — white on the white glass card,
+       invisible. Dark slate reads correctly on the light surface. */
+    color: rgba(31, 52, 56, 0.72) !important;
 }
 
 .status-chip {
@@ -1477,7 +1806,7 @@ main#main-content {
 .status-chip.is-open,
 .status-chip.is-available { background: var(--bhims-badge-verified-bg); color: var(--bhims-badge-verified); }
 .status-chip.is-pending { background: var(--bhims-badge-pending-bg); color: var(--bhims-badge-pending); }
-.status-chip.is-closed { background: var(--bhims-paper-sunken); color: var(--bhims-text-muted); }
+.status-chip.is-closed { background: rgba(255, 255, 255, 0.20); color: var(--bhims-text-muted); }
 .status-chip.is-declined { background: var(--bhims-badge-rejected-bg); color: var(--bhims-badge-rejected); }
 
 .inquiry-stack {
@@ -1491,16 +1820,21 @@ main#main-content {
     gap: 0.75rem 1.25rem;
     align-items: center;
     padding: 1rem 1.15rem;
-    background: var(--bhims-paper-raised);
-    border: 1px solid var(--bhims-ink-line);
+    background: rgba(255, 255, 255, 0.30);
+    -webkit-backdrop-filter: var(--bhims-glass-primary);
+    backdrop-filter: var(--bhims-glass-primary);
+    border-top: 1px solid rgba(255, 255, 255, 0.45);
+    border-left: 1px solid rgba(255, 255, 255, 0.18);
+    border-right: 1px solid rgba(255, 255, 255, 0.18);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 14px;
     text-decoration: none;
     color: inherit;
     transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    transform: translateZ(0);
 }
 .inquiry-row:hover {
-    border-color: var(--bhims-ink-line-strong);
-    box-shadow: var(--bhims-shadow-xs);
+    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.45), 0 16px 40px 0 rgba(0, 0, 0, 0.12);
     color: inherit;
 }
 .inquiry-row h3 {
@@ -1546,7 +1880,7 @@ main#main-content {
     height: 420px;
     border-radius: 18px;
     overflow: hidden;
-    background: var(--bhims-paper-sunken);
+    background: rgba(255, 255, 255, 0.18);
     margin-bottom: 1.5rem;
 }
 .listing-hero img {
@@ -1576,10 +1910,25 @@ main#main-content {
 .listing-summary {
     position: sticky;
     top: 5.5rem;
-    background: var(--bhims-paper-raised);
-    border: 1px solid var(--bhims-ink-line);
+    background: rgba(255, 255, 255, 0.35);
+    -webkit-backdrop-filter: var(--bhims-glass-primary);
+    backdrop-filter: var(--bhims-glass-primary);
+    border-top: 1px solid rgba(255, 255, 255, 0.50);
+    border-left: 1px solid rgba(255, 255, 255, 0.20);
+    border-right: 1px solid rgba(255, 255, 255, 0.20);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
     padding: 1.35rem 1.4rem;
+    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.40), 0 12px 32px 0 rgba(0, 0, 0, 0.08);
+    transform: translateZ(0);
+}
+[data-theme="dark"] .listing-summary {
+    background: rgba(20, 20, 25, 0.45);
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 16px 40px 0 rgba(0, 0, 0, 0.45);
 }
 .listing-summary h2 {
     font-family: var(--font-display);
@@ -1623,7 +1972,23 @@ main#main-content {
     margin: 0 0 2rem;
 }
 .room-item {
-    background: var(--bhims-paper-raised) !important;
+    background: rgba(255, 255, 255, 0.30) !important;
+    -webkit-backdrop-filter: var(--bhims-glass-primary);
+    backdrop-filter: var(--bhims-glass-primary);
+    border-top: 1px solid rgba(255, 255, 255, 0.45) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.30), 0 8px 24px 0 rgba(0, 0, 0, 0.06) !important;
+    transform: translateZ(0);
+}
+[data-theme="dark"] .room-item {
+    background: rgba(20, 20, 25, 0.40) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.10) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 8px 24px 0 rgba(0, 0, 0, 0.30) !important;
 }
 .back-link {
     font-size: 0.9rem;
@@ -1633,12 +1998,6 @@ main#main-content {
 .feature-card:hover {
     transform: none !important;
     box-shadow: var(--bhims-shadow-xs);
-}
-
-.bhims-bottom-nav a {
-    text-transform: none !important;
-    letter-spacing: 0 !important;
-    font-weight: 600;
 }
 
 @media (max-width: 980px) {
@@ -1653,5 +2012,527 @@ main#main-content {
 }
 
 /* ============================================================
+   UX Max — professional teal product polish
+   ============================================================ */
+
+/* Page canvas */
+#main-content.glass-container,
+main.glass-container {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    min-height: 50vh;
+}
+html { overflow-x: hidden; }
+body {
+    overflow-x: hidden;
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+/* Listing cards: frosted glass affordance */
+.listing-card {
+    box-shadow: var(--bhims-glass-shadow-xs) !important;
+}
+.listing-card:hover {
+    transform: translateY(-6px) !important;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45) !important;
+    border-color: rgba(27, 184, 154, 0.25) !important;
+}
+.listing-card:focus-visible {
+    outline: 2px solid var(--bhims-teal) !important;
+    outline-offset: 3px;
+}
+.listing-card .card-image {
+    height: clamp(180px, 28vw, 220px);
+}
+.listing-card .btn-view-details {
+    background: linear-gradient(135deg, rgba(27, 184, 154, 0.15), rgba(94, 230, 200, 0.08));
+    border: 1px solid rgba(27, 184, 154, 0.25);
+    border-radius: 999px;
+    padding: 0.35rem 0.75rem;
+    color: var(--bhims-teal-light);
+    font-weight: 700;
+    box-shadow: 0 0 0 0 rgba(27, 184, 154, 0);
+    transition: all 0.2s ease;
+}
+.listing-card:hover .btn-view-details {
+    background: linear-gradient(135deg, #1bb89a, #12967c);
+    color: #fff !important;
+    box-shadow: 0 4px 16px rgba(27, 184, 154, 0.30);
+    border-color: rgba(27, 184, 154, 0.40);
+}
+.listing-card:hover .btn-view-details i { color: #fff; }
+
+/* Dark mode: reduce card fill for frosted-through effect */
+[data-theme="dark"] .listing-card {
+    background: rgba(10, 10, 14, 0.25) !important;
+    border-color: rgba(255, 255, 255, 0.06) !important;
+}
+[data-theme="dark"] .listing-card .card-image {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* =======================================================
+   IPHONE-STYLE PREMIUM LIQUID FILTER ENGINE
+   ======================================================= */
+
+/* 1. The Main Outer Filter Card Container */
+.filter-card {
+    position: relative;
+    z-index: 40;
+    /* Transparent frosted glass base fill */
+    background: rgba(255, 255, 255, 0.02) !important;
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    backdrop-filter: blur(40px) saturate(180%);
+    /* Hardware Bezel Emulation — catch top & left light sources */
+    border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.04) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+    /* Perfect Corner Curvature & Heavy Shadow Layering */
+    border-radius: 24px !important;
+    box-shadow:
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.15),
+        0 20px 40px 0 rgba(0, 0, 0, 0.45) !important;
+    transform: translateZ(0);
+}
+
+/* Dark mode: same frosted glass, deeper shadow */
+[data-theme="dark"] .filter-card {
+    background: rgba(10, 10, 14, 0.22) !important;
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    backdrop-filter: blur(40px) saturate(180%);
+    border-top: 1px solid rgba(255, 255, 255, 0.10) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.10) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.03) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+    box-shadow:
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.08),
+        0 20px 40px 0 rgba(0, 0, 0, 0.55) !important;
+}
+
+/* Light mode: lighter frosted glass */
+[data-theme="light"] .filter-card {
+    background: rgba(255, 255, 255, 0.55) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    backdrop-filter: blur(24px) saturate(160%);
+    border-top: 1px solid rgba(255, 255, 255, 0.70) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.50) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.20) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow:
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.50),
+        0 16px 40px 0 rgba(8, 79, 79, 0.08) !important;
+}
+
+/* 2. Recessed Dark Glass Wells — input fields, selects, textareas */
+.filter-card .form-control,
+.filter-card .form-select,
+.filter-card input,
+.filter-card select,
+.filter-card textarea {
+    background: rgba(0, 0, 0, 0.25) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 12px !important;
+    color: #f5f5f7 !important;
+    padding: 12px 16px !important;
+    font-size: 0.95rem !important;
+    outline: none !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.20) !important;
+    transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+}
+.filter-card .form-control::placeholder,
+.filter-card input::placeholder {
+    color: rgba(255, 255, 255, 0.45) !important;
+}
+
+/* High-End Focus Interaction Indicator */
+.filter-card .form-control:focus,
+.filter-card .form-select:focus,
+.filter-card input:focus,
+.filter-card select:focus {
+    background: rgba(0, 0, 0, 0.35) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.20), 0 0 0 4px rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Light mode: light recessed wells */
+[data-theme="light"] .filter-card .form-control,
+[data-theme="light"] .filter-card .form-select,
+[data-theme="light"] .filter-card input,
+[data-theme="light"] .filter-card select {
+    background: rgba(255, 255, 255, 0.60) !important;
+    border: 1px solid rgba(0, 0, 0, 0.10) !important;
+    color: var(--bhims-text) !important;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+}
+[data-theme="light"] .filter-card .form-control::placeholder,
+[data-theme="light"] .filter-card input::placeholder {
+    color: var(--bhims-text-muted) !important;
+}
+[data-theme="light"] .filter-card .form-control:focus,
+[data-theme="light"] .filter-card .form-select:focus,
+[data-theme="light"] .filter-card input:focus,
+[data-theme="light"] .filter-card select:focus {
+    background: rgba(255, 255, 255, 0.80) !important;
+    border-color: var(--bhims-teal) !important;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06), 0 0 0 4px rgba(27, 184, 154, 0.10) !important;
+}
+
+/* 3. Apply Button — glowing teal gradient */
+.glass-btn-apply,
+.filter-card .btn-primary {
+    background: linear-gradient(135deg, #0d8a70 0%, #0a6b57 100%) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 12px 24px !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 16px 0 rgba(27, 184, 154, 0.35) !important;
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+}
+.glass-btn-apply:hover,
+.filter-card .btn-primary:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 24px 0 rgba(27, 184, 154, 0.50) !important;
+}
+.glass-btn-apply:active,
+.filter-card .btn-primary:active {
+    transform: translateY(0) !important;
+}
+
+/* 4. Reset Button — ghost glass */
+.glass-btn-reset,
+.filter-card .filter-reset {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: rgba(255, 255, 255, 0.60) !important;
+    font-weight: 600 !important;
+    border-radius: 12px !important;
+    padding: 12px 20px !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    transition: all 0.2s ease !important;
+}
+.glass-btn-reset:hover,
+.filter-card .filter-reset:hover {
+    background: rgba(255, 255, 255, 0.10) !important;
+    color: #fff !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+[data-theme="light"] .glass-btn-reset,
+[data-theme="light"] .filter-card .filter-reset {
+    background: rgba(0, 0, 0, 0.04) !important;
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+    color: var(--bhims-text-muted) !important;
+}
+[data-theme="light"] .glass-btn-reset:hover,
+[data-theme="light"] .filter-card .filter-reset:hover {
+    background: rgba(0, 0, 0, 0.08) !important;
+    color: var(--bhims-text) !important;
+    border-color: var(--bhims-teal) !important;
+}
+
+/* Stats: stronger icon treatment */
+.stat-icon i {
+    font-size: 1.45rem;
+    color: var(--bhims-teal-light);
+    filter: drop-shadow(0 0 4px rgba(27, 184, 154, 0.40));
+    line-height: 1;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: var(--bhims-shadow-sm) !important;
+}
+
+/* Inquiry rows */
+.inquiry-row {
+    position: relative;
+    padding-left: 1.25rem;
+}
+.inquiry-row::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.85rem;
+    bottom: 0.85rem;
+    width: 3px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #1bb89a, #5ee6c8);
+    opacity: 0.35;
+    transition: opacity 0.18s ease, box-shadow 0.18s ease;
+    box-shadow: 0 0 6px rgba(27, 184, 154, 0);
+}
+.inquiry-row:hover::before {
+    opacity: 1;
+    box-shadow: 0 0 10px rgba(27, 184, 154, 0.40);
+}
+.inquiry-row .inquiry-cta i {
+    transition: transform 0.18s var(--bhims-ease-out);
+}
+.inquiry-row:hover .inquiry-cta i { transform: translateX(3px); }
+
+/* Empty states */
+.bhims-empty {
+    padding: clamp(2.5rem, 6vw, 4rem) 1.5rem;
+}
+.bhims-empty i {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 0.85rem;
+}
+.bhims-empty p {
+    color: var(--bhims-text-muted);
+    max-width: 42ch;
+    margin: 0.5rem auto 1.25rem;
+    line-height: 1.6;
+}
+
+/* Forms: denser, clearer */
+.form-control,
+.form-select {
+    min-height: 44px;
+    font-size: 1rem;
+}
+.form-label {
+    letter-spacing: 0.02em;
+}
+
+/* Tables on phones */
+@media (max-width: 768px) {
+    .admin-table-wrap,
+    .table-responsive,
+    .table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: var(--bhims-radius);
+        border: 1px solid var(--bhims-ink-line);
+    }
+    .page-header h1 {
+        font-size: clamp(1.55rem, 6vw, 2.1rem) !important;
+    }
+    .page-header {
+        margin-bottom: var(--space-6);
+        gap: var(--space-3);
+    }
+    .page-header .header-actions {
+        width: 100%;
+    }
+    .page-header .header-actions .btn,
+    .page-header .header-actions .create-btn {
+        flex: 1 1 auto;
+        justify-content: center;
+    }
+    .stats-row {
+        grid-template-columns: 1fr;
+        gap: var(--space-3);
+    }
+    .houses-grid,
+    .listing-grid,
+    .landing-listings-grid {
+        grid-template-columns: 1fr !important;
+        gap: var(--space-4);
+    }
+    .filter-card {
+        position: static;
+        padding: var(--space-4) !important;
+    }
+}
+
+/* Auth leftover warm tones → teal ink */
+.auth-input-wrap input,
+.auth-input-wrap select {
+    border-bottom-color: var(--bhims-ink-line-strong) !important;
+}
+.pane-foot {
+    border-top-color: rgba(255, 255, 255, 0.10) !important;
+}
+.eye-toggle { color: var(--bhims-text-muted) !important; }
+
+/* Soft page entrance for app content */
+@keyframes bhimsPageIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+}
+.app-content > *:first-child {
+    animation: bhimsPageIn 0.35s var(--bhims-ease-out) both;
+}
+@media (prefers-reduced-motion: reduce) {
+    .app-content > *:first-child,
+    .listing-card:hover,
+    .stat-card:hover {
+        animation: none !important;
+        transform: none !important;
+    }
+}
+
+/* Safe areas (notched phones) */
+@supports (padding: max(0px)) {
+    .bhims-topbar-inner {
+        padding-left: max(var(--space-6), env(safe-area-inset-left));
+        padding-right: max(var(--space-6), env(safe-area-inset-right));
+    }
+    .app-content {
+        padding-left: max(1rem, env(safe-area-inset-left));
+        padding-right: max(1rem, env(safe-area-inset-right));
+    }
+}
+
+/* ============================================================
+   Mobile-first layout refinements
+   ============================================================ */
+@media (max-width: 768px) {
+    /* Ensure bottom nav doesn't clip page footer */
+    .bhims-footer { padding-bottom: 0; }
+
+    /* Sidebar brand logo: bigger on mobile */
+    .sidebar-brand img { height: 64px; width: auto; }
+
+    /* Navbar brand logo: bigger on mobile */
+    .bhims-brand-logo { height: 52px; width: auto; }
+
+    /* Page header: reduce gap on small screens */
+    .page-header { flex-wrap: wrap; }
+
+    /* Filter card: full width on mobile */
+    .filter-card { width: 100%; }
+
+    /* Dropdowns/selects: higher contrast on mobile */
+    .filter-card .form-control,
+    .filter-card .form-select,
+    .filter-card input,
+    .filter-card select,
+    .filter-card textarea {
+        background: rgba(0, 0, 0, 0.45) !important;
+        border: 1px solid rgba(255, 255, 255, 0.18) !important;
+        color: #fff !important;
+    }
+    [data-theme="light"] .filter-card .form-control,
+    [data-theme="light"] .filter-card .form-select,
+    [data-theme="light"] .filter-card input,
+    [data-theme="light"] .filter-card select {
+        background: rgba(255, 255, 255, 0.85) !important;
+        border: 1px solid rgba(0, 0, 0, 0.22) !important;
+        color: #111 !important;
+    }
+
+    /* Stat cards: 2-col on small screens if they exist */
+    .stats-row { grid-template-columns: repeat(2, 1fr) !important; }
+
+    /* Inquiry/thread rows: single column */
+    .inquiry-row { grid-template-columns: 1fr !important; }
+
+    /* Form layouts: stack labels above inputs */
+    .form-row { grid-template-columns: 1fr !important; }
+
+    /* Tables: horizontal scroll */
+    .table-responsive { width: 100%; }
+
+    /* Buttons in page headers: full width */
+    .page-header .btn { width: 100%; }
+
+    /* Footer brand: center on mobile, bigger logo */
+    .bhims-footer-brand { justify-content: center; }
+    .bhims-footer-brand img { height: 52px; width: auto; }
+}
+
+/* ============================================================
    End premium layer
    ============================================================ */
+
+/* ============================================================
+   20. Global UX & mobile polish — final layer, loads last
+   ============================================================ */
+
+/* ---- Smooth anchor scrolling + room for sticky bars ---- */
+html { scroll-behavior: smooth; }
+[id] { scroll-margin-top: 90px; }
+
+/* ---- Text selection follows the teal brand ---- */
+::selection { background: rgba(27, 184, 154, 0.35); }
+
+/* ---- Slim branded scrollbars (WebKit) ---- */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: rgba(128, 128, 128, 0.35);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background-color: rgba(128, 128, 128, 0.55); }
+
+/* ---- Never let long words / emails blow out a layout ---- */
+body { overflow-x: hidden; overflow-x: clip; }
+p, li, td, th, dd, dt, .card-text { overflow-wrap: break-word; }
+
+/* ---- Buttons: align icon + label predictably ---- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; }
+
+/* ---- Modals: comfortable sheets on small screens ---- */
+@media (max-width: 640px) {
+    .modal-dialog { margin: 0.6rem; }
+}
+
+/* ---- Phone breakpoint: organized, calm, thumb-friendly ---- */
+@media (max-width: 768px) {
+    /* iOS Safari zooms into inputs smaller than 16px */
+    input, select, textarea { font-size: 16px !important; }
+
+    /* Comfortable edge padding for the public topbar */
+    .bhims-topbar-inner { padding-left: 1rem; padding-right: 1rem; }
+
+    /* Tables stay readable while scrolling */
+    .table { font-size: 0.85rem; }
+    .table thead th { white-space: nowrap; }
+
+    /* Grids that assume desktop widths collapse to one column */
+    .result-grid,
+    .up-listings { grid-template-columns: 1fr !important; }
+
+    /* Cards: lighter hover motion where hover doesn't exist */
+    .card:hover, .stat-card:hover, .listing-card:hover, .house-card:hover,
+    .room-card:hover, .booking-card:hover, .feature-card:hover {
+        transform: none !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .landing-hero { padding: 2.25rem 1.1rem; }
+    .landing-brand { gap: 0.6rem; }
+    .bhims-word { height: 24px; }
+    .bhims-brand-mark { height: 32px; }
+}
+
+/* ---- Coarse pointers: guarantee comfortable tap targets ---- */
+@media (pointer: coarse) {
+    .sidebar-link,
+    .bhims-nav-link,
+    .bhims-nav-ghost,
+    .breadcrumb a { min-height: 44px; }
+    .pagination .page-link {
+        min-width: 44px;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    /* Brand + footer links were under 40px tall on mobile */
+    .bhims-brand { min-height: 44px; }
+    .bhims-footer a {
+        display: inline-block;
+        padding: 8px 0;
+    }
+}
+
+/* ---- Reduced motion: no smooth scroll, no transitions ---- */
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+}

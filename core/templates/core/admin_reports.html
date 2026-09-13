@@ -7,10 +7,15 @@
     .report-filter { display: inline-flex; gap: 8px; }
     .report-filter a {
         text-decoration: none; font-size: var(--fs-sm); font-weight: 700;
-        padding: 6px 16px; border-radius: 999px; color: #57706f;
-        background: rgba(255,255,255,0.7); border: 1px solid var(--bhims-border);
+        padding: 6px 16px; border-radius: 999px; color: var(--bhims-text-muted);
+        background: rgba(255,255,255,0.03);
+        -webkit-backdrop-filter: blur(12px) saturate(150%);
+        backdrop-filter: blur(12px) saturate(150%);
+        border: 1px solid rgba(255,255,255,0.08);
+        transition: all 0.2s ease;
     }
-    .report-filter a.active { color: #fff; background: #0d7a7b; border-color: #0d7a7b; }
+    .report-filter a:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); color: var(--bhims-text); }
+    .report-filter a.active { color: #fff; background: rgba(27,184,154,0.85); border-color: rgba(27,184,154,0.60); box-shadow: 0 4px 16px rgba(27,184,154,0.30); }
 </style>
 {% endblock %}
 
@@ -107,8 +112,8 @@
     </div>
     {% else %}
     <div class="text-center py-5">
-        <i class="bi bi-inbox" style="font-size: 2.5rem; color: #0d7a7b;"></i>
-        <p class="mt-2 mb-0" style="color: #57706f;">No reports{% if status %} with this status{% endif %}.</p>
+        <i class="bi bi-inbox" style="font-size: 2.5rem; color: var(--bhims-teal);"></i>
+        <p class="mt-2 mb-0" style="color: var(--bhims-text-muted);">No reports{% if status %} with this status{% endif %}.</p>
     </div>
     {% endif %}
 </div>

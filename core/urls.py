@@ -57,10 +57,6 @@ urlpatterns = [
     path('admin/reports/<int:pk>/update/', views.admin_report_update, name='admin_report_update'),
     path('logout/', views.logout_view, name='logout'),
     path('accounts/login/', views.accounts_login, name='login'),
-    path('profile/', views.profile_view, name='profile'),
-    path('profile/update/', views.update_profile, name='update_profile'),
-    path('profile/upload-picture/', views.upload_profile_picture, name='upload_profile_picture'),
-    path('profile/change-password/', views.change_password, name='change_password'),
     path('users/<int:pk>/', views.user_profile, name='user_profile'),
     path('users/<int:pk>/rate/', views.rate_landlord, name='rate_landlord'),
     path('users/<int:pk>/report/', views.report_user, name='report_user'),
@@ -69,14 +65,14 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('profile/edit/', views.edit_profile, name='edit_profile'),
     path('profile/avatar/', views.update_avatar, name='update_avatar'),
+    path('profile/change-password/', views.change_password, name='change_password'),
 
     # Search with AJAX
     path('search/', views.search_results, name='search_results'),
 
-    # Chat
+    # Chat feature was removed — messaging happens inside inquiry threads.
+    # Old bookmarks redirect home instead of erroring.
     path('chat/', views.chat_list, name='chat_list'),
-    path('chat/<int:pk>/', views.chat_detail, name='chat_detail'),
-    path('chat/<int:pk>/send/', views.send_message, name='send_message'),
 
     # Listing detail alias
     path('listing/<int:pk>/', views.listing_detail, name='listing_detail'),

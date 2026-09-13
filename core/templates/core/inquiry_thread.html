@@ -4,7 +4,7 @@
 {% block extra_css %}
 <style>
     .messages-page {
-        background-color: #f7ede3;
+        background-color: var(--bhims-paper-sunken);
         min-height: calc(100vh - 72px);
         padding: 3rem 2rem;
         max-width: 900px;
@@ -13,7 +13,7 @@
     .back-link {
         display: inline-flex;
         align-items: center;
-        color: #0d7a7b;
+        color: var(--bhims-teal);
         font-weight: 600;
         text-decoration: none;
         margin-bottom: 2rem;
@@ -21,39 +21,44 @@
     }
     .back-link:hover {
         opacity: 0.8;
-        color: #0d7a7b;
+        color: var(--bhims-teal);
     }
     .back-link i {
         margin-right: 0.5rem;
     }
     .thread-header {
-        background: var(--bhims-cream-light);
-        border: 1px solid var(--bhims-ink-line);
-        border-radius: 16px;
+        background: var(--bhims-glass-bg-primary);
+        -webkit-backdrop-filter: var(--bhims-glass-primary);
+        backdrop-filter: var(--bhims-glass-primary);
+        border: var(--bhims-glass-border);
+        border-top: var(--bhims-glass-border-top);
+        border-radius: 20px;
         padding: 2rem;
         margin-bottom: 2rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        box-shadow: var(--bhims-glass-shadow), var(--bhims-glass-inner-glow);
     }
     .thread-header h1 {
         font-family: var(--font-display);
         font-weight: 800;
-        color: #1f3438;
+        color: var(--bhims-text);
         font-size: 1.75rem;
         margin: 0 0 0.5rem 0;
     }
     .thread-subtitle {
-        color: #57706f;
+        color: var(--bhims-text-muted);
         font-size: 1rem;
     }
     .thread-subtitle strong {
-        color: #1f3438;
+        color: var(--bhims-text);
     }
     .messages-container {
-        background: var(--bhims-cream-light);
-        border: 1px solid var(--bhims-ink-line);
-        border-radius: 16px;
+        background: var(--bhims-glass-bg-primary);
+        -webkit-backdrop-filter: var(--bhims-glass-primary);
+        backdrop-filter: var(--bhims-glass-primary);
+        border: var(--bhims-glass-border);
+        border-radius: 20px;
         padding: 2rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        box-shadow: var(--bhims-glass-shadow), var(--bhims-glass-inner-glow);
         margin-bottom: 2rem;
     }
     .message-bubble {
@@ -64,14 +69,18 @@
         position: relative;
     }
     .message-student {
-        background-color: #0d7a7b;
+        background: linear-gradient(135deg, #1bb89a, #12967c);
         color: white;
         margin-left: auto;
         border-bottom-right-radius: 4px;
+        box-shadow: 0 2px 8px rgba(27, 184, 154, 0.20);
     }
     .message-landlord {
-        background-color: var(--bhims-icon-tint);
-        color: #1f3438;
+        background: var(--bhims-glass-bg-secondary);
+        -webkit-backdrop-filter: var(--bhims-glass-secondary);
+        backdrop-filter: var(--bhims-glass-secondary);
+        border: 1px solid var(--bhims-glass-border);
+        color: var(--bhims-text);
         margin-right: auto;
         border-bottom-left-radius: 4px;
     }
@@ -82,19 +91,21 @@
         text-align: right;
     }
     .message-landlord .message-meta {
-        color: #57706f;
+        color: var(--bhims-text-muted);
     }
     .reply-form-container {
-        background: var(--bhims-cream-light);
-        border: 1px solid var(--bhims-ink-line);
-        border-radius: 16px;
+        background: var(--bhims-glass-bg-primary);
+        -webkit-backdrop-filter: var(--bhims-glass-primary);
+        backdrop-filter: var(--bhims-glass-primary);
+        border: var(--bhims-glass-border);
+        border-radius: 20px;
         padding: 2rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        box-shadow: var(--bhims-glass-shadow), var(--bhims-glass-inner-glow);
     }
     .form-label {
         display: block;
         font-weight: 600;
-        color: #1f3438;
+        color: var(--bhims-text);
         margin-bottom: 0.75rem;
         font-size: 1.05rem;
     }
@@ -104,18 +115,18 @@
         border: 1px solid var(--bhims-ink-line);
         border-radius: 12px;
         font-size: 1rem;
-        color: #1f3438;
+        color: var(--bhims-text);
         margin-bottom: 1.5rem;
         min-height: 100px;
         resize: vertical;
     }
     .form-control:focus {
-        border-color: #0d7a7b;
+        border-color: var(--bhims-teal);
         box-shadow: 0 0 0 0.25rem rgba(13, 122, 123, 0.1);
         outline: none;
     }
     .btn-primary-bhims {
-        background-color: #0d7a7b;
+        background-color: #0c7f67;
         color: white;
         border: none;
         border-radius: 10px;
@@ -128,14 +139,14 @@
         align-items: center;
     }
     .btn-primary-bhims:hover {
-        background-color: #0a5f60;
+        background-color: #0d8a70;
         color: white;
     }
     .btn-primary-bhims i {
         margin-right: 0.5rem;
     }
     .btn-accept-bhims {
-        background-color: #2d7d46;
+        background-color: #2f7a5c;
         color: white;
         border: none;
         border-radius: 10px;
@@ -150,7 +161,7 @@
         text-decoration: none;
     }
     .btn-accept-bhims:hover {
-        background-color: #246839;
+        background-color: #28674d;
         color: white;
         text-decoration: none;
     }
@@ -161,31 +172,31 @@
         display: flex;
         align-items: flex-start;
         gap: 1rem;
-        background-color: #e8f5ec;
-        border: 1px solid #bfe0c9;
+        background-color: var(--bhims-moss-bg);
+        border: 1px solid var(--bhims-moss-border);
         border-radius: 12px;
         padding: 1.25rem 1.5rem;
         margin-top: 1rem;
     }
     .accept-banner i {
         font-size: 1.75rem;
-        color: #2d7d46;
+        color: var(--bhims-teal-strong);
     }
     .accept-banner h3 {
         font-family: var(--font-display);
         font-weight: 700;
-        color: #1f5c33;
+        color: var(--bhims-teal-strong);
         font-size: var(--fs-lg);
         margin: 0 0 0.25rem 0;
     }
-    .declined-banner { background-color: #fdecea; border-color: #f5c6c2; }
-    .declined-banner i { color: #b3261e; }
-    .declined-banner h3 { color: #8c1d18; }
-    .accept-banner p { margin: 0.4rem 0 0; color: #1f5c33; line-height: 1.55; }
-    .declined-banner p { color: #8c1d18; }
+    .declined-banner { background-color: var(--bhims-danger-bg); border-color: var(--bhims-danger-border); }
+    .declined-banner i { color: var(--bhims-danger-text); }
+    .declined-banner h3 { color: var(--bhims-danger-hover); }
+    .accept-banner p { margin: 0.4rem 0 0; color: var(--bhims-teal-strong); line-height: 1.55; }
+    .declined-banner p { color: var(--bhims-danger-hover); }
     .reject-btn {
-        background: #b3261e !important;
-        border: 1px solid #8c1d18 !important;
+        background: var(--bhims-danger-text) !important;
+        border: 1px solid var(--bhims-danger-hover) !important;
         padding: 0.85rem 2rem;
         border-radius: 10px;
         color: #fff;
@@ -194,14 +205,10 @@
         cursor: pointer;
         transition: background 0.2s ease;
     }
-    .reject-btn:hover { background: #8c1d18 !important; }
-        color: #3f6b50;
-        margin: 0;
-        font-size: var(--fs-md);
-    }
+    .reject-btn:hover { background: var(--bhims-danger-hover) !important; }
     .btn-secondary-bhims {
         background-color: transparent;
-        color: #57706f;
+        color: var(--bhims-text-muted);
         border: 1px solid var(--bhims-ink-line);
         border-radius: 10px;
         padding: 0.85rem 2rem;
@@ -215,26 +222,32 @@
         margin-left: 1rem;
     }
     .btn-secondary-bhims:hover {
-        background-color: #f7ede3;
-        color: #1f3438;
+        background-color: var(--bhims-paper-sunken);
+        color: var(--bhims-text);
         text-decoration: none;
     }
     .empty-messages {
         text-align: center;
         padding: 3rem 2rem;
-        color: #57706f;
+        color: var(--bhims-text-muted);
+        background: var(--bhims-glass-bg-subtle);
+        -webkit-backdrop-filter: var(--bhims-glass-secondary);
+        backdrop-filter: var(--bhims-glass-secondary);
+        border: 1px dashed var(--bhims-ink-line);
+        border-radius: 20px;
     }
     .empty-messages i {
         font-size: 3rem;
-        color: #0d7a7b;
+        color: var(--bhims-teal);
         margin-bottom: 1.5rem;
+        opacity: 0.7;
     }
     .empty-messages h3 {
         font-family: var(--font-display);
         font-weight: 700;
-        color: #1f3438;
+        color: var(--bhims-text);
         font-size: var(--fs-2xl);
-        margin-bottom: 1rem;
+        margin-bottom: 0.5rem;
     }
     /* Chat avatars (added) */
     .message-row {
@@ -254,8 +267,8 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        background-color: #57706f;
-        color: #ffffff;
+        background-color: var(--bhims-text-muted);
+        color: #fff;
         font-weight: 700;
         font-size: var(--fs-md);
         font-family: var(--font-display);
@@ -309,7 +322,7 @@
             <div>
                 <h2 class="h3">Student accepted</h2>
                 <p>
-                    <a href="{% url 'user_profile' accepted_booking.student.pk %}" style="color:#0d7a7b;font-weight:700;text-decoration:none;">
+                    <a href="{% url 'user_profile' accepted_booking.student.pk %}" style="color:var(--bhims-teal);font-weight:700;text-decoration:none;">
                         {{ accepted_booking.student.get_full_name|default:accepted_booking.student.username }}
                     </a>
                     has been accepted into this room

@@ -1,62 +1,19 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block navbar %}{% endblock %}
+{% block navbar %}{% include 'core/includes/navbar.html' with app_shell=1 %}{% endblock %}
 {% block footer %}{% endblock %}
 {% block breadcrumb %}{% endblock %}
 
 {% block content %}
-<div class="app-shell" id="appShell" style="display: flex; min-height: 100vh; background: var(--bhims-cream);">
+<div class="app-shell" id="appShell" style="display: flex; min-height: 100vh;">
     {% include 'core/includes/sidebar.html' %}
     <main class="app-main">
-        <!-- Persistent top bar with high-visibility hamburger toggle -->
-        <div class="app-topbar">
-            <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar" aria-controls="appShell" aria-expanded="true" title="Open/close menu">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#0d7a7b" stroke-width="2.5" stroke-linecap="round">
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <line x1="3" y1="12" x2="21" y2="12"></line>
-                    <line x1="3" y1="18" x2="21" y2="18"></line>
-                </svg>
-            </button>
-            <span class="topbar-page-title">{% block topbar_title %}<img src="{% static 'core/images/bhims-icon.png' %}" alt="BHIMS" class="topbar-logo">{% endblock %}</span>
-            <div class="topbar-tools">
-                <label class="theme-switch" title="Toggle color theme">
-                    <input type="checkbox" class="theme-toggle-input" data-theme-toggle>
-                    <span class="theme-slider"></span>
-                </label>
-            </div>
-        </div>
         <div class="app-content">
             {% block app_content %}{% endblock %}
         </div>
     </main>
 </div>
-<nav class="bhims-bottom-nav" aria-label="Primary navigation">
-    <ul>
-        {% if request.user.is_authenticated %}
-            {% if request.user.role == 'student' %}
-                <li><a href="{% url 'listing_list' %}" {% if request.resolver_match.url_name == 'listing_list' %}aria-current="page"{% endif %}><i class="bi bi-search"></i><span>Browse</span></a></li>
-                <li><a href="{% url 'student_dashboard' %}" {% if request.resolver_match.url_name == 'student_dashboard' %}aria-current="page"{% endif %}><i class="bi bi-speedometer2"></i><span>Dashboard</span></a></li>
-                <li><a href="{% url 'student_inquiry_list' %}"><i class="bi bi-chat-dots"></i><span>Inquiries</span></a></li>
-                <li><a href="{% url 'student_bookings' %}"><i class="bi bi-patch-check"></i><span>Bookings</span></a></li>
-            {% elif request.user.role == 'landlord' %}
-                <li><a href="{% url 'landlord_dashboard' %}" {% if request.resolver_match.url_name == 'landlord_dashboard' %}aria-current="page"{% endif %}><i class="bi bi-speedometer2"></i><span>Dashboard</span></a></li>
-                <li><a href="{% url 'landlord_boarding_house_list' %}"><i class="bi bi-buildings"></i><span>Houses</span></a></li>
-                <li><a href="{% url 'landlord_inquiry_list' %}"><i class="bi bi-chat-dots"></i><span>Inquiries</span></a></li>
-                <li><a href="{% url 'landlord_bookings' %}"><i class="bi bi-patch-check"></i><span>Bookings</span></a></li>
-            {% elif request.user.role == 'admin' %}
-                <li><a href="{% url 'admin_dashboard' %}"><i class="bi bi-speedometer2"></i><span>Admin</span></a></li>
-                <li><a href="{% url 'listing_list' %}"><i class="bi bi-search"></i><span>Browse</span></a></li>
-                <li><a href="{% url 'admin_reports' %}"><i class="bi bi-flag"></i><span>Reports</span></a></li>
-                <li><a href="{% url 'profile' %}"><i class="bi bi-person"></i><span>Profile</span></a></li>
-            {% endif %}
-        {% else %}
-            <li><a href="{% url 'listing_list' %}"><i class="bi bi-search"></i><span>Browse</span></a></li>
-            <li><a href="{% url 'student_login' %}"><i class="bi bi-box-arrow-in-right"></i><span>Student</span></a></li>
-            <li><a href="{% url 'landlord_login' %}"><i class="bi bi-house-door"></i><span>Landlord</span></a></li>
-        {% endif %}
-    </ul>
-</nav>
 
 <style>
     /* Ambient teal light field — gives the sidebar rail something to refract */
@@ -71,39 +28,26 @@
         z-index: -1;
         pointer-events: none;
         background:
-            radial-gradient(560px 420px at 10% 2%, rgba(13, 122, 123, 0.15), transparent 62%),
-            radial-gradient(520px 400px at 92% 94%, rgba(61, 143, 110, 0.14), transparent 62%),
-            radial-gradient(440px 340px at 72% 6%, rgba(63, 125, 140, 0.11), transparent 58%);
+            radial-gradient(560px 420px at 10% 2%, rgba(27, 184, 154, 0.08), transparent 62%),
+            radial-gradient(520px 400px at 92% 94%, rgba(61, 143, 110, 0.06), transparent 62%),
+            radial-gradient(440px 340px at 72% 6%, rgba(27, 184, 154, 0.04), transparent 58%);
     }
 
     .app-main {
         flex: 1;
         min-width: 0;
+        margin-left: var(--bhims-sidebar-w, 264px);
         display: flex;
         flex-direction: column;
     }
 
-    .app-topbar {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 0.9rem 1.5rem;
-        background: var(--bhims-paper-raised);
-        border-bottom: 1px solid var(--bhims-border);
-        position: sticky;
-        top: 0;
-        z-index: 1200;
-    }
     .sidebar-toggle {
         -webkit-tap-highlight-color: transparent;
-    }
-
-    .sidebar-toggle {
         background: transparent;
         border: none;
-        border-radius: 12px;
-        width: 48px;
-        height: 48px;
+        border-radius: 10px;
+        width: 44px;
+        height: 44px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -117,28 +61,12 @@
         display: block;
     }
     .sidebar-toggle:hover {
-        background: var(--bhims-paper-sunken);
+        background: rgba(255,255,255,0.10);
     }
     .sidebar-toggle:active {
         transform: scale(0.94);
     }
 
-    .topbar-page-title {
-        font-family: var(--font-display);
-        font-weight: 700;
-        color: var(--bhims-text);
-        font-size: 1rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .topbar-logo {
-        height: 32px;
-        width: 32px;
-        object-fit: cover;
-        display: block;
-        border-radius: 8px;
-    }
 
     .app-content {
         padding: 2.5rem 2.5rem 4rem;
@@ -147,63 +75,61 @@
         width: 100%;
     }
 
-    .app-shell.sidebar-collapsed .app-sidebar {
-        display: none !important;
+    @media (min-width: 769px) {
+        .app-shell.sidebar-collapsed .app-sidebar {
+            display: none !important;
+        }
+        .app-shell.sidebar-collapsed .app-main {
+            margin-left: 0;
+            transition: margin-left 0.22s ease;
+        }
+        .app-shell .app-main {
+            transition: margin-left 0.22s ease;
+        }
     }
 
     @media (max-width: 768px) {
-        .app-content {
-            padding: 2rem 1.25rem 4.5rem;
+        .app-main {
+            margin-left: 0;
         }
-    }
-    /* ---- Mobile bottom-nav: thumb-friendly 44px targets, hidden on desktop ---- */
-    .bhims-bottom-nav {
-        display: none;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 1200;
-        background: var(--bhims-paper-raised);
-        border-top: 1px solid var(--bhims-ink-line);
-        box-shadow: 0 -4px 20px rgba(8, 79, 79, 0.08);
-        padding: 0.25rem 0 max(0.25rem, env(safe-area-inset-bottom));
-        padding-bottom: max(0.25rem, env(safe-area-inset-bottom));
-    }
-    .bhims-bottom-nav ul {
-        display: flex;
-        justify-content: space-around;
-        align-items: stretch;
-        list-style: none;
-        margin: 0;
-        padding: 0;
-    }
-    .bhims-bottom-nav a {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 2px;
-        min-height: 44px;
-        min-width: 44px;
-        padding: 0.35rem 0.6rem;
-        color: var(--bhims-text-muted);
-        text-decoration: none;
-        font-size: 0.70rem;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        border-radius: 10px;
-        transition: color 0.18s ease, background-color 0.18s ease;
-    }
-    .bhims-bottom-nav a i { font-size: 1.25rem; line-height: 1; }
-    .bhims-bottom-nav a:hover, .bhims-bottom-nav a:focus-visible { color: var(--bhims-teal); background: var(--bhims-icon-tint); }
-    .bhims-bottom-nav a[aria-current="page"] { color: var(--bhims-teal); background: rgba(13,122,123,0.08); }
-    @media (max-width: 768px) {
-        .bhims-bottom-nav { display: block; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-        .bhims-bottom-nav a { transition: none; }
+        .app-content {
+            padding: 1rem 0.85rem 2rem;
+        }
+        .sidebar-toggle {
+            width: 40px;
+            height: 40px;
+        }
+        .sidebar-toggle svg {
+            width: 1.3rem;
+            height: 1.3rem;
+        }
+        .page-header h1 {
+            font-size: 1.4rem !important;
+        }
+        .page-header h2 {
+            font-size: 1.15rem !important;
+        }
+        /* Off-canvas drawer: the sidebar is ALWAYS rendered; the collapsed
+           class only slides it out of view. CSS is the single owner of
+           visibility — no inline styles, no pointer-events games. */
+        .app-shell .app-sidebar {
+            transform: translateX(0);
+        }
+        .app-shell.sidebar-collapsed .app-sidebar {
+            transform: translateX(-105%);
+        }
+        /* Dim + blur the page behind the open drawer.
+           Sits ABOVE page content but BELOW the drawer (1300 via premium.css)
+           and the sticky topbar (1200), so the hamburger stays tappable. */
+        .app-shell:not(.sidebar-collapsed)::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.50);
+            -webkit-backdrop-filter: blur(3px);
+            backdrop-filter: blur(3px);
+            z-index: 1190;
+        }
     }
 </style>
 
@@ -216,41 +142,98 @@
         if (!shell || !toggle || !sidebar) return;
 
         var KEY = 'bhims_sidebar_collapsed';
+        var mq = window.matchMedia('(max-width: 768px)');
+        var lastToggleAt = 0;
+        var lastOpenAt = 0;
+        /* Real-phone tap hardening. Mobile browsers can fire a ghost
+           second click ~30-100ms after a tap; an impatient user also
+           taps again while the drawer is still sliding in. Rules:
+           - OPENING is never blocked (the drawer can always be opened).
+           - A toggle-tap that would CLOSE within 350ms of the previous
+             tap is treated as a ghost click and absorbed.
+           - An outside tap within 400ms of opening is absorbed too,
+             so the just-opened drawer can't be instantly re-closed. */
+        var CLOSE_GUARD = 350;
+        var OPEN_GRACE = 400;
 
+        function isCollapsed() { return shell.classList.contains('sidebar-collapsed'); }
+
+        /* Single source of truth: the collapsed class. CSS decides what that
+           means on each breakpoint — JS never touches style.display. */
         function apply(collapsed) {
             shell.classList.toggle('sidebar-collapsed', collapsed);
-            sidebar.style.display = collapsed ? 'none' : 'flex';
             toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
         }
 
         function readStored() {
-            try { return localStorage.getItem(KEY) === '1'; } catch (e) { return false; }
+            if (mq.matches) return true; // phones always start closed
+            var val = localStorage.getItem(KEY);
+            if (val === null) return true; // first visit: start closed
+            return val === '1'; // respect stored state
         }
 
-        function toggleSidebar() {
-            var collapsed = !shell.classList.contains('sidebar-collapsed');
-            try { localStorage.setItem(KEY, collapsed ? '1' : '0'); } catch (e) {}
-            apply(collapsed);
-        }
+        // Always start closed; respect user's choice after first toggle
+        var stored = readStored();
+        apply(stored);
 
-        apply(readStored());
-
-        // Delegated listener: works for #sidebarToggle and #sidebarClose even if
-        // the buttons are re-rendered or the click lands on an inner SVG element.
+        /* ONE delegated handler owns every sidebar interaction, so a single
+           tap can never fire two competing toggles. */
         document.addEventListener('click', function (e) {
             var t = e.target;
-            while (t && t !== document) {
-                if (t.id === 'sidebarToggle') { toggleSidebar(); return; }
-                if (t.id === 'sidebarClose') {
-                    try { localStorage.setItem(KEY, '1'); } catch (err) {}
-                    apply(true);
-                    return;
-                }
-                t = t.parentNode;
+            if (!(t instanceof Element)) return;
+
+            if (t.closest('#sidebarToggle')) {
+                var now = Date.now();
+                var opening = isCollapsed();
+                /* Only ghost-CLOSES are absorbed — opening is always
+                   allowed so the drawer can never get stranded shut. */
+                if (!opening && now - lastToggleAt < CLOSE_GUARD) return;
+                lastToggleAt = now;
+                if (opening) lastOpenAt = now; // drawer was just opened
+                try { localStorage.setItem(KEY, opening ? '0' : '1'); } catch (err) {}
+
+                apply(!opening);
+                return;
+            }
+
+            if (t.closest('#sidebarClose')) {
+                apply(true);
+                return;
+            }
+
+            /* Open the menu, pick your destination — the sidebar closes
+               itself. Clicking any nav link collapses the drawer/rail
+               immediately (and remembers the closed state), then the
+               navigation proceeds. Modified clicks (ctrl/cmd/shift or
+               middle button open a new tab) keep THIS page — and its
+               sidebar — untouched. */
+            var link = t.closest('.sidebar-link');
+            if (link && e.button === 0 && !e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey) {
+                try { localStorage.setItem(KEY, '1'); } catch (err) {}
+                apply(true);
+                return; // browser handles the navigation as usual
+            }
+
+            /* Mobile: any tap outside the open drawer closes it
+               (dim overlay, page content, everything) — but never within
+               the grace period right after opening. */
+            if (mq.matches && !isCollapsed() && Date.now() - lastOpenAt > OPEN_GRACE && !t.closest('.app-sidebar')) {
+                apply(true);
             }
         });
 
+        /* Escape closes the drawer on mobile */
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && mq.matches && !isCollapsed()) apply(true);
+        });
+
         window.addEventListener('storage', function () { apply(readStored()); });
+        /* Back/forward cache restores the old DOM — re-sync the sidebar
+           with the stored state when the page is shown again. */
+        window.addEventListener('pageshow', function () { apply(readStored()); });
+        if (mq.addEventListener) {
+            mq.addEventListener('change', function () { apply(readStored()); });
+        }
     }
 
     if (document.readyState === 'loading') {
@@ -286,5 +269,8 @@
         animateNumbers();
     }
 })();
+</script>
+
+<script>
 </script>
 {% endblock %}

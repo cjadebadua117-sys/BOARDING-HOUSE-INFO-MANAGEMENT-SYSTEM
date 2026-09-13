@@ -31,7 +31,7 @@
     .section-header h2 { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-2xl); color: var(--bhims-text); margin: 0; }
 
     /* Boarding houses grid uses shared .listing-card from premium.css */
-    .houses-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; }
+    .houses-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 1.5rem; }
     .house-card { display: flex; flex-direction: column; }
 
     /* Inquiries list */
@@ -41,7 +41,7 @@
         display: flex; justify-content: space-between; align-items: flex-start; gap: 1.5rem; flex-wrap: wrap;
     }
     .inquiry-item:last-child { border-bottom: none; }
-    .inquiry-student-info { display: flex; gap: 1.25rem; flex: 1; min-width: 280px; }
+    .inquiry-student-info { display: flex; gap: 1.25rem; flex: 1; min-width: 0; }
     .student-avatar {
         width: 52px; height: 52px; border-radius: 50%;
         background: var(--bhims-teal); color: #fff;
@@ -61,6 +61,7 @@
         .stat-card { padding: 1.5rem; }
         .stat-content h3 { font-size: 1.75rem; }
         .inquiry-item { flex-direction: column; }
+        .inquiry-student-info { min-width: 0; }
         .view-thread-btn { width: 100%; text-align: center; }
     }
 
@@ -192,8 +193,7 @@
     <div class="section">
         <div class="section-header">
             <h2>Recent Student Inquiries</h2>
-            <div style="display: flex; gap: 0.75rem; align-items: center;">
-                <a href="{% url 'landlord_bookings' %}" class="view-all-btn">View bookings</a>
+            <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
                 <a href="{% url 'landlord_inquiry_list' %}" class="view-all-btn">View all inquiries</a>
             </div>
         </div>
@@ -211,7 +211,7 @@
                             {% if inquiry.pk in new_inquiry_ids %}<span class="new-chip">NEW</span>{% endif %}
                         </h3>
                         <p class="inquiry-property">{{ inquiry.room.boarding_house.name }} · {{ inquiry.room.name|default:inquiry.room.room_type }}</p>
-                        <p class="inquiry-preview">{{ inquiry.message|truncatechars:120 }}</p>
+                        <p class="inquiry-preview">{{ inquiry.message_text|truncatechars:120 }}</p>
                     </div>
                 </div>
                 <a href="{% url 'landlord_inquiry_thread' inquiry.pk %}" class="view-thread-btn">View Thread</a>
