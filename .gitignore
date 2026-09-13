@@ -6,6 +6,17 @@ db.sqlite3
 media/
 .vscode/
 
+# Docs and data exports
+BHIMS MIDTERM PROJECT.docx
+BHIMS_PowerBI_Data.xlsx
+generate_powerbi_excel.py
+
+# Frontend lockfile
+package-lock.json
+
+# Local tool state
+.freebuff/
+
 # Logs and debug output
 *.log
 *_check.txt
