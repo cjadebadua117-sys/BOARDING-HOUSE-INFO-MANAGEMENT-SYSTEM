@@ -1,0 +1,68 @@
+/* Extracted verbatim from core/templates/core/base.html
+   block 1/3. This <link> sits exactly where the <style> tag
+   was, so cascade order — and which layer wins — is unchanged. */
+/* ---- Body ground: transparent — the .ios-scene layer owns the backdrop ---- */
+        body {
+            font-family: var(--font-body);
+            background: transparent;
+            min-height: 100vh;
+            color: var(--bhims-text);
+            margin: 0;
+            padding: 0;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        h1, h2, h3, h4, h5, h6,
+        .navbar-brand, .display-1, .display-2, .display-3,
+        .display-4, .display-5, .display-6 {
+            font-family: var(--font-display);
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        /* Buttons, cards and form fields are owned by Campus Editorial.css
+           (the last identity layer). No local skin rules here anymore. */
+        .form-label { font-weight: 600; color: var(--bhims-text); }
+
+        /* ---- Badges: warm status colors ---- */
+        .badge { font-weight: 600; }
+        .bg-success { background-color: var(--bhims-badge-verified) !important; }
+        .bg-danger { background-color: var(--bhims-badge-rejected) !important; }
+        .bg-warning { background-color: var(--bhims-badge-pending) !important; }
+        .text-success { color: var(--bhims-teal-deep) !important; }
+        .text-danger { color: var(--bhims-badge-rejected) !important; }
+        .text-warning { color: var(--bhims-badge-pending) !important; }
+        .text-muted { color: var(--bhims-text-muted) !important; }
+
+        /* ---- Tables ---- */
+        .table { --bs-table-color: var(--bhims-text); --bs-table-bg: transparent; --bs-table-border-color: var(--bhims-border); }
+        .table > :not(caption) > * > * { border-bottom-color: var(--bhims-border); background-color: transparent; }
+
+        /* [a11y] Bootstrap ships a light-theme placeholder gray that lands on
+           dark glass inputs almost invisible (≈1.4:1). Use the themed token. */
+        input::placeholder, textarea::placeholder { color: var(--bhims-text-faint); opacity: 1; }
+        .table thead th { font-family: 'Inter', sans-serif; font-weight: 700; color: var(--bhims-text); }
+
+        /* ---- Links ---- */
+        a { color: var(--bhims-teal); }
+        a:hover { color: var(--bhims-teal-hover); }
+
+        /* Modal chrome only (the skin is Campus Editorial's) */
+        .modal-header { border-bottom: 1px solid var(--bhims-border); }
+        .modal-footer { border-top: 1px solid var(--bhims-border); }
+
+        /* ---- Status badge helper classes (warm palette) ---- */
+        .badge-bhims-verified { background: var(--bhims-badge-verified-bg); color: var(--bhims-badge-verified); }
+        .badge-bhims-pending { background: var(--bhims-badge-pending-bg); color: var(--bhims-badge-pending); }
+        .badge-bhims-rejected { background: var(--bhims-badge-rejected-bg); color: var(--bhims-badge-rejected); }
+
+        /* Page-header geometry is shared by every dashboard; skin is owned
+           by Premium Styles.css + Campus Editorial.css. */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }

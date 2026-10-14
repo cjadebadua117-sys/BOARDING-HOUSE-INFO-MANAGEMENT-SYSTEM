@@ -1,0 +1,47 @@
+%% Module D - ERD extract: Accounts, Administration & Analytics (owner: Mac)
+%% Entities this module writes (USER, BARANGAY, SITE_SETTING, ADMIN_ACTION_LOG)
+%% and the stores it reads to produce analytics (dashed = read-only for it).
+%% Render: venv\Scripts\python.exe tools\render_diagrams.py docs\final-project\diagrams
+erDiagram
+    USER ||--o{ ADMIN_ACTION_LOG : "performs"
+    USER ||--o{ BOARDING_HOUSE : "owns"
+    BARANGAY ||--o{ BOARDING_HOUSE : "referenced by name"
+
+    USER {
+        int id PK
+        string username
+        string email UK
+        string role "student / landlord / admin"
+        string full_name
+        string student_id UK
+        string landlord_id UK
+        string program "college"
+        string program_custom "grade level or course"
+        boolean is_active
+    }
+    BARANGAY {
+        int id PK
+        string name UK
+        string distance_from_campus
+    }
+    SITE_SETTING {
+        int id PK
+        string key UK
+        text value
+    }
+    ADMIN_ACTION_LOG {
+        int id PK
+        int actor_id FK
+        string action
+        string target_model
+        string target_id
+        string target_repr
+        datetime created_at
+    }
+    BOARDING_HOUSE {
+        int id PK
+        int owner_id FK
+        string name
+        string status "pending / approved / rejected"
+        boolean is_active
+    }

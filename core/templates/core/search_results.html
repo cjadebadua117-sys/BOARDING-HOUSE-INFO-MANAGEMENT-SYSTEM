@@ -1,0 +1,218 @@
+{% extends "app_base.html" %}
+{% load static %}
+
+{% block title %}Search Results - BHIMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/pages/search_results.css' %}">
+{% endblock %}
+
+{% block topbar_title %}
+    <span style="font-family: var(--font-display); font-weight: 700; color: var(--bhims-text);">Search Results</span>
+{% endblock %}
+
+{% block app_content %}
+<div class="search-page">
+    <div class="app-content" style="max-width: 1400px;">
+        <div class="row g-4">
+            <!-- Sidebar Filters -->
+            <div class="col-lg-3">
+                <div class="filter-card filter-sidebar">
+                    <h6><i class="bi bi-sliders me-1"></i> Filters</h6>
+                    <form method="get" id="searchFilterForm">
+                        <div class="filter-section">
+                            <label class="filter-label" for="filter-q">Search</label>
+                            <input type="text" id="filter-q" name="q" class="filter-control" placeholder="Name, location, amenities..." value="{{ request.GET.q }}">
+                        </div>
+
+                        <div class="filter-section">
+                            <label class="filter-label">Price Range (₱/mo)</label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="number" id="filter-min-price" name="price_min" class="filter-control" aria-label="Minimum price per month" placeholder="Min" value="{{ request.GET.price_min }}" min="0" step="100">
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" id="filter-max-price" name="price_max" class="filter-control" aria-label="Maximum price per month" placeholder="Max" value="{{ request.GET.price_max }}" min="0" step="100">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="filter-section">
+                            <label class="filter-label" for="filter-barangay">Barangay</label>
+                            <select id="filter-barangay" name="barangay" class="filter-control">
+                                <option value="">All Barangays</option>
+                                {% for barangay in barangays %}
+                                {# `barangays` is a list of barangay NAMES; the view filters on the name. #}
+                                <option value="{{ barangay }}" {% if request.GET.barangay == barangay %}selected{% endif %}>{{ barangay }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="filter-section">
+                            <label class="filter-label" for="filter-min-rooms">Min Rooms</label>
+                            <input type="number" id="filter-min-rooms" name="min_rooms" class="filter-control" placeholder="0" value="{{ request.GET.min_rooms }}" min="0">
+                        </div>
+
+                        <div class="filter-section">
+                            <label class="filter-label">Amenities</label>
+                            <div class="amenity-checkbox-list">
+                                {% for amenity in all_amenities %}
+                                <label class="amenity-checkbox-label">
+                                    <input type="checkbox" name="amenities" value="{{ amenity.name }}" {% if amenity.name in selected_amenities %}checked{% endif %}>
+                                    {{ amenity.name }}
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="filter-section">
+                            <label class="filter-label" for="filter-sort">Sort By</label>
+                            <select id="filter-sort" name="sort" class="filter-control">
+                                {% comment %}Values must be the ones the filter form accepts, otherwise the form is invalid and the view drops every filter silently.{% endcomment %}
+                                <option value="" {% if not request.GET.sort %}selected{% endif %}>Default</option>
+                                <option value="newest" {% if request.GET.sort == 'newest' %}selected{% endif %}>Newest First</option>
+                                <option value="lowest_price" {% if request.GET.sort == 'lowest_price' %}selected{% endif %}>Lowest price first</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-actions">
+                            <button type="submit" class="btn btn-primary filter-btn"><i class="bi bi-search me-1"></i> Apply Filters</button>
+                            <a href="{% url 'search_results' %}" class="btn btn-outline-primary filter-btn"><i class="bi bi-arrow-counterclockwise me-1"></i> Reset</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="col-lg-9">
+                <div class="results-header">
+                    {# `listings` is a Page, which has no .count — the count lives on its paginator. #}
+                    <h1 class="results-title">{{ listings.paginator.count }} Result{{ listings.paginator.count|pluralize }} Found</h1>
+                    <div class="view-toggle">
+                        <button type="button" class="btn btn-sm btn-outline-primary active" data-view="grid" aria-pressed="true" style="min-width:44px;min-height:44px;"><i class="bi bi-grid-3x3-gap"></i></button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-view="list" aria-pressed="false" style="min-width:44px;min-height:44px;"><i class="bi bi-list-ul"></i></button>
+                    </div>
+                </div>
+
+                <p id="filterStatus" class="visually-hidden" aria-live="polite" aria-atomic="true"></p>
+
+                <div class="result-grid" id="resultGrid" aria-live="polite" aria-busy="false">
+                    {% include "includes/search_grid_fragment.html" %}
+                </div>
+
+                <div id="resultSkeleton" class="result-grid" style="display:none;" aria-hidden="true">
+                    {% for i in "123456" %}
+                    <div class="skeleton-result-card" aria-hidden="true">
+                        <div class="skeleton sk-img"></div>
+                        <div class="sk-body">
+                            <div class="skeleton sk-line"></div>
+                            <div class="skeleton sk-line short"></div>
+                            <div class="skeleton sk-pill" style="margin-top: 10px;"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% if listings.has_other_pages %}
+                <nav class="pagination-custom" aria-label="Pagination">
+                    {% if listings.has_previous %}
+                    <a href="?page={{ listings.previous_page_number }}{{ query_string }}" class="page-link-custom"><i class="bi bi-chevron-left"></i></a>
+                    {% endif %}
+                    {% for page in listings.paginator.page_range %}
+                    <a href="?page={{ page }}{{ query_string }}" class="page-link-custom {% if page == listings.number %}active{% endif %}">{{ page }}</a>
+                    {% endfor %}
+                    {% if listings.has_next %}
+                    <a href="?page={{ listings.next_page_number }}{{ query_string }}" class="page-link-custom"><i class="bi bi-chevron-right"></i></a>
+                    {% endif %}
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var form = document.getElementById('searchFilterForm');
+    var grid = document.getElementById('resultGrid');
+    var skeleton = document.getElementById('resultSkeleton');
+    var statusEl = document.getElementById('filterStatus');
+    if (!form || !grid || !skeleton) return;
+
+    var debounceTimer;
+    var controller;
+
+    function showSkeleton(show) {
+        skeleton.style.display = show ? 'grid' : 'none';
+        grid.style.display = show ? 'none' : 'grid';
+        grid.setAttribute('aria-busy', show ? 'true' : 'false');
+        skeleton.setAttribute('aria-hidden', show ? 'false' : 'true');
+    }
+
+    function fetchGrid(url, push) {
+        if (controller) controller.abort();
+        controller = new AbortController();
+        showSkeleton(true);
+        if (statusEl) statusEl.textContent = 'Loading results…';
+        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, signal: controller.signal })
+            .then(function (r) { return r.text(); })
+            .then(function (html) {
+                grid.innerHTML = html;
+                showSkeleton(false);
+                if (push) history.pushState(null, '', url);
+                if (statusEl) {
+                    var count = grid.querySelectorAll('.result-card').length;
+                    statusEl.textContent = count ? count + ' result' + (count === 1 ? '' : 's') + ' found.' : 'No results match your filters.';
+                }
+            })
+            .catch(function (e) {
+                if (e.name === 'AbortError') return;
+                showSkeleton(false);
+                if (statusEl) statusEl.textContent = 'Could not load results. Showing last results.';
+            });
+    }
+
+    function buildUrl() {
+        var params = new URLSearchParams(new FormData(form));
+        for (var pair of Array.from(params.entries())) { if (!pair[1]) params.delete(pair[0]); }
+        var base = form.getAttribute('action') || window.location.pathname;
+        var qs = params.toString();
+        return qs ? base + '?' + qs : base;
+    }
+
+    form.addEventListener('submit', function (e) {
+        if (!window.fetch) return;
+        e.preventDefault();
+        fetchGrid(buildUrl(), true);
+    });
+
+    ['input', 'change'].forEach(function (evt) {
+        form.addEventListener(evt, function () {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(function () { fetchGrid(buildUrl(), true); }, 320);
+        });
+    });
+
+    window.addEventListener('popstate', function () {
+        fetchGrid(window.location.pathname + window.location.search, false);
+    });
+
+    // View toggle
+    document.querySelectorAll('[data-view]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('[data-view]').forEach(function (b) { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
+            this.classList.add('active'); this.setAttribute('aria-pressed', 'true');
+            var grid = document.getElementById('resultGrid');
+            if (!grid) return;
+            if (this.dataset.view === 'list') {
+                grid.style.gridTemplateColumns = '1fr';
+            } else {
+                grid.style.gridTemplateColumns = '';
+            }
+        });
+    });
+})();
+</script>
+{% endblock %}

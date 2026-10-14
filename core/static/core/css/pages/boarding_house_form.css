@@ -1,0 +1,40 @@
+/* Extracted verbatim from core/templates/core/core\boarding_house_form.html
+   This <link> sits exactly where the <style> tag was, so the
+   cascade order — and therefore which layer wins — is unchanged. */
+.wizard-stepper {
+        display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+        margin-bottom: 1.75rem;
+    }
+    .wizard-stepper .step {
+        display: flex; align-items: center; gap: 0.5rem;
+        color: var(--bhims-text-muted);
+        font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+    .wizard-stepper .step-num {
+        width: 28px; height: 28px; border-radius: 50%;
+        display: inline-flex; align-items: center; justify-content: center;
+        border: 2px solid var(--bhims-ink-line);
+        background: var(--bhims-glass-bg-subtle); color: var(--bhims-text-muted);
+        font-size: 0.8rem; font-weight: 800;
+        transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+    .wizard-stepper .step.active { color: var(--bhims-text); }
+    .wizard-stepper .step.active .step-num {
+        background: var(--bhims-teal); border-color: var(--bhims-teal); color: #fff;
+    }
+    .wizard-stepper .step.done .step-num {
+        background: var(--bhims-teal); border-color: var(--bhims-teal); color: #fff;
+    }
+    .wizard-stepper .step.done { color: var(--bhims-teal); }
+    .wizard-stepper .step-sep {
+        width: 28px; height: 2px; background: var(--bhims-ink-line);
+        border-radius: 1px;
+    }
+    .wizard-stepper .step-sep.filled { background: var(--bhims-teal); }
+    .wizard-step { display: none; }
+    .wizard-step.active { display: block; animation: bhimsRise 0.35s cubic-bezier(0.16,1,0.3,1) both; }
+    @keyframes bhimsRise { from { opacity:0; transform: translateY(8px);} to {opacity:1; transform:none;}}
+    @media (prefers-reduced-motion: reduce) { .wizard-step.active { animation: none; } }
+    .wizard-nav { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
+    .wizard-nav .btn { flex: 1; min-height: 44px; }

@@ -1,0 +1,52 @@
+%% Module A - ERD extract: Boarding House & Room Management (owner: Noemi)
+%% Only the entities this module writes, with the fields it manages.
+%% Render: venv\Scripts\python.exe tools\render_diagrams.py docs\final-project\diagrams
+erDiagram
+    USER ||--o{ BOARDING_HOUSE : "owns"
+    BOARDING_HOUSE ||--|{ ROOM : "contains"
+    ROOM ||--o{ ROOM_PHOTO : "has"
+    ROOM }o--o{ AMENITY : "offers"
+    BARANGAY ||--o{ BOARDING_HOUSE : "referenced by name"
+
+    USER {
+        int id PK
+        string role "landlord or admin"
+        string landlord_id "issued on registration"
+        boolean is_active
+    }
+    BOARDING_HOUSE {
+        int id PK
+        int owner_id FK
+        string name
+        string address
+        string barangay "matches BARANGAY.name"
+        decimal price "monthly"
+        string gender_allowed "male / female / both"
+        text description
+        image image
+        boolean is_active
+        string status "pending / approved / rejected"
+    }
+    ROOM {
+        int id PK
+        int boarding_house_id FK
+        string room_type
+        decimal monthly_rate
+        int capacity
+        boolean is_available
+        boolean is_active
+    }
+    ROOM_PHOTO {
+        int id PK
+        int room_id FK
+        image image
+    }
+    AMENITY {
+        int id PK
+        string name UK
+    }
+    BARANGAY {
+        int id PK
+        string name UK
+        string distance_from_campus
+    }

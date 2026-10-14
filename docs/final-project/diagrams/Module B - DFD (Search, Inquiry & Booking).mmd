@@ -1,0 +1,39 @@
+%% Module B - Level 1 DFD extract: Search, Inquiry & Booking (processes 3.0, 4.0, 5.0)
+%% Owner: Christian. The end-to-end workflow: find a room, talk to the landlord,
+%% get a confirmed booking.
+%% Render: venv\Scripts\python.exe tools\render_diagrams.py docs\final-project\diagrams
+flowchart LR
+    STU["<b>STUDENT</b>"]
+    LAN["<b>LANDLORD</b>"]
+
+    P3("<b>3.0 Search &amp;<br/>Availability</b>")
+    P4("<b>4.0 Inquiry &amp;<br/>Messaging</b>")
+    P5("<b>5.0 Booking<br/>Management</b>")
+
+    D2[("D2 | HOUSES &amp; ROOMS")]
+    D4[("D4 | INQUIRIES &amp; MESSAGES")]
+    D5[("D5 | BOOKINGS")]
+
+    STU -- "search &amp; filter criteria<br/>(barangay, price, room type,<br/>amenity, availability, sort)" --> P3
+    D2 -- "approved houses and<br/>bookable rooms only" --> P3
+    P3 -- "matching listings, open-room<br/>count, lowest bookable price" --> STU
+
+    STU <-- "inquiry &amp; chat messages" --> P4
+    LAN <-- "replies" --> P4
+    P4 -- "inquiry &amp; message records" --> D4
+    D4 -- "thread history,<br/>timestamps" --> P4
+
+    STU -- "booking request<br/>for a specific room" --> P5
+    D5 -- "existing bookings<br/>(capacity check)" --> P5
+    LAN -- "accept / decline" --> P5
+    P5 -- "booking status<br/>(pending / confirmed /<br/>declined / cancelled)" --> D5
+    P5 -- "room availability update" --> D2
+    P5 -- "confirmed or declined<br/>booking status" --> STU
+    P5 -. "accepted inquiry" .-> P4
+
+    classDef entity fill:#f8eae4,stroke:#8c4a2f,stroke-width:2.5px,color:#3a2a20
+    classDef process fill:#ffffff,stroke:#c1592a,stroke-width:3px,color:#3a2a20
+    classDef store fill:#eef2f7,stroke:#4a6785,stroke-width:2px,color:#22303f
+    class STU,LAN entity
+    class P3,P4,P5 process
+    class D2,D4,D5 store

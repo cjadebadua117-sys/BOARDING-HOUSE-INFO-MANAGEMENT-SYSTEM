@@ -1,0 +1,24 @@
+{% load static %}
+{% comment %}
+Decorative art for the split-screen colour panel. Purely decorative and
+aria-hidden, so the panel's meaning is carried entirely by its copy and CTA.
+
+Placement here is not freehand: the panel's copy column runs down the middle
+and everything below it is off limits, because a watermark behind white text is
+a contrast failure no opacity can repair. tools/verify_split_visual.py freezes
+these drifts and fails if any line of copy intersects either shape, so moving
+one of them means moving the other side of that check first.
+
+  * seal — lower right, the larger mark, drifts slowly.
+  * ring — lower left, filling the corner the copy leaves empty.
+
+The seal is the white line-art build (tools/make_seal_watermark.py). The stock
+full-colour seal cannot be used here: flattening it to a silhouette in CSS
+merges its white interior with its thick green ring, and it renders as one
+scalloped blob instead of a seal. The mono build has alpha only where the
+original had ink, so it reads as line art and needs no filter at all.
+{% endcomment %}
+<span class="auth-split-art" aria-hidden="true">
+    <span class="auth-split-ring"></span>
+    <img class="auth-split-seal" src="{% static 'core/images/dmmmsu-seal-mono.png' %}" alt="" loading="lazy" decoding="async">
+</span>

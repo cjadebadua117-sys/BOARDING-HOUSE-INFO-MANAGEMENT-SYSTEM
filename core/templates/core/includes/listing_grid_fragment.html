@@ -1,0 +1,197 @@
+{% comment %} Results grid fragment for AJAX + server render.
+
+This is the heart of the new browse experience. It renders the results
+header (count + active filters + sort), the grid of cards, the pager, and
+the empty/search-failure states, so both the public shell and the app shell
+get the same directory feel.
+
+Active filters are read from the current querystring so the AJAX flow and the
+fresh-server render always agree on what the visitor asked for.
+
+Important: `houses` here is the FULL filtered queryset passed by the view, not
+a sliced page. The pager belongs in the grid because AJAX replaces the whole
+fragment; outside the grid it would disappear on every filter change.
+{% endcomment %}
+{% if houses %}
+<header class="results-header">
+  <div class="results-meta">
+    <p class="results-count" aria-live="polite">
+      <strong>{{ houses|length }}</strong>
+      {% if houses|length == 1 %}boarding house{% else %}boarding houses{% endif %}
+
+      {% if form.barangay.value or form.price_min.value or form.price_max.value or form.room_type.value or form.amenities.value or form.sort.value %}
+        match your filters
+      {% else %}
+        on the board
+      {% endif %}
+
+    </p>
+    {% if page_obj and page_obj.has_other_pages %}
+    <span class="results-page">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% endif %}
+
+  </div>
+
+  <div class="results-controls">
+    {% if form.sort.value %}
+    <a href="?{{ query_string|default:'' }}"
+       class="chip btn-text-reset"
+       aria-label="Clear sort">
+      <i class="bi bi-x" aria-hidden="true"></i>
+      Sort: {{ form.sort.value }}
+    </a>
+    {% endif %}
+
+    {% if form.barangay.value or form.price_min.value or form.price_max.value or form.room_type.value or form.amenities.value %}
+    <span class="results-divider" aria-hidden="true"></span>
+    <a href="?{{ query_string|default:'' }}"
+       class="btn btn-ghost btn-sm"
+       aria-label="Clear all filters">
+      <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+      Clear filters
+    </a>
+    {% endif %}
+
+  </div>
+</header>
+
+{% comment %} The visible filters are repeated as chips so visitors understand the page
+   state at a glance and can remove one filter without reopening the form. {% endcomment %}
+{% with chip_base_url="?"|add:query_string|default:"?" %}
+{% if form.barangay.value %}
+<div class="active-filters">
+  <span class="active-filter-chip">
+    <i class="bi bi-geo-alt" aria-hidden="true"></i>
+    {{ form.barangay.value }}
+    <a href="{{ chip_base_url }}&barangay=" class="chip-remove" aria-label="Remove barangay filter"><i class="bi bi-x" aria-hidden="true"></i></a>
+  </span>
+</div>
+{% endif %}
+
+{% if form.price_min.value or form.price_max.value %}
+<div class="active-filters">
+  <span class="active-filter-chip">
+    <i class="bi bi-currency-peso" aria-hidden="true"></i>
+    {% if form.price_min.value and form.price_max.value %}
+      ₱{{ form.price_min.value }} – ₱{{ form.price_max.value }}
+    {% elif form.price_min.value %}
+      From ₱{{ form.price_min.value }}
+    {% else %}
+      Up to ₱{{ form.price_max.value }}
+    {% endif %}
+
+    <a href="{{ chip_base_url }}&price_min=&price_max=" class="chip-remove" aria-label="Remove price filter"><i class="bi bi-x" aria-hidden="true"></i></a>
+  </span>
+</div>
+{% endif %}
+
+{% if form.room_type.value %}
+<div class="active-filters">
+  <span class="active-filter-chip">
+    <i class="bi bi-grid-1x2" aria-hidden="true"></i>
+    {{ form.room_type.value }}
+    <a href="{{ chip_base_url }}&room_type=" class="chip-remove" aria-label="Remove room type filter"><i class="bi bi-x" aria-hidden="true"></i></a>
+  </span>
+</div>
+{% endif %}
+
+{% if form.amenities.value %}
+<div class="active-filters">
+  <span class="active-filter-chip">
+    <i class="bi bi-circle-fill" aria-hidden="true" style="font-size:0.7rem;"></i>
+    Amenities
+    <a href="{{ chip_base_url }}&amenities=" class="chip-remove" aria-label="Remove amenities filter"><i class="bi bi-x" aria-hidden="true"></i></a>
+  </span>
+</div>
+{% endif %}
+
+{% endwith %}
+
+<div class="listing-grid" id="listingGrid" aria-live="polite" aria-busy="false">
+  {% for house in houses %}
+    {% include 'core/includes/listing_card.html' with house=house dir=1 %}
+  {% endfor %}
+
+  {% if page_obj and page_obj.has_other_pages %}
+  <nav class="pagination-custom" aria-label="Listing pages">
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{{ query_string }}"
+         class="page-link-custom"
+         data-page-link="1"
+         aria-label="Previous page">
+        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+      </a>
+    {% else %}
+      <span class="page-link-custom page-link-ghost" aria-hidden="true">
+        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+      </span>
+    {% endif %}
+
+    <span class="page-status">
+      Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+    </span>
+
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{{ query_string }}"
+         class="page-link-custom"
+         data-page-link="1"
+         aria-label="Next page">
+        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+      </a>
+    {% else %}
+      <span class="page-link-custom page-link-ghost" aria-hidden="true">
+        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+      </span>
+    {% endif %}
+
+  </nav>
+  {% endif %}
+
+</div>
+
+{% elif request.GET.values|join:'' %}
+<div class="results-empty results-empty-filters">
+  <div class="empty-illustration" aria-hidden="true">
+    <i class="bi bi-sliders"></i>
+  </div>
+  <h2 class="h3 empty-title">Nothing matches those filters</h2>
+  <p class="empty-body">
+    The filters you chose — rent range, barangay, room type, or amenities —
+    leave no open rooms right now. Try widening the rent range or removing the
+    barangay filter first.
+  </p>
+  <div class="empty-actions">
+    <a href="?{{ query_string|default:'' }}"
+       class="btn btn-ghost">
+      <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+      Start over
+    </a>
+    <a href="{% url 'listing_list' %}"
+       class="btn btn-ghost">
+      See everything on the board
+    </a>
+  </div>
+</div>
+{% else %}
+<div class="results-empty results-empty-default">
+  <div class="empty-illustration" aria-hidden="true">
+    <i class="bi bi-houses"></i>
+  </div>
+  <h2 class="h3 empty-title">No houses on the board yet</h2>
+  <p class="empty-body">
+    Approved listings will show up here. If you rent rooms around NLUC,
+    add them from the landlord portal so students can find you.
+  </p>
+  <div class="empty-actions">
+    <a href="{% url 'landlord_login' %}"
+       class="btn btn-primary">
+      Landlord login
+    </a>
+    <a href="{% url 'student_register' %}"
+       class="btn btn-ghost">
+      Create a student account
+    </a>
+  </div>
+</div>
+{% endif %}
+

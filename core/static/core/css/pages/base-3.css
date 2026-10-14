@@ -1,0 +1,75 @@
+/* Extracted verbatim from core/templates/core/base.html
+   block 3/3. This <link> sits exactly where the <style> tag
+   was, so cascade order — and which layer wins — is unchanged. */
+/* Page containers sit directly on the paper ground */
+        .detail-page, .browse-page, .dashboard-page, .landlord-page, .student-page,
+        .property-management-page, .register-page, .messages-page, .booking-page,
+        .room-form-page, .form-section, .profile-page-wrap {
+            background: transparent !important;
+        }
+
+        /* ---- Modal chrome (surface owned by Campus Editorial) ---- */
+        .modal-content {
+            border-radius: calc(var(--bhims-radius) + 4px) !important;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25), 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+        }
+        .modal-backdrop {
+            -webkit-backdrop-filter: blur(8px) saturate(1.2) !important;
+            backdrop-filter: blur(8px) saturate(1.2) !important;
+            background: rgba(0, 0, 0, 0.35) !important;
+        }
+
+        /* ---- Touch devices: enforce 44px minimum tap targets (WCAG 2.5.5 / iOS HIG) ----
+           The visible focus ring is owned by Campus Editorial's K7 system. */
+        @media (pointer: coarse) {
+            .btn, .btn-bhims, .create-btn, .submit-btn, .btn-submit,
+            .btn-register-bhims, .btn-accept-bhims {
+                min-height: 44px;
+            }
+            .form-control, .form-select, .bhims-input, .bhims-textarea {
+                min-height: 44px;
+            }
+        }
+
+        /* ---- Touch devices: enforce 44px minimum tap targets (WCAG 2.5.5 / iOS HIG) ---- */
+        @media (pointer: coarse) {
+            .btn, .btn-bhims, .create-btn, .submit-btn, .btn-submit,
+            .btn-register-bhims, .btn-accept-bhims {
+                min-height: 44px;
+            }
+            .form-control, .form-select, .bhims-input, .bhims-textarea {
+                min-height: 44px;
+            }
+        }
+
+        /* ---- Inline form validation (client-side helper over Django's server rules) ---- */
+        .bhims-field-error {
+            color: var(--bhims-danger-text);
+            font-size: var(--fs-sm);
+            font-weight: 600;
+            margin-top: 0.35rem;
+        }
+        .bhims-error-summary {
+            background: var(--bhims-danger-bg);
+            border: 1px solid var(--bhims-danger-border);
+            border-left: 4px solid var(--bhims-danger-text);
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.25rem;
+            color: var(--bhims-danger-hover);
+        }
+        .bhims-error-summary:focus { outline: none; }
+        .bhims-error-summary a { color: var(--bhims-danger-text); font-weight: 600; }
+        form [aria-invalid="true"] {
+            border-color: var(--bhims-danger-text) !important;
+        }
+
+        /* ---- Reduced motion: calm everything down ---- */
+        @media (prefers-reduced-motion: reduce) {
+            body, .card, .stat-card, .listing-card, .house-card, .room-card,
+            .booking-card, .filter-card, .hero-card, .inquiry-item,
+            .landing-feature-card, .form-card, .bhims-login-card, .bhims-toast {
+                animation: none !important;
+                transition: none !important;
+            }
+        }

@@ -1,0 +1,125 @@
+{% extends "app_base.html" %}
+{% load static %}
+{% block title %}My Ratings - Boarding House Information Management System{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/pages/landlord_my_ratings.css' %}">
+{% endblock %}
+
+{% block app_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-11">
+        <div class="page-header">
+            <div>
+                <p class="eyebrow">Reputation</p>
+                <h1>My Ratings</h1>
+                <p>What students have said about you after their confirmed bookings.</p>
+            </div>
+        </div>
+
+        {% if rating_count %}
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="glass-card text-center h-100 p-4">
+                    <p class="eyebrow mb-1">Average rating</p>
+                    <div style="font-size: 2.4rem; font-weight: 700; color: var(--bhims-text);">{{ average_rating|floatformat:1 }}</div>
+                    <div class="rating-stars" aria-label="{{ average_rating|floatformat:1 }} out of 5 stars">
+                        <span style="display:inline-block; position:relative;">
+                            <span style="opacity:0.25;">★★★★★</span>
+                            <span style="position:absolute; left:0; top:0; width:{% widthratio average_rating 5 100 %}%; overflow:hidden; white-space:nowrap;">★★★★★</span>
+                        </span>
+                    </div>
+                    <small class="text-muted d-block mt-1">{{ rating_count }} rating{{ rating_count|pluralize }} · {{ comment_count }} with comment{{ comment_count|pluralize }}</small>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="glass-card h-100 p-4">
+                    <p class="eyebrow mb-2">Rating distribution</p>
+                    {% for s, count in distribution.items %}
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <small style="width: 52px; color: var(--bhims-text-muted);">{{ s }} star{{ s|pluralize }}</small>
+                        <div style="flex:1; height: 6px; border-radius: 999px; background: rgba(128,128,128,0.15); overflow: hidden;">
+                            <div style="height:100%; width:{% widthratio count rating_count 100 %}%; background: linear-gradient(90deg, var(--bhims-primary), var(--bhims-teal)); border-radius: 999px;"></div>
+                        </div>
+                        <small style="width: 26px; text-align:right; color: var(--bhims-text);">{{ count }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3 star-filter">
+            <a href="{% url 'landlord_my_ratings' %}" class="{% if not stars %}active{% endif %}">All</a>
+            {% for s in "54321" %}
+            <a href="?stars={{ s }}" class="{% if stars == s %}active{% endif %}">
+                {{ s }} <i class="bi bi-star-fill" style="font-size: 0.7rem;"></i>
+            </a>
+            {% endfor %}
+        </div>
+
+        {% if ratings %}
+        <div class="d-flex flex-column gap-3">
+            {% for rating in ratings %}
+            <div class="rating-card">
+                <div class="d-flex align-items-start gap-3 flex-wrap">
+                    <div class="tenant-avatar">
+                        {{ rating.student.full_name|first|default:rating.student.email|first }}
+                    </div>
+                    <div class="flex-grow-1" style="min-width: 220px;">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                            <div>
+                                <span class="fw-semibold" style="color: var(--bhims-text);">{{ rating.student.display_name }}</span>
+                                <span class="rating-stars ms-2" aria-label="{{ rating.rating }} out of 5 stars">
+                                    {% for i in "12345" %}{% if forloop.counter <= rating.rating %}★{% else %}<span class="dim">★</span>{% endif %}{% endfor %}
+                                </span>
+                                <small class="d-block text-muted mt-1">
+                                    <i class="bi bi-house-door me-1"></i>{{ rating.booking.room.boarding_house.name }} · {{ rating.booking.room.name|default:rating.booking.room.room_type }}
+                                </small>
+                            </div>
+                            <small class="text-muted">{{ rating.created_at|date:"M j, Y" }}</small>
+                        </div>
+                        {% if rating.comment %}
+                        <p class="mb-0 mt-2" style="color: var(--bhims-text-muted); line-height: 1.55;">{{ rating.comment }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if page_obj.paginator.num_pages > 1 %}
+        <nav class="mt-4" aria-label="Ratings pagination">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if stars %}&stars={{ stars }}{% endif %}">&laquo;</a></li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    {% if page_obj.number == num %}
+                    <span class="page-link">{{ num }}</span>
+                    {% else %}
+                    <a class="page-link" href="?page={{ num }}{% if stars %}&stars={{ stars }}{% endif %}">{{ num }}</a>
+                    {% endif %}
+                </li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if stars %}&stars={{ stars }}{% endif %}">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        {% else %}
+        <div class="text-center py-4">
+            <p class="mb-0" style="color: var(--bhims-text-muted);">No {{ stars }}-star ratings yet.</p>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="glass-card text-center py-5">
+            <i class="bi bi-star" style="font-size: 2.5rem; color: var(--bhims-teal);"></i>
+            <h2 class="h5 mt-3" style="color: var(--bhims-text);">No ratings yet</h2>
+            <p class="mb-0" style="color: var(--bhims-text-muted); max-width: 460px; margin: 0 auto;">Once students confirm bookings with you and rate their stay, their ratings will appear here.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

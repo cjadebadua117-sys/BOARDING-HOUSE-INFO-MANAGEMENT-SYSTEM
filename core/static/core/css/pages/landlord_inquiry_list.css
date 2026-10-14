@@ -1,0 +1,226 @@
+/* Extracted verbatim from core/templates/core/core\landlord_inquiry_list.html
+   This <link> sits exactly where the <style> tag was, so the
+   cascade order — and therefore which layer wins — is unchanged. */
+
+/* --- Inquiry card: who asked, and about which room -------------------
+   The card used to be seven lines of running text with no picture of the
+   student and no picture of the room, so a landlord working down a queue of
+   applicants had to read every field to tell one card from the next. The
+   identity block and room thumbnail below give each card a face and a room.
+   Every colour is a theme token, so this reads the same in light and dark. */
+
+.inq-identity {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.inq-avatar {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    border-radius: 50%;
+    background: var(--bhims-icon-tint);
+    color: var(--bhims-teal);
+    border: 1px solid var(--bhims-ink-line-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    font-weight: 700;
+    font-size: var(--fs-md);
+    text-transform: uppercase;
+}
+
+.inq-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.inq-identity-text {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.inq-name {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--bhims-ink, inherit);
+    overflow-wrap: anywhere;
+}
+
+.inq-handle {
+    margin: 0;
+    font-size: var(--fs-sm);
+    color: var(--bhims-text-muted);
+}
+
+.inq-property {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem;
+    margin-bottom: 0.875rem;
+    border-radius: 14px;
+    background: var(--bhims-paper-sunken);
+    border: 1px solid var(--bhims-ink-line);
+}
+
+.inq-room-thumb {
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--bhims-icon-tint);
+    color: var(--bhims-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    border: 1px solid var(--bhims-ink-line);
+}
+
+.inq-room-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.inq-property-text {
+    min-width: 0;
+}
+
+.inq-house {
+    margin: 0 0 0.15rem;
+    font-weight: 600;
+    font-size: var(--fs-md);
+    overflow-wrap: anywhere;
+}
+
+.inq-room-line {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.9rem;
+    font-size: var(--fs-sm);
+    color: var(--bhims-text-muted);
+}
+
+.inq-room-line span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.inq-message {
+    margin: 0 0 0.875rem;
+    padding: 0.25rem 0 0.25rem 0.75rem;
+    border-left: 3px solid var(--bhims-ink-line-strong);
+    font-size: var(--fs-md);
+    color: var(--bhims-text-muted);
+}
+
+.inq-footer {
+    gap: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--bhims-ink-line);
+}
+
+.inq-footer .text-muted i {
+    margin-right: 0.3rem;
+}
+
+@media (max-width: 420px) {
+    .inq-identity { flex-wrap: wrap; }
+    .inq-identity .pending-badge,
+    .inq-identity .available-badge,
+    .inq-identity .rejected-badge { margin-left: 3.25rem; }
+}
+
+.available-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        background-color: rgba(20, 86, 60, 0.12);
+        color: var(--bhims-teal);
+        border-left: 4px solid var(--bhims-teal);
+        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        font-size: var(--fs-sm);
+    }
+    .pending-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        background-color: rgba(154, 106, 31, 0.12);
+        color: var(--bhims-badge-pending);
+        border-left: 4px solid var(--bhims-badge-pending);
+        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        font-size: var(--fs-sm);
+    }
+    .rejected-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        background-color: rgba(179, 38, 30, 0.12);
+        color: var(--bhims-danger-text);
+        border-left: 4px solid var(--bhims-danger-text);
+        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        font-size: var(--fs-sm);
+    }
+    .inquiry-card {
+        border-radius: 20px;
+        background: var(--surface);
+        box-shadow: var(--shadow-soft);
+        transition: all 0.3s ease;
+        border: none;
+    }
+    .inquiry-card:hover {
+        box-shadow: var(--shadow-hover);
+        transform: translateY(-2px);
+    }
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    .empty-state h3 {
+        margin-bottom: 1rem;
+        color: var(--text-muted);
+    }
+    .empty-state p {
+        color: var(--text-muted);
+        max-width: 400px;
+        margin: 0 auto 2rem auto;
+    }
+    .new-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        background: var(--bhims-teal);
+        color: #fff;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        border-radius: 999px;
+        padding: 0.18rem 0.6rem;
+        vertical-align: middle;
+        box-shadow: 0 2px 8px rgba(20, 86, 60, 0.35);
+    }
+    @media (prefers-reduced-motion: no-preference) {
+        .new-chip { animation: newChipPop 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        @keyframes newChipPop {
+            from { opacity: 0; transform: scale(0.6); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    }

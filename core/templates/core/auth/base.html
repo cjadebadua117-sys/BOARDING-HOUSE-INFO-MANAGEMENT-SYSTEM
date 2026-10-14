@@ -1,0 +1,191 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>{% block title %}{% block auth_title %}Sign in{% endblock %} · BHIMS{% endblock %}</title>
+<link rel="icon" type="image/png" href="{% static 'core/images/bhims-icon.png' %}">
+<link rel="stylesheet" href="{% static 'vendor/fonts.css' %}">
+<link rel="stylesheet" href="{% static 'vendor/bootstrap-icons.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/auth.css' %}?v=5">
+{% block auth_style %}{% endblock %}
+<script>
+    /* Match the theme the visitor picked elsewhere on the site so signing in
+       never flashes from one palette to the other. Runs before first paint. */
+    (function () {
+        var theme = 'light';
+        try { theme = localStorage.getItem('bhims-theme') || 'light'; } catch (e) { /* private mode */ }
+        document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'dark' : 'light');
+    })();
+</script>
+</head>
+<body class="auth-body">
+{% comment %}
+Every signed-out page shares this shell: the site's own navbar at the top, then
+the auth_layout block. By default that block is a dark printed brand panel on
+the left stating which portal this is and the form sheet on the right. Portals
+differ only in copy (hero_title / hero_copy / hero_points) and in whether the
+card hosts one form or the student portal's two (sign in + registration).
+
+The student portal overrides auth_layout entirely for its own split-screen
+deck, so the layout lives in one overridable block rather than being patched
+per portal.
+
+The navbar is the real partial — same links, same theme button, same mobile
+menu — so signing in never feels like leaving the site.
+{% endcomment %}
+{% include "includes/navbar.html" %}
+<a class="auth-skip" href="#auth-main">Skip to the form</a>
+
+{% block auth_layout %}
+<div class="auth-layout{% block auth_shell_class %}{% endblock %}">
+
+    <!-- ══ Left: brand panel ══ -->
+    <aside class="auth-brand">
+        <div class="auth-brand-inner">
+            <a class="auth-wordmark" href="{% url 'home' %}" aria-label="BHIMS home">
+                <img src="{% static 'core/images/logo_mark.png' %}" alt="">
+                <span class="auth-wordmark-text">
+                    <strong>BHIMS</strong>
+                    <span class="auth-wordmark-sub">Boarding House Information Management System</span>
+                </span>
+            </a>
+
+            <div class="auth-brand-copy">
+                <p class="auth-brand-kicker">DMMMSU · NLUC Bacnotan</p>
+                <h1>{% block hero_title %}Welcome back.{% endblock %}</h1>
+                <p class="auth-brand-lead">{% block hero_copy %}Sign in to continue.{% endblock %}</p>
+                <ul class="auth-brand-points">
+                    {% block hero_points %}
+                    <li><i class="bi bi-patch-check-fill" aria-hidden="true"></i> Staff-verified boarding houses</li>
+                    <li><i class="bi bi-chat-dots-fill" aria-hidden="true"></i> Direct student&ndash;landlord messaging</li>
+                    <li><i class="bi bi-journal-check" aria-hidden="true"></i> One record for the whole campus</li>
+                    {% endblock %}
+                </ul>
+            </div>
+
+            <div class="auth-brand-foot">
+                <img src="{% static 'core/images/dmmmsu-seal.png' %}" alt="DMMMSU seal">
+                <span>Don Mariano Marcos Memorial State University<br>North La Union Campus &middot; Bacnotan, La Union</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ══ Right: form panel ══ -->
+    <main class="auth-panel" id="auth-main">
+        {% comment %}No strip above the card: the navbar already carries the
+        wordmark (home) and the portal links, so a second set of cross-links
+        here was just noise.{% endcomment %}
+        <div class="auth-card">
+            {% block auth_main %}{% endblock %}
+        </div>
+
+        <footer class="auth-foot">
+            <span class="auth-foot-note">&copy; {% now "Y" %} BHIMS &middot; DMMMSU&ndash;NLUC Bacnotan</span>
+            <nav class="auth-foot-links" aria-label="Other portals">
+                <a href="{% url 'student_login' %}">Student</a>
+                <a href="{% url 'landlord_login' %}">Landlord</a>
+                <a href="{% url 'admin_login' %}">Administrator</a>
+            </nav>
+        </footer>
+    </main>
+</div>
+{% endblock %}
+
+<script>
+    /* The navbar's theme button has to behave exactly as it does on every other
+       page: same storage key, same event, same wordmark swap. */
+    (function () {
+        var html = document.documentElement;
+        function setTheme(theme) {
+            html.setAttribute('data-theme', theme);
+            try { localStorage.setItem('bhims-theme', theme); } catch (e) { /* private mode */ }
+            try { window.dispatchEvent(new Event('bhims-theme-change')); } catch (e) { /* older browsers */ }
+        }
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest && e.target.closest('[data-theme-switch]');
+            if (!btn) return;
+            e.preventDefault();
+            setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+        });
+    })();
+
+    /* The sticky brand panel parks below the bar, so it needs the bar's real
+       height rather than a guessed constant (it changes at 820px). */
+    (function () {
+        var bar = document.getElementById('bhimsTopbar');
+        if (!bar) return;
+        var sync = function () {
+            html.style.setProperty('--nav-h', bar.offsetHeight + 'px');
+        };
+        var html = document.documentElement;
+        sync();
+        window.addEventListener('resize', sync);
+        window.addEventListener('load', sync);
+        if (window.ResizeObserver) { new ResizeObserver(sync).observe(bar); }
+    })();
+
+    (function () {
+        var page = document.querySelector('.auth-panel');
+        if (!page) return;
+
+        /* Password reveal — markup lives in core/auth/_eye_toggle.html so the
+           pages render a real button for screen readers and no-JS visitors. */
+        var eyeOpen = '<path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.118.178-.25.346-.395.507A13.132 13.132 0 0 1 13.168 10.04C11.879 11.332 10.12 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.133 13.133 0 0 1 1.173 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/>';
+        var eyeClosed = '<path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.893 1.584A5.263 5.263 0 0 1 8 5.999c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.118.178-.25.346-.395.507A13.132 13.132 0 0 1 13.168 10.04C12.725 10.432 12.253 10.795 11.76 11.132l.893 1.585c.625-.343 1.217-.735 1.767-1.179zM2.146 1.157a.5.5 0 0 1 .708 0l12.5 12.5a.5.5 0 0 1-.708.708l-12.5-12.5a.5.5 0 0 1 0-.708z"/><path d="M6.38 7.863a2.5 2.5 0 0 0 3.26 3.26l-3.26-3.26zm.92-4.064A6.953 6.953 0 0 0 8 4c-2.12 0-3.879 1.168-5.168 2.457A13.134 13.134 0 0 0 1.172 8c.118-.178.25-.346.395-.507A13.133 13.133 0 0 1 2.832 6.04C4.121 4.768 5.88 3.625 8 3.625c.554 0 1.092.053 1.61.155l-.922-1.582z"/>';
+        document.querySelectorAll('.eye-toggle').forEach(function (btn) {
+            var input = document.getElementById(btn.dataset.target);
+            if (!input) { btn.remove(); return; }
+            btn.addEventListener('click', function () {
+                var svg = btn.querySelector('svg');
+                var showing = input.type === 'text';
+                input.type = showing ? 'password' : 'text';
+                svg.innerHTML = showing ? eyeOpen : eyeClosed;
+                btn.setAttribute('aria-pressed', showing ? 'false' : 'true');
+                btn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+            });
+        });
+
+        /* Autofill hints: the right manager on the first try, for everyone. */
+        page.querySelectorAll('form input, form select').forEach(function (el) {
+            if (el.getAttribute('autocomplete')) return;
+            var name = el.name;
+            if (name === 'username') el.setAttribute('autocomplete', 'username');
+            else if (name === 'email') el.setAttribute('autocomplete', 'email');
+            else if (name === 'password') el.setAttribute('autocomplete', 'current-password');
+            else if (name === 'password1' || name === 'password2' || name === 'new_password1' || name === 'new_password2') el.setAttribute('autocomplete', 'new-password');
+        });
+
+        /* Double submits create duplicate inquiries and bookings: stop the
+           button the moment the form is accepted, without blocking submit. */
+        page.querySelectorAll('form').forEach(function (form) {
+            form.addEventListener('submit', function () {
+                var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+                if (!btn || btn.disabled) return;
+                var label = btn.innerHTML;
+                window.setTimeout(function () {
+                    btn.disabled = true;
+                    btn.dataset.label = label;
+                    btn.innerHTML = 'Please wait&hellip;';
+                }, 0);
+            });
+        });
+
+        /* A failed POST scrolls the visitor straight to the first bad field. */
+        var badField = page.querySelector('.field.has-error');
+        if (badField) {
+            window.setTimeout(function () {
+                badField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                var input = badField.querySelector('input, select');
+                if (input) {
+                    input.setAttribute('aria-invalid', 'true');
+                    try { input.focus({ preventScroll: true }); } catch (e) { /* older browsers */ }
+                }
+            }, 300);
+        }
+    })();
+</script>
+{% block auth_script %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,66 @@
+{% extends "app_base.html" %}
+{% load static %}
+
+{% block title %}My Bookings - Boarding House Information Management System{% endblock %}
+
+{% block app_content %}
+<link rel="stylesheet" href="{% static 'core/css/pages/student_bookings.css' %}">
+
+<div class="booking-page">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Bookings</p>
+            <h1>My Bookings</h1>
+            <p>Rooms that have been reserved for you by landlords.</p>
+        </div>
+        <a href="{% url 'listing_list' %}" class="create-btn"><i class="bi bi-search"></i> Browse listings</a>
+    </div>
+
+    {% if bookings %}
+    <div class="booking-stack">
+        {% for booking in bookings %}
+        <div class="booking-card">
+            <div class="booking-card-top">
+                <div>
+                    <h2>{{ booking.room.boarding_house.name }}</h2>
+                    <p style="color: var(--bhims-text-muted); font-size: 0.9rem; margin: 0.25rem 0 0;">{{ booking.room.boarding_house.barangay_display }}, {{ booking.room.boarding_house.address }}</p>
+                </div>
+                <span class="status-chip {% if booking.status == 'confirmed' %}is-open{% elif booking.status == 'pending' %}is-pending{% elif booking.status == 'declined' %}is-declined{% else %}is-closed{% endif %}">
+                    {{ booking.get_status_display }}
+                </span>
+            </div>
+
+            <div class="booking-meta">
+                <span><i class="bi bi-door-open"></i><strong>Room:</strong> {{ booking.room.name|default:booking.room.room_type }} &bull; ₱{{ booking.room.price }}/month</span>
+            </div>
+            <div class="booking-meta">
+                <span><i class="bi bi-person-badge"></i><strong>Listed by:</strong> <a href="{% url 'user_profile' booking.room.boarding_house.owner.pk %}" style="color:var(--bhims-teal);text-decoration:none;font-weight:600;">{{ booking.room.boarding_house.owner.display_name }}</a></span>
+            </div>
+            {% if booking.move_in_date %}
+            <div class="booking-meta">
+                <span><i class="bi bi-calendar-event"></i><strong>Move-in:</strong> {{ booking.move_in_date|date:"M j, Y" }}</span>
+            </div>
+            {% endif %}
+            {% if booking.notes %}
+            <p style="color:var(--bhims-text-muted);font-size:0.9rem;margin:0.75rem 0 0;">{{ booking.notes|truncatechars:160 }}</p>
+            {% endif %}
+
+            <div class="booking-card-actions">
+                <small style="color:var(--bhims-text-muted);font-size:0.82rem;">
+                    {% if booking.confirmed_at %}Confirmed {{ booking.confirmed_at|date:"M j, Y" }}{% else %}Requested {{ booking.requested_at|date:"M j, Y" }}{% endif %}
+                </small>
+                <a href="{% url 'boarding_detail' booking.room.boarding_house.pk %}" class="manage-btn">View Property <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bhims-empty">
+        <i class="bi bi-patch-check"></i>
+        <h3>No bookings yet</h3>
+        <p>When a landlord accepts your inquiry, your confirmed booking will appear here so you can track your move-in.</p>
+        <a href="{% url 'listing_list' %}" class="btn btn-primary">Browse Boarding Houses</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

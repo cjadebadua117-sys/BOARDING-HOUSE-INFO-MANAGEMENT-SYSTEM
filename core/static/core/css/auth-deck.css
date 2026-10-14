@@ -1,0 +1,633 @@
+/* ============================================================================
+   BHIMS · Student portal — the sweeping sign-in / create-account deck
+   ----------------------------------------------------------------------------
+   Built from the client's reference form (103-Signin & Signup form) and then
+   dressed in the campus's own picture: one curved ground — the DMMMSU
+   photograph under a deep teal wash, the same image the other signed-out
+   pages bleed in — two invitations riding it, and the two forms sliding
+   across underneath. Loaded only by core/auth/login_student.html, after
+   auth.css, so the landlord, admin and recovery pages keep the printed
+   brand-panel layout they already ship with.
+
+   The composition, at desktop:
+
+       sign in  →  colour ground on the left,  sign-in sheet on the right
+       create   →  colour ground on the right, registration sheet on the left
+
+   Switching trades both halves in one motion: the ground sweeps across, the
+   sheet track slides one column the other way, the outgoing sheet fades where
+   it stands and the incoming one fades in. This is exactly how the reference
+   behaves — the curve is never replaced, it travels.
+
+   Geometry note: the ground is a circle 200% as wide as the deck and centred
+   vertically, so only its edge is ever on screen, and that edge is the curve.
+   Its translate is a percentage of its OWN 200% width, which keeps the maths
+   to one number per side: the right edge landing at 52% of the deck is
+   -148% of the deck width, i.e. -74% of the circle's own width.
+
+   Nothing here hides the form the visitor is not using without also taking it
+   out of the tab order: the parked sheet gets `hidden`, and a parked
+   invitation gets aria-hidden + inert + a removed tab stop. See auth-deck.js.
+
+   Two decks load this file, and they differ only in tokens and data
+   attributes: core/auth/login_student.html (teal, sign in ⇄ create account)
+   and core/auth/login_landlord.html (ink-blue + gold, mirrored, sign in ⇄ how
+   to get an account — see the landlord section at the foot of the file).
+   ==========================================================================*/
+
+/* --- The deck ------------------------------------------------------------ */
+/* .auth-panel is on this element deliberately: base.html's script looks one up
+   and wires the password reveal, the autofill hints, the double-submit guard
+   and the jump to the first bad field. Both sheets need all four, so the deck
+   itself is that panel and the shared script reaches everything inside it. */
+.auth-deck.auth-panel {
+    display: block;
+    padding: 0;
+    min-height: calc(100vh - var(--nav-h));
+    min-height: calc(100dvh - var(--nav-h));
+    overflow: hidden;
+    isolation: isolate;
+    background: var(--a-canvas);
+    --deck-sweep: 1150ms;                              /* the curve itself */
+    --deck-ease: cubic-bezier(0.66, 0, 0.34, 1);       /* out then in, slow ends */
+}
+
+/* A ?mode= link that the deck has to honour for itself (the server renders the
+   half named by the URL, so this is only the fallback): the swap lands in
+   place instead of travelling there after a flash of the other form. */
+.auth-deck[data-instant] .auth-deck-blob,
+.auth-deck[data-instant] .auth-deck-invite,
+.auth-deck[data-instant] .auth-deck-forms,
+.auth-deck[data-instant] .auth-deck-sheet { transition: none; }
+
+/* Visually hidden page heading: the visible headings name the halves, this one
+   names the page they belong to. */
+.auth-deck-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* --- The curve ----------------------------------------------------------- */
+/* The ground is the campus photograph — the same picture the other signed-out
+   pages already bleed in as texture — under a deep teal wash. The wash is not
+   decoration: white copy over a bright outdoor photograph fails contrast
+   everywhere the sky is, and the invitation's heading, body and CTA button all
+   sit on this. tools/verify_split_login.py measures the rendered backdrop
+   behind that copy and fails if it stops clearing 4.5:1.
+
+   The box is an ellipse rather than a circle: 140% of the deck's width (the
+   reference's own 1.39 ratio, which is what fixes the curve's gentleness) and
+   200% of its height, so however wide or tall the window is, the visible edge
+   never runs out of ground before it leaves the screen.
+
+   The picture is sized to HALF this element's height, which works out at
+   exactly the deck's own height — so the visible half shows the whole
+   photograph top to bottom (sky, building, sign, shrubs) at roughly 0.7x, and
+   only about two thirds of it across. Sizing it any smaller would leave the
+   window taller than the picture; sizing it by `cover` instead would fill the
+   ellipse and push the camera right up against the facade, which is what the
+   first attempt did. Each half then frames its own side of the ground with
+   background-position, and because that property interpolates, the photograph
+   pans across as the curve travels. */
+.auth-deck-blob {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    z-index: 0;
+    width: 140%;
+    height: 200%;
+    border-radius: 50%;
+    /* Deep teal, not the canvas: mid-sweep neither half has fully arrived, and
+       where the picture has not reached yet this is what shows through the
+       wash. */
+    background-color: #08221e;
+    background-image:
+        linear-gradient(168deg, rgba(5, 34, 29, 0.74) 0%, rgba(7, 47, 40, 0.44) 46%, rgba(3, 20, 17, 0.8) 100%),
+        url('../images/dmmmsu-campus-hd.jpg');
+    background-repeat: no-repeat;
+    background-size: 100% 100%, auto 50%;
+    background-position: 0 0, 100% 50%;
+    /* The right edge lands at 52% of the deck, the left edge at 48% on the way
+       back: both are a percentage of the ellipse's own 140% width. */
+    transform: translate(-62.86%, -50%);
+    transition: transform var(--deck-sweep) var(--deck-ease),
+                background-position var(--deck-sweep) var(--deck-ease);
+    will-change: transform;
+}
+
+[data-mode="signup"] .auth-deck-blob {
+    transform: translate(34.29%, -50%);
+    background-position: 0 0, 0% 50%;
+}
+
+/* --- The two invitations ------------------------------------------------ */
+/* Full-bleed grid of two cells, one per half. It carries no pointer events of
+   its own — it sits above the sheets, and an overlay that swallowed clicks
+   would make the forms unusable — so only the CTA links take them back. */
+.auth-deck-invites {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    pointer-events: none;
+}
+
+.auth-deck-invite {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(1rem, 2.6vh, 1.7rem);
+    padding: clamp(1.6rem, 3.2vw, 3.1rem);
+    /* Fixed white, not an accent token: the ground is a photograph in both
+       themes, so the ink over it cannot follow the theme either. */
+    color: #fff;
+    text-align: center;
+    /* Each cell is exactly one half, so a translate of its own width is one
+       column: ±108% carries it just past the deck's edge and back. */
+    transition: transform 720ms var(--deck-ease) 140ms;
+}
+
+.auth-deck-invite--signup { grid-column: 1; }   /* invites you to register */
+.auth-deck-invite--signin { grid-column: 2; }   /* invites you back in */
+
+[data-mode="signin"] .auth-deck-invite--signin { transform: translateX(108%); }
+[data-mode="signup"] .auth-deck-invite--signup { transform: translateX(-108%); }
+
+.auth-deck-invite > * {
+    width: 100%;
+    max-width: 30rem;
+}
+
+.auth-deck-kicker {
+    margin: 0 0 0.9rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    opacity: 0.82;
+}
+
+.auth-deck-invite h2 {
+    margin: 0 0 0.7rem;
+    font-family: var(--a-font-display);
+    font-size: clamp(1.9rem, 3.2vw, 2.7rem);
+    font-weight: 600;
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+}
+
+.auth-deck-invite p {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.6;
+    opacity: 0.86;
+}
+
+/* The one outlined pill — the reference's signature control. It inks with
+   currentColor (the panel's white) and, on hover, flips to a white pill with
+   deep teal text: the pair is legible over any part of the photograph. */
+.auth-deck-cta {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-width: 11rem;
+    min-height: 46px;
+    margin-top: 1.5rem;
+    padding: 0.78rem 1.6rem;
+    font: inherit;
+    font-size: 0.86rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: inherit;
+    background: transparent;
+    border: 2px solid currentColor;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.12s ease;
+}
+
+.auth-deck-cta:hover {
+    background: #fff;
+    color: #0b3b33;
+}
+
+.auth-deck-cta:active { transform: translateY(1px); }
+
+/* --- The sheets ---------------------------------------------------------- */
+/* A half-width track parked over the right half (sign-in) that slides one
+   column left when registration takes over. It stays IN FLOW on purpose: the
+   registration sheet is the tallest thing on the page, and letting it size the
+   deck is what keeps the whole page scrolling as one document instead of
+   trapping the long form in a scroll box of its own. The min-height is the
+   same measure the deck uses, so a short sheet still centres against the
+   viewport rather than sitting at the top of it. */
+.auth-deck-forms {
+    position: relative;
+    z-index: 5;
+    display: grid;
+    width: 50%;
+    margin-left: 50%;
+    min-height: calc(100vh - var(--nav-h));
+    min-height: calc(100dvh - var(--nav-h));
+    transform: translateX(0);
+    transition: transform 900ms var(--deck-ease) 220ms;
+}
+
+[data-mode="signup"] .auth-deck-forms { transform: translateX(-100%); }
+
+.auth-deck-sheet {
+    grid-area: 1 / 1;
+    display: flex;
+    z-index: 1;
+    padding: clamp(1.1rem, 3vh, 2rem) clamp(1.2rem, 3vw, 2.6rem);
+    opacity: 0;
+    transition: opacity 260ms ease 420ms;
+}
+
+/* The server's initial_mode decides which sheet is live on the first paint;
+   the JS keeps the same two rules in step after every swap. */
+.auth-deck[data-mode="signin"] .auth-deck-sheet--signin,
+.auth-deck[data-mode="signup"] .auth-deck-sheet--signup {
+    z-index: 2;
+    opacity: 1;
+}
+
+/* `margin: auto` rather than centring the flex box: it centres the column
+   while there is room, and stops clipping the top the moment the registration
+   sheet grows past the deck — the deck grows with it instead. */
+.auth-deck-sheet-inner {
+    width: 100%;
+    max-width: 27rem;
+    margin: auto;
+}
+
+.auth-deck-head { margin-bottom: 1.25rem; }
+
+.auth-deck-sheet .auth-eyebrow { margin-bottom: 0.55rem; }
+
+.auth-deck-sheet .auth-sub { font-size: 0.95rem; }
+
+.auth-deck-sheet :is(h1, h2) {
+    margin: 0 0 0.45rem;
+    font-family: var(--a-font-display);
+    font-size: clamp(1.8rem, 2.9vw, 2.35rem);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+}
+
+/* --- Fields: pills ------------------------------------------------------- */
+/* The reference draws every input as a soft pill with a leading glyph, so the
+   deck restyles auth.css's rectangular fields rather than re-declaring them —
+   ids, labels, error states, the reveal button and the strength meter all keep
+   working exactly as they do on the other signed-out pages. */
+/* Row rhythm and pill height are tighter than auth.css's fields: the
+   registration sheet carries seven of them, and every 4px saved here is 28px
+   the visitor does not have to scroll past. */
+.auth-deck-sheet .field { margin-bottom: 0.85rem; }
+
+.auth-deck-sheet .field-control input,
+.auth-deck-sheet .field-control select {
+    min-height: 53px;
+    border-radius: 999px;
+}
+
+.auth-deck-sheet .field-control:has(.field-icon) input,
+.auth-deck-sheet .field-control:has(.field-icon) select {
+    padding-left: 3rem;
+}
+
+.auth-deck-sheet .field-control select { padding-right: 2.7rem; }
+
+/* Emitted by core/auth/_field.html when a page passes an icon name. */
+.field-icon {
+    position: absolute;
+    left: 1.1rem;
+    top: 50%;
+    z-index: 1;
+    transform: translateY(-50%);
+    font-size: 1.05rem;
+    line-height: 1;
+    color: var(--a-ink-3);
+    pointer-events: none;
+    transition: color 0.15s ease;
+}
+
+.field-control:focus-within .field-icon { color: var(--a-accent); }
+
+.auth-deck-sheet .auth-submit {
+    border-radius: 999px;
+    min-height: 54px;
+}
+
+.auth-deck-sheet .pwd-meter { margin-top: 0.35rem; }
+
+/* --- Portal foot --------------------------------------------------------- */
+.auth-deck-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 1rem;
+    margin-top: 1.4rem;
+    padding-top: 1.15rem;
+    border-top: 1px solid var(--a-line);
+    font-size: 0.86rem;
+    color: var(--a-ink-2);
+}
+
+.auth-deck-foot nav { display: flex; flex-wrap: wrap; gap: 0.9rem; }
+
+.auth-deck-foot a {
+    color: var(--a-accent);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-deck-foot a:hover { text-decoration: underline; }
+
+/* --- One quiet entrance ------------------------------------------------- */
+@keyframes deckRise {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.auth-deck-head { animation: deckRise 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* ============================================================================
+   Narrow screens: one column
+   ==========================================================================*/
+/* Under 900px there is no room for two halves, so the curve becomes the band
+   the copy sits on, the sheets fall into normal flow beneath it, and the JS
+   swaps them instantly — a sweep has nowhere to travel on a phone. */
+@media (max-width: 900px) {
+    .auth-deck.auth-panel {
+        display: block;
+        min-height: 0;
+        overflow: visible;
+    }
+
+    /* The band draws its own ground, so the travelling circle is redundant. */
+    .auth-deck-blob { display: none; }
+
+    /* The band carries the same photograph and the same wash as the desktop
+       curve, cropped to the band instead of to the ellipse. */
+    .auth-deck-invites {
+        position: relative;
+        inset: auto;
+        z-index: 1;
+        display: block;
+        pointer-events: auto;
+        /* Heavier than the desktop wash, and deliberately so: the band is short
+           and wide, so its crop lands on the brightest part of the frame (the
+           sunlit facade) — the desktop ellipse never does. At the desktop's
+           own strength the heading measured 3.9:1 here. */
+        background:
+            linear-gradient(168deg, rgba(5, 34, 29, 0.84) 0%, rgba(7, 47, 40, 0.68) 46%, rgba(3, 20, 17, 0.88) 100%),
+            url('../images/dmmmsu-campus-hd.jpg') center / cover no-repeat;
+        /* A shallow arc, the same gesture as the desktop curve. */
+        border-radius: 0 0 50% 50% / 0 0 12% 12%;
+        padding: clamp(1.5rem, 6vw, 2.2rem) clamp(1.2rem, 5vw, 2rem) clamp(2.1rem, 9vw, 3.2rem);
+    }
+
+    .auth-deck[data-mode] .auth-deck-invite {
+        padding: 0;
+        transform: none;
+    }
+
+    .auth-deck[data-mode] .auth-deck-invite > * { max-width: 32rem; }
+
+    /* Only the live invitation is on screen: the parked one is off-canvas on
+       desktop, and off-canvas below a band is just a hole. */
+    .auth-deck[data-mode="signin"] .auth-deck-invite--signin,
+    .auth-deck[data-mode="signup"] .auth-deck-invite--signup { display: none; }
+
+    .auth-deck[data-mode] .auth-deck-forms {
+        position: static;
+        width: auto;
+        min-height: 0;
+        margin-left: 0;
+        transform: none;
+        display: block;
+        padding: 0 clamp(1.15rem, 5vw, 1.7rem) clamp(1.8rem, 8vw, 2.8rem);
+    }
+
+    .auth-deck[data-mode] .auth-deck-sheet {
+        display: block;
+        padding: clamp(1.5rem, 7vw, 2.2rem) 0 0;
+        opacity: 1;
+    }
+
+    .auth-deck-sheet-inner { margin: 0 auto; }
+
+    /* The instant swap has to actually be instant: the desktop delays would
+       otherwise leave the newly-revealed form invisible for half a second. */
+    .auth-deck[data-mode] .auth-deck-blob,
+    .auth-deck[data-mode] .auth-deck-invite,
+    .auth-deck[data-mode] .auth-deck-forms,
+    .auth-deck[data-mode] .auth-deck-sheet { transition: none; }
+}
+
+@media (max-width: 640px) {
+    .auth-deck-invite h2 { font-size: 1.7rem; }
+
+    .auth-deck-invite p { font-size: 0.95rem; }
+
+    .auth-deck-cta { margin-top: 1.15rem; }
+}
+
+/* --- Reduced motion ------------------------------------------------------ */
+/* The swap still happens, it just stops travelling: JS reads the same query
+   and toggles the sheets in one frame. */
+@media (prefers-reduced-motion: reduce) {
+    .auth-deck-head { animation: none !important; }
+
+    .auth-deck-blob,
+    .auth-deck-invite,
+    .auth-deck-forms,
+    .auth-deck-sheet { transition: none !important; }
+}
+
+/* ============================================================================
+   The landlord deck — the same machine, cut the other way
+   ----------------------------------------------------------------------------
+   core/auth/login_landlord.html puts .auth-deck--landlord on the deck. Three
+   deliberate differences from the student deck:
+
+     · the composition is MIRRORED — the sign-in sheet holds the LEFT half and
+       the ground sweeps in from the right, instead of the reverse;
+     · the ground is the same campus photograph under a deep ink-blue wash
+       rather than teal, framed on the building, with gold as its thread;
+     · the second half is not a form: landlords cannot self-register, so the
+       half the curve travels to is the "how to get an account" panel.
+
+   Every rule is scoped to the modifier class, so the student deck is untouched
+   by any of it, and the mirror geometry is confined to desktop — on a phone the
+   deck is one column either way.
+   ==========================================================================*/
+.auth-deck--landlord {
+    --deck-ink: #071a2c;    /* the ink-blue under the photograph */
+    --deck-gold: #f0c050;   /* BHIMS's own pending-gold, promoted */
+}
+
+/* --- the landscape, and the sheets that ride it --------------------------- */
+@media (min-width: 901px) {
+    .auth-deck.auth-deck--landlord .auth-deck-blob {
+        background-color: var(--deck-ink);
+        background-image:
+            linear-gradient(192deg, rgba(4, 18, 32, 0.9) 0%, rgba(6, 26, 45, 0.74) 46%, rgba(3, 12, 22, 0.92) 100%),
+            url('../images/dmmmsu-campus-hd.jpg');
+        background-position: 0 0, 0% 52%;
+        /* Mirrored: at rest the ellipse's LEFT edge lands at 52% of the deck,
+           i.e. its own 140% width shifted +34.29%. */
+        transform: translate(34.29%, -50%);
+    }
+
+    /* Swept: the same 48%/52% pair, the other way round. */
+    .auth-deck.auth-deck--landlord[data-mode="account"] .auth-deck-blob {
+        background-position: 0 0, 100% 52%;
+        transform: translate(-62.86%, -50%);
+    }
+
+    .auth-deck.auth-deck--landlord .auth-deck-forms {
+        margin-left: 0;
+        transform: translateX(0);
+    }
+
+    .auth-deck.auth-deck--landlord[data-mode="account"] .auth-deck-forms { transform: translateX(100%); }
+
+    /* The invitations swap halves with it: the account invitation rides the
+       ground (right), the sign-in invitation rides off over the sheet (left). */
+    .auth-deck.auth-deck--landlord .auth-deck-invite--account { grid-column: 2; }
+    .auth-deck.auth-deck--landlord .auth-deck-invite--signin  { grid-column: 1; }
+
+    /* Each is parked off its OWN side, so it leaves towards the edge it sits
+       nearest: over the sheet to the left, over the ground to the right. */
+    .auth-deck.auth-deck--landlord[data-mode="signin"] .auth-deck-invite--signin { transform: translateX(-108%); }
+    .auth-deck.auth-deck--landlord[data-mode="account"] .auth-deck-invite--account { transform: translateX(108%); }
+}
+
+/* Whichever half the deck says it is in is the one the visitor sees — on every
+   viewport, which is why this one sits outside the media queries. */
+.auth-deck.auth-deck--landlord[data-mode="signin"] .auth-deck-sheet--signin,
+.auth-deck.auth-deck--landlord[data-mode="account"] .auth-deck-sheet--account {
+    z-index: 2;
+    opacity: 1;
+}
+
+/* --- the phone: the band draws the landlord's own ground ------------------ */
+@media (max-width: 900px) {
+    .auth-deck.auth-deck--landlord .auth-deck-invites {
+        background:
+            linear-gradient(168deg, rgba(4, 18, 32, 0.92) 0%, rgba(6, 26, 45, 0.78) 46%, rgba(3, 12, 22, 0.94) 100%),
+            url('../images/dmmmsu-campus-hd.jpg') center / cover no-repeat;
+    }
+
+    /* One live invitation per half, same pairing as the desktop transforms. */
+    .auth-deck.auth-deck--landlord[data-mode="account"] .auth-deck-invite--account { display: none; }
+}
+
+/* --- gold ------------------------------------------------------------------ */
+/* Gold only ever lands on a dark ground — the photograph, or the ink chips in
+   the account panel. Anywhere it would sit on a sheet it would be unreadable,
+   so the sheet keeps the theme's own ink. */
+.auth-deck--landlord .auth-deck-invite .auth-deck-kicker {
+    color: var(--deck-gold);
+    opacity: 1;
+}
+
+.auth-deck--landlord .auth-deck-invite .auth-deck-cta:hover {
+    background: var(--deck-gold);
+    border-color: var(--deck-gold);
+    color: #0b1626;
+}
+
+/* --- the account panel ----------------------------------------------------- */
+/* The pill, on a sheet instead of on the photograph: it inks with the theme's
+   accent, because the outline pill's white-on-white is what happens otherwise. */
+.auth-deck-cta--ink {
+    min-width: 0;
+    margin-top: 0;
+    color: var(--a-accent);
+}
+
+.auth-deck-cta--ink:hover {
+    background: var(--a-accent);
+    border-color: var(--a-accent);
+    color: var(--a-on-accent);
+}
+
+.auth-deck-rule {
+    display: block;
+    width: 3.25rem;
+    height: 3px;
+    margin: 0.1rem 0 0;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--deck-gold), rgba(240, 192, 80, 0));
+}
+
+.auth-deck-steps {
+    counter-reset: deck-step;
+    display: grid;
+    gap: 0.85rem;
+    margin: 1.35rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.auth-deck-steps li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.85rem;
+    align-items: start;
+    font-size: 0.93rem;
+    line-height: 1.55;
+    color: var(--a-ink-2);
+}
+
+.auth-deck-steps li::before {
+    counter-increment: deck-step;
+    content: counter(deck-step);
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: var(--deck-ink);
+    color: var(--deck-gold);
+    font-size: 0.8rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.auth-deck-steps strong { color: var(--a-ink); font-weight: 650; }
+
+.auth-deck-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.9rem 1.3rem;
+    margin-top: 1.6rem;
+}
+
+.auth-deck-quiet {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--a-accent);
+    text-decoration: none;
+}
+
+.auth-deck-quiet:hover { text-decoration: underline; }

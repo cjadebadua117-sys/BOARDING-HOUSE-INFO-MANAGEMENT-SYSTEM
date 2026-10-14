@@ -1,0 +1,50 @@
+{% extends "app_base.html" %}
+{% load static %}
+
+{% block title %}Report {{ person.display_name }} - BHIMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/pages/report_user.css' %}">
+{% endblock %}
+
+{% block app_content %}
+<div class="rp-wrap">
+    <div class="rp-card">
+        <h1 class="rp-title"><i class="bi bi-flag"></i> Report a User</h1>
+        <p class="rp-sub">Let the administrator know about suspicious or inappropriate behavior. Reports are reviewed privately.</p>
+
+        <div class="rp-person">
+            {% if person.profile_picture %}
+                <img class="rp-avatar" src="{{ person.profile_picture.url }}" alt="">
+            {% else %}
+                <span class="rp-avatar">{{ person.display_name|first|upper }}</span>
+            {% endif %}
+            <div>
+                <strong>{{ person.display_name }}</strong><br>
+                <small class="text-muted">{% if person.role == 'landlord' %}Landlord{% if person.landlord_id %} &middot; ID: {{ person.landlord_id }}{% endif %}{% else %}Student{% if person.student_id %} &middot; ID: {{ person.student_id }}{% endif %}{% endif %}</small>
+            </div>
+        </div>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger py-2">{{ form.non_field_errors }}</div>
+            {% endif %}
+            <div class="mb-3">
+                <label class="rp-label" for="{{ form.reason.id_for_label }}">{{ form.reason.label }}</label>
+                {{ form.reason }}
+                {% for error in form.reason.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+            </div>
+            <div class="mb-3">
+                <label class="rp-label" for="{{ form.details.id_for_label }}">{{ form.details.label }}</label>
+                {{ form.details }}
+                {% for error in form.details.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+            </div>
+            <div class="rp-actions">
+                <a href="{% url 'user_profile' person.pk %}" class="btn-rp-secondary">Cancel</a>
+                <button type="submit" class="btn-rp-primary"><i class="bi bi-send"></i> Submit Report</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

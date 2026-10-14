@@ -1,0 +1,133 @@
+%% BHIMS - Entity Relationship Diagram (built system)
+%% Every entity below exists as a Django model in core/models.py; the attributes
+%% are the real field names. Differences from the midterm ERD are listed in
+%% docs/final-project/CHANGES-SINCE-MIDTERM.md.
+%% Render: venv\Scripts\python.exe tools\render_diagrams.py docs\final-project\diagrams
+erDiagram
+    USER ||--o{ BOARDING_HOUSE : "owns"
+    BOARDING_HOUSE ||--|{ ROOM : "contains"
+    ROOM ||--o{ ROOM_PHOTO : "has"
+    ROOM }o--o{ AMENITY : "offers"
+    BARANGAY ||--o{ BOARDING_HOUSE : "referenced by name"
+    USER ||--o{ INQUIRY : "sends"
+    ROOM ||--o{ INQUIRY : "is asked about"
+    INQUIRY ||--o{ INQUIRY_MESSAGE : "contains"
+    USER ||--o{ INQUIRY_MESSAGE : "posts"
+    USER ||--o{ BOOKING : "requests"
+    ROOM ||--o{ BOOKING : "is booked in"
+    BOOKING ||--|| LANDLORD_RATING : "unlocks one"
+    USER ||--o{ LANDLORD_RATING : "gives"
+    USER ||--o{ LANDLORD_RATING : "receives"
+    USER ||--o{ USER_REPORT : "files"
+    USER ||--o{ USER_REPORT : "is reported in"
+    USER ||--o{ ADMIN_ACTION_LOG : "performs"
+
+    USER {
+        int id PK
+        string username
+        string email UK
+        string role "student / landlord / admin"
+        string full_name
+        string student_id UK "students"
+        string landlord_id UK "landlords"
+        string program "college"
+        string program_custom "grade level or course"
+        string phone_number
+        image profile_picture
+        boolean is_active
+    }
+    BOARDING_HOUSE {
+        int id PK
+        int owner_id FK
+        string name
+        string address
+        string barangay "matches BARANGAY.name"
+        decimal price "monthly"
+        string gender_allowed "male / female / both"
+        text description
+        image image
+        boolean is_active
+        string status "pending / approved / rejected"
+    }
+    ROOM {
+        int id PK
+        int boarding_house_id FK
+        string room_type
+        decimal monthly_rate
+        int capacity
+        boolean is_available
+        boolean is_active
+    }
+    AMENITY {
+        int id PK
+        string name UK
+    }
+    ROOM_PHOTO {
+        int id PK
+        int room_id FK
+        image image
+    }
+    BARANGAY {
+        int id PK
+        string name UK
+        string distance_from_campus
+    }
+    INQUIRY {
+        int id PK
+        int student_id FK
+        int room_id FK
+        string status "pending / open / closed / rejected"
+        string subject
+        text message_text
+        datetime created_at
+    }
+    INQUIRY_MESSAGE {
+        int id PK
+        int inquiry_id FK
+        int sender_id FK
+        text message_text
+        datetime sent_at
+    }
+    BOOKING {
+        int id PK
+        int student_id FK
+        int room_id FK
+        string status "pending / confirmed / declined / cancelled"
+        datetime requested_at
+        datetime confirmed_at
+        date move_in_date
+        text notes
+    }
+    LANDLORD_RATING {
+        int id PK
+        int student_id FK
+        int landlord_id FK
+        int booking_id FK "unique - one rating per booking"
+        int rating "1 to 5"
+        text comment
+        datetime created_at
+    }
+    USER_REPORT {
+        int id PK
+        int reporter_id FK
+        int reported_user_id FK
+        string reason "harassment / scam / fake_listing / inappropriate / other"
+        text details
+        string status "pending / resolved / dismissed"
+        datetime created_at
+        datetime resolved_at
+    }
+    ADMIN_ACTION_LOG {
+        int id PK
+        int actor_id FK
+        string action
+        string target_model
+        string target_id
+        string target_repr
+        datetime created_at
+    }
+    SITE_SETTING {
+        int id PK
+        string key UK
+        text value
+    }

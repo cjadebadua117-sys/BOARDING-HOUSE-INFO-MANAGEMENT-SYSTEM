@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Something Went Wrong - BHIMS{% endblock %}
+{% block breadcrumb %}{% endblock %}
+{% block content %}
+<div class="bhims-empty" style="max-width: 560px; margin: 5rem auto;">
+    <i class="bi bi-wrench-adjustable" aria-hidden="true"></i>
+    <h1 class="h3">500 &middot; Something went wrong</h1>
+    <p style="font-size: 1.05rem;">We're sorry — an unexpected error occurred. Please try again in a moment.</p>
+    <a href="{% url 'home' %}" class="btn btn-primary" style="display: inline-flex;">Back to Home</a>
+</div>
+{% endblock %}

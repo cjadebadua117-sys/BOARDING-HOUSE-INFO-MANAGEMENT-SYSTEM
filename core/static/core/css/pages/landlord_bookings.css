@@ -1,0 +1,47 @@
+/* Extracted verbatim from core/templates/core/core\landlord_bookings.html
+   This <link> sits exactly where the <style> tag was, so the
+   cascade order — and therefore which layer wins — is unchanged. */
+.booking-table-wrap {
+        background: var(--bhims-glass-bg-primary);
+        -webkit-backdrop-filter: var(--bhims-glass-primary);
+        backdrop-filter: var(--bhims-glass-primary);
+        border: var(--bhims-glass-border);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: var(--bhims-glass-shadow), var(--bhims-glass-inner-glow);
+    }
+    .booking-table-wrap table {
+        margin: 0;
+    }
+    .booking-table-wrap thead {
+        background: var(--bhims-icon-tint);
+    }
+    .booking-table-wrap thead th {
+        color: var(--bhims-text);
+        font-weight: 700;
+        font-size: var(--fs-sm);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        padding: 1rem 1.25rem;
+        border: none;
+    }
+    .booking-table-wrap tbody td {
+        padding: 1rem 1.25rem;
+        vertical-align: middle;
+        border-color: var(--bhims-border);
+        color: var(--bhims-text-muted);
+    }
+    .tenant-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--ce-accent-wash, rgba(20, 86, 60, 0.10));
+        color: var(--ce-accent, #14563c);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: var(--fs-md);
+        flex-shrink: 0;
+        border: 1px solid var(--ce-line, rgba(35, 43, 40, 0.15));
+    }

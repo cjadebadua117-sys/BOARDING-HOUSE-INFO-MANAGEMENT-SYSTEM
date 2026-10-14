@@ -1,0 +1,77 @@
+{% extends "app_base.html" %}
+{% load static %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/pages/room_form.css' %}">
+{% endblock %}
+
+{% block app_content %}
+<div class="room-form-page">
+    <div class="form-container bhims-press">
+        <div class="form-header">
+            <svg class="form-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75" />
+            </svg>
+            <h1>{% if room %}Edit Room{% else %}Add New Room{% endif %}</h1>
+            <p>{{ house.name }}</p>
+        </div>
+        <form method="post" novalidate data-validate enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for field in form %}
+                {% if field.name == 'is_available' %}
+                <div class="form-group">
+                    <div class="toggle-container">
+                        <div class="toggle-content">
+                            <h3 class="h4">{{ field.label }}</h3>
+                            <p>Toggle this room's availability for student bookings</p>
+                        </div>
+                        <label class="toggle-switch">
+                            {{ field }}
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    {% if field.errors %}<div class="bhims-field-error">{{ field.errors|striptags }}</div>{% endif %}
+                </div>
+                {% elif field.name == 'photo' %}
+                <div class="form-group">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {% if room and room.photos.first %}
+                    <div style="margin-bottom: 0.75rem;">
+                        <img src="{{ room.photos.first.image.url }}" alt="{{ room.room_type }}" style="width: 100%; max-width: 320px; border-radius: 10px; border: 1px solid var(--bhims-ink-line); object-fit: cover; display: block;">
+                    </div>
+                    {% endif %}
+                    {{ field }}
+                    <div class="form-text" style="color: var(--bhims-text-muted); font-size: var(--fs-sm); margin-top: 0.5rem;">{{ field.help_text }}</div>
+                    {% if field.errors %}<div class="bhims-field-error">{{ field.errors|striptags }}</div>{% endif %}
+                </div>
+                {% elif field.name == 'amenities' %}
+                <div class="form-group">
+                    <div class="amenities-section">
+                        <label class="form-label">{{ field.label }}</label>
+                        <div class="amenity-checkbox-list">
+                            {% for checkbox in field %}
+                            <label class="amenity-checkbox-label">
+                                {{ checkbox.tag }} {{ checkbox.choice_label }}
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% if field.errors %}<div class="bhims-field-error">{{ field.errors|striptags }}</div>{% endif %}
+                </div>
+                {% else %}
+                <div class="form-group">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}<div class="bhims-field-error">{{ field.errors|striptags }}</div>{% endif %}
+                </div>
+                {% endif %}
+            {% endfor %}
+            <div class="form-actions">
+                <a href="{% url 'landlord_boarding_house_detail' house.pk %}" class="btn-cancel bhims-press">Cancel</a>
+                <button type="submit" class="btn-submit bhims-press">Save Room</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

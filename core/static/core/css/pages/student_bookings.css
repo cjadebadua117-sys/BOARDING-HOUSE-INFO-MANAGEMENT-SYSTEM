@@ -1,0 +1,44 @@
+/* Extracted verbatim from core/templates/core/core\student_bookings.html
+   This <link> sits exactly where the <style> tag was, so the
+   cascade order — and therefore which layer wins — is unchanged. */
+.booking-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .booking-card {
+        background: var(--bhims-glass-bg-primary);
+        -webkit-backdrop-filter: var(--bhims-glass-primary);
+        backdrop-filter: var(--bhims-glass-primary);
+        border: var(--bhims-glass-border);
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: var(--bhims-glass-shadow), var(--bhims-glass-inner-glow);
+        transition: transform 0.25s var(--bhims-ease-smooth), box-shadow 0.25s var(--bhims-ease-smooth);
+    }
+    .booking-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--bhims-glass-shadow-hover);
+    }
+    .booking-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 0.75rem;
+    }
+    .booking-card-top h2 {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 1.15rem;
+        margin: 0;
+        color: var(--bhims-text);
+    }
+    .booking-card-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--bhims-border);
+    }

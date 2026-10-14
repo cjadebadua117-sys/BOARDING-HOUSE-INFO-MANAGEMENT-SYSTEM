@@ -1,0 +1,70 @@
+{% extends "auth/base.html" %}
+
+{% block auth_title %}Administrator sign in{% endblock %}
+
+{% block hero_title %}The house behind the&nbsp;houses.{% endblock %}
+{% block hero_copy %}Oversee listings, students, landlords, barangay records and platform reports across Bacnotan &mdash; every action written to the audit trail.{% endblock %}
+{% block hero_points %}
+<li><i class="bi bi-shield-lock-fill" aria-hidden="true"></i> Restricted to DMMMSU administrators</li>
+<li><i class="bi bi-clipboard2-check-fill" aria-hidden="true"></i> Approve or reject every new listing</li>
+<li><i class="bi bi-journal-text" aria-hidden="true"></i> Sign-in attempts logged and audited</li>
+{% endblock %}
+
+
+{% block auth_main %}
+<div class="auth-card-head">
+    <p class="auth-eyebrow"><i class="bi bi-shield-fill-check" aria-hidden="true"></i> Restricted system</p>
+    <h2>Administrator access</h2>
+    <p class="auth-sub">Authorized DMMMSU personnel only. Every attempt is recorded.</p>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="auth-alert{% if message.tags != 'error' %} auth-alert-info{% endif %}" role="alert">
+            <i class="bi {% if message.tags == 'error' %}bi-exclamation-octagon-fill{% else %}bi-info-circle-fill{% endif %}" aria-hidden="true"></i>
+            <span>{{ message }}</span>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<form method="post" novalidate>
+    {% csrf_token %}
+    {% for h in form.hidden_fields %}{{ h }}{% endfor %}
+    <input type="hidden" name="next" value="{{ next }}">
+
+    {% comment %}The view flashes a message for every failed sign-in; only fall
+    back to the form's own error when there is none.{% endcomment %}
+    {% if form.non_field_errors and not messages %}
+        <div class="auth-alert" role="alert">
+            <i class="bi bi-exclamation-octagon-fill" aria-hidden="true"></i>
+            <span>{% for e in form.non_field_errors %}{{ e|striptags }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</span>
+        </div>
+    {% endif %}
+
+    {% for field in form.visible_fields %}
+        {% include 'core/auth/_field.html' with field=field only %}
+    {% endfor %}
+
+    {% if totp_required %}
+        <div class="field">
+            <label class="field-label" for="totp_code">Verification code</label>
+            <div class="field-control">
+                <input type="text" name="totp_code" id="totp_code" inputmode="numeric"
+                       autocomplete="one-time-code" maxlength="6" placeholder="123456" required>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="auth-row">
+        <label class="auth-check"><input type="checkbox" name="remember_me" id="remember_me"> Keep me signed in</label>
+        <a href="{% url 'password_reset' %}">Forgot password?</a>
+    </div>
+
+    <button type="submit" class="auth-submit">Access dashboard</button>
+</form>
+
+<div class="auth-notice">
+    <i class="bi bi-shield-lock-fill" aria-hidden="true"></i>
+    <span>All sign-in attempts are <strong>logged and audited</strong>. Lost your credentials? Contact the system administrator &mdash; they cannot be recovered from this page.</span>
+</div>
+{% endblock %}

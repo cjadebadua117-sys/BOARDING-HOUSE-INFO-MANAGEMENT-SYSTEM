@@ -1,0 +1,1480 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home - BHIMS NLUC Bacnotan{% endblock %}
+
+{% block breadcrumb %}{% endblock %}
+
+{# The landing page is the only page that keeps the big site footer. #}
+{% block footer %}{% include "includes/footer.html" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ---- Landing hero: centered copy over the DMMMSU campus backdrop ---- */
+    .landing-hero {
+        width: 100%;
+        min-height: max(560px, calc(96vh - var(--header-height, 72px)));
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        padding: var(--space-10) var(--space-6) calc(var(--space-10) + 48px);
+        border-radius: 0;
+        overflow: hidden;
+        isolation: isolate;
+        background: #eef4f9;
+    }
+    /* The DMMMSU photo sits BEHIND everything, fully clear and visible */
+    .landing-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -2;
+        background-image: url('{% static 'core/images/landing-photo.jpg' %}');
+        background-size: cover;
+        background-position: center 62%;
+    }
+    /* Scrim: strongest just behind the centered copy, nearly clear at the
+       edges so the campus photo shows through crisply */
+    .landing-hero::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background:
+            radial-gradient(72% 58% at 50% 46%, rgba(244, 249, 253, 0.80), rgba(244, 249, 253, 0.48) 62%, rgba(244, 249, 253, 0.16) 100%),
+            linear-gradient(180deg, rgba(244, 249, 253, 0.55), rgba(244, 249, 253, 0.22) 50%, rgba(244, 249, 253, 0.42));
+    }
+    [data-theme="dark"] .landing-hero { background: #0d1b28; }
+    [data-theme="dark"] .landing-hero::after {
+        background:
+            radial-gradient(72% 58% at 50% 46%, rgba(10, 24, 39, 0.82), rgba(10, 24, 39, 0.52) 62%, rgba(10, 24, 39, 0.22) 100%),
+            linear-gradient(180deg, rgba(10, 24, 39, 0.62), rgba(10, 24, 39, 0.34) 50%, rgba(10, 24, 39, 0.50));
+    }
+    .landing-hero-copy {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        max-width: 820px;
+        margin: 0 auto;
+    }
+    .landing-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.55));
+        -webkit-backdrop-filter: blur(14px) saturate(1.5);
+        backdrop-filter: blur(14px) saturate(1.5);
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        border-radius: 999px;
+        padding: 0.45rem 1rem;
+        color: #4d5f77;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        font-size: 11px;
+        box-shadow: 0 8px 20px -12px rgba(21, 46, 74, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        margin: 0 0 var(--space-5);
+    }
+    [data-theme="dark"] .landing-kicker {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+        border-color: rgba(255, 255, 255, 0.16);
+        color: var(--ce-accent, #79c79b);
+        box-shadow: none;
+    }
+    .landing-kicker::before {
+        content: '';
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--ce-accent, #14563c);
+        box-shadow: 0 0 10px rgba(20, 86, 60, 0.55);
+    }
+    .landing-brand {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.9rem;
+        margin: 0 0 var(--space-4);
+    }
+    .landing-brand img.landing-brand-mark {
+        height: clamp(56px, 9vw, 92px);
+        width: auto;
+        display: block;
+        filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.35));
+    }
+    .landing-brand img.landing-brand-word {
+        height: clamp(34px, 5.5vw, 56px);
+        width: auto;
+        display: block;
+        filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.35));
+    }
+    .landing-title {
+        font-family: var(--font-display);
+        font-size: clamp(2.4rem, 5vw, 4rem);
+        font-weight: 800;
+        line-height: 1.08;
+        letter-spacing: -0.02em;
+        color: var(--ce-ink, #1f2b28);
+        max-width: 760px;
+        margin-bottom: var(--space-4);
+    }
+    /* Dark theme needs no title override: the hero copy is fixed light over
+       the photograph in both themes (photo is theme-invariant). */
+    .landing-sub {
+        color: var(--bhims-text-muted);
+        font-size: 1.02rem;
+        max-width: 600px;
+        line-height: 1.7;
+        margin: 0 auto var(--space-6);
+    }
+    .landing-actions {
+        display: flex;
+        gap: var(--space-4);
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .landing-btn {
+        border-radius: 14px;
+        padding: 12px 28px;
+        font-weight: 600;
+        font-size: 14px;
+        text-decoration: none;
+        transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1), box-shadow 0.28s ease, filter 0.2s ease, background-color 0.2s ease;
+    }
+    .landing-btn-primary {
+        background: linear-gradient(180deg, #1d6b4a, var(--ce-accent, #14563c));
+        color: var(--ce-on-accent, #fffdf7);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        box-shadow: 0 10px 24px -10px rgba(14, 63, 44, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    }
+    .landing-btn-primary:hover {
+        background: linear-gradient(180deg, #24805a, #1d6b4a);
+        color: var(--ce-on-accent, #fffdf7);
+        transform: translateY(-1px);
+        box-shadow: 0 14px 30px -10px rgba(14, 63, 44, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    }
+    .landing-btn-primary:active {
+        transform: scale(0.96);
+    }
+    .landing-btn-outline {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5));
+        -webkit-backdrop-filter: blur(14px) saturate(1.5);
+        backdrop-filter: blur(14px) saturate(1.5);
+        color: var(--ce-accent, #14563c);
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        box-shadow: 0 8px 20px -12px rgba(21, 46, 74, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+    .landing-btn-outline:hover {
+        background: var(--ce-accent-wash, rgba(20, 86, 60, 0.08));
+        color: var(--ce-accent-deep, #0e3f2c);
+        transform: translateY(-1px);
+    }
+    [data-theme="dark"] .landing-btn-outline {
+        color: var(--ce-accent, #79c79b);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.07));
+        border-color: rgba(255, 255, 255, 0.16);
+        box-shadow: none;
+    }
+    [data-theme="dark"] .landing-btn-outline:hover {
+        color: var(--ce-accent-deep, #9adbb4);
+        background: rgba(255, 255, 255, 0.18);
+    }
+    .landing-btn-outline:active {
+        transform: scale(0.96);
+    }
+
+    /* ---- Shared landing sections ---- */
+    .landing-section {
+        width: 100%;
+        padding: var(--space-12) var(--space-6);
+        margin: 0;
+    }
+    .landing-section-tinted {
+        background: var(--bhims-glass-bg-secondary);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid var(--bhims-border);
+        border-radius: 24px;
+    }
+    .landing-cta {
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+        padding: var(--space-10) var(--space-6);
+        background: var(--bhims-glass-bg-primary);
+        -webkit-backdrop-filter: blur(16px);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--bhims-border);
+        border-radius: 24px;
+    }
+    .landing-cta p {
+        color: var(--bhims-text-secondary);
+        max-width: 560px;
+        margin: 0 auto var(--space-6);
+        line-height: 1.7;
+    }
+    .landing-cta .landing-btn { display: inline-flex; }
+    .landing-cta-inner { max-width: 640px; margin: 0 auto; }
+
+    .landing-photo-caption {
+        position: absolute;
+        left: 50%;
+        bottom: clamp(20px, 4vh, 38px);
+        transform: translateX(-50%);
+        z-index: 1;
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.55rem 1rem;
+        border-radius: 999px;
+        font-size: var(--text-xs, 0.8rem);
+        font-weight: 600;
+        color: #fff;
+        letter-spacing: 0.02em;
+        background: rgba(15, 28, 45, 0.55);
+        -webkit-backdrop-filter: blur(18px) saturate(160%);
+        backdrop-filter: blur(18px) saturate(160%);
+        border: 1px solid rgba(255,255,255,0.25);
+        box-shadow: 0 8px 24px -10px rgba(0,0,0,0.5);
+    }
+    .landing-photo-dot {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: var(--ce-accent, #14563c);
+        box-shadow: 0 0 10px rgba(20, 86, 60, 0.35);
+    }
+
+    /* Floating glass feature chips over the photo — gentle levitation,
+       transform-only (120fps-safe). */
+    .lg-chip {
+        position: absolute;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.55rem 0.95rem 0.55rem 0.55rem;
+        border-radius: 18px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(255,255,255,0.78));
+        -webkit-backdrop-filter: blur(20px) saturate(170%);
+        backdrop-filter: blur(20px) saturate(170%);
+        border: 1px solid rgba(255,255,255,0.75);
+        box-shadow:
+            0 1px 0 rgba(255,255,255,0.9) inset,
+            0 16px 40px -16px rgba(10, 30, 60, 0.5);
+        animation: lg-chip-float 5.2s ease-in-out infinite;
+        will-change: transform;
+    }
+    [data-theme="dark"] .lg-chip {
+        background: linear-gradient(135deg, rgba(30, 42, 62, 0.88), rgba(22, 32, 50, 0.8));
+        border-color: rgba(255,255,255,0.18);
+        box-shadow:
+            0 1px 0 rgba(255,255,255,0.12) inset,
+            0 16px 40px -16px rgba(0,0,0,0.7);
+    }
+    .lg-chip { z-index: 1; }
+    .lg-chip-top { top: clamp(88px, 15vh, 150px); right: clamp(14px, 7vw, 110px); animation-delay: 0s; }
+    .lg-chip-bottom { bottom: clamp(96px, 17vh, 170px); left: clamp(14px, 7vw, 110px); animation-delay: -2.6s; }
+    .lg-chip-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px; height: 34px;
+        border-radius: 11px;
+        font-size: 1rem;
+        color: #fff;
+        background: var(--ce-accent, #17685e);
+        flex-shrink: 0;
+    }
+    .lg-chip-icon-teal {
+        background: var(--ce-ink, #1f2b28);
+    }
+    .lg-chip-text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.15;
+        font-size: 0.78rem;
+        color: var(--bhims-text-muted, #5b6b80);
+    }
+    .lg-chip-text strong {
+        font-size: 0.86rem;
+        font-weight: 700;
+        color: var(--bhims-text, #16283e);
+    }
+    [data-theme="dark"] .lg-chip-text { color: #9fb2c8; }
+    [data-theme="dark"] .lg-chip-text strong { color: #eaf2fb; }
+    @keyframes lg-chip-float {
+        0%, 100% { transform: translate3d(0, 0, 0); }
+        50% { transform: translate3d(0, -7px, 0); }
+    }
+
+    @media (max-width: 700px) {
+        /* Content fills the width on phones — chips join the flow under the
+           buttons so they can never cover the logo or the CTAs. */
+        .landing-hero {
+            flex-direction: column;
+            padding-bottom: calc(var(--space-9) + 96px);
+        }
+        .lg-chip {
+            position: static;
+            margin: 14px 0 0;
+        }
+        .lg-chip-bottom { margin-top: 10px; }
+        .landing-photo-caption {
+            position: static;
+            transform: none;
+            margin-top: 16px;
+        }
+    }
+    @media (max-width: 768px) {
+        .landing-photo-caption { bottom: 16px; font-size: 0.68rem; }
+        .lg-chip { padding: 0.45rem 0.8rem 0.45rem 0.45rem; }
+        .lg-chip-icon { width: 30px; height: 30px; font-size: 0.9rem; }
+        .lg-chip-text { font-size: 0.7rem; }
+        .lg-chip-text strong { font-size: 0.78rem; }
+    }
+    .landing-section-inner {
+        max-width: var(--container-xl);
+        width: 100%;
+        margin: 0 auto;
+    }
+    .landing-section-header {
+        text-align: center;
+        margin-bottom: var(--space-10);
+    }
+    .landing-section-kicker {
+        color: var(--ce-accent, #14563c);
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        font-size: var(--text-xs);
+        margin-bottom: var(--space-2);
+    }
+    [data-theme="dark"] .landing-section-kicker { color: var(--ce-accent, #79c79b); }
+    .landing-section-title {
+        font-family: var(--font-display);
+        color: var(--bhims-text);
+        font-size: clamp(var(--text-2xl), 4vw, var(--text-4xl));
+        font-weight: 800;
+        margin: 0;
+    }
+
+    /* ---- Feature cards ---- */
+    .landing-features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-6);
+    }
+    .feature-card {
+        background: var(--bhims-glass-bg-primary);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid var(--bhims-border);
+        border-top: 1px solid var(--bhims-glass-border-top-color, rgba(255, 255, 255, 0.14));
+        border-radius: 20px;
+        padding: var(--space-6);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        transform: translateZ(0);
+        transition: transform 0.25s var(--bhims-ease-smooth), box-shadow 0.25s var(--bhims-ease-smooth);
+    }
+    .feature-card:hover {
+        box-shadow: var(--bhims-glass-shadow-hover);
+        transform: translateY(-3px) translateZ(0);
+    }
+    [data-theme="light"] .feature-card {
+        background: var(--bhims-glass-bg-primary);
+        -webkit-backdrop-filter: blur(40px) saturate(200%);
+        backdrop-filter: blur(40px) saturate(200%);
+        border-top: 1px solid rgba(255, 255, 255, 0.60);
+        border-left: 1px solid rgba(255, 255, 255, 0.35);
+        border-right: 1px solid rgba(255, 255, 255, 0.35);
+        border-bottom: 1px solid rgba(20, 86, 60, 0.10);
+        box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.40), 0 12px 32px 0 rgba(0, 0, 0, 0.08);
+    }
+    .feature-icon-box {
+        width: 60px;
+        height: 60px;
+        background: var(--ce-accent-wash, rgba(20, 86, 60, 0.08));
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: var(--space-4);
+    }
+    .feature-icon-box i {
+        color: var(--ce-accent, #14563c);
+        font-size: var(--text-2xl);
+    }
+    [data-theme="dark"] .feature-icon-box i { color: var(--ce-accent, #79c79b); }
+    .feature-title {
+        font-family: var(--font-display);
+        color: var(--bhims-text);
+        font-size: var(--text-2xl);
+        font-weight: 700;
+        margin-bottom: var(--space-3);
+    }
+    .feature-text {
+        color: var(--bhims-text-muted);
+        line-height: 1.7;
+        margin: 0;
+        font-size: var(--text-base);
+    }
+
+    /* ---- Featured listings: a row that slides the listed boarding houses ----
+       The reference component slides an endless row of cards. The cards here
+       are the real listings — photograph, price plate, badges, availability
+       and the CTA all come from listing_card.html — so the row can never
+       disagree with the browse page.
+
+       Motion is one transform on the track: no per-card animation, no layout
+       read per frame, so it stays on the compositor.
+
+       States are one class, .is-static:
+         · before the script runs (and for JS-off visitors),
+         · for reduced-motion visitors, and
+         · when there is only one house to show — a single card sliding past
+           itself is not a carousel, it is a loop of the same house.
+       In that state the duplicated set is hidden, so nothing is ever listed
+       twice, and the row is a plain horizontal scroller instead. */
+    .listing-carousel {
+        position: relative;
+        --carousel-card: clamp(268px, 25vw, 330px);
+    }
+    .listing-carousel-viewport {
+        overflow: hidden;
+        padding: 6px;
+        margin: -6px;               /* six pixels of room so card shadows and
+                                       the focus ring are not clipped */
+    }
+    .listing-carousel.is-static .listing-carousel-viewport {
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        -webkit-overflow-scrolling: touch;
+    }
+    .listing-carousel.is-static .listing-carousel-viewport::-webkit-scrollbar { display: none; }
+    /* Until the script says it is running (`.is-ready`), the strip is all a
+       visitor has, so it keeps a real scrollbar: with the row clipped and the
+       arrows not yet wired, a hidden bar would leave a pre-script visitor
+       looking at a row that stops short and cannot be moved at all. The script
+       adds `.is-ready` on its first line, so nobody with scripting ever sees
+       it, and the sliding row never draws one. */
+    .listing-carousel.is-static:not(.is-ready) .listing-carousel-viewport {
+        scrollbar-width: thin;
+    }
+    /* The fallback for engines without `scrollbar-width`. Chromium ignores
+       this pair as soon as that property is set to anything but `auto` --
+       the standard property wins, and the bar it draws is the platform's own
+       thin one. */
+    .listing-carousel.is-static:not(.is-ready) .listing-carousel-viewport::-webkit-scrollbar {
+        display: block;
+        height: 9px;
+    }
+    .listing-carousel-viewport:focus-visible {
+        outline: 2px solid var(--ce-accent, #14563c);
+        outline-offset: 2px;
+        border-radius: var(--ce-radius, 12px);
+    }
+    /* ---- Swiping the row ----
+       The row is moved with a transform on the track, never by scrolling, so
+       dragging it cannot turn the viewport into a scroller and cannot draw a
+       scrollbar — the "no line to scroll" requirement is satisfied by how the
+       motion already works, not by hiding a scrollbar that would otherwise
+       appear.
+
+       `touch-action: pan-y` hands the horizontal axis to the drag handler
+       while leaving vertical panning to the browser, so a finger can still
+       scroll the page past the row. It is deliberately NOT applied in the
+       static state: that state is a genuine overflow-x scroller for
+       reduced-motion visitors, and claiming its horizontal axis would stop it
+       being swipeable. */
+    .listing-carousel:not(.is-static) .listing-carousel-viewport {
+        touch-action: pan-y;
+    }
+    /* The affordance itself belongs to both states. It used to hang off
+       `:not(.is-static)`, which quietly left the reduced-motion and one-house
+       strips showing a plain text cursor over cards that a mouse could not
+       move -- the cursor is the promise, and it has to be kept in every state
+       the row can be in. */
+    .listing-carousel .listing-carousel-viewport {
+        cursor: grab;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+    .listing-carousel .listing-carousel-viewport.is-dragging { cursor: grabbing; }
+    /* A photo must not start the browser's own image drag half way through a
+       swipe, and neither must a long press offer a text selection on a card. */
+    .listing-carousel .listing-carousel-viewport img { -webkit-user-drag: none; }
+    /* The static strip is a real scroller, so let a finger or a trackpad snap
+       it to whole cards. `proximity` rather than `mandatory`: the drag release
+       already lands on a boundary itself, and a mandatory snap would only
+       ever fight it. */
+    .listing-carousel.is-static .listing-carousel-viewport {
+        scroll-snap-type: x proximity;
+        scroll-padding-left: 6px;
+    }
+    .listing-carousel.is-static .listing-slide { scroll-snap-align: start; }
+    .listing-carousel-track {
+        display: flex;
+        align-items: stretch;
+        gap: var(--space-5);
+    }
+    .listing-carousel:not(.is-static) .listing-carousel-track { will-change: transform; }
+    /* Deliberately not `.carousel-item`: that is Bootstrap's own carousel
+       class, and its `width: 100%; margin-right: -100%` (Bootstrap ships a
+       float-based carousel) pulled every card here a full track width to the
+       left, so only one was ever on screen. Namespaced to the row instead. */
+    .listing-slide {
+        flex: 0 0 var(--carousel-card);
+        width: var(--carousel-card);
+        display: flex;
+    }
+    .listing-slide > .listing-card { width: 100%; }
+    /* Everywhere else the card frame is a 210px letterbox, which suits a
+       façade shot. The row now shows rooms, and rooms are photographed
+       upright — beds, floor, wall. A rather taller frame lets the bed read
+       instead of a strip of ceiling and one bunk rail. */
+    .listing-carousel .listing-card .card-image { height: 244px; }
+    .listing-carousel.is-static .listing-slide--clone { display: none; }
+    /* One house: give it a little more room and centre it, rather than
+       leaving a lone narrow card hugging the left gutter. */
+    .listing-carousel.is-single .listing-carousel-track { justify-content: center; }
+    .listing-carousel.is-single .listing-slide {
+        flex-basis: min(420px, 100%);
+        width: min(420px, 100%);
+    }
+
+    /* Arrow controls: opaque paper discs, so they hold their contrast over any
+       photograph (a translucent glass disc did not) and are real 44px touch
+       targets in both themes. There is no pause control: the row keeps
+       moving under the pointer, and the visitors who must be able to stop it
+       are the ones who ask for reduced motion, who get the static strip. */
+    .carousel-nav {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border: 1px solid var(--ce-line-strong, rgba(35, 43, 40, 0.28));
+        border-radius: 50%;
+        background: var(--ce-card, #fffdf7);
+        color: var(--ce-ink, #232b28);
+        font-size: 1.05rem;
+        line-height: 1;
+        cursor: pointer;
+        box-shadow: var(--ce-shadow, 0 6px 20px -14px rgba(0, 0, 0, 0.4));
+        transition: color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+    }
+    .carousel-nav:hover {
+        color: var(--ce-accent, #14563c);
+        border-color: var(--ce-accent, #14563c);
+    }
+    .carousel-nav:focus-visible {
+        outline: 2px solid var(--ce-accent, #14563c);
+        outline-offset: 2px;
+    }
+    .carousel-nav {
+        position: absolute;
+        top: 50%;
+        z-index: 3;
+        transform: translateY(-50%);
+    }
+    .carousel-nav:hover { transform: translateY(-50%) scale(1.05); }
+    /* The arrows sit over a full-bleed row, so at rest they landed squarely on
+       the first and last card titles ("Illacandia Student Home" rendered as
+       "llacandia..."). They now rest faded and come forward on hover or
+       keyboard focus, which keeps the copy readable while leaving the control
+       where people already expect it. Touch devices have no hover, so there
+       the arrows stay solid rather than dimming to near-invisible. */
+    .listing-carousel .carousel-nav {
+        opacity: 0.3;
+        transition: opacity 0.24s ease, color 0.18s ease,
+                    border-color 0.18s ease, transform 0.18s ease;
+    }
+    .listing-carousel:hover .carousel-nav,
+    .listing-carousel:focus-within .carousel-nav { opacity: 1; }
+    @media (hover: none) {
+        .listing-carousel .carousel-nav { opacity: 1; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .listing-carousel .carousel-nav { transition: none; }
+    }
+    .carousel-nav:active { transform: translateY(-50%) scale(0.94); }
+    .carousel-nav--prev { left: 2px; }
+    .carousel-nav--next { right: 2px; }
+    /* The arrows are hidden while the script has not wired them and when
+       there is a single house to slide (nothing to slide to). In the static
+       state they are live controls over the native scroller: reduced-motion
+       and one-house visitors get the same "show me the next one" as everyone
+       else instead of a row that stops short with no way past it. */
+    .listing-carousel:not(.is-ready) .carousel-nav,
+    .listing-carousel.is-single .carousel-nav { display: none; }
+
+    @media (max-width: 700px) {
+        .listing-carousel { --carousel-card: min(76vw, 300px); }
+        /* The arrows were 40px here, below the 44px tap-target floor the rest
+           of the app holds to -- the only two controls on the page that were.
+           They now sit flush to the edges instead of 2px in, which is what the
+           smaller size was really buying. */
+        .carousel-nav--prev { left: 0; }
+        .carousel-nav--next { right: 0; }
+    }
+
+    @media (max-width: 900px) {
+        .landing-features-grid {
+            grid-template-columns: 1fr;
+        }
+        .landing-section {
+            padding: var(--space-8) var(--space-4);
+        }
+    }
+    /* ---- Entrance & scroll-reveal animations ---- */
+    @keyframes bhimsRise {
+        from { opacity: 0; transform: translateY(26px); }
+        to { opacity: 1; transform: none; }
+    }
+    .landing-kicker { animation: bhimsRise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .landing-brand { animation: bhimsRise 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.04s both; }
+    .landing-title { animation: bhimsRise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
+    .landing-sub { animation: bhimsRise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both; }
+    .landing-actions { animation: bhimsRise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.28s both; }
+
+    .reveal { transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.16, 1, 0.3, 1); }
+    html.fx .reveal { opacity: 0; transform: translateY(28px); will-change: opacity, transform; }
+    html.fx .reveal.in-view { opacity: 1; transform: none; will-change: auto; }
+    .reveal.in-view { opacity: 1; transform: none; will-change: auto; }
+    .feature-card.reveal:nth-child(2) { transition-delay: 0.1s; }
+    .feature-card.reveal:nth-child(3) { transition-delay: 0.2s; }
+    .listing-card.reveal:nth-child(2) { transition-delay: 0.08s; }
+    .listing-card.reveal:nth-child(3) { transition-delay: 0.16s; }
+    .listing-card.reveal:nth-child(4) { transition-delay: 0.24s; }
+
+    .landing-trust-bar {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-6);
+        padding: var(--space-6) var(--space-4);
+        border-top: 1px solid var(--bhims-border);
+        border-bottom: 1px solid var(--bhims-border);
+        max-width: 900px;
+        margin: 0 auto;
+        text-align: center;
+    }
+    .landing-trust-bar strong {
+        display: block;
+        font-family: var(--font-display);
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: var(--ce-accent, #14563c);
+        margin-bottom: 0.2rem;
+    }
+    [data-theme="dark"] .landing-trust-bar strong { color: var(--ce-accent, #79c79b); }
+    .landing-trust-bar span {
+        font-size: var(--text-sm);
+        color: var(--bhims-text-muted);
+    }
+    @media (max-width: 700px) {
+        .landing-trust-bar { grid-template-columns: 1fr; gap: var(--space-4); }
+        .landing-hero { min-height: 520px; padding: var(--space-9) var(--space-4) calc(var(--space-9) + 40px); }
+        .landing-btn { width: 100%; text-align: center; justify-content: center; display: inline-flex; }
+        .landing-actions { width: 100%; flex-direction: column; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .landing-kicker, .landing-brand, .landing-title, .landing-sub, .landing-actions { animation: none; }
+        .lg-chip { animation: none; }
+        .reveal { opacity: 1; transform: none; transition: none; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="landing-hero">
+    <div class="landing-hero-copy">
+        <p class="landing-kicker">NLUC Bacnotan Student Housing</p>
+        {% comment %} The navbar already carries the BHIMS wordmark — repeating
+        the full lockup here stacked two logos within one screen. The type is
+        the brand in this hero. {% endcomment %}
+        <h1 class="landing-title">Find Your Place. Feel at Home.</h1>
+        <p class="landing-sub">Verified boarding houses around DMMMSU–NLUC Bacnotan — prices, barangays, and a direct line to the landlord.</p>
+        <div class="landing-actions">
+            <a href="{% url 'student_login' %}" class="landing-btn landing-btn-primary">Student sign in</a>
+            <a href="{% url 'landlord_login' %}" class="landing-btn landing-btn-outline">Landlord sign in</a>
+        </div>
+    </div>
+
+    <!-- Floating glass UI chips (the live-data feel) -->
+    <div class="lg-chip lg-chip-top" aria-hidden="true">
+        <span class="lg-chip-icon"><i class="bi bi-patch-check-fill"></i></span>
+        <span class="lg-chip-text"><strong>Admin-verified</strong>houses only</span>
+    </div>
+    <div class="lg-chip lg-chip-bottom" aria-hidden="true">
+        <span class="lg-chip-icon lg-chip-icon-teal"><i class="bi bi-chat-dots-fill"></i></span>
+        <span class="lg-chip-text"><strong>Direct chat</strong>with landlords</span>
+    </div>
+
+    <span class="landing-photo-caption">
+        <span class="landing-photo-dot" aria-hidden="true"></span>
+        DMMMSU–NLUC Campus · Bacnotan, La Union
+    </span>
+</section>
+
+<section class="landing-section">
+    <div class="landing-section-inner">
+        <div class="landing-trust-bar reveal">
+            <div><strong>Verified</strong><span>Admin-reviewed houses</span></div>
+            <div><strong>Direct chat</strong><span>Message landlords in-app</span></div>
+            <div><strong>Campus-near</strong><span>Barangays around NLUC</span></div>
+        </div>
+    </div>
+</section>
+
+<section class="landing-section landing-section-tinted">
+    <div class="landing-section-inner">
+        <div class="landing-section-header reveal">
+            <p class="landing-section-kicker">How it works</p>
+            <h2 class="landing-section-title">Look, ask, then book</h2>
+        </div>
+        <div class="landing-features-grid">
+            <div class="feature-card reveal">
+                <div class="feature-icon-box">
+                    <i class="bi bi-card-list"></i>
+                </div>
+                <h3 class="feature-title">Browse Listings</h3>
+                <p class="feature-text">Filter by barangay, rent, and room type. See what’s actually open before you walk over.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon-box">
+                    <i class="bi bi-chat-dots"></i>
+                </div>
+                <h3 class="feature-title">Connect Directly</h3>
+                <p class="feature-text">Message the landlord in the app. Ask about vacancies, visiting hours, and house rules without sharing your number first.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon-box">
+                    <i class="bi bi-patch-check"></i>
+                </div>
+                <h3 class="feature-title">Curated Listings</h3>
+                <p class="feature-text">Listings go through admin review before they show up. You’re looking at houses that made it past that check.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if listings %}
+<section class="landing-section">
+    <div class="landing-section-inner">
+        <div class="landing-section-header reveal">
+            <p class="landing-section-kicker">Verified by BHIMS</p>
+            <h2 class="landing-section-title">Featured Boarding Houses</h2>
+        </div>
+
+        {% comment %}
+          The row ships as a plain scrollable strip (.is-static, and the CSS
+          honours it before any script runs). The script upgrades it to a
+          sliding row only when there are at least two houses to slide and the
+          visitor has not asked for reduced motion.
+
+          The static strip is what the markup ships, always, and the script
+          upgrades it to the sliding row once it is running. Shipping the
+          sliding state instead would clip the row for anyone whose script
+          never arrives, with no bar and no arrows to get past the end.
+
+          Note the comment form: this block is deliberately NOT written with
+          Django's single-line brace comment, because that form only closes on
+          one line. Its tag_re (django/template/base.py:92) is compiled without
+          re.DOTALL, so a brace comment that wraps is never tokenised as a
+          comment and gets printed on the page, verbatim, in front of the
+          visitor -- which is exactly what happened here once. Brace-comment
+          delimiters are named in prose above rather than written literally, so
+          that nothing nested inside this block can be mistaken for real
+          template syntax.
+        {% endcomment %}
+        <div class="listing-carousel is-static{% if listings|length < 2 %} is-single{% endif %}" data-carousel>
+            <div class="listing-carousel-viewport" data-carousel-viewport tabindex="0"
+                 role="group" aria-label="Featured boarding houses">
+                <div class="listing-carousel-track" data-carousel-track>
+                    {% for house in listings %}
+                    <div class="listing-slide">
+                        {% include 'core/includes/listing_card.html' with house=house landing=True %}
+                    </div>
+                    {% endfor %}
+                    {% if listings|length > 1 %}
+                    {% for house in listings %}
+                    <div class="listing-slide listing-slide--clone" data-carousel-clone aria-hidden="true">
+                        {% include 'core/includes/listing_card.html' with house=house landing=True clone=True %}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <button type="button" class="carousel-nav carousel-nav--prev" data-carousel-prev
+                    aria-label="Show previous boarding houses">
+                <i class="bi bi-chevron-left" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="carousel-nav carousel-nav--next" data-carousel-next
+                    aria-label="Show next boarding houses">
+                <i class="bi bi-chevron-right" aria-hidden="true"></i>
+            </button>
+        </div>
+
+        <div class="reveal" style="text-align: center; margin-top: 3rem;">
+            <a href="{% url 'student_login' %}" class="landing-btn landing-btn-primary" style="display: inline-block;">Sign in to browse</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="landing-section">
+    <div class="landing-section-inner">
+        <div class="landing-cta reveal">
+            <div class="landing-cta-inner">
+                <p class="landing-section-kicker">Get started</p>
+                <h2 class="landing-section-title">Your next room is a few taps away</h2>
+                <p>Browse verified listings for free, message landlords directly, and book your stay — all in one place, built for the NLUC community.</p>
+                <div class="landing-actions" style="justify-content: center;">
+                    <a href="{% url 'student_login' %}" class="landing-btn landing-btn-primary">Student sign in</a>
+                    <a href="{% url 'landlord_login' %}" class="landing-btn landing-btn-outline">Landlord sign in</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    (function () {
+        document.documentElement.classList.add('fx');
+        var els = document.querySelectorAll('.reveal');
+        if (!els.length) return;
+        if (!('IntersectionObserver' in window)) {
+            els.forEach(function (el) { el.classList.add('in-view'); });
+            return;
+        }
+        var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (en) {
+                if (en.isIntersecting) { en.target.classList.add('in-view'); io.unobserve(en.target); }
+            });
+        }, { threshold: 0.12 });
+        els.forEach(function (el) { io.observe(el); });
+
+        /* [a11y] Failsafe: fast scrolling or a missed observer callback could
+           otherwise leave content stuck invisible. Anything still hidden
+           after 3s — in or out of view — fades in regardless. */
+        setTimeout(function () {
+            els.forEach(function (el) { el.classList.add('in-view'); });
+        }, 3000);
+    })();
+
+    /* [c] Featured listings: the row slides the listed boarding houses.
+
+           One transform on the track, written once per animation frame from a
+           delta-time accumulator — no per-card animation and no layout read
+           per frame, so the browser can keep it on the compositor.
+
+           The pointer does not stop it — a cursor resting on the row is how a
+           desktop visitor reads a card, so the row keeps walking under it, and
+           pressing an arrow starts it walking again from wherever the glide
+           landed. It holds still only where motion would be wrong or unseen:
+           while a card holds *keyboard* focus, while a finger is down on the
+           row, while the tab is in the background, and while the row is
+           off-screen. Reduced motion and JS-off visitors keep the scrollable
+           strip the markup ships with, and a single house is never looped
+           against itself. */
+        (function () {
+            var root = document.querySelector('[data-carousel]');
+            if (!root) return;
+            var viewport = root.querySelector('[data-carousel-viewport]');
+            var track = root.querySelector('[data-carousel-track]');
+            if (!viewport || !track) return;
+            var prev = root.querySelector('[data-carousel-prev]');
+            var next = root.querySelector('[data-carousel-next]');
+
+            var ORIGINAL = '.listing-slide:not([data-carousel-clone])';
+            var CLONE = '[data-carousel-clone]';
+            var SPEED = 30;   /* px per second: a walk, not a race */
+            var GLIDE = 420;  /* ms for one card */
+            var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+            /* From here on the script owns the row, so the pre-script
+               affordances (the scroller's own scrollbar, the hidden arrows)
+               come off on the very first line rather than after the first
+               measurement. */
+            root.classList.add('is-ready');
+
+            /* An <a> is draggable by default. Left alone, a press on a card
+               that moves starts the browser's own link-drag, which swallows
+               the rest of the gesture: the pointermove stream stops after a
+               couple of events and pointerup never arrives, so the row is
+               never released and the swipe silently does nothing. Turning it
+               off is what makes the drag ours. The copies measure() appends
+               are clones of these nodes, so they inherit the attribute. */
+            Array.prototype.forEach.call(track.querySelectorAll('a[href]'), function (a) {
+                a.draggable = false;
+            });
+
+            /* Belt and braces, and the part that actually covers a real
+               profile: whatever the markup or a later card does, a native
+               drag-start inside the row is refused outright. The browser's
+               own drag is what truncated the pointer stream and left the row
+               unreleased -- pointermove stopped after two events and no
+               pointerup ever arrived -- so it never gets the chance to start.
+               Registered on the track, so the copies measure() appends and
+               any card that arrives late are inside it too. */
+            track.addEventListener('dragstart', function (event) {
+                event.preventDefault();
+            });
+
+            var setSize = 0;  /* cards in one full loop */
+            var step = 0;     /* one card plus the gap after it */
+            var period = 0;   /* how far the copies are shifted by */
+            var offset = 0;
+            var active = false, stepping = false;
+            var focus = false, touching = false, inView = true;
+            var viaPointer = false, pending = 0, touchTimer = 0;
+            var lastCount = -1, last = 0, stepTimer = 0, resizeTimer = 0;
+
+            /* Swipe state. `dragId` is the pointer being followed, so a second
+               finger on the glass cannot yank the row around while the first is
+               mid-gesture. */
+            var dragging = false, dragId = null;
+            var dragStartX = 0, dragStartY = 0, dragBase = 0, dragDx = 0;
+            var axis = null, moved = false, swallowTimer = 0;
+            var scrollBase = 0;   /* static: the scrollLeft the press began at */
+            var DRAG_SLOP = 6;   /* px before a press counts as a drag, not a tap */
+
+            function paint(value, glide) {
+                track.style.transition = glide
+                    ? 'transform ' + GLIDE + 'ms cubic-bezier(0.32, 0.72, 0, 1)'
+                    : 'none';
+                track.style.transform = value ? 'translate3d(' + (-value) + 'px, 0, 0)' : '';
+            }
+
+            /* Everything that changes the geometry — the window, a card that
+               arrives late, the number of copies a wide screen needs — lands
+               here. */
+            function measure() {
+                lastCount = track.children.length;
+                var originals = track.querySelectorAll(ORIGINAL);
+                setSize = originals.length;
+                if (!setSize) return;
+                var box = originals[0].getBoundingClientRect();
+                var gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+                /* Measured on screen, from one sibling to the next, in a
+                   single instant: a sibling-to-sibling distance is unchanged
+                   by the track's own transform, whereas offsetLeft depends on
+                   which ancestor happens to be the offset parent (a
+                   transformed track becomes one, and then the answer is
+                   measured inside the moving box). Every card is one fixed
+                   width by construction, so a full loop is `setSize` cards. */
+                step = setSize > 1
+                    ? originals[1].getBoundingClientRect().left - box.left
+                    : box.width + gap;
+                if (!(step > 0)) step = box.width + gap;
+                period = setSize * step;
+                /* A zero or negative loop would make the wrap-around below
+                   add distance every frame instead of subtracting it, so a
+                   degenerate layout (hidden ancestor, collapsed row) parks
+                   the row in its plain scrollable state instead. */
+                if (!(period > 0)) { setActive(false); return; }
+
+                /* The loop is only seamless while everything drawn past the
+                   window is at least one full period long: two houses on a
+                   wide monitor would otherwise slide a hole into view. Two
+                   spare periods, and the seam can always be rebased by one. */
+                var template = track.querySelector(CLONE);
+                if (template && setSize > 1) {
+                    var have = 1 + Math.round(track.querySelectorAll(CLONE).length / setSize);
+                    var need = Math.min(6, Math.max(2,
+                        Math.ceil(viewport.clientWidth / Math.max(1, period)) + 2));
+                    while (have < need) {
+                        for (var i = 0; i < setSize; i++) {
+                            var copy = template.cloneNode(true);
+                            copy.setAttribute('aria-hidden', 'true');
+                            track.appendChild(copy);
+                        }
+                        have++;
+                    }
+                }
+
+                if (offset >= period) offset -= period;
+                setActive(setSize > 1 && !reduce.matches);
+                if (active) paint(offset, false);
+                lastCount = track.children.length;
+            }
+
+            function setActive(next_) {
+                active = next_;
+                root.classList.toggle('is-static', !active);
+                if (!active) paint(0, false);   /* hand the row back to the scroller */
+            }
+
+            function running() {
+                /* `dragging` is checked separately from `touching` on purpose:
+                   the 1.5s watchdog that frees a stuck touch can expire
+                   mid-drag, and a walking row under a moving finger reads as
+                   the swipe being ignored. */
+                return active && !focus && !touching && !dragging
+                    && inView && !document.hidden;
+            }
+
+            function frame(now) {
+                requestAnimationFrame(frame);
+                var dt = last ? Math.min(64, now - last) : 16;
+                last = now;
+                if (track.children.length !== lastCount) measure();
+                if (stepping || !running()) return;
+                offset += (SPEED * dt) / 1000;
+                if (offset >= period) offset -= period;
+                paint(offset, false);
+            }
+
+            /* One card per press. Every position repeats exactly one period
+               away, so a move that would run off an end is rebased by a whole
+               period: the start frame is repainted first (identical pixels),
+               then the glide runs, which is why the seam never shows. */
+            function glideTo(target, dir) {
+                if (!active || !period) return;
+                var from = offset;
+                var delta = target - from;
+                if (dir > 0 && delta < 0) delta += period;
+                if (dir < 0 && delta > 0) delta -= period;
+                var to = from + delta;
+                if (to < 0) { from += period; to += period; }
+                offset = ((to % period) + period) % period;
+                stepping = true;
+                paint(from, false);
+                void track.offsetWidth;   /* settle the start frame */
+                paint(to, true);
+                clearTimeout(stepTimer);
+                stepTimer = setTimeout(function () {
+                    stepping = false;
+                    flushSteps();
+                }, GLIDE + 40);
+            }
+
+            /* One card per press, and no press is ever dropped: a click that
+               lands mid-glide is queued and glides on the moment the row
+               touches down, so a quick double-click advances two cards rather
+               than swallowing the second. Each glide starts exactly where the
+               previous one ended, so there is nothing to snap back from. */
+            function stepBy(dir) {
+                if (!active || !period) return;
+                pending += dir > 0 ? 1 : -1;
+                flushSteps();
+            }
+
+            /* One arrow press, in whichever state the row is in. The static
+               strip is a scroller, so the arrow scrolls it -- the reduced
+               motion and one-house visitors get the same control as everyone
+               else. A glide is smooth; a reduced-motion visitor gets an
+               instant jump, because the glide is the very thing they asked us
+               not to do. */
+            function nudge(dir) {
+                if (active) { stepBy(dir); return; }
+                if (!(step > 0)) return;
+                var max = viewport.scrollWidth - viewport.clientWidth;
+                var target = Math.max(0, Math.min(max, viewport.scrollLeft + dir * step));
+                scrollTo(target);
+            }
+
+            function scrollTo(left) {
+                if (viewport.scrollTo) {
+                    viewport.scrollTo({ left: left, behavior: reduce.matches ? 'auto' : 'smooth' });
+                } else {
+                    viewport.scrollLeft = left;   /* pre-2018 Safari */
+                }
+            }
+
+            /* ---- Trackpad ----
+               A two-finger swipe on a trackpad is not a drag and not a touch:
+               it arrives as a stream of `wheel` events, and it never emits a
+               pointerdown at all. Nothing else here can see it -- the drag
+               handler waits for a pointer, and the row is deliberately
+               `overflow: hidden`, so the browser has no scroller to hand the
+               gesture to and the swipe simply died. A laptop trackpad is the
+               most natural way to slide a row like this one, so it gets its
+               own door.
+
+               Rules, in the order they matter:
+
+               · Pinch-zoom arrives as ctrl+wheel. That is the browser's, not
+                 ours, so it is left alone.
+               · A vertical-dominant gesture is the page scrolling past the
+                 row. Only a horizontal-dominant one is read, so the page keeps
+                 its scroll -- we never preventDefault unless we act.
+               · The static state needs none of this: it is a real
+                 `overflow-x: auto` scroller and the trackpad already slides
+                 it, natively and better than we would.
+               · One gesture = one card. A trackpad flick arrives as a long
+                 momentum tail, so accumulating raw deltas and stepping on
+                 every threshold runs the row away through half a dozen cards:
+                 a gentle swipe measured 180px of travel, which at a flat 60px
+                 threshold is three cards, and a hard flick is fifteen. The
+                 first threshold crossing claims the gesture, and the rest of
+                 that stream is ignored until the events stop arriving for
+                 WHEEL_GAP -- comfortably longer than the ~10-20ms between
+                 momentum events, and comfortably shorter than the pause
+                 between two deliberate swipes. */
+            var wheelAccum = 0, wheelLast = 0, wheelDone = false;
+            var WHEEL_GAP = 250;     /* ms of quiet that ends a gesture */
+
+            function onWheel(event) {
+                if (event.ctrlKey) return;                    /* pinch-zoom */
+                if (!active || !period) return;               /* static scrolls itself */
+                if (Math.abs(event.deltaX) < Math.abs(event.deltaY)) return;
+                var now = Date.now();
+                if (now - wheelLast > WHEEL_GAP) {              /* a new gesture */
+                    wheelAccum = 0;
+                    wheelDone = false;
+                }
+                wheelLast = now;
+                if (wheelDone) return;
+                wheelAccum += event.deltaX;
+                /* Roughly a third of a card, so a real two-finger swipe clears
+                   it comfortably while an incidental wobble of the fingers
+                   does not. */
+                if (Math.abs(wheelAccum) < step * 0.35) return;
+                var dir = wheelAccum > 0 ? 1 : -1;
+                wheelAccum = 0;
+                wheelDone = true;
+                if (event.cancelable) event.preventDefault();
+                holdTouching();      /* the row holds still while it is being driven */
+                stepBy(dir);         /* the same queue the arrows use */
+            }
+
+            function flushSteps() {
+                if (stepping || !pending) return;
+                var dir = pending > 0 ? 1 : -1;
+                pending -= dir;
+                glideTo(offset + dir * step, dir);
+            }
+
+            /* Tabbing into a card the row has carried off-screen would leave
+               the focus ring outside the window. */
+            function revealFocus() {
+                if (!active || !period || stepping) return;
+                var el = document.activeElement;
+                if (!el || !el.closest || !track.contains(el)) return;
+                var item = el.closest('.listing-slide');
+                if (!item || item.hasAttribute('data-carousel-clone')) return;
+                var left = item.offsetLeft;
+                var right = left + item.offsetWidth;
+                var width = viewport.clientWidth;
+                if (left >= offset && right <= offset + width) return;
+                var target = Math.max(0, Math.min(period,
+                    left < offset ? left : right - width));
+                glideTo(target, target < offset ? -1 : 1);
+            }
+
+            /* How the last interaction arrived decides one thing: whether
+               focus should hold the row still. Keyboard focus on a card does,
+               so that a focus ring is carried back into view rather than
+               dragged out of the window. A mouse click also leaves its target
+               focused — on an arrow, or on a card the visitor is about to
+               open — and holding the row still for that is what looks like the
+               row having died, so pointer-driven focus never pauses it. */
+            window.addEventListener('keydown', function () { viaPointer = false; }, true);
+            window.addEventListener('pointerdown', function () { viaPointer = true; }, true);
+
+            if (prev) prev.addEventListener('click', function () { viaPointer = true; nudge(-1); });
+            if (next) next.addEventListener('click', function () { viaPointer = true; nudge(1); });
+
+            root.addEventListener('focusin', function (event) {
+                /* Only a card in the row has anything to reveal. The arrows
+                   and the viewport itself are controls the visitor just used,
+                   and the row must keep sliding after them. */
+                var el = event.target;
+                if (!el || !el.closest || !el.closest('.listing-slide')) return;
+                if (viaPointer) return;
+                focus = true;
+                revealFocus();
+            });
+            root.addEventListener('focusout', function (event) {
+                if (!root.contains(event.relatedTarget)) focus = false;
+            });
+
+            /* A finger on the row holds it still only while the finger is
+               down. The watchdog matters more than the hold: a release this
+               window never hears — a pointer dragged out of it, a dropped
+               pointerup, a backgrounded tab swallowing the event — would
+               otherwise leave the row stopped for the rest of the session. */
+            function holdTouching() {
+                touching = true;
+                clearTimeout(touchTimer);
+                touchTimer = setTimeout(watchdogTouch, 1500);
+            }
+
+            /* Only reached when no pointerup/pointercancel arrived for 1.5s --
+               a pointer dragged out of the window, a backgrounded tab
+               swallowing the event. A normal release is handled by the
+               listeners themselves and must not come through here: the
+               window-level `pointerup` listener is older, so it fires FIRST,
+               and letting it end the drag would leave the release handler with
+               nothing to settle. */
+            function watchdogTouch() {
+                if (dragging) {
+                    endDragListeners();
+                    root.classList.remove('is-dragging');
+                }
+                releaseTouching();
+            }
+
+            function releaseTouching() {
+                if (!touching) return;
+                touching = false;
+                clearTimeout(touchTimer);
+                if (active && period) {
+                    if (track.children.length !== lastCount) measure();
+                    offset = ((offset % period) + period) % period;
+                    paint(offset, false);
+                }
+            }
+
+            viewport.addEventListener('pointerdown', holdTouching);
+            window.addEventListener('pointerup', releaseTouching);
+            window.addEventListener('pointercancel', releaseTouching);
+            window.addEventListener('blur', function () {
+                touching = false;
+                clearTimeout(touchTimer);
+            });
+
+            /* ---- Swipe ----
+               The row follows the finger one-to-one and, on release, either
+               completes a single card or returns to where it was. Three things
+               make this behave:
+
+               · The axis is claimed once, after 6px of slop. Below that a
+                 press is a tap, and a tap on a card must still open the card.
+               · A mostly-vertical move is handed straight back to the browser,
+                 so a phone can still scroll the page past the row.
+               · The release settles through `glideTo`, the same door every
+                 arrow press and keypress uses, so a swipe can never leave the
+                 row somewhere the loop cannot reach. */
+            function settleGlide() {
+                /* Where the row is RIGHT NOW, mid-transition. Grabbing the row
+                   while an arrow glide is still running would otherwise fight
+                   the running animation. */
+                var t = getComputedStyle(track).transform;
+                if (t && t !== 'none') {
+                    try {
+                        var m = new DOMMatrixReadOnly(t);
+                        if (isFinite(m.m41)) { offset = -m.m41; }
+                    } catch (e) { /* older browsers: keep the logical offset */ }
+                }
+                stepping = false;
+                pending = 0;
+                clearTimeout(stepTimer);
+                if (period > 0) offset = ((offset % period) + period) % period;
+                paint(offset, false);
+            }
+
+            function onDragDown(event) {
+                /* Static state. A native overflow-x scroller moves under a
+                   finger and under a trackpad, but a plain mouse dragged
+                   across one moves it not at all, and the scrollbar is hidden
+                   and the arrows used to be too -- so a reduced-motion visitor
+                   with a mouse was shown a row they could not reach the end
+                   of. Give the mouse the gesture here too, and only the
+                   mouse: a finger is left to the scroller, which already does
+                   this better than we would. */
+                if (!active) {
+                    if (event.pointerType !== 'mouse' || event.button !== 0) return;
+                    dragId = event.pointerId;
+                    dragStartX = event.clientX;
+                    dragStartY = event.clientY;
+                    scrollBase = viewport.scrollLeft;
+                    dragDx = 0;
+                    axis = null;
+                    moved = false;
+                    window.addEventListener('pointermove', onDragMove, { passive: false });
+                    window.addEventListener('pointerup', onDragEnd);
+                    window.addEventListener('pointercancel', onDragEnd);
+                    return;
+                }
+                if (!period) return;
+                if (event.pointerType === 'mouse' && event.button !== 0) return;
+                if (stepping) settleGlide();
+                dragId = event.pointerId;
+                dragStartX = event.clientX;
+                dragStartY = event.clientY;
+                dragBase = offset;
+                dragDx = 0;
+                axis = null;
+                moved = false;
+                holdTouching();
+                window.addEventListener('pointermove', onDragMove, { passive: false });
+                window.addEventListener('pointerup', onDragEnd);
+                window.addEventListener('pointercancel', onDragEnd);
+            }
+
+            /* Pin the gesture to the row. A drag that wanders off the edge of
+               the cards -- onto the gutter, over an arrow, out of the window
+               -- otherwise stops delivering moves, and a release that is never
+               heard leaves the row stuck. Capture keeps the stream coming
+               wherever the cursor goes. The listeners are on `window`, which
+               the captured events still bubble through, so nothing else
+               changes.
+
+               Called from the move that claims the horizontal axis, NOT from
+               the press. While an element holds the capture, the browser
+               retargets the whole mouse stream to it -- including the click
+               that ends the gesture -- so capturing on pointerdown silently
+               broke every tap: the card's <a> stopped being the thing under
+               the cursor and a tap on a listing opened nothing. Waiting until
+               the row is already sliding means a press that turns out to be a
+               tap never captured anything. */
+            function capture(event) {
+                try {
+                    if (viewport.setPointerCapture) viewport.setPointerCapture(event.pointerId);
+                } catch (e) { /* pointer already gone: the release still lands */ }
+            }
+
+            function onDragMove(event) {
+                if (dragId === null || event.pointerId !== dragId) return;
+                var dx = event.clientX - dragStartX;
+                var dy = event.clientY - dragStartY;
+                if (!axis) {
+                    if (Math.abs(dx) < DRAG_SLOP && Math.abs(dy) < DRAG_SLOP) return;
+                    axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+                    if (axis === 'y') { endDragListeners(); return; }
+                    dragging = true;
+                    moved = true;
+                    root.classList.add('is-dragging');
+                    capture(event);   /* now it is a drag, so capture is safe */
+                }
+                if (axis !== 'x') return;
+                /* Claimed: stop the browser scrolling the page sideways. */
+                if (event.cancelable) event.preventDefault();
+                /* Keep the "a release we never hear" watchdog on a lease that
+                   each movement renews. Left alone it is a flat 1.5s and would
+                   tear down a deliberately slow drag halfway through it. */
+                holdTouching();
+                dragDx = dx;
+                /* Static: the scroller itself moves, one-to-one with the
+                   mouse. Active: the track is transformed, also one-to-one. */
+                if (!active) {
+                    viewport.scrollLeft = scrollBase - dx;
+                    return;
+                }
+                paint(dragBase - dx, false);   /* no transition: tracks the finger */
+            }
+
+            function onDragEnd(event) {
+                if (dragId === null || event.pointerId !== dragId) return;
+                var dx = dragDx;
+                var wasDrag = dragging;
+                var wasX = axis === 'x';   /* read before endDragListeners clears it */
+                endDragListeners();
+                releaseTouching();
+                if (!wasDrag) return;
+                root.classList.remove('is-dragging');
+                /* Only the click that immediately follows this release is a
+                   stray one. Expiring the flag keeps a later keyboard
+                   activation on a card from being swallowed by a swipe that
+                   ended somewhere else. */
+                clearTimeout(swallowTimer);
+                swallowTimer = setTimeout(function () { moved = false; }, 400);
+                if (!active || !period) {
+                    /* Static: land on the nearest card the same way the
+                       sliding row does, so a drag and an arrow agree on where
+                       the row stops. `step` is already measured -- measure()
+                       runs in this state too -- and one house has nothing to
+                       scroll at all. */
+                    if (wasX && step > 0) {
+                        var max = viewport.scrollWidth - viewport.clientWidth;
+                        var left = Math.max(0, Math.min(max, scrollBase - dx));
+                        scrollTo(Math.round(left / step) * step);
+                    }
+                    return;
+                }
+                /* Settle onto the nearest card boundary, the way a scroller
+                   does -- so a short nudge returns to the card you started on
+                   and a long pull crosses as many cards as it actually
+                   travelled. Adding a whole `step` to where the finger let go
+                   instead would park the row between cards: dragging 260px of
+                   a 350px card landed it at 610px, a further half-card along. */
+                var movedCards = Math.round(-dx / step);
+                if (!movedCards) {
+                    paint(dragBase, false);
+                    return;
+                }
+                /* Start from the boundary, not from the raw release point, so
+                   the glide never begins by jumping backwards. */
+                offset = dragBase;
+                paint(offset, false);
+                glideTo(offset + movedCards * step, movedCards > 0 ? 1 : -1);
+            }
+
+            function endDragListeners() {
+                dragging = false;
+                if (dragId !== null) {
+                    try {
+                        if (viewport.releasePointerCapture) {
+                            viewport.releasePointerCapture(dragId);
+                        }
+                    } catch (e) { /* never captured, or already gone */ }
+                }
+                dragId = null;
+                axis = null;
+                window.removeEventListener('pointermove', onDragMove);
+                window.removeEventListener('pointerup', onDragEnd);
+                window.removeEventListener('pointercancel', onDragEnd);
+            }
+
+            /* A swipe that ends over a card must not also open that card. */
+            viewport.addEventListener('click', function (event) {
+                if (!moved) return;
+                moved = false;
+                event.preventDefault();
+                event.stopPropagation();
+            }, true);
+
+            viewport.addEventListener('pointerdown', onDragDown);
+            /* Not passive: the page must not also scroll sideways when we take
+               a horizontal swipe. Passive would make preventDefault a no-op and
+               the row would fight the page instead of owning the gesture.
+
+               On `root`, not on the viewport: the two arrows are siblings of
+               the viewport, not children, so a listener on the viewport missed
+               them entirely and a two-finger swipe with the fingers resting on
+               a 44px arrow did nothing at all -- measured, not assumed. `root`
+               holds the viewport and those two buttons and nothing else, so it
+               is exactly the row's own area. */
+            root.addEventListener('wheel', onWheel, { passive: false });
+
+            viewport.addEventListener('keydown', function (event) {
+                if (!active) return;   /* static: leave the arrow keys to the scroller */
+                if (event.key === 'ArrowLeft') { event.preventDefault(); stepBy(-1); }
+                else if (event.key === 'ArrowRight') { event.preventDefault(); stepBy(1); }
+                else if (event.key === 'Home') {
+                    event.preventDefault();
+                    pending = 0;
+                    glideTo(0, -1);
+                }
+            });
+
+            if ('IntersectionObserver' in window) {
+                new IntersectionObserver(function (entries) {
+                    inView = entries[0].isIntersecting;
+                }, { threshold: 0.2 }).observe(root);
+            }
+
+            window.addEventListener('resize', function () {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(measure, 150);
+            });
+            if (reduce.addEventListener) reduce.addEventListener('change', measure);
+
+            measure();
+            requestAnimationFrame(frame);
+        })();
+</script>
+
+{% endblock %}

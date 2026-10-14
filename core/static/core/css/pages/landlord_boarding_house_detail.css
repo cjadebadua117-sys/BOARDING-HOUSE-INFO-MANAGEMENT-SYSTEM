@@ -1,0 +1,411 @@
+/* Extracted verbatim from core/templates/core/core\landlord_boarding_house_detail.html
+   This <link> sits exactly where the <style> tag was, so the
+   cascade order — and therefore which layer wins — is unchanged. */
+.property-management-page {
+        background-color: var(--bhims-paper-sunken);
+        min-height: calc(100vh - 72px);
+        padding: 3rem 2rem;
+        max-width: 1440px;
+        margin: 0 auto;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 3rem;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .page-header .header-content .eyebrow {
+        font-size: var(--fs-sm);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--bhims-teal);
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header .header-content h1 {
+        font-family: var(--font-display);
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--bhims-text);
+        margin-bottom: 0.75rem;
+        line-height: 1.2;
+    }
+
+    .page-header .header-content p {
+        color: var(--bhims-text-muted);
+        font-size: var(--fs-lg);
+        margin: 0;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-outline {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border: 1px solid var(--bhims-teal);
+        border-radius: 10px;
+        background-color: transparent;
+        color: var(--bhims-teal);
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-outline:hover {
+        background-color: rgba(20, 86, 60, 0.05);
+        text-decoration: none;
+        color: var(--bhims-teal);
+    }
+
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 10px;
+        background-color: var(--bhims-teal);
+        color: white;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--bhims-danger-text);
+        text-decoration: none;
+        color: white;
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background-color: var(--bhims-cream-light);
+        border: 1px solid var(--bhims-ink-line);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .stat-icon.total {
+        background-color: rgba(20, 86, 60, 0.1);
+        color: var(--bhims-teal);
+    }
+
+    .stat-icon.available {
+        background-color: var(--bhims-icon-tint);
+        color: var(--bhims-teal);
+    }
+
+    .stat-icon.occupied {
+        background-color: var(--bhims-badge-rejected-bg);
+        color: var(--bhims-badge-rejected);
+    }
+
+    .stat-content h3 {
+        font-family: var(--font-display);
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--bhims-text);
+        margin: 0 0 0.25rem 0;
+    }
+
+    .stat-content p {
+        color: var(--bhims-text-muted);
+        margin: 0;
+        font-size: var(--fs-sm);
+    }
+
+    .rooms-section {
+        background-color: var(--bhims-cream-light);
+        border: 1px solid var(--bhims-ink-line);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    }
+
+    .section-header {
+        margin-bottom: 2rem;
+    }
+
+    .section-header h2 {
+        font-family: var(--font-display);
+        font-size: var(--fs-2xl);
+        font-weight: 600;
+        color: var(--bhims-text);
+        margin: 0 0 0.5rem 0;
+    }
+
+    .rooms-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .room-card {
+        background-color: var(--bhims-paper-raised);
+        border: 1px solid var(--bhims-ink-line);
+        border-radius: 14px;
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .room-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .room-image-container {
+        height: 200px;
+        position: relative;
+        background-color: var(--bhims-ink-line);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .room-image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background: var(--bhims-cream-light);
+    }
+
+    .room-image-container .placeholder-icon {
+        width: 48px;
+        height: 48px;
+        color: var(--bhims-text-muted);
+    }
+
+    .availability-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.375rem 0.875rem;
+        border-radius: 20px;
+        font-size: var(--fs-xs);
+        font-weight: 500;
+    }
+
+    .availability-badge.available {
+        background-color: var(--bhims-badge-verified-bg);
+        color: var(--bhims-badge-verified);
+    }
+
+    .availability-badge.occupied {
+        background-color: var(--bhims-icon-tint);
+        color: var(--bhims-text-muted);
+    }
+
+    .room-card-body {
+        padding: 1.5rem;
+    }
+
+    .room-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+    }
+
+    .room-header h3 {
+        font-family: var(--font-display);
+        font-size: var(--fs-xl);
+        font-weight: 600;
+        color: var(--bhims-text);
+        margin: 0;
+    }
+
+    .room-meta {
+        color: var(--bhims-text-muted);
+        font-size: var(--fs-sm);
+        margin-bottom: 0.75rem;
+    }
+
+    .room-price {
+        font-size: var(--fs-xl);
+        font-weight: 700;
+        color: var(--bhims-teal);
+        margin-bottom: 1rem;
+    }
+
+    .amenities-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .amenity-tag {
+        padding: 0.375rem 0.75rem;
+        background-color: var(--bhims-ink-line);
+        border-radius: 8px;
+        font-size: var(--fs-xs);
+        color: var(--bhims-text-muted);
+        font-weight: 500;
+    }
+
+    .availability-toggle-container {
+        background-color: var(--bhims-paper-sunken);
+        border-radius: 10px;
+        padding: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .availability-toggle-container span {
+        font-weight: 500;
+        color: var(--bhims-text);
+        font-size: var(--fs-sm);
+    }
+
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 48px;
+        height: 24px;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--bhims-glass-bg-subtle);
+        transition: .3s;
+        border-radius: 24px;
+    }
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .3s;
+        border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+        background-color: var(--bhims-teal);
+    }
+
+    input:checked + .toggle-slider:before {
+        transform: translateX(24px);
+    }
+
+    .edit-room-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--bhims-teal);
+        border-radius: 10px;
+        background-color: transparent;
+        color: var(--bhims-teal);
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .edit-room-btn:hover {
+        background-color: rgba(20, 86, 60, 0.05);
+        text-decoration: none;
+        color: var(--bhims-teal);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .empty-state-icon {
+        width: 64px;
+        height: 64px;
+        color: var(--bhims-text-muted);
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-state h3 {
+        font-family: var(--font-display);
+        font-size: var(--fs-2xl);
+        font-weight: 600;
+        color: var(--bhims-text);
+        margin-bottom: 0.75rem;
+    }
+
+    .empty-state p {
+        color: var(--bhims-text-muted);
+        margin-bottom: 2rem;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    @media (max-width: 768px) {
+        .property-management-page {
+            padding: 2rem 1rem;
+        }
+
+        .page-header .header-content h1 {
+            font-size: 2rem;
+        }
+
+        .rooms-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .rooms-section {
+            padding: 1.5rem;
+        }
+    }

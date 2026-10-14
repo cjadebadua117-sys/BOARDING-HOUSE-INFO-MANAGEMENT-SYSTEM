@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block navbar %}{% include 'core/includes/navbar.html' with app_shell=1 %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block breadcrumb %}{% endblock %}
+
+{% block content %}
+<div class="app-shell" id="appShell" style="display: flex; min-height: 100vh;">
+    {% include "includes/sidebar.html" %}
+    <main class="app-main">
+        <div class="app-content">
+            {% block app_content %}{% endblock %}
+        </div>
+    </main>
+</div>
+
+<link rel="stylesheet" href="{% static 'core/css/pages/app_base.css' %}">
+
+<script>
+(function () {
+    function init() {
+        var shell = document.getElementById('appShell');
+        var toggle = document.getElementById('sidebarToggle');
+        var sidebar = shell ? shell.querySelector('.app-sidebar') : null;
+        if (!shell || !toggle || !sidebar) return;
+
+        var KEY = 'bhims_sidebar_collapsed';
+        var mq = window.matchMedia('(max-width: 768px)');
+        var lastToggleAt = 0;
+        var lastOpenAt = 0;
+        /* Real-phone tap hardening. Mobile browsers can fire a ghost
+           second click ~30-100ms after a tap; an impatient user also
+           taps again while the drawer is still sliding in. Rules:
+           - OPENING is never blocked (the drawer can always be opened).
+           - A toggle-tap that would CLOSE within 350ms of the previous
+             tap is treated as a ghost click and absorbed.
+           - An outside tap within 400ms of opening is absorbed too,
+             so the just-opened drawer can't be instantly re-closed. */
+        var CLOSE_GUARD = 350;
+        var OPEN_GRACE = 400;
+
+        function isCollapsed() { return shell.classList.contains('sidebar-collapsed'); }
+
+        /* Single source of truth: the collapsed class. CSS decides what that
+           means on each breakpoint — JS never touches style.display. */
+        function apply(collapsed) {
+            shell.classList.toggle('sidebar-collapsed', collapsed);
+            toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        }
+
+        function readStored() {
+            if (mq.matches) return true; // phones always start closed
+            var val = localStorage.getItem(KEY);
+            if (val === null) return true; // first visit: start closed
+            return val === '1'; // respect stored state
+        }
+
+        // Always start closed; respect user's choice after first toggle
+        var stored = readStored();
+        apply(stored);
+
+        /* ONE delegated handler owns every sidebar interaction, so a single
+           tap can never fire two competing toggles. */
+        document.addEventListener('click', function (e) {
+            var t = e.target;
+            if (!(t instanceof Element)) return;
+
+            if (t.closest('#sidebarToggle')) {
+                var now = Date.now();
+                var opening = isCollapsed();
+                /* Only ghost-CLOSES are absorbed — opening is always
+                   allowed so the drawer can never get stranded shut. */
+                if (!opening && now - lastToggleAt < CLOSE_GUARD) return;
+                lastToggleAt = now;
+                if (opening) lastOpenAt = now; // drawer was just opened
+                try { localStorage.setItem(KEY, opening ? '0' : '1'); } catch (err) {}
+
+                apply(!opening);
+                return;
+            }
+
+            if (t.closest('#sidebarClose')) {
+                apply(true);
+                return;
+            }
+
+            /* Open the menu, pick your destination — the sidebar closes
+               itself. Clicking any nav link collapses the drawer/rail
+               immediately (and remembers the closed state), then the
+               navigation proceeds. Modified clicks (ctrl/cmd/shift or
+               middle button open a new tab) keep THIS page — and its
+               sidebar — untouched. */
+            var link = t.closest('.sidebar-link');
+            if (link && e.button === 0 && !e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey) {
+                try { localStorage.setItem(KEY, '1'); } catch (err) {}
+                apply(true);
+                return; // browser handles the navigation as usual
+            }
+
+            /* Mobile: any tap outside the open drawer closes it
+               (dim overlay, page content, everything) — but never within
+               the grace period right after opening. */
+            if (mq.matches && !isCollapsed() && Date.now() - lastOpenAt > OPEN_GRACE && !t.closest('.app-sidebar')) {
+                apply(true);
+            }
+        });
+
+        /* Escape closes the drawer on mobile */
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && mq.matches && !isCollapsed()) apply(true);
+        });
+
+        window.addEventListener('storage', function () { apply(readStored()); });
+        /* Back/forward cache restores the old DOM — re-sync the sidebar
+           with the stored state when the page is shown again. */
+        window.addEventListener('pageshow', function () { apply(readStored()); });
+        if (mq.addEventListener) {
+            mq.addEventListener('change', function () { apply(readStored()); });
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+
+(function () {
+    // Animated count-up for .stat-number[data-count] elements
+    function animateNumbers() {
+        document.querySelectorAll('.stat-number[data-count]').forEach(function (el) {
+            var target = parseInt(el.getAttribute('data-count'), 10);
+            if (isNaN(target)) return;
+            if (el.dataset.animated === '1') return;
+            el.dataset.animated = '1';
+            var duration = 700;
+            var start = null;
+            function step(ts) {
+                if (!start) start = ts;
+                var progress = Math.min((ts - start) / duration, 1);
+                var eased = 1 - Math.pow(1 - progress, 3);
+                el.textContent = Math.round(eased * target).toLocaleString();
+                if (progress < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        });
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', animateNumbers);
+    } else {
+        animateNumbers();
+    }
+})();
+</script>
+
+<script>
+</script>
+{% endblock %}

@@ -1,0 +1,170 @@
+{% extends "app_base.html" %}
+{% block title %}Landlord Details - BHIMS Admin{% endblock %}
+
+{% block extra_css %}
+{% include "includes/admin_styles.html" %}
+{% endblock %}
+
+{% block app_content %}
+<div class="admin-page">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Admin</div>
+            <h1>{{ landlord.full_name|default:landlord.username }}</h1>
+            <p>Account and boarding house details for this landlord.</p>
+        </div>
+        <a href="{% url 'admin_landlord_list' %}" class="btn btn-uppercase btn-primary btn-sm">
+            <i class="bi bi-arrow-left"></i> Back to Landlords
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="admin-table-wrap p-4">
+                <h2 class="h5 mb-3 fw-bold" style="color: var(--bhims-text);">Account Information</h2>
+                <dl class="mb-0" style="color: var(--bhims-text-muted); font-size: var(--fs-md);">
+                    <dt class="fw-semibold" style="color: var(--bhims-text);">Full Name</dt>
+                    <dd>{{ landlord.full_name|default:landlord.username }}</dd>
+                    <dt class="fw-semibold" style="color: var(--bhims-text);">Username</dt>
+                    <dd>@{{ landlord.username }}</dd>
+                    <dt class="fw-semibold" style="color: var(--bhims-text);">Email</dt>
+                    <dd>{{ landlord.email }}</dd>
+                    <dt class="fw-semibold" style="color: var(--bhims-text);">Phone</dt>
+                    <dd>{{ landlord.phone_number|default:"—" }}</dd>
+                    <dt class="fw-semibold" style="color: var(--bhims-text);">Account Status</dt>
+                    <dd>
+                        {% if landlord.is_active %}
+                        <span class="pill pill-approved">Active</span>
+                        {% else %}
+                        <span class="pill pill-rejected">Inactive</span>
+                        {% endif %}
+                    </dd>
+                    <dt class="fw-semibold" style="color: var(--bhims-text);">Member Since</dt>
+                    <dd>{{ landlord.date_joined|date:"M d, Y" }}</dd>
+                    <dt class="fw-semibold" style="color: var(--bhims-text);">Student Rating</dt>
+                    <dd>
+                        {% if average_rating %}
+                        <span style="color: var(--bhims-badge-pending); letter-spacing: 1px;">★★★★★</span>
+                        <span class="fw-bold" style="color: var(--bhims-text);">{{ average_rating|floatformat:1 }} / 5</span>
+                        <small class="text-muted d-block">{{ rating_count }} rating{{ rating_count|pluralize }}</small>
+                        {% else %}
+                        <span class="text-muted">No ratings yet</span>
+                        {% endif %}
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="admin-table-wrap mb-4">
+                <div class="p-4" style="border-bottom: 1px solid var(--bhims-border);">
+                    <h2 class="h5 mb-0 fw-bold" style="color: var(--bhims-text);">Boarding Houses</h2>
+                </div>
+                {% if landlord.boarding_houses.exists %}
+                <div class="table-responsive">
+                    <table class="table admin-table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Barangay</th>
+                                <th>Status</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for house in landlord.boarding_houses.all %}
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold" style="color: var(--bhims-text);">{{ house.name }}</div>
+                                    <small class="text-muted">{{ house.address }}</small>
+                                </td>
+                                <td>{{ house.barangay_display }}</td>
+                                <td>
+                                    {% if house.status == 'pending' %}
+                                    <span class="pill pill-pending">Pending</span>
+                                    {% elif house.status == 'approved' %}
+                                    <span class="pill pill-approved">{% if house.is_active %}Approved{% else %}Hidden{% endif %}</span>
+                                    {% else %}
+                                    <span class="pill pill-rejected">Rejected</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <a href="{% url 'landlord_boarding_house_detail' house.pk %}" class="btn btn-uppercase btn-primary btn-sm">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-buildings"></i>
+                    <p class="mb-0">This landlord has not created any boarding houses yet.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="d-flex gap-2">
+                <a href="{% url 'admin_edit_landlord' landlord.pk %}" class="btn btn-uppercase btn-primary">Edit Landlord</a>
+                <form method="post" action="{% url 'toggle_landlord_active' landlord.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-uppercase {% if landlord.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}">
+                        {% if landlord.is_active %}Deactivate Account{% else %}Activate Account{% endif %}
+                    </button>
+                </form>
+                <form method="post" action="{% url 'admin_delete_landlord' landlord.pk %}" class="d-inline"
+                      onsubmit="return confirm('Delete this landlord account? This will also remove all of their boarding houses and data.')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-uppercase btn-danger"><i class="bi bi-trash"></i> Delete Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-table-wrap mt-4">
+        <div class="p-4 d-flex justify-content-between align-items-center" style="border-bottom: 1px solid var(--bhims-border);">
+            <h2 class="h5 mb-0 fw-bold" style="color: var(--bhims-text);">Rating History</h2>
+            {% if average_rating %}
+            <span class="pill pill-approved">{{ average_rating|floatformat:1 }} / 5 · {{ rating_count }} total</span>
+            {% endif %}
+        </div>
+        {% if ratings %}
+        <div class="table-responsive">
+            <table class="table admin-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Rating</th>
+                        <th>Comment</th>
+                        <th>Booking</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rating in ratings %}
+                    <tr>
+                        <td>
+                            <div class="fw-semibold" style="color: var(--bhims-text);">{{ rating.student.full_name|default:rating.student.username }}</div>
+                            <small class="text-muted">@{{ rating.student.username }}</small>
+                        </td>
+                        <td>
+                            <span style="color: var(--bhims-badge-pending); letter-spacing: 1px;" aria-label="{{ rating.rating }} out of 5">{% if rating.rating == 5 %}★★★★★{% elif rating.rating == 4 %}★★★★{% elif rating.rating == 3 %}★★★{% elif rating.rating == 2 %}★★{% else %}★{% endif %}</span>
+                            <span class="fw-bold ms-1" style="color: var(--bhims-text);">{{ rating.rating }}/5</span>
+                        </td>
+                        <td style="max-width: 320px;">{{ rating.comment|default:"—" }}</td>
+                        <td>{{ rating.booking.room.boarding_house.name|default:"—" }}</td>
+                        <td>{{ rating.created_at|date:"M d, Y" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-star"></i>
+            <p class="mb-0">No student has rated this landlord yet. Ratings appear after a student completes a confirmed booking.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

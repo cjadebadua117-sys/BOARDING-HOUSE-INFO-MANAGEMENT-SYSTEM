@@ -1,0 +1,285 @@
+/* Extracted verbatim from core/templates/core/core\includes\admin_styles.html
+   This <link> sits exactly where the <style> tag was, so the
+   cascade order — and therefore which layer wins — is unchanged. */
+/* ---- Shared admin page styling (BHIMS design system) ---- */
+    :root {
+        --bhims-moss: #2f7a5c;
+        --bhims-moss-hover: #28674d;
+    }
+    .admin-page h1 { font-family: var(--font-display); font-weight: 800; color: var(--bhims-text); margin: 0 0 0.5rem; }
+    .admin-page .subtitle { color: var(--bhims-text-muted); font-size: 1.05rem; margin: 0; }
+    .admin-page h3, .admin-page h4, .admin-page h5, .admin-page h6 {
+        font-family: var(--font-display);
+        font-weight: 800;
+        color: var(--bhims-text);
+    }
+
+    /* KPI strip: four cards per row, and a trailing row that fills.
+       A fixed 4-column grid left the last row short whenever the count was
+       not a multiple of four — the admin Overview's seven cards showed three
+       cards and an empty slot. The track count is now explicit: each card
+       spans 3 of 12 columns (four per row).
+       `.stat-grid-7` is the seven-card strip (the Overview): its last three
+       cards span 4 columns each so the second row is flush too. */
+    .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+    .stat-grid > * { grid-column: span 3; }
+    .stat-grid-7 > :nth-child(n + 5) { grid-column: span 4; }
+    .stat-card {
+        background: rgba(255,255,255,0.03);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-top: 3px solid var(--bhims-teal);
+        border-radius: 20px;
+        padding: 1.75rem;
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 32px 0 rgba(0,0,0,0.37);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--bhims-shadow-sm);
+        border-color: var(--bhims-ink-line-strong);
+    }
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        background: var(--bhims-icon-tint);
+        color: var(--bhims-teal);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--fs-2xl);
+        flex-shrink: 0;
+    }
+    .stat-number {
+        font-family: var(--font-display);
+        font-weight: 800;
+        font-size: 2rem;
+        color: var(--bhims-text);
+        line-height: 1;
+    }
+    .stat-label {
+        color: var(--bhims-text-muted);
+        font-size: var(--fs-sm);
+        margin-top: 0.35rem;
+    }
+
+    /* On/off switch: a real track and knob, in the site's green rather than
+       Bootstrap's default blue. Bootstrap draws the knob as a background image,
+       so the track colour and the knob position are what change on toggle. */
+    .form-check.form-switch .form-check-input {
+        --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+        width: 2.75rem;
+        height: 1.5rem;
+        border: 1px solid var(--bhims-ink-line-strong);
+        border-radius: 999px;
+        background-color: var(--bhims-border);
+        background-position: left 2px center;
+        background-size: 1.1rem 1.1rem;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+        transition: background-color 0.15s ease, background-position 0.15s ease, border-color 0.15s ease;
+        cursor: pointer;
+    }
+    .form-check.form-switch .form-check-input:checked {
+        background-color: var(--bhims-teal);
+        border-color: var(--bhims-teal);
+        background-position: right 2px center;
+    }
+    .form-check.form-switch .form-check-input:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 0.2rem rgba(47, 122, 92, 0.28);
+    }
+
+    /* Uppercase CTA buttons */
+    .btn-uppercase {
+        text-transform: none;
+        font-weight: 600;
+        letter-spacing: 0;
+        border-radius: 10px;
+        padding: 0.55rem 1.15rem;
+        border-width: 1px;
+    }
+    .btn-uppercase.btn-sm {
+        padding: 0.4rem 1.05rem;
+        font-size: var(--fs-xs);
+    }
+    /* Primary = seal green (Campus Editorial accent) */
+    .btn-uppercase.btn-primary {
+        background: var(--ce-accent, #14563c);
+        border-color: var(--ce-accent, #14563c);
+        color: var(--ce-on-accent, #fffdf7);
+    }
+    .btn-uppercase.btn-primary:hover, .btn-uppercase.btn-primary:focus, .btn-uppercase.btn-primary:active {
+        background: var(--ce-accent-deep, #0e3f2c);
+        border-color: var(--ce-accent-deep, #0e3f2c);
+        color: var(--ce-on-accent, #fffdf7);
+    }
+    /* Success = moss green */
+    .btn-uppercase.btn-success {
+        background-color: var(--bhims-moss);
+        border-color: var(--bhims-moss);
+        color: #fff;
+    }
+    .btn-uppercase.btn-success:hover, .btn-uppercase.btn-success:focus, .btn-uppercase.btn-success:active {
+        background-color: var(--bhims-moss-hover);
+        border-color: var(--bhims-moss-hover);
+        color: #fff;
+    }
+    /* Danger = brick */
+    .btn-uppercase.btn-danger {
+        background-color: #a2321f;
+        border-color: #a2321f;
+        color: #fff;
+    }
+    .btn-uppercase.btn-danger:hover, .btn-uppercase.btn-danger:focus, .btn-uppercase.btn-danger:active {
+        background-color: var(--bhims-danger-text);
+        border-color: var(--bhims-danger-text);
+    }
+    /* Warning = pending gold */
+    .btn-uppercase.btn-warning {
+        background-color: #8a5a14;
+        border-color: #8a5a14;
+        color: #fff;
+    }
+    .btn-uppercase.btn-warning:hover, .btn-uppercase.btn-warning:focus, .btn-uppercase.btn-warning:active {
+        background-color: #8a5a14;
+        border-color: #8a5a14;
+        color: #fff;
+    }
+    /* Outline = teal */
+    .btn-uppercase.btn-outline-primary {
+        background: transparent;
+        color: var(--bhims-teal-strong);
+        border: 2px solid var(--bhims-teal-strong);
+    }
+    .btn-uppercase.btn-outline-primary:hover, .btn-uppercase.btn-outline-primary:focus, .btn-uppercase.btn-outline-primary:active {
+        background: var(--bhims-icon-tint);
+        color: var(--bhims-teal-strong);
+        border-color: var(--bhims-teal-strong);
+    }
+
+    /* Admin tables */
+    .admin-table-wrap {
+        background: rgba(255,255,255,0.03);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 32px 0 rgba(0,0,0,0.37);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .admin-table-wrap:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px var(--bhims-shadow-hover);
+    }
+    .admin-table { margin: 0; --bs-table-color: var(--bhims-text); --bs-table-bg: transparent; }
+    table { background: transparent; }
+    .admin-table thead th {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--bhims-text);
+        background: var(--bhims-icon-tint);
+        border-bottom: 1px solid var(--bhims-border);
+        padding: 1rem 1.25rem;
+        white-space: nowrap;
+    }
+    .admin-table tbody td {
+        padding: 1rem 1.25rem;
+        color: var(--bhims-text-muted);
+        font-size: var(--fs-sm);
+        vertical-align: middle;
+        border-bottom: 1px solid var(--bhims-border);
+    }
+    .admin-table tbody tr:last-child td { border-bottom: none; }
+    .admin-table tbody tr { transition: background-color 0.15s ease; }
+    .admin-table tbody tr:hover { background: var(--bhims-icon-tint); }
+
+    /* Pills / badges */
+    .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.35rem 0.85rem;
+        border-radius: 9999px;
+        font-size: var(--fs-xs);
+        font-weight: 600;
+    }
+    .pill-pending { background: var(--bhims-badge-pending-bg); color: var(--bhims-badge-pending); }
+    .pill-approved { background: var(--bhims-badge-verified-bg); color: var(--bhims-badge-verified); }
+    .pill-rejected { background: var(--bhims-badge-rejected-bg); color: var(--bhims-badge-rejected); }
+
+    /* Pagination */
+    .pagination { gap: 0.35rem; }
+    .pagination .page-link {
+        border-radius: 9999px;
+        border: 1px solid var(--ce-line, rgba(31, 43, 40, 0.14));
+        background: var(--ce-card, #fffdf9);
+        color: var(--bhims-text-muted);
+        min-width: 40px;
+        text-align: center;
+        font-weight: 600;
+    }
+    .pagination .page-link:hover { background: var(--bhims-icon-tint); color: var(--bhims-teal); }
+    .pagination .page-item.active .page-link { background: var(--bhims-teal); border-color: var(--bhims-teal); color: #fff; }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1.5rem;
+        color: var(--bhims-text-muted);
+    }
+    /* Direct child only — an icon inside an empty state's CTA button is not the
+       decorative one and must keep the button's own icon size. */
+    .empty-state > i { font-size: 2.75rem; color: var(--bhims-border); display: block; margin-bottom: 0.75rem; }
+
+    /* Modals slide in from the right */
+    .modal.fade.modal-slide .modal-dialog {
+        transform: translateX(100%);
+        transition: transform 0.3s ease-out;
+    }
+    .modal.fade.modal-slide.show .modal-dialog { transform: translateX(0); }
+    .modal-slide .modal-content {
+        border-radius: 16px 0 0 16px;
+        border: none;
+        min-height: 100vh;
+        background: var(--bhims-cream-light);
+    }
+
+    @media (max-width: 992px) {
+        /* Two per row; seven cards would leave a single half-width card alone
+           on the last row, so that one takes the full width instead. */
+        .stat-grid > * { grid-column: span 6; }
+        .stat-grid-7 > :nth-child(n + 5) { grid-column: span 6; }
+        .stat-grid-7 > :last-child { grid-column: span 12; }
+    }
+    @media (max-width: 576px) {
+        /* One per row. The nth-child rules need naming here too: they are more
+           specific than `.stat-grid-7 > *` and would otherwise leave cards 5
+           and 6 sharing a half-width row. */
+        .stat-grid > *,
+        .stat-grid-7 > *,
+        .stat-grid-7 > :nth-child(n + 5),
+        .stat-grid-7 > :last-child { grid-column: span 12; }
+        .btn-uppercase.btn-sm {
+            padding: 0.55rem 1rem;
+            font-size: 0.8rem;
+        }
+        .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+    }

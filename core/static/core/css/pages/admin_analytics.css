@@ -1,0 +1,5 @@
+/* Extracted verbatim from core/templates/core/core\admin_analytics.html
+   This <link> sits exactly where the <style> tag was, so the
+   cascade order — and therefore which layer wins — is unchanged. */
+.chart-wrap { position: relative; height: 200px; }
+    .chart-wrap canvas { width: 100% !important; height: 100% !important; }

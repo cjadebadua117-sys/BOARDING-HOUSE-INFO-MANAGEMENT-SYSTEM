@@ -1,0 +1,161 @@
+{% comment %}
+  `clone` is set by the landing page's sliding row: its second copy exists only
+  to make the loop seamless, so it stays out of the tab order and out of the
+  accessibility tree rather than offering the same house twice.
+
+  `card_photo_url` is set by the view when the caller asked for the room itself
+  (the landing row): one bed and one floor say more about what is being rented
+  than another façade shot. Anywhere it is not set, the card falls back to the
+  boarding house's own photo, exactly as before.
+
+  `dir` is set by the browse page so the grid gets the richer directory card
+  — stronger image, price plate, availability, and a clear View details action.
+{% endcomment %}
+
+{% if dir %}
+<article class="listing-card result-card bhims-press"{% if clone %} tabindex="-1" aria-hidden="true"{% endif %} href="{% if landing %}{% url 'student_login' %}{% else %}{% url 'boarding_detail' house.pk %}{% endif %}">
+    <div class="result-image">
+        {% if house.card_photo_url %}
+            <img src="{{ house.card_photo_url }}" alt="" loading="lazy" decoding="async">
+        {% elif house.image_ok %}
+            <img src="{{ house.image.url }}" alt="" loading="lazy" decoding="async">
+        {% else %}
+            <div class="no-photo" aria-hidden="true">
+                <i class="bi bi-house-door"></i>
+            </div>
+        {% endif %}
+
+        <div class="result-badges">
+            {% if house.status == 'approved' %}
+            <span class="badge badge-bhims-verified"><i class="bi bi-shield-check" aria-hidden="true"></i> Verified</span>
+            {% endif %}
+            {% if house.available_rooms_count %}
+            <span class="badge badge-bhims-open"><i class="bi bi-check-circle" aria-hidden="true"></i> {{ house.available_rooms_count }} open</span>
+            {% else %}
+            <span class="badge badge-bhims-full"><i class="bi bi-slash-circle" aria-hidden="true"></i> Full</span>
+            {% endif %}
+        </div>
+
+        <div class="result-price">
+            {% if house.min_price %}
+            <span class="result-price-value">₱{{ house.min_price|floatformat:0 }}</span>
+            <span class="result-price-unit">/ month</span>
+            {% else %}
+            <span class="result-price-value">Ask for price</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="result-body">
+        <div class="result-title-row">
+            <h3 class="result-title">{{ house.name }}</h3>
+        </div>
+
+        <p class="result-location">
+            <i class="bi bi-geo-alt" aria-hidden="true"></i>
+            {{ house.barangay_display }}
+        </p>
+
+        <div class="result-meta">
+            <span class="result-pill"><i class="bi bi-grid-1x2" aria-hidden="true"></i> {{ house.card_room_type|default:"Standard" }}</span>
+            {% if house.address %}
+            <span class="result-pill result-pill-muted"><i class="bi bi-geo-alt" aria-hidden="true"></i> {{ house.address }}</span>
+            {% endif %}
+        </div>
+
+        {% with first_room=house.bookable_rooms|first %}
+        {% if first_room %}
+        <div class="result-amenities">
+            {% for amenity in first_room.amenities.all|slice:":4" %}
+            <span class="result-amenity">{{ amenity.name }}</span>
+            {% empty %}
+            <span class="text-muted" style="font-size: var(--fs-xs);">No amenities listed</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% comment %}
+        truncatewords, not truncatechars: the character cut landed mid-word
+        ("...laundry is ₱150 a …") and then the CSS sliced the remainder a
+        second time. Eleven words is what the two-line slot fits at the grid's
+        narrowest column (280px); anything more is text the card hides.
+        {% endcomment %}
+        <p class="result-description">{{ house.description|truncatewords:11 }}</p>
+
+        <div class="result-footer">
+            {% if house.available_rooms_count %}
+            <a href="{% url 'boarding_detail' house.pk %}" class="btn btn-view-result">
+                <i class="bi bi-eye" aria-hidden="true"></i>
+                View details
+            </a>
+            {% else %}
+            <span class="result-full-notice">
+                <i class="bi bi-slash-circle" aria-hidden="true"></i>
+                No rooms open right now
+            </span>
+            {% endif %}
+        </div>
+    </div>
+</article>
+{% else %}
+<a class="listing-card bhims-press"{% if clone %} tabindex="-1" aria-hidden="true"{% endif %} href="{% if landing %}{% url 'student_login' %}{% else %}{% url 'boarding_detail' house.pk %}{% endif %}">
+    <div class="card-image">
+        {% if house.card_photo_url %}
+            <img src="{{ house.card_photo_url }}" alt="" loading="lazy" decoding="async">
+        {% elif house.image_ok %}
+            <img src="{{ house.image.url }}" alt="" loading="lazy" decoding="async">
+        {% else %}
+            <div class="no-photo" aria-hidden="true">
+                <i class="bi bi-house-door"></i>
+                <span>No photo yet</span>
+            </div>
+        {% endif %}
+        <div class="card-overlay" aria-hidden="true"></div>
+        <div class="card-badges">
+            {% if house.status == 'approved' %}
+            <span class="gender-pill"><i class="bi bi-shield-check"></i> Verified</span>
+            {% endif %}
+            {% if house.gender_allowed and house.gender_allowed != 'both' %}
+            <span class="gender-pill">{{ house.get_gender_allowed_display }}</span>
+            {% endif %}
+            {% if house.available_rooms_count %}
+            <span class="room-type-pill">{{ house.available_rooms_count }} open</span>
+            {% else %}
+            <span class="room-type-pill">Full</span>
+            {% endif %}
+        </div>
+        <div class="card-price-overlay">
+            {% if house.min_price %}
+            ₱{{ house.min_price|floatformat:0 }}
+            <small>from / month</small>
+            {% else %}
+            Ask for price
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body">
+        <h3 class="h5 card-title">{{ house.name }}</h3>
+        <p class="card-location">
+            <i class="bi bi-geo-alt"></i>
+            {{ house.barangay_display }}, {{ house.address }}
+        </p>
+        <div class="meta-row">
+            {% comment %}
+            card_room_type is derived by the view from the already-prefetched
+            rooms; house.rooms.all|first would run a query per card.
+            {% endcomment %}
+            <span class="room-type-pill"><i class="bi bi-grid-1x2"></i> {{ house.card_room_type|default:"Standard" }}</span>
+        </div>
+        <p class="card-description">{{ house.description|truncatewords:11 }}</p>
+        <div class="card-actions">
+            {% if house.available_rooms_count %}
+            <span class="availability-badge"><i class="bi bi-check-circle"></i> Rooms available</span>
+            {% else %}
+            <span class="availability-badge is-full"><i class="bi bi-slash-circle"></i> Currently full</span>
+            {% endif %}
+            <span class="btn-view-details">Details <i class="bi bi-arrow-right"></i></span>
+        </div>
+    </div>
+</a>
+{% endif %}

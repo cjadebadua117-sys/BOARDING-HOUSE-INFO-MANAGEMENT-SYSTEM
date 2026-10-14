@@ -1,0 +1,2028 @@
+/* ==========================================================================
+   BHIMS · Campus Editorial
+   Loaded LAST — after Design Tokens, Premium Styles, iOS Theme, Liquid Glass.
+
+   Identity has a source rather than a mood. The palette is sampled from two
+   assets this project already ships:
+     · core/static/core/images/dmmmsu-seal.png      → deep institutional green
+       (#0f5311 / #24522b) and its gold (#ebecc6 / #f8fb81)
+     · core/static/core/images/dmmmsu-campus-hd.jpg → limestone paper
+       (#cec4aa / #e2e6e2) and charcoal-green ink (#272e2c)
+   So the ground is Bacnotan stone, the ink is campus shadow, and the accent is
+   the seal's green with its gold reserved for rules and marks. Nothing here is
+   a stock "teal + cream" pairing borrowed from a template.
+
+   Typography: one family does the work. DM Sans carries every heading, table,
+   label and number, because this is an admin tool people read for hours. The
+   serif survives in exactly one place — the institutional wordmark and the
+   landing hero — where it means "masthead" rather than "landing page".
+
+   Precedence notes: earlier sheets lean on !important, so contested
+   properties here carry !important as well — this file wins by being last
+   with equal-or-higher specificity, not by volume.
+   ========================================================================== */
+
+/* ---------- 1. Identity tokens ---------- */
+:root {
+    /* Type — the product speaks in one voice; the masthead keeps the serif */
+    --font-display: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-masthead: 'Fraunces', Georgia, 'Times New Roman', serif;
+
+    /* Light theme — limestone paper, campus-shadow ink, seal green + gold.
+       Every ink tier below is measured against --ce-paper (lum 0.879):
+         --ce-ink 12.8:1 · --ce-ink-soft 6.6:1 · --ce-ink-faint 5.4:1 ·
+         --ce-accent 7.7:1 · white on --ce-accent 8.5:1
+       --ce-gold is 3.8:1 on paper: rules, marks and large display only,
+       never body copy. */
+    --ce-paper: #f4f1e7;
+    --ce-card: #fffdf7;
+    --ce-ink: #232b28;
+    --ce-ink-soft: #4d5852;
+    --ce-ink-faint: #5b645f;
+    --ce-line: rgba(35, 43, 40, 0.15);
+    --ce-line-strong: rgba(35, 43, 40, 0.28);
+    --ce-accent: #14563c;
+    --ce-accent-deep: #0e3f2c;
+    --ce-accent-wash: rgba(20, 86, 60, 0.08);
+    --ce-on-accent: #fffdf7;
+    --ce-gold: #9c7418;
+    --ce-gold-wash: rgba(156, 116, 24, 0.12);
+    --ce-shadow: 0 1px 2px rgba(35, 43, 40, 0.06), 0 10px 28px -18px rgba(35, 43, 40, 0.22);
+    --ce-shadow-hover: 0 2px 4px rgba(35, 43, 40, 0.07), 0 18px 40px -20px rgba(35, 43, 40, 0.30);
+    --ce-radius: 12px;
+    --ce-radius-sm: 8px;
+    /* Colophon bar stays dark ink in both themes */
+    --ce-footer-bg: #1b2320;
+    --ce-footer-ink: rgba(244, 241, 231, 0.92);
+    --ce-footer-ink-soft: rgba(244, 241, 231, 0.66);
+
+    /* Bridge: legacy tokens resolve to the editorial palette */
+    --ios-surface: var(--ce-paper);
+    --ios-card: var(--ce-card);
+    --ios-border: var(--ce-line);
+    --ios-text: var(--ce-ink);
+    --ios-muted: var(--ce-ink-soft);
+    --ios-faint: var(--ce-ink-faint);
+    --ios-primary: var(--ce-accent);
+    --ios-primary-dark: var(--ce-accent-deep);
+    --ios-teal: var(--ce-accent);
+    --bhims-teal: var(--ce-accent);
+    --bhims-teal-hover: var(--ce-accent-deep);
+    --bhims-teal-strong: var(--ce-accent);
+    --bhims-teal-deep: var(--ce-accent-deep);
+    --bhims-text: var(--ce-ink);
+    --bhims-text-secondary: rgba(35, 43, 40, 0.85);
+    --bhims-text-muted: var(--ce-ink-soft);
+    --bhims-text-faint: var(--ce-ink-faint);
+    --bhims-paper: var(--ce-paper);
+    --bhims-border: var(--ce-line);
+    --bhims-ink-line: var(--ce-line);
+    --bhims-ink-line-strong: var(--ce-line-strong);
+    --bhims-radius: 12px;
+    --bhims-radius-sm: 8px;
+}
+
+html[data-theme="dark"] {
+    /* Dark — charcoal-green night, same sources lifted for a dark ground:
+         --ce-ink 13.9:1 · --ce-ink-soft 7.4:1 · --ce-ink-faint 5.5:1 on
+         --ce-paper (lum 0.0078); --ce-on-accent on --ce-accent 8.9:1 */
+    --ce-paper: #131817;
+    --ce-card: #1b2220;
+    --ce-ink: #e9e6db;
+    --ce-ink-soft: #aaada2;
+    --ce-ink-faint: #8d9188;
+    --ce-line: rgba(233, 230, 219, 0.13);
+    --ce-line-strong: rgba(233, 230, 219, 0.26);
+    --ce-accent: #79c79b;
+    --ce-accent-deep: #9adbb4;
+    --ce-accent-wash: rgba(121, 199, 155, 0.14);
+    --ce-on-accent: #0c1a13;
+    --ce-gold: #d8b45e;
+    --ce-gold-wash: rgba(216, 180, 94, 0.14);
+    --ce-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 28px -18px rgba(0, 0, 0, 0.6);
+    --ce-shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.45), 0 18px 40px -20px rgba(0, 0, 0, 0.7);
+    --ce-footer-bg: #0b0f0e;
+    --ce-footer-ink: rgba(233, 230, 219, 0.92);
+    --ce-footer-ink-soft: rgba(233, 230, 219, 0.60);
+
+    --ios-surface: var(--ce-paper);
+    --ios-card: var(--ce-card);
+    --ios-border: var(--ce-line);
+    --ios-text: var(--ce-ink);
+    --ios-muted: var(--ce-ink-soft);
+    --ios-faint: var(--ce-ink-faint);
+    --ios-primary: var(--ce-accent);
+    --ios-primary-dark: var(--ce-accent-deep);
+    --bhims-teal: var(--ce-accent);
+    --bhims-teal-hover: var(--ce-accent-deep);
+    --bhims-teal-strong: var(--ce-accent);
+    --bhims-teal-deep: var(--ce-accent-deep);
+    --bhims-text: var(--ce-ink);
+    --bhims-text-secondary: rgba(233, 230, 219, 0.85);
+    --bhims-text-muted: var(--ce-ink-soft);
+    --bhims-text-faint: var(--ce-ink-faint);
+    --bhims-paper: var(--ce-paper);
+    --bhims-border: var(--ce-line);
+    --bhims-ink-line: var(--ce-line);
+    --bhims-ink-line-strong: var(--ce-line-strong);
+    /* Ink text on light-teal buttons in dark mode (a11y bridge from iOS Theme) */
+    --bhims-on-teal: #10201d;
+}
+
+/* ---------- 2. Ground: flat warm paper, no orbs, no drifting light ---------- */
+html, body {
+    background-color: var(--ce-paper) !important;
+    background-image: none !important;
+    color: var(--ce-ink);
+}
+.ios-scene {
+    background: var(--ce-paper) !important;
+}
+.ios-scene::before,
+.ios-scene::after,
+.ios-orb {
+    display: none !important; /* stop the animated conic sweep + floating orbs */
+}
+::selection { background: rgba(20, 86, 60, 0.24); }
+html { scrollbar-color: rgba(125, 138, 133, 0.45) transparent; }
+::-webkit-scrollbar-thumb { background: rgba(125, 138, 133, 0.45); }
+
+/* ---------- 3. Typography: one family, serif kept for the masthead ---------- */
+h1, h2, h3, h4, h5, h6,
+.navbar-brand, .display-1, .display-2, .display-3, .display-4, .display-5, .display-6,
+.bhims-brand-text, .stat-number, .card-title, .section-header h2,
+.page-header h1, .page-header h2 {
+    font-family: var(--font-body) !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.015em !important;
+    color: var(--ce-ink);
+}
+/* The two places the serif earns its keep: the institutional wordmark and
+   the landing hero. Everywhere else it was making a dashboard read like a
+   landing page. */
+.bhims-brand-text,
+.bhims-word,
+.landing-title,
+.auth-id-main {
+    font-family: var(--font-masthead) !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.02em !important;
+}
+/* Numbers are read in columns, so they line up: tabular figures, no serif. */
+.stat-number,
+.stat-value,
+.table td, .table th,
+[data-count] {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+}
+h1 { line-height: 1.12; }
+.page-header h1 { font-size: clamp(1.9rem, 3.2vw, 2.6rem); }
+/* Eyebrows: editorial small-caps kicker, solid accent rule */
+.page-header .eyebrow,
+.section-header .eyebrow {
+    color: var(--ce-accent) !important;
+    letter-spacing: 0.16em;
+}
+.page-header .eyebrow::before {
+    background: var(--ce-accent) !important; /* was blue→teal gradient */
+}
+.section-header::before {
+    background: var(--ce-accent) !important; /* spine: solid, not gradient */
+}
+/* Body copy reads on paper, muted ink not glass-gray */
+body, p, li { color: var(--ce-ink); }
+.text-muted { color: var(--ce-ink-soft) !important; }
+a { color: var(--ce-accent); }
+a:hover { color: var(--ce-accent-deep); }
+html[data-theme="dark"] a { color: var(--ce-accent); }
+html[data-theme="dark"] a:hover { color: var(--ce-accent-deep); }
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] h5,
+html[data-theme="dark"] h6 { color: var(--ce-ink); }
+html[data-theme="dark"] .eyebrow { color: var(--ce-accent) !important; }
+html[data-theme="dark"] .eyebrow::before { background: var(--ce-accent) !important; }
+
+/* ---------- 4. Cards: paper on paper, hairline edges, no glass ---------- */
+.lg-glass,
+.card, .glass-card, .stat-card, .hero-card, .profile-card, .profile-main,
+.inquiry-card, .inquiries-card, .booking-card, .room-card, .listing-card,
+.result-card, .house-card, .house-content, .landing-feature-card, .feature-card,
+.rooms-card, .rooms-section, .filter-card, .thread-header,
+.messages-container, .image-gallery, .booking-table-wrap, .admin-table-wrap,
+.form-card, .bhims-toast, .modal-content {
+    background: var(--ce-card) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border: 1px solid var(--ce-line) !important;
+    border-radius: var(--ce-radius) !important;
+    box-shadow: var(--ce-shadow) !important;
+    transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+}
+.listing-card:hover, .card:hover {
+    box-shadow: var(--ce-shadow-hover) !important;
+    border-color: var(--ce-line-strong) !important;
+}
+/* Feature blocks inside sections: quieter, no shadow inside a card */
+.landing-feature-card {
+    box-shadow: none !important;
+}
+/* Dark theme re-assert: iOS Theme's dark rules use html[data-theme]
+   prefixes that out-specify the list above — match and beat them. */
+html[data-theme="dark"] .lg-glass,
+html[data-theme="dark"] .card, html[data-theme="dark"] .glass-card,
+html[data-theme="dark"] .stat-card, html[data-theme="dark"] .hero-card,
+html[data-theme="dark"] .profile-card, html[data-theme="dark"] .profile-main,
+html[data-theme="dark"] .inquiry-card, html[data-theme="dark"] .inquiries-card,
+html[data-theme="dark"] .booking-card, html[data-theme="dark"] .room-card,
+html[data-theme="dark"] .listing-card, html[data-theme="dark"] .result-card,
+html[data-theme="dark"] .house-card, html[data-theme="dark"] .house-content,
+html[data-theme="dark"] .feature-card, html[data-theme="dark"] .rooms-card,
+html[data-theme="dark"] .rooms-section, html[data-theme="dark"] .filter-card,
+html[data-theme="dark"] .thread-header, html[data-theme="dark"] .messages-container,
+html[data-theme="dark"] .image-gallery, html[data-theme="dark"] .form-card,
+html[data-theme="dark"] .bhims-toast, html[data-theme="dark"] .modal-content {
+    background: var(--ce-card) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border: 1px solid var(--ce-line) !important;
+    box-shadow: var(--ce-shadow) !important;
+}
+
+/* ---------- 4b. Dashboard rows: paper rows, not glass panels ----------
+   Audit finding: student/landlord inquiry lists kept white-glass rows and
+   washed icon tiles (rgba whites tuned for the old blue scene). */
+.inquiry-row, .booking-row, .message-row, .list-row {
+    background: var(--ce-card) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border: 1px solid var(--ce-line) !important;
+    border-radius: var(--ce-radius) !important;
+    box-shadow: none !important;
+}
+.inquiry-row:hover, .booking-row:hover, .message-row:hover {
+    border-color: var(--ce-line-strong) !important;
+    box-shadow: var(--ce-shadow-hover) !important;
+}
+/* Dashboard inquiry rows are ROWS inside .inquiries-card, not cards of their
+   own. iOS Theme paints BOTH .inquiry-item and .inquiry-details as secondary
+   glass panels (border + 16px radius, and no padding), so the card contained a
+   nested bordered box and the student's name sat flush against that inner
+   edge. Strip the decoration back to a plain hairline-separated row. */
+.inquiry-item {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid var(--ce-line) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+.inquiry-item:last-child { border-bottom: none !important; }
+.inquiry-item:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+.inquiry-details {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+/* Chat bubbles: ink for the sender, paper for the other party — the
+   blue→teal gradient bubble is retired (audit, inquiry_thread). */
+.message-bubble,
+.message-bubble.message-student,
+.message-bubble.sent,
+.message-bubble.mine {
+    background: var(--ce-accent) !important;
+    background-image: none !important;
+    color: var(--ce-on-accent) !important;
+    border-radius: var(--ce-radius) !important;
+    box-shadow: none !important;
+}
+.message-bubble.message-landlord,
+.message-bubble.received,
+.message-bubble.theirs {
+    background: var(--ce-card) !important;
+    color: var(--ce-ink) !important;
+    border: 1px solid var(--ce-line) !important;
+    border-radius: var(--ce-radius) !important;
+    box-shadow: none !important;
+}
+[data-theme="dark"] .message-bubble.message-student,
+[data-theme="dark"] .message-bubble.sent,
+[data-theme="dark"] .message-bubble.mine {
+    background: var(--ce-accent) !important;
+    background-image: none !important;
+}
+/* Bubble text: dark ink on the mint accent in dark mode (white failed
+   contrast, audit inquiry_thread); light mode keeps its own ink. */
+.message-bubble.message-student *,
+.message-bubble.sent *,
+.message-bubble.mine *,
+[data-theme="dark"] .message-bubble.message-student *,
+[data-theme="dark"] .message-bubble.sent * {
+    color: var(--ce-on-accent) !important;
+}
+[data-theme="dark"] textarea.form-control,
+[data-theme="dark"] input.form-control {
+    background: var(--ce-card) !important;
+    color: var(--ce-ink) !important;
+    border-color: var(--ce-line-strong) !important;
+}
+textarea::placeholder, input::placeholder { color: var(--ce-ink-faint) !important; opacity: 1 !important; }
+/* Navy-tinted comms panels from the iOS palette → neutral paper */
+.messages-container, .thread-header, .thread-reply, .reply-card,
+.messages-panel, .chat-panel {
+    background: var(--ce-card) !important;
+    background-image: none !important;
+    border: 1px solid var(--ce-line) !important;
+    box-shadow: none !important;
+}
+/* Property overview panel + inline-styled navy tints (audit, landlord
+   property detail): any glass var() backgrounds resolve to paper now. */
+.property-overview,
+.admin-table-wrap, .booking-table-wrap {
+    background: var(--ce-card) !important;
+    background-image: none !important;
+    border: 1px solid var(--ce-line) !important;
+}
+[data-theme="dark"] .property-overview,
+[data-theme="dark"] .admin-table-wrap,
+[data-theme="dark"] .booking-table-wrap {
+    background: var(--ce-card) !important;
+}
+.property-overview [style*="--bhims-icon-tint"] {
+    background: var(--ce-accent-wash) !important;
+    border: 1px dashed var(--ce-line-strong) !important;
+}
+.property-overview [style*="--bhims-cream-light"] {
+    background: var(--ce-card) !important;
+}
+/* Bootstrap context badges (bg-info etc.) → editorial outline stamps */
+.badge.bg-info, .badge.bg-primary, .badge.bg-success,
+.badge.bg-danger, .badge.bg-warning, .badge.bg-secondary {
+    background: var(--ce-accent-wash) !important;
+    color: var(--ce-accent) !important;
+    border: 1px solid var(--ce-line-strong) !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.02em;
+}
+.badge.bg-success { color: var(--bhims-badge-verified, var(--ce-accent)) !important; }
+.badge.bg-danger { color: var(--bhims-badge-rejected, #d9534f) !important; }
+.badge.bg-warning { color: var(--bhims-badge-pending, #b8860b) !important; }
+/* Glass specular overlays live on ::before/::after of card containers —
+   retire them so paper cards carry no leftover sheen (audit, ratings page). */
+.glass-card::before, .glass-card::after,
+.stat-card::before, .stat-card::after,
+.card::before, .card::after,
+.listing-card::before, .listing-card::after,
+.room-card::before, .room-card::after,
+.booking-card::before, .booking-card::after,
+.inquiry-card::before, .inquiry-card::after,
+.form-card::before, .form-card::after,
+.hero-card::before, .hero-card::after {
+    display: none !important;
+}
+/* Room card internals: navy availability strip + utility chips → paper */
+.availability-toggle-container {
+    background: var(--ce-accent-wash) !important;
+    background-image: none !important;
+    border: 1px solid var(--ce-line) !important;
+    border-radius: var(--ce-radius-sm) !important;
+    box-shadow: none !important;
+}
+.room-amenity, .amenity-chip, .room-card .badge {
+    background: var(--ce-accent-wash) !important;
+    color: var(--ce-ink-soft) !important;
+    border: 1px solid var(--ce-line) !important;
+}
+.room-card, .room-card-body {
+    background: var(--ce-card) !important;
+    background-image: none !important;
+}
+.room-card [style*="--bhims-icon-tint"],
+.room-card .room-image-placeholder {
+    background:
+        repeating-linear-gradient(-45deg,
+            transparent 0 10px,
+            var(--ce-accent-wash) 10px 11px),
+        var(--ce-card) !important;
+    border: 1px dashed var(--ce-line-strong) !important;
+}
+/* The icon loses its tile: a pastel glyph in a rounded square is the single
+   loudest "generated dashboard" pattern in the app. It becomes a small
+   unboxed mark beside the figure (see the IDENTITY PASS block at the end). */
+.stat-icon {
+    background: none !important;
+    color: var(--ce-accent) !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+/* Dark re-assert: iOS Theme's dark stat-icon (0,2,0 !important) out-specifies
+   the base rule above — audit finding, landlord dashboard. */
+[data-theme="dark"] .stat-icon,
+html[data-theme="dark"] .stat-icon {
+    background: none !important;
+    color: var(--ce-accent) !important;
+    border: 0 !important;
+}
+/* Property thumb placeholder: navy glass → pattern-book paper block,
+   matching the listing-card .no-photo language (audit, landlord dashboard). */
+.house-image-placeholder,
+.no-photo {
+    background:
+        repeating-linear-gradient(-45deg,
+            transparent 0 10px,
+            var(--ce-accent-wash) 10px 11px),
+        var(--ce-card) !important;
+    border: 1px dashed var(--ce-line-strong) !important;
+    color: var(--ce-accent) !important;
+}
+.house-image-placeholder svg { color: var(--ce-accent) !important; opacity: 0.85; }
+.sidebar-profile {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+.sidebar-sheen { display: none !important; }
+
+/* ---------- 5. Topbar: flat ink-hairline masthead ---------- */
+.bhims-topbar {
+    background: var(--ce-card) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border-bottom: 1px solid var(--ce-line-strong) !important;
+    box-shadow: none !important;
+}
+[data-theme="dark"] .bhims-topbar {
+    background: var(--ce-card) !important;
+    border-bottom-color: var(--ce-line) !important;
+    box-shadow: none !important;
+}
+.bhims-nav-link {
+    color: var(--ce-ink-soft) !important;
+    font-weight: 600 !important;
+    border-radius: var(--ce-radius-sm) !important;
+}
+.bhims-nav-link:hover,
+.bhims-nav-link.is-active {
+    color: var(--ce-accent) !important;
+    background: var(--ce-accent-wash) !important;
+}
+.bhims-theme-btn,
+.bhims-menu-toggle {
+    color: var(--ce-ink-soft) !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;   /* icon buttons, not boxed cards */
+}
+.bhims-theme-btn:hover {
+    color: var(--ce-accent) !important;
+    background: var(--ce-accent-wash) !important;
+}
+[data-theme="dark"] .bhims-theme-btn,
+[data-theme="dark"] .bhims-menu-toggle {
+    color: var(--ce-ink-soft) !important;
+    background: transparent !important;
+    border: none !important;
+}
+[data-theme="dark"] .bhims-theme-btn:hover { background: rgba(255, 255, 255, 0.08) !important; }
+
+/* Hamburger menu toggle: iOS Theme.css forces display:inline-flex at every
+   width (!important), so the button haunted desktop where the links are
+   already visible and it does nothing. Restore the intended discipline:
+   hidden on desktop, shown only once the nav collapses (<= 820px). */
+.bhims-menu-toggle { display: none !important; }
+@media (max-width: 820px) {
+    .bhims-menu-toggle { display: inline-flex !important; }
+}
+
+/* ---------- 6. Buttons: solid ink-edged accent, gradients retired ----------
+   Audit note: .create-btn etc. carry a 3-stop legacy gradient with a
+   double-selector chain; every button voice below is re-asserted flat. */
+  /* --- re-asserted flat base; the material lives in §16 (see there) --- */
+.btn-primary, .btn-success, .btn-bhims, .ios-btn, .create-btn, .submit-btn,
+.btn-submit, .btn-register-bhims, .btn-accept-bhims, .bhims-login-btn,
+.landing-btn-primary, .btn-teal, .view-all-btn, .manage-btn, .edit-btn,
+main a.ios-btn, main a.btn, main a.btn-primary, main a.btn-success,
+main a.btn-bhims, main a.create-btn, main a.submit-btn, main a.btn-submit,
+main a.btn-register-bhims, main a.btn-accept-bhims, main a.bhims-login-btn,
+main a.landing-btn-primary, main a.btn-teal, main a.view-all-btn,
+main a.manage-btn, main a.edit-btn,
+.btn-save, .view-thread-btn, .btn-action-premium {
+    background: var(--ce-accent) !important;
+    background-image: none !important;
+    color: var(--ce-on-accent) !important;
+    border: 1px solid var(--ce-accent-deep) !important;
+    border-radius: var(--ce-radius-sm) !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+.btn-primary:hover, .btn-success:hover, .btn-bhims:hover, .ios-btn:hover,
+.landing-btn-primary:hover, .create-btn:hover, .submit-btn:hover,
+.btn-submit:hover, .btn-teal:hover, .view-all-btn:hover, .manage-btn:hover,
+.edit-btn:hover,
+main a.ios-btn:hover, main a.btn-primary:hover, main a.btn-success:hover,
+main a.btn-bhims:hover, main a.create-btn:hover, main a.submit-btn:hover,
+main a.btn-submit:hover, main a.btn-register-bhims:hover,
+main a.btn-accept-bhims:hover, main a.bhims-login-btn:hover,
+main a.landing-btn-primary:hover, main a.btn-teal:hover,
+main a.view-all-btn:hover, main a.manage-btn:hover, main a.edit-btn:hover,
+.btn-save:hover, .view-thread-btn:hover, .btn-action-premium:hover {
+    background: var(--ce-accent-deep) !important;
+    background-image: none !important;
+    color: var(--ce-on-accent) !important;
+    border-color: var(--ce-accent-deep) !important;
+}
+[data-theme="dark"] .btn-save,
+[data-theme="dark"] .view-thread-btn,
+[data-theme="dark"] .btn-action-premium,
+[data-theme="dark"] .btn-primary,
+[data-theme="dark"] .btn-success,
+[data-theme="dark"] .btn-bhims,
+[data-theme="dark"] .ios-btn,
+[data-theme="dark"] .landing-btn-primary,
+[data-theme="dark"] .create-btn,
+[data-theme="dark"] .submit-btn,
+[data-theme="dark"] .btn-submit,
+[data-theme="dark"] .btn-teal,
+[data-theme="dark"] .view-all-btn,
+[data-theme="dark"] .manage-btn,
+[data-theme="dark"] .edit-btn,
+[data-theme="dark"] .btn-register-bhims,
+[data-theme="dark"] .btn-accept-bhims,
+[data-theme="dark"] .bhims-login-btn,
+html[data-theme="dark"] .btn-save,
+html[data-theme="dark"] .view-thread-btn,
+html[data-theme="dark"] .btn-action-premium,
+html[data-theme="dark"] .btn-primary,
+html[data-theme="dark"] .btn-success,
+html[data-theme="dark"] .btn-bhims,
+html[data-theme="dark"] .ios-btn,
+html[data-theme="dark"] .landing-btn-primary,
+html[data-theme="dark"] .create-btn,
+html[data-theme="dark"] .submit-btn,
+html[data-theme="dark"] .btn-submit,
+html[data-theme="dark"] .btn-teal,
+html[data-theme="dark"] .view-all-btn,
+html[data-theme="dark"] .manage-btn,
+html[data-theme="dark"] .edit-btn,
+html[data-theme="dark"] .btn-register-bhims,
+html[data-theme="dark"] .btn-accept-bhims,
+html[data-theme="dark"] .bhims-login-btn {
+    color: var(--ce-on-accent) !important;
+    background-color: var(--ce-accent) !important;
+    background-image: none !important;
+    background: var(--ce-accent) !important;
+    border-color: var(--ce-accent-deep) !important;
+}
+[data-theme="dark"] .btn-save:hover,
+[data-theme="dark"] .btn-primary:hover,
+[data-theme="dark"] .create-btn:hover,
+html[data-theme="dark"] .btn-save:hover,
+html[data-theme="dark"] .btn-primary:hover,
+html[data-theme="dark"] .create-btn:hover,
+html[data-theme="dark"] .btn-success:hover,
+html[data-theme="dark"] .submit-btn:hover,
+html[data-theme="dark"] .btn-submit:hover,
+html[data-theme="dark"] .btn-teal:hover,
+html[data-theme="dark"] .view-all-btn:hover,
+html[data-theme="dark"] .manage-btn:hover,
+html[data-theme="dark"] .edit-btn:hover,
+html[data-theme="dark"] .btn-bhims:hover,
+html[data-theme="dark"] .btn-register-bhims:hover,
+html[data-theme="dark"] .btn-accept-bhims:hover,
+html[data-theme="dark"] .bhims-login-btn:hover {
+    background-color: var(--ce-accent-deep) !important;
+    background: var(--ce-accent-deep) !important;
+    background-image: none !important;
+    color: var(--ce-on-accent) !important;
+}
+/* Secondary / outline voice */
+.btn-outline-primary, .ios-btn-soft, .landing-btn-outline,
+main a.ios-btn-soft, main a.btn-outline-primary, main a.landing-btn-outline {
+    background: transparent !important;
+    background-image: none !important;
+    color: var(--ce-accent) !important;
+    border: 1px solid var(--ce-line-strong) !important;
+    border-radius: var(--ce-radius-sm) !important;
+    box-shadow: none !important;
+}
+.btn-outline-primary:hover, .ios-btn-soft:hover, .landing-btn-outline:hover,
+main a.ios-btn-soft:hover, main a.btn-outline-primary:hover, main a.landing-btn-outline:hover {
+    background: var(--ce-accent-wash) !important;
+    border-color: var(--ce-accent) !important;
+    color: var(--ce-accent-deep) !important;
+}
+
+/* ---------- 7. Pills, badges, chips: outline stamps, not glass ---------- */
+.gender-pill, .room-type-pill, .landing-kicker {
+    background: var(--ce-card) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border: 1px solid var(--ce-line-strong) !important;
+    box-shadow: none !important;
+    color: var(--ce-ink-soft) !important;
+    border-radius: 999px !important;
+}
+.gender-pill i { color: var(--ce-accent); }
+[data-theme="dark"] .gender-pill,
+[data-theme="dark"] .room-type-pill,
+[data-theme="dark"] .landing-kicker {
+    background: var(--ce-card) !important;
+    border-color: var(--ce-line-strong) !important;
+    color: var(--ce-ink-soft) !important;
+}
+.card-price-overlay {
+    background: var(--ce-ink) !important;
+    border-radius: var(--ce-radius-sm) !important;
+}
+.card-price-overlay small { opacity: 0.75; }
+/* Dark: ink is light, so the plate inverts to dark with cream text */
+html[data-theme="dark"] .card-price-overlay {
+    background: rgba(16, 20, 22, 0.92) !important;
+    color: var(--ce-ink) !important;
+    border: 1px solid var(--ce-line-strong) !important;
+}
+
+/* ---------- 8. No-photo placeholder: pattern-book block, not gray void ---------- */
+.no-photo {
+    background:
+        repeating-linear-gradient(-45deg,
+            transparent 0 10px,
+            var(--ce-accent-wash) 10px 11px),
+        var(--ce-card) !important;
+    border: 1px dashed var(--ce-line-strong) !important;
+    color: var(--ce-ink-faint) !important;
+}
+.no-photo i { color: var(--ce-accent) !important; opacity: 0.9; }
+.no-photo span {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+/* The old dark overlay existed to make white price text readable on photos.
+   The price now lives in its own ink plate, so the veil is retired —
+   photos (and placeholders) render at full strength.
+   TWINS: searched "card-overlay" - found 1 other site:
+   landlord_boarding_house_list.html (its no-photo block pairs with the
+   same .no-photo restyle, and the overlay rule above covers it globally). */
+.card-overlay { display: none !important; }
+
+/* ---------- 9. Landing hero: photo first, copy set on it like print ---------- */
+.landing-hero {
+    background: var(--ce-paper) !important;
+    /* The hero carries a dark photo scrim in BOTH themes, so the page-level
+       focus ring (a deep teal tuned for light paper) only reached ~2:1 on the
+       copy column. Focus anything inside the hero against the bright ring
+       instead; everything outside keeps the global token. */
+    --focus-ring: #2ee0bb;
+    --ce-btn-ring: #2ee0bb;
+    align-items: flex-end !important;      /* copy sits low-left, magazine style */
+    justify-content: flex-start !important;
+    padding: var(--space-12) var(--space-8) calc(var(--space-12) + 64px) !important;
+}
+@media (max-width: 700px) {
+    .landing-hero { align-items: flex-end !important; padding: var(--space-9) var(--space-5) calc(var(--space-9) + 72px) !important; }
+}
+.landing-hero::after {
+    /* Scrim: a soft veil pooled behind the copy column (bottom-left) plus
+       the vertical grade. Without the veil, white text vanishes where the
+       photo is bright — pale concrete, sky. Photo stays full-strength
+       at the right and top-right. */
+    background:
+        radial-gradient(58% 64% at 24% 70%, rgba(20, 28, 26, 0.48), rgba(20, 28, 26, 0) 72%),
+        linear-gradient(180deg,
+            rgba(20, 28, 26, 0.12) 0%,
+            rgba(20, 28, 26, 0.16) 45%,
+            rgba(20, 28, 26, 0.64) 100%) !important;
+}
+[data-theme="dark"] .landing-hero::after {
+    background:
+        radial-gradient(58% 64% at 24% 70%, rgba(10, 14, 13, 0.55), rgba(10, 14, 13, 0) 72%),
+        linear-gradient(180deg,
+            rgba(10, 14, 13, 0.14) 0%,
+            rgba(10, 14, 13, 0.22) 45%,
+            rgba(10, 14, 13, 0.74) 100%) !important;
+}
+.landing-hero-copy {
+    text-align: left !important;
+    align-items: flex-start !important;
+    max-width: 640px;
+    margin: 0 !important;
+}
+/* Hero copy sits ON the photograph — the veil (above) pools shade behind
+   it. The photo does not change with the theme, so the type is fixed
+   light in BOTH themes; --ce-ink theming would go black-on-photo here. */
+.landing-hero-copy h1,
+.landing-hero-copy .display-3,
+.landing-hero .landing-headline {
+    color: #fdfcf8 !important;
+    text-shadow: 0 1px 24px rgba(10, 16, 14, 0.5), 0 0 2px rgba(10, 16, 14, 0.35);
+    font-size: clamp(2.3rem, 4.6vw, 3.6rem) !important;
+}
+[data-theme="dark"] .landing-hero-copy h1,
+[data-theme="dark"] .landing-hero-copy .display-3,
+[data-theme="dark"] .landing-hero .landing-headline,
+[data-theme="dark"] .landing-title {
+    color: #fdfcf8 !important;
+    -webkit-text-fill-color: #fdfcf8 !important;
+}
+.landing-hero .landing-sub {
+    color: rgba(253, 252, 248, 0.92) !important;
+    -webkit-text-fill-color: rgba(253, 252, 248, 0.92) !important;
+    text-shadow: 0 1px 14px rgba(10, 16, 14, 0.55);
+}
+/* Kicker: a printed photo label — sharp-cornered paper plate with ink
+   small caps. Transparent text failed twice on this photo (white over
+   bright concrete, black over the dark treeline), so the plate is the
+   honest fix: legible over any image, in both themes. Not a pill:
+   no radius, no border, no shadow.
+   NOTE: .landing-hero-copy p (0,1,1) out-specifies .landing-kicker (0,1,0),
+   so these overrides match that specificity and win. */
+.landing-kicker,
+.landing-hero-copy .landing-kicker,
+.landing-hero .landing-kicker {
+    background: var(--ce-card) !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0.35rem 0.75rem !important;
+    color: #1f2b28 !important;
+    text-shadow: none !important;
+}
+.landing-kicker::before { background: var(--ce-accent) !important; }
+[data-theme="dark"] .landing-kicker,
+[data-theme="dark"] .landing-hero-copy .landing-kicker,
+html[data-theme="dark"] .landing-kicker {
+    background: rgba(20, 24, 26, 0.88) !important;
+    border: none !important;
+    border-radius: 0 !important;
+    color: #ffffff !important;
+    text-shadow: none !important;
+}
+/* Floating glass chips: decorative duplicates of the trust bar — retired.
+   The photo breathes; the facts live in the trust bar below the fold line. */
+.lg-chip { display: none !important; }
+/* Hero secondary button: quiet ghost — translucent ink over the photo.
+   The bright white plate is gone (it glared in dark mode). */
+.landing-hero .landing-btn-outline,
+[data-theme="dark"] .landing-hero .landing-btn-outline {
+    background: rgba(20, 24, 26, 0.42) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+    backdrop-filter: blur(6px) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.42) !important;
+    box-shadow: none !important;
+}
+.landing-hero .landing-btn-outline:hover {
+    background: rgba(20, 24, 26, 0.62) !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.62) !important;
+}
+/* Headline: solid light over the photo — gradient text retired (C6).
+   Color comes from the hero-copy rule; text-fill tracks it. */
+.landing-title {
+    background-image: none !important;
+    -webkit-text-fill-color: currentColor !important;
+    font-weight: 600 !important;
+}
+/* Brand row: NO card — the logo sits directly on the photo. The wordmark
+   is forced to cream in both themes (the hero always has a photo behind it),
+   with a soft drop-shadow for separation. */
+.landing-brand {
+    justify-content: flex-start !important;
+    margin-bottom: var(--space-5) !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    width: fit-content;
+}
+.landing-brand img.landing-brand-mark {
+    height: clamp(40px, 5vw, 54px) !important;
+    filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.45)) !important;
+}
+.landing-brand img.landing-brand-word {
+    height: clamp(24px, 3vw, 34px) !important;
+    filter: brightness(0) invert(1) drop-shadow(0 2px 10px rgba(0, 0, 0, 0.45)) !important;
+}
+/* Photo caption: bare credit line, no pill — a printed credit, not a chip */
+.landing-photo-caption {
+    left: var(--space-8) !important;
+    transform: none !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+    letter-spacing: 0.06em;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    text-shadow: 0 1px 10px rgba(10, 16, 14, 0.6);
+}
+.landing-photo-dot { background: var(--ce-accent) !important; box-shadow: none !important; }
+
+/* ---------- 9b. Landing sections: editorial rhythm ---------- */
+/* Tinted glass section → plain paper with a hairline */
+.landing-section-tinted {
+    background: transparent !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border: none !important;
+    border-top: 1px solid var(--ce-line) !important;
+    border-radius: 0 !important;
+}
+.landing-section-kicker { color: var(--ce-accent) !important; letter-spacing: 0.16em; }
+[data-theme="dark"] .landing-section-kicker { color: var(--ce-accent) !important; }
+/* Feature icon box: accent wash, no glass or gradient */
+.feature-icon-box {
+    background: var(--ce-accent-wash) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border: 1px solid var(--ce-line) !important;
+    border-radius: var(--ce-radius-sm) !important;
+    box-shadow: none !important;
+    color: var(--ce-accent) !important;
+}
+/* CTA block: flat paper card with hairline */
+.landing-cta {
+    background: var(--ce-card) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border: 1px solid var(--ce-line) !important;
+    border-radius: var(--ce-radius) !important;
+}
+/* Trust bar: ink numerals in accent, hairline frame */
+.landing-trust-bar { border-color: var(--ce-line) !important; }
+.landing-trust-bar strong { color: var(--ce-accent) !important; }
+[data-theme="dark"] .landing-trust-bar strong { color: var(--ce-accent) !important; }
+.landing-trust-bar span { color: var(--ce-ink-soft) !important; }
+
+/* ---------- 10. Tables, forms, inputs: hairlines on paper ---------- */
+.admin-table-wrap, .booking-table-wrap { border: 1px solid var(--ce-line) !important; }
+/* Checkboxes and radios are excluded: this rule paints with the `background`
+   shorthand, which resets background-image, and Bootstrap draws the switch knob
+   and the tick as background images. `!important` on a bare `input` selector
+   won over Bootstrap's own rule, leaving every switch and checkbox an empty
+   pill (the "Allow student registration" toggle). */
+.form-control, .form-select, input:not([type="checkbox"]):not([type="radio"]), select, textarea {
+    background: var(--ce-card) !important;
+    border: 1px solid var(--ce-line-strong) !important;
+    border-radius: var(--ce-radius-sm) !important;
+    color: var(--ce-ink) !important;
+}
+.form-control:focus, .form-select:focus,
+input:not([type="checkbox"]):not([type="radio"]):focus, select:focus, textarea:focus {
+    border-color: var(--ce-accent) !important;
+    box-shadow: 0 0 0 3px var(--ce-accent-wash) !important;
+}
+
+/* ---------- 11. Section rhythm: rules, not floating boxes ---------- */
+.page-header { border-bottom: 1px solid var(--ce-line-strong) !important; }
+hr { border-color: var(--ce-line); opacity: 1; }
+/* Footer: an ink colophon bar — closes the page like a printed credit */
+.bhims-footer {
+    background: var(--ce-footer-bg) !important;
+    color: var(--ce-footer-ink) !important;
+}
+.bhims-footer a { color: var(--ce-footer-ink) !important; opacity: 0.85; }
+.bhims-footer a:hover { opacity: 1; }
+.bhims-footer h3, .bhims-footer h4, .bhims-footer strong { color: var(--ce-footer-ink) !important; }
+.bhims-footer .text-muted, .bhims-footer p, .bhims-footer span {
+    color: var(--ce-footer-ink-soft) !important;
+}
+/* Footer logo: recolor to cream so the dark wordmark survives the ink bar */
+.bhims-footer-brand img { filter: brightness(0) invert(1) !important; opacity: 0.92; }
+
+/* ---------- 12. Availability + status colors keep their meaning ---------- */
+.availability-badge { color: var(--ce-accent) !important; font-weight: 600; }
+.availability-badge.is-full { color: var(--ce-ink-faint) !important; }
+.bhims-badge-verified, .bhims-badge-pending, .bhims-badge-rejected {
+    border-radius: 999px;
+}
+
+/* ---------- 13. Motion discipline: keep it calm and cheap ---------- */
+/* Keep the tactile press; retire springy glass hover transforms */
+.listing-card, .card { transform: none !important; }
+.listing-card:active, .card:active { transform: scale(0.995) !important; }
+
+/* ---------- 14. Reduced motion: honor globally ---------- */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ---------- 15. Browse pagination ---------- */
+/* Lives inside the AJAX grid, so it must span every grid column. */
+.listing-grid .pagination-custom {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin: 1.5rem 0 0.5rem;
+}
+.pagination-custom .page-link-custom {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+    height: 38px;
+    border: 1px solid var(--ce-line-strong);
+    border-radius: var(--ce-radius-sm);
+    color: var(--ce-ink);
+    background: var(--ce-card);
+    text-decoration: none;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.pagination-custom .page-link-custom:hover,
+.pagination-custom .page-link-custom:focus-visible {
+    background: var(--ce-accent-wash);
+    border-color: var(--ce-accent);
+    color: var(--ce-accent-deep);
+}
+.pagination-custom .page-status {
+    font-size: 0.86rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ce-ink-soft);
+}
+
+/* ============================================================
+   KEYBOARD FOCUS SYSTEM (K7 fix — visible focus is a craft
+   signal AND an accessibility requirement, WCAG 2.4.7)
+   Every interactive element shows a teal ring for keyboard
+   users; pointer clicks stay clean via :focus-visible.
+   ============================================================ */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible,
+[role="button"]:focus-visible,
+[role="tab"]:focus-visible {
+    outline: 2px solid var(--focus-ring, #17685e);
+    outline-offset: 2px;
+}
+
+/* Dark theme needs no override of its own: --focus-ring already resolves to
+   a brighter value under :root and to the deep value under
+   [data-theme="light"], so the ring is theme-correct wherever it lands. */
+
+/* ============================================================
+   STATUS INK (a11y pass)
+   The iOS Theme's status palette was tuned for one theme: light
+   washes that stay light in dark mode, and mid-tone ink on
+   pale washes in light mode. Measured worst cases were 2.0:1
+   (#16a34a on #dcfce7) and 1.9:1 (white on a light-teal button).
+   Status chips are how a student reads "Confirmed" vs "Full"
+   at a glance, so they get their own AA-safe token pair per
+   theme instead of inheriting the app-store palette.
+   ============================================================ */
+:root {
+    --ce-ok-ink: #166534;
+    --ce-ok-wash: #dcfce7;
+    --ce-ok-line: rgba(22, 101, 52, 0.24);
+    --ce-warn-ink: #8a4b08;
+    --ce-warn-wash: #fef3c7;
+    --ce-warn-line: rgba(138, 75, 8, 0.24);
+    --ce-bad-ink: #9f1239;
+    --ce-bad-wash: #fee2e2;
+    --ce-bad-line: rgba(159, 18, 57, 0.24);
+    --ce-info-ink: #1d4ed8;
+    --ce-info-wash: #e0e7ff;
+    --ce-info-line: rgba(29, 78, 216, 0.24);
+}
+/* Dark mode: dark washes with light ink — the inverse, not the same chip
+   with different text, which is what produced the 2:1 pairs.
+   These washes are OPAQUE on purpose. They are translucent in the light
+   theme's older layers, and the "Available" chip sits directly on the
+   listing photograph: an 18% wash let the foliage show through and the
+   chip's own ink then measured 1.5:1 against the leaves. A solid wash
+   gives every chip the same controlled backdrop, photo or card. */
+html[data-theme="dark"] {
+    --ce-ok-ink: #86efac;
+    --ce-ok-wash: #12301f;
+    --ce-ok-line: rgba(134, 239, 172, 0.30);
+    --ce-warn-ink: #fcd34d;
+    --ce-warn-wash: #33240a;
+    --ce-warn-line: rgba(252, 211, 77, 0.30);
+    --ce-bad-ink: #fca5a5;
+    --ce-bad-wash: #38141a;
+    --ce-bad-line: rgba(252, 165, 165, 0.30);
+    --ce-info-ink: #a5b4fc;
+    --ce-info-wash: #1b1f3d;
+    --ce-info-line: rgba(165, 180, 252, 0.30);
+}
+
+/* Approved / open / available / verified */
+.pill-approved, .pill.pill-approved,
+.status-chip.is-open, .status-chip.is-available,
+.badge-bhims-verified, .badge.bg-success,
+.availability-badge, .ios-badge-green {
+    background: var(--ce-ok-wash) !important;
+    color: var(--ce-ok-ink) !important;
+    border-color: var(--ce-ok-line) !important;
+}
+/* Pending / under review */
+.pill-pending, .pill.pill-pending,
+.status-chip.is-pending,
+.badge-bhims-pending, .badge.bg-warning,
+.ios-badge-amber {
+    background: var(--ce-warn-wash) !important;
+    color: var(--ce-warn-ink) !important;
+    border-color: var(--ce-warn-line) !important;
+}
+/* Rejected / declined / inactive */
+.pill-rejected, .pill.pill-rejected,
+.status-chip.is-declined,
+.badge-bhims-rejected, .badge.bg-danger,
+.ios-badge-red {
+    background: var(--ce-bad-wash) !important;
+    color: var(--ce-bad-ink) !important;
+    border-color: var(--ce-bad-line) !important;
+}
+/* Informational / role chips */
+.user-badge, .badge.bg-info, .badge.bg-primary, .ios-badge-blue {
+    background: var(--ce-info-wash) !important;
+    color: var(--ce-info-ink) !important;
+    border-color: var(--ce-info-line) !important;
+}
+/* "Full" is a neutral, not an accent: keep it quiet but still legible
+   (the old --ce-ink-faint pairing measured 3.3:1). */
+.availability-badge.is-full {
+    background: transparent !important;
+    color: var(--ce-ink-soft) !important;
+}
+/* Outline danger buttons: ink + border, never a pale fill */
+.btn-outline-danger {
+    background: transparent !important;
+    border-color: var(--ce-bad-ink) !important;
+    color: var(--ce-bad-ink) !important;
+}
+.btn-outline-danger:hover,
+.btn-outline-danger:focus-visible {
+    background: var(--ce-bad-wash) !important;
+    border-color: var(--ce-bad-ink) !important;
+    color: var(--ce-bad-ink) !important;
+}
+
+/* ============================================================
+   MUTED RAIL + TOUCH TARGETS (a11y pass)
+   ============================================================ */
+/* The rail's section headings and logout label used 40%-55% ink
+   (3.4:1 light, 3.8:1 dark). Small caps at 0.68rem is exactly the
+   case where that fails hardest, so they borrow the soft ink tier,
+   which is contrast-checked on both grounds. */
+.sidebar-heading,
+.sidebar-logout {
+    color: var(--ce-ink-soft) !important;
+}
+
+/* Touch targets: WCAG 2.5.5 asks for 44x44 CSS px on touch devices.
+   These controls were 29-40px — comfortable with a mouse, fiddly with
+   a thumb, and the rail/menu buttons are the only way in on a phone. */
+@media (max-width: 820px) {
+    .bhims-theme-btn,
+    .bhims-menu-toggle,
+    .sidebar-toggle,
+    .sidebar-close,
+    .eye-toggle {
+        min-width: 44px !important;
+        min-height: 44px !important;
+    }
+    .sidebar-logout {
+        min-height: 44px !important;
+        padding-block: 0.6rem !important;
+    }
+    .bhims-brand,
+    .auth-id {
+        min-height: 44px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+    }
+    .btn-view-result,
+    .pagination-custom .page-link-custom {
+        min-height: 44px !important;
+    }
+    /* Pagination only exists once a landlord has more houses than fit on one
+       page, so this was invisible in demo data: the number links were 38px
+       wide, six pixels under the thumb minimum, and every extra page repeated
+       the finding. */
+    .pagination-custom .page-link-custom {
+        min-width: 44px !important;
+    }
+    /* These are standalone controls — a chip, a back link, a portal CTA — not
+       links inside a sentence, so the inline exception does not cover them. */
+    .back-link,
+    .owner-chip,
+    .view-all-btn,
+    .btn-view-result {
+        min-height: 44px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+    }
+    .sidebar-logout {
+        min-width: 44px !important;
+    }
+    .bhims-footer-links a,
+    footer.auth-foot a,
+    .auth-row a,
+    .pane-foot button,
+    .message-row a {
+        min-height: 44px !important;
+        min-width: 44px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+    }
+}
+/* The eye toggle sits inside the password field: keep its hit area
+   square even when the field is narrow. */
+.eye-toggle { min-height: 2.75rem; }
+
+/* ============================================================
+   CASCADE GUARD (a11y pass, round 2)
+   The status block above paints chips from a single class
+   (specificity 0,1,0). Three other layers declare the same
+   elements with more weight, so measured pixels kept showing the
+   old palette:
+     - iOS Theme: `html[data-theme="dark"] .badge-bhims-*` (0,2,1)
+       and `.ios-badge-*` (0,2,1)
+     - page templates: `.availability-badge.available` (0,2,0) and
+       `.btn-primary-bhims` (inline <style>, no !important)
+   Re-declaring them with the same or a higher prefix, last in the
+   document, puts the AA-safe tokens back in front. Every colour here
+   is a token from above or a flat neutral, so the two themes stay in
+   step with the blocks they reinforce.
+   ============================================================ */
+html[data-theme="dark"] .badge-bhims-verified,
+html[data-theme="dark"] .pill-approved,
+html[data-theme="dark"] .pill.pill-approved,
+html[data-theme="dark"] .status-chip.is-open,
+html[data-theme="dark"] .status-chip.is-available,
+html[data-theme="dark"] .badge.bg-success,
+html[data-theme="dark"] .ios-badge-green,
+html[data-theme="dark"] .availability-badge.available {
+    background: var(--ce-ok-wash) !important;
+    color: var(--ce-ok-ink) !important;
+    border-color: var(--ce-ok-line) !important;
+}
+html[data-theme="dark"] .badge-bhims-pending,
+html[data-theme="dark"] .pill-pending,
+html[data-theme="dark"] .pill.pill-pending,
+html[data-theme="dark"] .status-chip.is-pending,
+html[data-theme="dark"] .badge.bg-warning,
+html[data-theme="dark"] .ios-badge-amber {
+    background: var(--ce-warn-wash) !important;
+    color: var(--ce-warn-ink) !important;
+    border-color: var(--ce-warn-line) !important;
+}
+html[data-theme="dark"] .badge-bhims-rejected,
+html[data-theme="dark"] .pill-rejected,
+html[data-theme="dark"] .pill.pill-rejected,
+html[data-theme="dark"] .status-chip.is-declined,
+html[data-theme="dark"] .badge.bg-danger,
+html[data-theme="dark"] .ios-badge-red {
+    background: var(--ce-bad-wash) !important;
+    color: var(--ce-bad-ink) !important;
+    border-color: var(--ce-bad-line) !important;
+}
+html[data-theme="dark"] .user-badge,
+html[data-theme="dark"] .badge.bg-info,
+html[data-theme="dark"] .badge.bg-primary,
+html[data-theme="dark"] .ios-badge-blue {
+    background: var(--ce-info-wash) !important;
+    color: var(--ce-info-ink) !important;
+    border-color: var(--ce-info-line) !important;
+}
+/* Occupied / full room chips sit on the same photographs, so they take the
+   neutral wash and the contrast-checked soft ink rather than transparent. */
+html[data-theme="dark"] .availability-badge.occupied {
+    background: #232a2d !important;
+    color: var(--ce-ink-soft) !important;
+    border-color: var(--ce-line) !important;
+}
+
+/* The inquiry reply buttons are styled inside their own template, where the
+   ink is hard-coded white. In dark mode the fill is the light teal accent,
+   so white scored 1.98:1 — the ink follows the accent instead. */
+html[data-theme="dark"] .btn-primary-bhims {
+    background: var(--ce-accent) !important;
+    border-color: var(--ce-accent-deep) !important;
+    color: var(--ce-on-accent) !important;
+}
+html[data-theme="dark"] .btn-primary-bhims:hover,
+html[data-theme="dark"] .btn-primary-bhims:focus-visible {
+    background: var(--ce-accent-deep) !important;
+    color: var(--ce-on-accent) !important;
+}
+html[data-theme="dark"] .btn-secondary-bhims {
+    color: var(--ce-ink-soft) !important;
+    border-color: var(--ce-line-strong) !important;
+}
+html[data-theme="dark"] .btn-secondary-bhims:hover {
+    background: rgba(233, 230, 219, 0.06) !important;
+    color: var(--ce-ink) !important;
+}
+
+/* ============================================================
+   IDENTITY PASS
+   Three craft decisions, made once and applied by class rather
+   than page by page:
+
+   1. A metric is a number, not a picture. Stat cards drop the
+      tile + pastel glyph and lead with the figure, uppercase
+      label, hairline rule underneath — the reading order a
+      person actually scans in.
+   2. Surfaces differ by job. Records (tables) are flat and
+      ruled; forms are bordered sheets; only photographic and
+      emphasis cards float on a shadow. Repeating one white
+      rounded card everywhere is what makes a UI read as
+      copy-pasted.
+   3. The seal's gold carries structure, never text. At 3.8:1 on
+      paper it is rule-and-mark material, so it appears as the
+      short rule under section headings and as the active-tab
+      bar, not as copy.
+   ============================================================ */
+
+/* --- 1. Stat figures ------------------------------------------------- */
+.stat-card {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.85rem !important;
+    padding: 1rem 1.15rem !important;
+    background: var(--ce-card) !important;
+    background-image: none !important;
+    border: 1px solid var(--ce-line) !important;
+    border-radius: var(--ce-radius) !important;
+    box-shadow: var(--ce-shadow) !important;
+    transform: none !important;
+    overflow: visible !important;
+}
+.stat-card:hover {
+    transform: none !important;
+    box-shadow: var(--ce-shadow-hover) !important;
+    border-color: var(--ce-line-strong) !important;
+}
+/* Icon sits in a small wash tile, aligned with the number — the old
+   floating hairline-row shape read as unfinished. */
+.stat-icon {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    flex: 0 0 auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: var(--ce-accent-wash) !important;
+    border: 1px solid var(--ce-line) !important;
+    border-radius: 10px !important;
+}
+.stat-icon i,
+.stat-icon svg {
+    font-size: 1.05rem !important;
+    width: 1.05rem !important;
+    height: 1.05rem !important;
+    color: var(--ce-accent) !important;
+    filter: none !important;
+}
+html[data-theme="dark"] .stat-icon i,
+html[data-theme="dark"] .stat-icon svg {
+    color: var(--ce-accent) !important;
+}
+/* The number and label stack next to the icon tile. */
+.stat-content {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.stat-content .stat-value,
+.stat-content h3,
+.stat-number {
+    font-size: 1.55rem !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    letter-spacing: -0.02em !important;
+    color: var(--ce-ink) !important;
+    margin: 0 !important;
+}
+.stat-content p,
+.stat-label {
+    margin: 0.15rem 0 0 0 !important;
+    color: var(--ce-ink-soft) !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+}
+/* Grid of stat cards: equal cards with the standard page gap —
+   the vertical divider rule belonged to the old ruled-band shape. */
+.stat-grid > * + * .stat-card,
+.stat-grid > .stat-card + .stat-card {
+    border-left: 1px solid var(--ce-line) !important;
+    padding-left: 1.25rem !important;
+}
+.stat-content .stat-value,
+.stat-content h3,
+.stat-number {
+    font-size: clamp(1.85rem, 3vw, 2.5rem) !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    letter-spacing: -0.03em !important;
+    color: var(--ce-ink) !important;
+    margin: 0 0 0.4rem 0 !important;
+}
+.stat-content p,
+.stat-label {
+    margin: 0 !important;
+    color: var(--ce-ink-soft) !important;
+    font-size: 0.76rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+}
+/* A grid of stat cards: the vertical divider belongs to the old ruled
+   band — individual cards already carry their own full border. */
+.stat-grid > * + * .stat-card,
+.stat-grid > .stat-card + .stat-card {
+    border-left: 1px solid var(--ce-line) !important;
+    padding-left: 1.25rem !important;
+}
+
+/* --- 2. Surfaces by job --------------------------------------------- */
+/* Records: flat, ruled, no lift. */
+.table,
+.admin-table-wrap,
+.table-responsive {
+    background: var(--ce-card) !important;
+    border: 1px solid var(--ce-line) !important;
+    border-radius: var(--ce-radius-sm) !important;
+    box-shadow: none !important;
+}
+.table thead th {
+    background: transparent !important;
+    border-bottom: 1px solid var(--ce-line-strong) !important;
+    color: var(--ce-ink-soft) !important;
+    font-size: 0.74rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+}
+.table tbody td {
+    border-color: var(--ce-line) !important;
+    vertical-align: middle;
+}
+/* Forms: a bordered sheet, so an editable surface never looks like a
+   clickable card. */
+.edit-form-card,
+.edit-profile-page form.card,
+.auth-pane {
+    background: var(--ce-card) !important;
+    border: 1px solid var(--ce-line-strong) !important;
+    box-shadow: none !important;
+}
+/* Correspondence: the two sides of an inquiry thread are written by
+   different people, so they stop looking identical. */
+.message-bubble {
+    box-shadow: none !important;
+    border: 1px solid var(--ce-line) !important;
+}
+.message-bubble.message-student {
+    /* Solid accent, NOT the wash. The bubble's own text is forced to
+       --ce-on-accent (near-white) by the rule at :300, so painting the
+       bubble with the 8%-alpha --ce-accent-wash left the message sitting on
+       light paper at 1.14:1 — unreadable in light mode on both the student
+       and landlord thread. This restores the intent of the rule at :273. */
+    background: var(--ce-accent) !important;
+    border-radius: var(--ce-radius) var(--ce-radius) 4px var(--ce-radius) !important;
+}
+.message-bubble.message-landlord {
+    background: var(--ce-card) !important;
+    border-radius: var(--ce-radius) var(--ce-radius) var(--ce-radius) 4px !important;
+}
+
+/* --- 3. Gold: structure, not copy ----------------------------------- */
+.section-header h2::after,
+.page-header h1::after {
+    content: '';
+    display: block;
+    width: 46px;
+    height: 2px;
+    margin-top: 0.65rem;
+    background: var(--ce-gold);
+}
+.landing-kicker::after { content: none; }
+
+/* ============================================================
+   DIAGNOSED DEFECTS (measured, not guessed)
+   Each of these was reproduced before being changed.
+   ============================================================ */
+/* 1. The sticky topbar paints above content correctly (12 probes at four
+   scroll offsets all resolved inside the header), but it had no separation,
+   so content appeared to collide with it while scrolling. A hairline is the
+   fix; the z-index was never the problem. */
+.bhims-topbar {
+    border-bottom: 1px solid var(--ce-line) !important;
+}
+/* In-page anchors must clear the sticky bar when they jump. */
+html {
+    scroll-padding-top: 84px;
+}
+/* 2. The auth wordmark was clipped mid-word: the span carried
+   nowrap + overflow hidden + ellipsis inside a 257px box while the text
+   measured 308px, so it read "…INFORMATION MANAGEME…". It wraps now. */
+.auth-id-sub {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    line-height: 1.4 !important;
+}
+/* 3. The landing's own reduced-motion block is dead code: it sets
+   `.reveal { opacity: 1 }` at specificity (0,1,0) while the hidden state is
+   `html.fx .reveal { opacity: 0 }` at (0,2,1). So a visitor who asked their OS
+   for less motion still got every section hidden and animated in, with a 3s
+   failsafe as the only thing standing between them and a blank page.
+   Matching the specificity restores the intent. */
+@media (prefers-reduced-motion: reduce) {
+    html.fx .reveal,
+    html.fx .reveal.in-view,
+    .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+        animation: none !important;
+        will-change: auto !important;
+    }
+}
+/* 4. The mobile hero reserved 520px for ~360px of content, leaving a measured
+   void between the sign-in buttons and the section below. It sizes to its
+   content on phones; the photo keeps its own height. */
+@media (max-width: 820px) {
+    .landing-hero {
+        min-height: 0 !important;
+        padding-bottom: 2.75rem !important;
+    }
+}
+
+/* ============================================================
+   16. BUTTON MATERIAL
+   -----------------------------------------------------------
+   The reference button on Uiverse (Spacious74, "Realism") is a
+   *lit object*: a dark slab, a 2px bright rim brightest at the top
+   right, a specular sheen over the face, and a coloured counter-light
+   spilling out of the bottom-left. Its markup needs a .blob1/.blob2
+   pair plus an .inner wrapper — and .blob2 has no styles, so it
+   renders nothing — which means it cannot be pasted onto <a> CTAs or
+   <button class="btn">s that carry their labels directly, and the
+   cyan/black paint clashes with the campuss seal palette.
+
+   Not a copy-paste, then: the *physics* is kept and the paint is
+   rebuilt from layered backgrounds, no extra markup, and every
+   button in the system now reads as the same machined part. The
+   material lives in variables (16a) so any button can be restyled or
+   reverted to the reference cyan by changing values here. The flat
+   rules in §6 are kept as the documented baseline and as the fallback
+   for button voices not listed in §16.
+   ============================================================ */
+
+/* ----- 16a. Material, as variables (swapped, never duplicated) ----- */
+:root {
+    /* Quiet finish is the default — polished limestone paper. */
+    --ce-btn-face-hi: #ffffff;
+    --ce-btn-face: #fdfbf3;
+    --ce-btn-face-lo: #eee8d9;
+    --ce-btn-rim-a: #ffffff;
+    --ce-btn-rim-b: rgba(35, 43, 40, 0.22);
+    --ce-btn-sheen: rgba(255, 255, 255, 0.85);
+    --ce-btn-bloom: rgba(20, 86, 60, 0.07);
+    --ce-btn-glow: rgba(35, 43, 40, 0.20);
+    --ce-btn-bloom-out: rgba(156, 116, 24, 0.16);
+    --ce-btn-ink: var(--ce-ink);
+    /* --ce-accent is the brand green (#14563c). As a focus ring on a light
+       surface it only reached ~1.7:1, because this alias is what every
+       button's :focus-visible outline resolves to. Use the audited ring
+       token instead, which is guaranteed opaque and >=3:1. */
+    --ce-btn-ring: var(--focus-ring, #17685e);
+    --ce-btn-radius: 14px;
+}
+html[data-theme="dark"] {
+    /* Quiet finish — charcoal-green night */
+    --ce-btn-face-hi: #2d3a35;
+    --ce-btn-face: #232c29;
+    --ce-btn-face-lo: #161d1b;
+    --ce-btn-rim-a: rgba(255, 255, 255, 0.26);
+    --ce-btn-rim-b: rgba(255, 255, 255, 0.06);
+    --ce-btn-sheen: rgba(255, 255, 255, 0.12);
+    --ce-btn-bloom: rgba(121, 199, 155, 0.10);
+    --ce-btn-glow: rgba(0, 0, 0, 0.55);
+    --ce-btn-bloom-out: rgba(216, 180, 94, 0.12);
+    --ce-btn-ink: var(--ce-ink);
+}
+
+/* Primary — the seal green, lit from the top right */
+html[data-theme] body :is(.btn-primary, .btn-success, .btn-bhims, .ios-btn,
+    .auth-submit, .create-btn, .submit-btn, .btn-submit, .btn-register-bhims,
+    .btn-accept-bhims, .bhims-login-btn, .landing-btn, .landing-btn-primary,
+    .btn-teal, .view-all-btn, .manage-btn, .edit-btn, .btn-save,
+    .view-thread-btn, .btn-action-premium, .btn-primary-bhims,
+    .btn-view-result, .btn-view-details, .edit-room-btn, .btn-rp-primary,
+    .up-setting-btn, .up-setting-btn--teal, .glass-btn-apply, .btn-rd) {
+    --ce-btn-face-hi: #1f6d4d;
+    --ce-btn-face: #14563c;
+    --ce-btn-face-lo: #0b3a27;
+    --ce-btn-rim-a: rgba(255, 255, 255, 0.95);
+    --ce-btn-rim-b: rgba(255, 255, 255, 0.16);
+    --ce-btn-sheen: rgba(255, 255, 255, 0.20);
+    --ce-btn-bloom: rgba(121, 199, 155, 0.30);
+    --ce-btn-glow: rgba(20, 86, 60, 0.50);
+    --ce-btn-bloom-out: rgba(156, 116, 24, 0.28);
+    --ce-btn-ink: var(--ce-on-accent);
+}
+html[data-theme="dark"] body :is(.btn-primary, .btn-success, .btn-bhims, .ios-btn,
+    .auth-submit, .create-btn, .submit-btn, .btn-submit, .btn-register-bhims,
+    .btn-accept-bhims, .bhims-login-btn, .landing-btn, .landing-btn-primary,
+    .btn-teal, .view-all-btn, .manage-btn, .edit-btn, .btn-save,
+    .view-thread-btn, .btn-action-premium, .btn-primary-bhims,
+    .btn-view-result, .btn-view-details, .edit-room-btn, .btn-rp-primary,
+    .up-setting-btn, .up-setting-btn--teal, .glass-btn-apply, .btn-rd) {
+    /* Dark theme: light mint slab so the ink stays dark and strong */
+    --ce-btn-face-hi: #a7e4c1;
+    --ce-btn-face: #79c79b;
+    --ce-btn-face-lo: #579c79;
+    --ce-btn-rim-a: rgba(255, 255, 255, 0.85);
+    --ce-btn-rim-b: rgba(255, 255, 255, 0.10);
+    --ce-btn-sheen: rgba(255, 255, 255, 0.30);
+    --ce-btn-bloom: rgba(255, 255, 255, 0.18);
+    --ce-btn-glow: rgba(121, 199, 155, 0.20);
+    --ce-btn-bloom-out: rgba(216, 180, 94, 0.14);
+    --ce-btn-ink: var(--ce-on-accent);
+}
+
+/* Danger — the system's own bad-news rose (#9f1239) */
+html[data-theme] body :is(.btn-danger, .reject-btn) {
+    --ce-btn-face-hi: #c01845;
+    --ce-btn-face: #9f1239;
+    --ce-btn-face-lo: #730c26;
+    --ce-btn-rim-a: rgba(255, 255, 255, 0.9);
+    --ce-btn-rim-b: rgba(255, 255, 255, 0.14);
+    --ce-btn-sheen: rgba(255, 255, 255, 0.2);
+    --ce-btn-bloom: rgba(255, 148, 148, 0.28);
+    --ce-btn-glow: rgba(159, 18, 57, 0.45);
+    --ce-btn-bloom-out: rgba(255, 148, 148, 0.2);
+    --ce-btn-ink: #fffdf7;
+}
+html[data-theme="dark"] body :is(.btn-danger, .reject-btn) {
+    --ce-btn-face-hi: #ffc9c9;
+    --ce-btn-face: #fca5a5;
+    --ce-btn-face-lo: #d47b79;
+    --ce-btn-rim-a: rgba(255, 255, 255, 0.9);
+    --ce-btn-rim-b: rgba(255, 255, 255, 0.12);
+    --ce-btn-sheen: rgba(255, 255, 255, 0.3);
+    --ce-btn-bloom: rgba(255, 255, 255, 0.2);
+    --ce-btn-glow: rgba(252, 165, 165, 0.32);
+    --ce-btn-bloom-out: rgba(252, 165, 165, 0.22);
+    --ce-btn-ink: #3a0f14;
+}
+
+/* ----- 16b. Geometry and states — one rule per life stage ---------- */
+:root, html[data-theme] { --ce-btn-radius: 14px; }
+
+html[data-theme] body :is(.btn-primary, .btn-success, .btn-bhims, .ios-btn,
+    .auth-submit, .create-btn, .submit-btn, .btn-submit, .btn-register-bhims,
+    .btn-accept-bhims, .bhims-login-btn, .landing-btn, .landing-btn-primary,
+    .btn-teal, .view-all-btn, .manage-btn, .edit-btn, .btn-save,
+    .view-thread-btn, .btn-action-premium, .btn-primary-bhims,
+    .btn-view-result, .btn-view-details, .edit-room-btn, .btn-rp-primary,
+    .up-setting-btn, .up-setting-btn--teal, .glass-btn-apply, .btn-rd,
+    .btn-danger, .reject-btn, .btn-secondary, .btn-outline, .btn-outline-primary,
+    .btn-outline-secondary, .btn-outline-success, .btn-secondary-bhims,
+    .btn-rp-secondary, .btn-rd-back, .btn-cancel, .landing-btn-outline,
+    .ios-btn-soft, .ghost-btn, .up-setting-btn--outline, .up-report-btn,
+    .glass-btn-reset, .btn-teal-outline, .btn-action-premium.secondary) {
+    border: 2px solid transparent !important;
+    border-radius: var(--ce-btn-radius) !important;
+    color: var(--ce-btn-ink) !important;
+    background-color: var(--ce-btn-face) !important;
+    background-image:
+        radial-gradient(125% 130% at 84% -32%, var(--ce-btn-sheen), rgba(255, 255, 255, 0) 62%),
+        radial-gradient(58% 135% at -4% 118%, var(--ce-btn-bloom), rgba(0, 0, 0, 0) 68%),
+        linear-gradient(168deg, var(--ce-btn-face-hi), var(--ce-btn-face) 46%, var(--ce-btn-face-lo)),
+        radial-gradient(140% 210% at 86% -56%, var(--ce-btn-rim-a), var(--ce-btn-rim-b) 58%) !important;
+    background-origin: padding-box, padding-box, padding-box, border-box !important;
+    background-clip: padding-box, padding-box, padding-box, border-box !important;
+    background-repeat: no-repeat !important;
+    background-size: 100% 100% !important;
+    box-shadow:
+        -9px 10px 26px -8px var(--ce-btn-glow),
+        5px -8px 24px -8px var(--ce-btn-bloom-out),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+    text-shadow: none !important;
+    transition: box-shadow 0.22s ease, transform 0.16s ease, filter 0.22s ease !important;
+}
+
+html[data-theme] body :is(.btn-primary, .btn-success, .btn-bhims, .ios-btn,
+    .auth-submit, .create-btn, .submit-btn, .btn-submit, .btn-register-bhims,
+    .btn-accept-bhims, .bhims-login-btn, .landing-btn, .landing-btn-primary,
+    .btn-teal, .view-all-btn, .manage-btn, .edit-btn, .btn-save,
+    .view-thread-btn, .btn-action-premium, .btn-primary-bhims,
+    .btn-view-result, .btn-view-details, .edit-room-btn, .btn-rp-primary,
+    .up-setting-btn, .up-setting-btn--teal, .glass-btn-apply, .btn-rd,
+    .btn-danger, .reject-btn, .btn-secondary, .btn-outline, .btn-outline-primary,
+    .btn-outline-secondary, .btn-outline-success, .btn-secondary-bhims,
+    .btn-rp-secondary, .btn-rd-back, .btn-cancel, .landing-btn-outline,
+    .ios-btn-soft, .ghost-btn, .up-setting-btn--outline, .up-report-btn,
+    .glass-btn-reset, .btn-teal-outline, .btn-action-premium.secondary):hover {
+    box-shadow:
+        -12px 12px 32px -8px var(--ce-btn-glow),
+        6px -10px 28px -8px var(--ce-btn-bloom-out),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+    transform: translateY(-1px);
+    filter: brightness(1.05) saturate(1.04);
+}
+
+html[data-theme] body :is(.btn-primary, .btn-success, .btn-bhims, .ios-btn,
+    .auth-submit, .create-btn, .submit-btn, .btn-submit, .btn-register-bhims,
+    .btn-accept-bhims, .bhims-login-btn, .landing-btn, .landing-btn-primary,
+    .btn-teal, .view-all-btn, .manage-btn, .edit-btn, .btn-save,
+    .view-thread-btn, .btn-action-premium, .btn-primary-bhims,
+    .btn-view-result, .btn-view-details, .edit-room-btn, .btn-rp-primary,
+    .up-setting-btn, .up-setting-btn--teal, .glass-btn-apply, .btn-rd,
+    .btn-danger, .reject-btn, .btn-secondary, .btn-outline, .btn-outline-primary,
+    .btn-outline-secondary, .btn-outline-success, .btn-secondary-bhims,
+    .btn-rp-secondary, .btn-rd-back, .btn-cancel, .landing-btn-outline,
+    .ios-btn-soft, .ghost-btn, .up-setting-btn--outline, .up-report-btn,
+    .glass-btn-reset, .btn-teal-outline, .btn-action-premium.secondary):active {
+    transform: translateY(0) scale(0.985) !important;
+    filter: brightness(0.97);
+    box-shadow:
+        -6px 6px 18px -8px var(--ce-btn-glow),
+        3px -4px 14px -8px var(--ce-btn-bloom-out),
+        inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+}
+
+html[data-theme] body :is(.btn-primary, .btn-success, .btn-bhims, .ios-btn,
+    .auth-submit, .create-btn, .submit-btn, .btn-submit, .btn-register-bhims,
+    .btn-accept-bhims, .bhims-login-btn, .landing-btn, .landing-btn-primary,
+    .btn-teal, .view-all-btn, .manage-btn, .edit-btn, .btn-save,
+    .view-thread-btn, .btn-action-premium, .btn-primary-bhims,
+    .btn-view-result, .btn-view-details, .edit-room-btn, .btn-rp-primary,
+    .up-setting-btn, .up-setting-btn--teal, .glass-btn-apply, .btn-rd,
+    .btn-danger, .reject-btn, .btn-secondary, .btn-outline, .btn-outline-primary,
+    .btn-outline-secondary, .btn-outline-success, .btn-secondary-bhims,
+    .btn-rp-secondary, .btn-rd-back, .btn-cancel, .landing-btn-outline,
+    .ios-btn-soft, .ghost-btn, .up-setting-btn--outline, .up-report-btn,
+    .glass-btn-reset, .btn-teal-outline, .btn-action-premium.secondary):focus-visible {
+    outline: 2px solid var(--ce-btn-ring) !important;
+    outline-offset: 3px !important;
+}
+
+/* Disabled reads as a grey coin, not a dead slab */
+html[data-theme] body :is(.btn-primary, .btn-success, .btn-bhims, .ios-btn,
+    .auth-submit, .create-btn, .submit-btn, .btn-submit, .btn-register-bhims,
+    .btn-accept-bhims, .bhims-login-btn, .landing-btn, .landing-btn-primary,
+    .btn-teal, .view-all-btn, .manage-btn, .edit-btn, .btn-save,
+    .view-thread-btn, .btn-action-premium, .btn-primary-bhims,
+    .btn-view-result, .btn-view-details, .edit-room-btn, .btn-rp-primary,
+    .up-setting-btn, .up-setting-btn--teal, .glass-btn-apply, .btn-rd,
+    .btn-danger, .reject-btn, .btn-secondary, .btn-outline, .btn-outline-primary,
+    .btn-outline-secondary, .btn-outline-success, .btn-secondary-bhims,
+    .btn-rp-secondary, .btn-rd-back, .btn-cancel, .landing-btn-outline,
+    .ios-btn-soft, .ghost-btn, .up-setting-btn--outline, .up-report-btn,
+    .glass-btn-reset, .btn-teal-outline, .btn-action-premium.secondary):is(:disabled, .disabled, [aria-disabled="true"]) {
+    --ce-btn-face-hi: #6b726e;
+    --ce-btn-face: #565d5a;
+    --ce-btn-face-lo: #424844;
+    --ce-btn-rim-a: rgba(255, 255, 255, 0.35);
+    --ce-btn-rim-b: rgba(255, 255, 255, 0.1);
+    --ce-btn-sheen: rgba(255, 255, 255, 0.1);
+    --ce-btn-bloom: rgba(0, 0, 0, 0);
+    --ce-btn-glow: rgba(0, 0, 0, 0);
+    --ce-btn-bloom-out: rgba(0, 0, 0, 0);
+    --ce-btn-ink: #f2f0e9;
+}
+
+/* Small buttons keep their scale */
+html[data-theme] body :is(.btn-sm, .btn-xs) { --ce-btn-radius: 11px; }
+
+/* The three text CTAs no longer need a coloured underline inside a slab */
+html[data-theme] body :is(.view-all-btn, .manage-btn, .btn-view-details)::after {
+    display: none !important;
+}
+
+/* Weak secondary voices; the rose is the ink, not the body */
+html[data-theme] body :is(.btn-outline-danger) { --ce-btn-ink: var(--ce-bad-ink); --ce-btn-bloom: rgba(159, 18, 57, 0.1); --ce-btn-rim-b: rgba(159, 18, 57, 0.3); }
+html[data-theme="dark"] body :is(.btn-outline-danger) { --ce-btn-rim-b: rgba(252, 165, 165, 0.28); }
+
+/* ============================================================
+   RATING STARS (contrast, found only once ratings existed)
+
+   The stars are text glyphs, so they answer to the 4.5:1 text ratio
+   rather than the 3:1 one for graphics — and the amber they inherited
+   from --bhims-badge-pending (#d97706) is 3.13:1 on --ce-card. Three
+   templates had each picked that colour by hand, in a <style> block that
+   loads after this file, so the decision is made here once, per theme,
+   at a specificity that wins wherever those templates are rendered.
+   Dark already passed (9.7:1) and only moves for headroom.
+   ============================================================ */
+html[data-theme] body :is(.rating-stars, .up-rating-stars) {
+    color: #b45309;              /* 4.7:1 on the light card */
+}
+html[data-theme="dark"] body :is(.rating-stars, .up-rating-stars) {
+    color: #f0a94a;              /* amber lifted for the dark card: 8.4:1 */
+}
+
+/* ============================================================
+   IDENTITY PASS — layout organization sweep
+
+   The editorial identity (limestone paper, seal green, gold rules)
+   is the single design decision for the whole system. These rules
+   sweep the last stragglers that still answered to the three older
+   theme layers (iOS blue glass, teal, navy) so every page reads
+   from one voice. Each block names the page it was found on.
+   ============================================================ */
+
+/* ---------- Sidebar rail: paper panel, hairline, ink nav ---------- */
+/* The rail answered to iOS Theme's navy-blue glass gradient (light)
+   and Liquid Glass's navy gradient (dark) while its link colours were
+   already editorial ink — a navy rail carrying green text. Re-ground
+   it on the card paper with the standard hairline, both themes. */
+/* Nav links are wayfinding, not body links: muted ink at rest, accent
+   on hover/active. (The generic `a` rule above would otherwise paint
+   every resting link accent-green.) */
+.sidebar-link,
+html[data-theme="dark"] .sidebar-link { color: var(--ce-ink-soft) !important; }
+.sidebar-link:hover,
+html[data-theme="dark"] .sidebar-link:hover { color: var(--ce-accent) !important; }
+.sidebar-link.active,
+html[data-theme="dark"] .sidebar-link.active { color: var(--ce-accent) !important; }
+.app-sidebar {
+    background: var(--ce-card) !important;
+    background-image: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border-right: 1px solid var(--ce-line-strong) !important;
+}
+[data-theme="dark"] .app-sidebar,
+html[data-theme="dark"] .app-sidebar {
+    background: var(--ce-card) !important;
+    background-image: none !important;
+    border-right-color: var(--ce-line) !important;
+}
+/* Placeholder-tinted scrollbar on the paper rail */
+.app-sidebar::-webkit-scrollbar-thumb { background: var(--ce-line-strong) !important; }
+
+/* Sidebar identity card: hairline stamp instead of a floating glass pill */
+.sidebar-profile {
+    background: var(--ce-accent-wash) !important;
+    border: 1px solid var(--ce-line) !important;
+    box-shadow: none !important;
+}
+.sidebar-profile-name { color: var(--ce-ink) !important; }
+.sidebar-avatar { border-color: var(--ce-line-strong) !important; }
+.sidebar-avatar-initial {
+    background: var(--ce-accent) !important;
+    color: var(--ce-on-accent) !important;
+}
+/* Role tag was teal-on-teal from the iOS layer; it becomes the standard
+   accent stamp. The mobile drawer keeps its dark ink voice via the
+   light-theme overrides that already live in sidebar.html. */
+.sidebar-profile-role {
+    color: var(--ce-accent) !important;
+    background: var(--ce-accent-wash) !important;
+    border: 1px solid var(--ce-line) !important;
+}
+/* ...but on the mobile drawer (.app-sidebar, max-width: 768px) the profile
+   card sits on a solid --ce-accent panel, so accent-on-wash resolved to
+   #14563c on #14563c — 1:1, the role word was invisible. The stamp needs
+   light ink on that ground. Scoped here rather than in sidebar.html because
+   the !important above can only be beaten from inside this cascade. */
+@media (max-width: 768px) {
+    .sidebar-profile-role {
+        color: #fff !important;
+        background: rgba(255, 255, 255, 0.18) !important;
+        border-color: rgba(255, 255, 255, 0.32) !important;
+    }
+}
+/* Light theme paints sidebar text as dark ink (for the old navy rail);
+   the rail is now paper, so those overrides resolve to the same ink
+   tokens the dark theme uses. One source of truth for both themes. */
+[data-theme="light"] .sidebar-heading,
+[data-theme="light"] .sidebar-close,
+[data-theme="light"] .sidebar-link,
+[data-theme="light"] .sidebar-profile-name,
+[data-theme="light"] .sidebar-logout { color: var(--ce-ink-soft) !important; }
+[data-theme="light"] .sidebar-close:hover,
+[data-theme="light"] .sidebar-link:hover,
+[data-theme="light"] .sidebar-logout:hover {
+    background: var(--ce-accent-wash) !important;
+    color: var(--ce-accent) !important;
+}
+[data-theme="light"] .sidebar-link.active {
+    background: var(--ce-accent-wash) !important;
+    border-color: var(--ce-line) !important;
+    color: var(--ce-accent) !important;
+    box-shadow: none !important;
+}
+/* The active dot was iOS sky-blue with a glow in every theme */
+.sidebar-link.active::before {
+    background: var(--ce-accent) !important;
+    box-shadow: none !important;
+}
+[data-theme="light"] .sidebar-link.active::before {
+    background: var(--ce-accent) !important;
+    box-shadow: none !important;
+}
+/* Pending-inquiries badge follows the accent, not iOS blue */
+.sidebar-badge {
+    background: var(--ce-accent) !important;
+    color: var(--ce-on-accent) !important;
+    box-shadow: none !important;
+}
+
+/* ---------- Admin: User Reports filter chips ---------- */
+/* The active chip was the iOS blue on a page that is otherwise all
+   seal green (audit, admin reports). */
+.report-filter a.active {
+    background: var(--ce-accent) !important;
+    border-color: var(--ce-accent-deep) !important;
+    color: var(--ce-on-accent) !important;
+    box-shadow: none !important;
+}
+.report-filter a { background: var(--ce-card) !important; }
+
+/* ---------- Profile page: role glow + ID card ---------- */
+/* The student/landlord role stripe and badge were sky-blue vs teal,
+   two colours the identity never chose. Both roles resolve to the
+   seal-green accent; the badge becomes the standard stamp. */
+.profile-page-wrap .role-indicator {
+    background: var(--ce-accent) !important;
+    box-shadow: none !important;
+}
+.profile-page-wrap .user-badge {
+    background: var(--ce-accent-wash) !important;
+    color: var(--ce-accent) !important;
+    border-color: var(--ce-line) !important;
+}
+.profile-page-wrap .id-sidebar { border-right-color: var(--ce-line) !important; }
+.profile-page-wrap .avatar-ring { background: var(--ce-accent-wash) !important; }
+/* ID-card edges read as a soft blue bloom from the iOS glass shadow;
+   the editorial card shadow replaces it. */
+.profile-page-wrap .id-card-premium {
+    box-shadow: var(--ce-shadow) !important;
+    border-color: var(--ce-line) !important;
+}
+
+/* ---------- Analytics charts: Chart.js default blues ---------- */
+/* The charts hardcode #1d6fa4/#0f9d9d. Chart.js 4 reads CSS variables
+   only at construction time, so this template-level hook repoints the
+   palette the charts were already named after. */
+
+/* ---------- Button text integrity: never clip a label ---------- */
+/* The unified .btn family (Premium Styles) sets white-space: nowrap. That
+   is right for roomy desktop rows but clips long labels — "Create Boarding
+   House", "Sign in as student", "Message landlord" — the moment their
+   container narrows (grid columns, stacked flex rows, small phones):
+   the text pokes out of the slab or gets cut mid-word. Allowing a wrap
+   changes nothing while the label fits and keeps it readable when it
+   doesn't; text-align keeps the two centered lines tidy under the icon. */
+.btn, .btn-primary, .btn-success, .btn-danger, .btn-warning,
+.btn-outline-primary, .btn-outline-danger, .btn-bhims, .btn-bhims-outline,
+.create-btn, .submit-btn, .btn-submit, .btn-register-bhims,
+.btn-accept-bhims, .bhims-login-btn, .view-all-btn, .manage-btn,
+.edit-btn, .view-thread-btn, .filter-reset, .btn-teal, .btn-teal-outline,
+.btn-action-premium, .btn-primary-bhims, .btn-save, .btn-view-details,
+.btn-view-result, .edit-room-btn, .btn-rp-primary, .btn-rd, .reject-btn,
+.up-setting-btn, .up-setting-btn--outline, .up-setting-btn--teal,
+.glass-btn-apply, .auth-submit, .landing-btn {
+    white-space: normal !important;
+    max-width: 100%;
+    text-align: center;
+    line-height: 1.25;
+    overflow-wrap: break-word;
+}
+
+/* ---------- Wizard stepper: no mid-phrase label breaks ---------- */
+/* "PRICING & POLICY" wrapped onto two lines inside its step chip on
+   phones. Each step's label now holds one line and the whole stepper
+   row wraps between steps instead of inside them. */
+.wizard-stepper {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+}
+.wizard-stepper .step {
+    white-space: nowrap;
+}
+@media (max-width: 480px) {
+    .wizard-stepper .step-sep { width: 16px; }
+}
+
+/* ---------- Bookings meta rows (layout bug) ---------- */
+/* .booking-meta was referenced by student_bookings.html but defined
+   nowhere: the icon sat hard against the label with no row rhythm. */
+.booking-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.5rem 0 0;
+    color: var(--ce-ink-soft);
+    font-size: 0.9rem;
+}
+.booking-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+.booking-meta i { color: var(--ce-accent); flex: 0 0 auto; }
+.booking-meta strong { color: var(--ce-ink); font-weight: 600; }
+
+/* ---------- Auth pages: card follows the paper card ---------- */
+/* auth.css still draws the iOS-blue top border on the split-screen
+   cards; the editorial hairline replaces it. */
+.auth-card, .bhims-login-card {
+    border-top: 1px solid var(--ce-line) !important;
+}
+
+/* ---------- Fallback voices for un-migrated buttons ---------- */
+/* .btn-danger/.btn-warning render from Bootstrap's raw palette on
+   admin tables. Two token voices for the rare destructive/warning
+   action, matching the status pills instead of stock red/amber. */
+.btn-danger {
+    background: #9f1239 !important;
+    border-color: #9f1239 !important;
+    color: #fffdf7 !important;
+}
+.btn-danger:hover, .btn-danger:focus, .btn-danger:active {
+    background: #7f0e2d !important;
+    border-color: #7f0e2d !important;
+}
+.btn-warning {
+    background: #9c7418 !important;
+    border-color: #9c7418 !important;
+    color: #fffdf7 !important;
+}
+.btn-warning:hover, .btn-warning:focus, .btn-warning:active {
+    background: #7a5a10 !important;
+    border-color: #7a5a10 !important;
+}
+
+/* ============================================================================
+   Coarse pointers: finger-sized targets for the admin + landlord surfaces
+   ----------------------------------------------------------------------------
+   Premium Styles.css carries the site's coarse-pointer block, but this sheet
+   loads LAST and re-asserts padding and radius on these controls with
+   !important — so the sizes set there were being overwritten again. These are
+   the controls that only appear once you are signed in, which is why they were
+   invisible to the public-page audit and only surfaced when the audit was
+   extended to the landlord and admin roles at 390px.
+
+   Sizes only: colour, radius and padding are left exactly as designed.
+   ==========================================================================*/
+@media (pointer: coarse) {
+    /* Rating stars and report-status filters: 34px tall. */
+    .star-filter a,
+    .report-filter a {
+        min-height: 44px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+    }
+
+    /* Landlord room actions: "Manage" was 30px tall... */
+    a.manage-btn,
+    a.edit-btn,
+    .manage-btn,
+    .edit-btn {
+        min-height: 44px !important;
+    }
+
+    /* ...and the icon-only pencil was 20px WIDE, which no height rule could
+       have caught. Both axes are needed. */
+    a.edit-btn,
+    .edit-btn,
+    .btn.btn-sm {
+        min-width: 44px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+}

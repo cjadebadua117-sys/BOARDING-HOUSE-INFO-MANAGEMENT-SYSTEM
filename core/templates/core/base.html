@@ -1,0 +1,347 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BHIMS - NLUC Bacnotan{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{% static 'core/images/bhims-icon.png' %}">
+    {% block meta %}
+    <meta name="description" content="Find verified boarding houses near DMMMSU NLUC in Bacnotan, La Union. Compare rooms, prices, and walking distances from campus — built for BHIMS students and landlords.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="BHIMS NLUC Bacnotan">
+    <meta property="og:title" content="{% block og_title %}BHIMS - Boarding House Information Management System{% endblock %}">
+    <meta property="og:description" content="Verified boarding houses near the DMMMSU NLUC campus — browse listings, message landlords, and book your stay.">
+    <meta name="theme-color" content="#14563c">
+    {% endblock %}
+    <script>
+        (function () {
+            try {
+                // One-time reset after the black-theme breakage — restore teal paper default
+                if (localStorage.getItem('bhims-theme-version') !== 'teal-v2') {
+                    localStorage.setItem('bhims-theme', 'light');
+                    localStorage.setItem('bhims-theme-version', 'teal-v2');
+                }
+                var t = localStorage.getItem('bhims-theme') || 'light';
+                if (t !== 'dark' && t !== 'light') t = 'light';
+                document.documentElement.setAttribute('data-theme', t);
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+    
+    <!-- Bootstrap CSS (local vendor copy - no internet required) -->
+    <link href="{% static 'vendor/bootstrap.min.css' %}" rel="stylesheet">
+    <!-- Bootstrap Icons (local) -->
+    <link rel="stylesheet" href="{% static 'vendor/bootstrap-icons.css' %}">
+    <!-- Self-hosted webfonts: faces live in vendor/fonts.css -->
+    <link href="{% static 'vendor/fonts.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'core/css/Design Tokens.css' %}">
+    
+    <!-- Design tokens: Design Tokens.css is the single source of truth -->
+    <link rel="stylesheet" href="{% static 'core/css/pages/base-1.css' %}">
+
+    <!-- Toast notifications (BHIMS style) -->
+    <link rel="stylesheet" href="{% static 'core/css/pages/base-2.css' %}">
+
+    <!-- Paper elevation system: layered z-levels, teal ink hairlines -->
+    <!-- Editorial note: surface skins live in Campus Editorial.css (loaded last).
+         What remains here is functional, not decorative: modal chrome, touch
+         targets, form-validation UI, reduced-motion guard. -->
+    <link rel="stylesheet" href="{% static 'core/css/pages/base-3.css' %}">
+
+    {% block extra_css %}{% endblock %}
+
+    <!-- BHIMS Premium Layer: pure visual polish, loads last -->
+    <link rel="stylesheet" href="{% static 'core/css/Premium Styles.css' %}?v=2">
+    <!-- BHIMS iOS Glass Theme — loads very last, wins conflicts -->
+    <link rel="stylesheet" href="{% static 'core/css/iOS Theme.css' %}">
+    <!-- Liquid Glass (iPhone-style materials + 120fps animation guardrails) -->
+    <link rel="stylesheet" href="{% static 'core/css/Liquid Glass.css' %}?v=2">
+    <!-- Campus Editorial: final identity layer — Fraunces serif, warm paper,
+         hairline rules, full-strength photography. Overrides all glass layers. -->
+    <link rel="stylesheet" href="{% static 'core/css/Campus Editorial.css' %}?v=27">
+</head>
+<body class="has-motion">
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <!-- Toast notifications -->
+    <div id="toast-container" aria-live="polite"></div>
+
+    <!-- NAVBAR -->
+    {% block navbar %}{% include "includes/navbar.html" %}{% endblock %}
+
+    {% block pre_content %}{% endblock %}
+
+    <!-- BREADCRUMB -->
+    {% comment %}
+    Deliberately NOT rendered by default. The "Home / <page>" strip is an
+    opt-in band like the footer: it is a second, unstyled-looking navigation
+    sitting under the navbar, and on every page that has a real heading the
+    page reads as raw HTML because of it. A page that genuinely needs a trail
+    has to ask for one ({% block breadcrumb %}) and bring its own styling.
+    {% endcomment %}
+    {% block breadcrumb %}{% endblock %}
+
+    <!-- MAIN PAGE CONTENT -->
+    <main id="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- FOOTER -->
+    {% comment %}
+    The big site footer is opt-in, not a default: only the landing page wears it
+    (the one page a signed-out visitor arrives on cold). Everywhere else the page
+    ends where its content ends — no second copy of the navbar in the way.
+    {% endcomment %}
+    {% block footer %}{% endblock %}
+
+    <!-- Bootstrap JS (local) -->
+    <script src="{% static 'vendor/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- Toast notifications -->
+    <script>
+    (function () {
+        var ICONS = {
+            success: '<i class="bi bi-check-circle-fill"></i>',
+            error: '<i class="bi bi-x-circle-fill"></i>',
+            warning: '<i class="bi bi-exclamation-triangle-fill"></i>',
+            info: '<i class="bi bi-info-circle-fill"></i>'
+        };
+        var TITLES = { success: 'Success', error: 'Error', warning: 'Heads up', info: 'Notice' };
+
+        var container = document.getElementById('toast-container');
+        if (!container) return;
+
+        function createToast(type, title, message, duration) {
+            duration = duration || 5000;
+            if (!ICONS[type]) type = 'info';
+
+            var toast = document.createElement('div');
+            toast.className = 'bhims-toast ' + type;
+            toast.setAttribute('role', 'status');
+            toast.setAttribute('aria-live', 'polite');
+
+            toast.innerHTML =
+                '<div class="toast-icon">' + ICONS[type] + '</div>' +
+                '<div class="toast-content">' +
+                    '<div class="toast-title"></div>' +
+                    '<div class="toast-message"></div>' +
+                '</div>' +
+                '<button type="button" class="toast-close" aria-label="Close">&times;</button>' +
+                '<div class="progress-track"><div class="progress-bar"></div></div>';
+
+            toast.querySelector('.toast-title').textContent = title;
+            toast.querySelector('.toast-message').textContent = message;
+
+            var bar = toast.querySelector('.progress-bar');
+            bar.style.animation = 'bhimsTimer ' + duration + 'ms linear forwards';
+
+            container.appendChild(toast);
+
+            var timer = setTimeout(function () { removeToast(toast); }, duration);
+
+            toast.addEventListener('mouseenter', function () {
+                clearTimeout(timer);
+                bar.style.animationPlayState = 'paused';
+            });
+
+            toast.addEventListener('mouseleave', function () {
+                bar.style.animationPlayState = 'running';
+                timer = setTimeout(function () { removeToast(toast); }, duration);
+            });
+
+            toast.querySelector('.toast-close').addEventListener('click', function () {
+                removeToast(toast);
+            });
+        }
+
+        function removeToast(toast) {
+            toast.style.animation = 'bhimsFadeOut 0.4s ease forwards';
+            toast.addEventListener('animationend', function () { toast.remove(); }, { once: true });
+        }
+
+        window.createToast = createToast;
+        window.bhimsToast = createToast;
+
+        // Render Django flash messages as toasts
+        var pending = [];
+        {% for message in messages %}
+        pending.push({
+            type: '{% if message.tags == "error" %}error{% elif message.tags == "warning" %}warning{% elif message.tags == "info" %}info{% else %}success{% endif %}',
+            message: '{{ message|escapejs }}'
+        });
+        {% endfor %}
+
+        pending.forEach(function (item, index) {
+            setTimeout(function () {
+                createToast(item.type, TITLES[item.type] || 'Notice', item.message);
+            }, 120 * index);
+        });
+    })();
+    </script>
+
+    <!-- Client-side inline validation for forms opted in via data-validate.
+         Complements (never replaces) Django's server-side validation. -->
+    <script>
+    (function () {
+        var forms = document.querySelectorAll('form[data-validate]');
+        if (!forms.length) return;
+
+        function messageFor(el) {
+            var v = el.validity;
+            if (v.valueMissing) return 'This field is required.';
+            if (v.typeMismatch) return el.type === 'email' ? 'Enter a valid email address.' : 'Enter a valid value.';
+            if (v.patternMismatch) return 'Please match the requested format.';
+            if (v.tooShort) return 'Use at least ' + el.minLength + ' characters.';
+            if (v.tooLong) return 'Use no more than ' + el.maxLength + ' characters.';
+            if (v.rangeUnderflow || v.rangeOverflow) return 'This value is out of range.';
+            return 'Please check this field.';
+        }
+
+        function labelFor(el) {
+            if (el.labels && el.labels.length && el.labels[0].textContent.trim()) {
+                return el.labels[0].textContent.replace('*', '').trim();
+            }
+            return (el.name || 'This field').replace(/_/g, ' ');
+        }
+
+        function showError(el, text) {
+            el.setAttribute('aria-invalid', 'true');
+            var err = el.nextElementSibling;
+            if (!(err && err.classList && err.classList.contains('bhims-field-error'))) {
+                err = document.createElement('div');
+                err.className = 'bhims-field-error';
+                el.insertAdjacentElement('afterend', err);
+            }
+            err.textContent = text;
+        }
+
+        function clearError(el) {
+            el.removeAttribute('aria-invalid');
+            var err = el.nextElementSibling;
+            if (err && err.classList && err.classList.contains('bhims-field-error')) err.remove();
+        }
+
+        function buildSummary(form, bad) {
+            var old = form.querySelector('.bhims-error-summary');
+            if (old) old.remove();
+            if (!bad.length) return;
+            var box = document.createElement('div');
+            box.className = 'bhims-error-summary';
+            box.setAttribute('role', 'alert');
+            box.tabIndex = -1;
+            var title = document.createElement('h2');
+            title.className = 'h5 mb-2';
+            title.textContent = bad.length === 1 ? 'There is 1 problem with this form' :
+                'There are ' + bad.length + ' problems with this form';
+            box.appendChild(title);
+            var ul = document.createElement('ul');
+            ul.className = 'mb-0';
+            bad.forEach(function (el) {
+                if (!el.id) el.id = 'fld-' + (el.name || Math.random().toString(36).slice(2, 8));
+                var li = document.createElement('li');
+                var a = document.createElement('a');
+                a.href = '#' + el.id;
+                a.textContent = labelFor(el) + ': ' + messageFor(el);
+                li.appendChild(a);
+                ul.appendChild(li);
+            });
+            box.appendChild(ul);
+            form.insertBefore(box, form.firstChild);
+            box.focus();
+        }
+
+        Array.prototype.forEach.call(forms, function (form) {
+            var fields = Array.prototype.filter.call(
+                form.querySelectorAll('input, select, textarea'),
+                function (el) {
+                    var t = el.type;
+                    return t !== 'hidden' && t !== 'submit' && t !== 'button' &&
+                           t !== 'checkbox' && t !== 'radio';
+                }
+            );
+
+            fields.forEach(function (el) {
+                el.addEventListener('blur', function () {
+                    if (!el.checkValidity()) showError(el, messageFor(el));
+                });
+                el.addEventListener('input', function () {
+                    if (el.getAttribute('aria-invalid') === 'true' && el.checkValidity()) clearError(el);
+                });
+            });
+
+            form.addEventListener('submit', function (e) {
+                var bad = fields.filter(function (el) { return !el.checkValidity(); });
+                bad.forEach(function (el) { showError(el, messageFor(el)); });
+                buildSummary(form, bad);
+                if (bad.length) {
+                    e.preventDefault();
+                    bad[0].focus();
+                }
+            });
+        });
+    })();
+    </script>
+
+    <!-- Theme Toggle Script -->
+    <script>
+    (function () {
+        var html = document.documentElement;
+        var savedTheme = 'light';
+        try { savedTheme = localStorage.getItem('bhims-theme') || 'light'; } catch (e) {}
+        html.setAttribute('data-theme', savedTheme);
+
+        // Wordmark images that must re-ink when the theme flips (navbar, sidebar, footer)
+        function syncLogos() {
+            var light = html.getAttribute('data-theme') !== 'dark';
+            document.querySelectorAll('.bhims-word[data-light-src]').forEach(function (img) {
+                var next = light ? img.getAttribute('data-light-src') : img.getAttribute('data-dark-src');
+                if (next && img.getAttribute('src') !== next) img.setAttribute('src', next);
+            });
+        }
+        syncLogos();
+        // Any widget may flip the theme (topbar/sidebar buttons); keep every wordmark in sync
+        window.addEventListener('bhims-theme-change', syncLogos);
+
+        function setTheme(theme) {
+            html.setAttribute('data-theme', theme);
+            try { localStorage.setItem('bhims-theme', theme); } catch (e) {}
+            document.querySelectorAll('[data-theme-toggle]').forEach(function (el) { el.checked = theme === 'dark'; });
+            syncLogos();
+            try { window.dispatchEvent(new Event('bhims-theme-change')); } catch (e) {}
+        }
+
+        // Checkbox-style switches
+        togglesInit();
+        function togglesInit() {
+            document.querySelectorAll('[data-theme-toggle]').forEach(function (toggle) {
+                toggle.checked = html.getAttribute('data-theme') === 'dark';
+                if (toggle.dataset.bhimsThemeBound) return;
+                toggle.dataset.bhimsThemeBound = '1';
+                toggle.addEventListener('change', function () {
+                    setTheme(this.checked ? 'dark' : 'light');
+                });
+            });
+        }
+        // Button-style toggles (navbar, sidebar, topbar)
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest('[data-theme-switch]');
+            if (!btn) return;
+            e.preventDefault();
+            setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+        });
+        // Sync any logos/toggles that were added after load
+        window.addEventListener('bhims-theme-request', function () {
+            togglesInit();
+            syncLogos();
+            document.querySelectorAll('[data-theme-toggle]').forEach(function (el) {
+                el.checked = html.getAttribute('data-theme') === 'dark';
+            });
+        });
+    })();
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

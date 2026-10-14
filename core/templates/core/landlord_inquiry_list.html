@@ -1,0 +1,107 @@
+{% extends "app_base.html" %}
+{% load static %}
+{% block title %}Inquiries - Boarding House Information Management System{% endblock %}
+{% block app_content %}
+<link rel="stylesheet" href="{% static 'core/css/pages/landlord_inquiry_list.css' %}">
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="page-header">
+            <div>
+                <p class="eyebrow">Inquiries</p>
+                <h1>Student Inquiries</h1>
+                <p>Track all inquiries for your boarding houses.</p>
+            </div>
+        </div>
+
+        {% if inquiries %}
+            <div class="row gy-4">
+                {% for inquiry in inquiries %}
+                <div class="col-md-6">
+                    <div class="card inquiry-card h-100">
+                        <div class="card-body">
+
+                            {% comment %}
+                              WHO is asking. The card used to open with the bare
+                              name and fall back to the student's email address,
+                              so a landlord triaging a queue of applicants had
+                              nothing to match a face or a handle against.
+                            {% endcomment %}
+                            <div class="inq-identity">
+                                <div class="inq-avatar">
+                                    {% if inquiry.student.profile_picture %}
+                                        <img src="{{ inquiry.student.profile_picture.url }}"
+                                             alt="{{ inquiry.student.display_name }}">
+                                    {% else %}
+                                        {{ inquiry.student.display_name|first|upper }}
+                                    {% endif %}
+                                </div>
+                                <div class="inq-identity-text">
+                                    <h2 class="inq-name">
+                                        {{ inquiry.student.display_name }}
+                                        {% if inquiry.pk in new_inquiry_ids %}<span class="new-chip">NEW</span>{% endif %}
+                                    </h2>
+                                    <p class="inq-handle">&#64;{{ inquiry.student.username }}</p>
+                                </div>
+                                <span class="{% if inquiry.status == 'pending' %}pending-badge{% elif inquiry.status == 'rejected' %}rejected-badge{% else %}available-badge{% endif %}">
+                                    {% if inquiry.status == 'pending' %}<i class="bi bi-hourglass-split"></i>
+                                    {% elif inquiry.status == 'rejected' %}<i class="bi bi-x-circle"></i>
+                                    {% elif inquiry.status == 'closed' %}<i class="bi bi-check2-circle"></i>
+                                    {% else %}<i class="bi bi-chat-dots"></i>{% endif %}
+                                    {{ inquiry.get_status_display }}
+                                </span>
+                            </div>
+
+                            {% comment %}
+                              WHAT is being asked about. A landlord answers this
+                              card by thinking about a specific room, so the
+                              room is shown, not just named in running text.
+                            {% endcomment %}
+                            {% with photo=inquiry.room.primary_photo %}
+                            <div class="inq-property">
+                                <div class="inq-room-thumb">
+                                    {% if photo %}
+                                        <img src="{{ photo.image.url }}"
+                                             alt="{{ inquiry.room.name|default:inquiry.room.room_type }}"
+                                             loading="lazy" decoding="async">
+                                    {% else %}
+                                        <i class="bi bi-door-open"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="inq-property-text">
+                                    <p class="inq-house">{{ inquiry.room.boarding_house.name }}</p>
+                                    <p class="inq-room-line">
+                                        <span><i class="bi bi-door-closed"></i>{{ inquiry.room.name|default:inquiry.room.room_type }}</span>
+                                        <span><i class="bi bi-cash-coin"></i>&#8369;{{ inquiry.room.price|floatformat:0 }}/month</span>
+                                    </p>
+                                </div>
+                            </div>
+                            {% endwith %}
+
+                            <blockquote class="inq-message">{{ inquiry.message_text|truncatechars:160 }}</blockquote>
+
+                            <div class="d-flex justify-content-between align-items-center inq-footer">
+                                <small class="text-muted">
+                                    <i class="bi bi-clock"></i>
+                                    {{ inquiry.created_at|date:"M j, Y g:i A" }}
+                                </small>
+                                <a href="{% url 'landlord_inquiry_thread' inquiry.pk %}" class="btn btn-primary btn-sm">
+                                    View Conversation <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bhims-empty">
+                <i class="bi bi-chat-dots"></i>
+                <h3>No inquiries yet</h3>
+                <p>When students send inquiries about your rooms, they'll appear here.</p>
+                <a href="{% url 'boarding_house_create' %}" class="btn btn-primary">Add a Boarding House</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

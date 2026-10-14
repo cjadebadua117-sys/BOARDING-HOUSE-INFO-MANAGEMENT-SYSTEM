@@ -1,0 +1,13 @@
+/* Extracted verbatim from core/templates/core/core\admin_reports.html
+   This <link> sits exactly where the <style> tag was, so the
+   cascade order — and therefore which layer wins — is unchanged. */
+.report-filter { display: inline-flex; gap: 8px; }
+    .report-filter a {
+        text-decoration: none; font-size: var(--fs-sm); font-weight: 700;
+        padding: 6px 16px; border-radius: 999px; color: var(--bhims-text-muted);
+        background: var(--ce-card, #fffdf9);
+        border: 1px solid var(--ce-line, rgba(31, 43, 40, 0.14));
+        transition: all 0.2s ease;
+    }
+    .report-filter a:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); color: var(--bhims-text); }
+    .report-filter a.active { color: var(--ce-on-accent, #fffdf7); background: var(--ce-accent, #14563c); border-color: var(--ce-accent-deep, #0e3f2c); box-shadow: none; }

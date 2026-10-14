@@ -1,0 +1,217 @@
+{% extends 'core/auth/base.html' %}
+{% load static %}
+
+{% comment %}
+The student portal is the only page that hosts BOTH a sign-in form and a
+registration form. It is built as the reference form the client asked for: one
+curved colour ground with an invitation on each side, and the two forms riding
+across it — press "Create account" on the colour and the ground sweeps to the
+other half while the registration sheet slides in behind it.
+
+Nothing about the swap is a client-side trick: the server still renders both
+real Django forms, still decides which one is live (initial_mode) and still
+re-renders the page with a failed POST's errors sitting in the sheet that owns
+them. With no JavaScript the visitor gets the sign-in sheet and the invitation
+button does nothing — which is why the no-JS fallback is the safe half. The
+back-end routes are unchanged, so every bookmark, POST target and ?mode=signup
+link keeps working.
+{% endcomment %}
+
+{% block auth_title %}{% if initial_mode == 'signup' %}Create your account{% else %}Sign in{% endif %}{% endblock %}
+
+{% block auth_style %}
+<link rel="stylesheet" href="{% static 'core/css/auth-deck.css' %}?v=2">
+{% endblock %}
+
+{% block auth_layout %}
+<main class="auth-panel auth-deck" id="auth-main"
+      data-mode="{% if initial_mode == 'signup' %}signup{% else %}signin{% endif %}"
+      data-alt-mode="signup">
+    <h1 class="auth-deck-sr">Sign in or create your student account</h1>
+
+    <!-- ══ The curve: one circle, only its edge ever on screen ══ -->
+    <span class="auth-deck-blob" aria-hidden="true"></span>
+
+    {% comment %}The two invitations, one per side of the curve. Exactly one is
+    live per mode — the one that is NOT the mode you are in ("New here?" while
+    signing in) — and the other is parked off the canvas. The parked one is
+    marked inert and given a dead tab stop here, in the markup, so that a
+    screen reader gets the same story even if the script never runs; the deck's
+    script keeps exactly that pairing from then on.
+
+    Both presses are plain links for the same reason: with no script they go to
+    the page that renders the half they name, and with a script they trade the
+    halves in place instead.{% endcomment %}
+    <div class="auth-deck-invites">
+        <section class="auth-deck-invite auth-deck-invite--signup" data-invite="signup"
+                 {% if initial_mode == 'signup' %}aria-hidden="true" inert{% else %}aria-hidden="false"{% endif %}>
+            <div>
+                <p class="auth-deck-kicker">New here?</p>
+                <h2>Your room is a short walk from campus.</h2>
+                <p>Create a student account to browse staff-verified boarding houses, message landlords, and reserve a bed for the semester.</p>
+                <a class="auth-deck-cta" href="{% url 'student_register' %}" data-goto="signup"
+                   {% if initial_mode == 'signup' %}tabindex="-1"{% endif %}>Create account</a>
+            </div>
+        </section>
+
+        <section class="auth-deck-invite auth-deck-invite--signin" data-invite="signin"
+                 {% if initial_mode != 'signup' %}aria-hidden="true" inert{% else %}aria-hidden="false"{% endif %}>
+            <div>
+                <p class="auth-deck-kicker">One of us?</p>
+                <h2>Welcome back.</h2>
+                <p>Sign in to pick up your inquiries, bookings and saved houses exactly where you left them.</p>
+                <a class="auth-deck-cta" href="{% url 'student_login' %}" data-goto="signin"
+                   {% if initial_mode != 'signup' %}tabindex="-1"{% endif %}>Sign in</a>
+            </div>
+        </section>
+    </div>
+
+    <!-- ══ The sheets: one half-width track, two forms stacked in it ══ -->
+    <div class="auth-deck-forms">
+
+        <!-- ────────── Sign in ────────── -->
+        <section class="auth-deck-sheet auth-deck-sheet--signin" data-sheet="signin"
+                 aria-labelledby="signinHeading"{% if initial_mode == 'signup' %} hidden{% endif %}>
+            <div class="auth-deck-sheet-inner">
+                <header class="auth-deck-head">
+                    <p class="auth-eyebrow"><i class="bi bi-mortarboard-fill" aria-hidden="true"></i> Student portal</p>
+                    <h2 id="signinHeading">Sign in</h2>
+                    <p class="auth-sub">{{ login_subtitle|default:"Use your student account to reach your inquiries, bookings and listings." }}</p>
+                </header>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="auth-alert{% if message.tags != 'error' %} auth-alert-info{% endif %}" role="alert">
+                            <i class="bi {% if message.tags == 'error' %}bi-exclamation-octagon-fill{% else %}bi-info-circle-fill{% endif %}" aria-hidden="true"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post" action="{% url 'login' %}" novalidate>
+                    {% csrf_token %}
+                    {% for h in form.hidden_fields %}{{ h }}{% endfor %}
+                    <input type="hidden" name="next" value="{{ next }}">
+
+                    {% comment %}The view already flashes a message for every failed
+                    sign-in; only fall back to the form's own error when there is
+                    none, so the visitor never reads the same sentence twice.{% endcomment %}
+                    {% if form.non_field_errors and not messages %}
+                        <div class="auth-alert" role="alert">
+                            <i class="bi bi-exclamation-octagon-fill" aria-hidden="true"></i>
+                            <span>{% for e in form.non_field_errors %}{{ e|striptags }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</span>
+                        </div>
+                    {% endif %}
+
+                    {% for field in form.visible_fields %}
+                        {% if field.name == 'username' %}
+                            {% include 'core/auth/_field.html' with field=field icon="bi-person" only %}
+                        {% elif field.name == 'password' %}
+                            {% include 'core/auth/_field.html' with field=field icon="bi-lock" only %}
+                        {% else %}
+                            {% include 'core/auth/_field.html' with field=field only %}
+                        {% endif %}
+                    {% endfor %}
+
+                    <div class="auth-row">
+                        <label class="auth-check"><input type="checkbox" name="remember_me" id="remember_me"> Keep me signed in</label>
+                        <a href="{% url 'password_reset' %}">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="auth-submit">Sign in as student</button>
+                </form>
+
+                <div class="auth-deck-foot">
+                    <span>Signing in as a landlord or an administrator?</span>
+                    <nav aria-label="Other portals">
+                        <a href="{% url 'landlord_login' %}">Landlord</a>
+                        <a href="{% url 'admin_login' %}">Administrator</a>
+                    </nav>
+                </div>
+            </div>
+        </section>
+
+        <!-- ────────── Create account ────────── -->
+        <section class="auth-deck-sheet auth-deck-sheet--signup" data-sheet="signup"
+                 aria-labelledby="signupHeading"{% if initial_mode != 'signup' %} hidden{% endif %}>
+            <div class="auth-deck-sheet-inner">
+                <header class="auth-deck-head">
+                    <p class="auth-eyebrow"><i class="bi bi-person-plus-fill" aria-hidden="true"></i> Student registration</p>
+                    <h2 id="signupHeading">Create your account</h2>
+                    <p class="auth-sub">One account to search listings, message landlords and reserve a bed.</p>
+                </header>
+
+                <form method="post" action="{% url 'student_register' %}" novalidate>
+                    {% csrf_token %}
+                    {% for h in reg_form.hidden_fields %}{{ h }}{% endfor %}
+                    <input type="hidden" name="next" value="{{ next }}">
+
+                    {% if reg_form.non_field_errors %}
+                        <div class="auth-alert" role="alert">
+                            <i class="bi bi-exclamation-octagon-fill" aria-hidden="true"></i>
+                            <span>{% for e in reg_form.non_field_errors %}{{ e|striptags }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</span>
+                        </div>
+                    {% endif %}
+
+                    {% if reg_form.errors %}
+                        <div class="auth-summary" role="alert" id="regErrorSummary">
+                            <strong>Please fix the following before continuing:</strong>
+                            <ul>
+                                {% for field in reg_form.visible_fields %}
+                                    {% if field.errors %}
+                                        <li><a href="#{{ field.id_for_label }}_wrap">{{ field.label }}</a> &mdash; {{ field.errors.0|striptags }}</li>
+                                    {% endif %}
+                                {% endfor %}
+                                {% for e in reg_form.non_field_errors %}<li>{{ e|striptags }}</li>{% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <div class="auth-form-grid">
+                        {% for field in reg_form.visible_fields %}
+                            {% if field.name == 'program_custom' %}
+                                {% if reg_form.data.program == 'K12' or reg_form.initial.program == 'K12' or field.value or field.errors %}
+                                    {% include 'core/auth/_field.html' with field=field icon="bi-mortarboard" wrap_id=1 only %}
+                                {% else %}
+                                    {% include 'core/auth/_field.html' with field=field icon="bi-mortarboard" wrap_id=1 hidden=1 only %}
+                                {% endif %}
+                            {% elif field.name == 'full_name' %}
+                                {% include 'core/auth/_field.html' with field=field icon="bi-person-vcard" span=1 wrap_id=1 only %}
+                            {% elif field.name == 'username' %}
+                                {% include 'core/auth/_field.html' with field=field icon="bi-person" span=1 wrap_id=1 only %}
+                            {% elif field.name == 'email' %}
+                                {% include 'core/auth/_field.html' with field=field icon="bi-envelope" span=1 wrap_id=1 only %}
+                            {% elif field.name == 'student_id' %}
+                                {% include 'core/auth/_field.html' with field=field icon="bi-person-badge" span=1 wrap_id=1 hint="Use your DMMMSU ID, e.g. 241-0273-1." only %}
+                            {% elif field.name == 'program' %}
+                                {% include 'core/auth/_field.html' with field=field icon="bi-mortarboard" span=1 wrap_id=1 only %}
+                            {% elif field.name == 'password1' %}
+                                {% include 'core/auth/_field.html' with field=field icon="bi-lock" span=1 wrap_id=1 only %}
+                                <div class="pwd-meter" data-score="0" id="pwdMeter" aria-live="polite">
+                                    <span class="pwd-bars"><i></i><i></i><i></i><i></i></span>
+                                    <span class="pwd-label">Strength</span>
+                                </div>
+                            {% elif field.name == 'password2' %}
+                                {% include 'core/auth/_field.html' with field=field icon="bi-lock" span=1 wrap_id=1 only %}
+                            {% else %}
+                                {% include 'core/auth/_field.html' with field=field span=1 wrap_id=1 only %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <button type="submit" class="auth-submit">Create account</button>
+
+                    <p class="auth-privacy">
+                        <i class="bi bi-shield-check" aria-hidden="true"></i>
+                        <span>Your details are used only for boarding-house matching inside BHIMS and are never shared outside DMMMSU&ndash;NLUC.</span>
+                    </p>
+                </form>
+            </div>
+        </section>
+    </div>
+</main>
+{% endblock %}
+
+{% block auth_script %}
+<script src="{% static 'core/js/auth-deck.js' %}?v=2" defer></script>
+{% endblock %}

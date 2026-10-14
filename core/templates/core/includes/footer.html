@@ -1,0 +1,30 @@
+{% load static %}
+<footer class="bhims-footer">
+  <div class="bhims-footer-inner">
+    <div>
+      <div class="bhims-footer-brand">
+        <img src="{% static 'core/images/logo_mark.png' %}" alt="" aria-hidden="true">
+        <img class="bhims-word" src="{% static 'core/images/logo_text_dark.png' %}"
+             alt="BHIMS — Boarding House Information Management System"
+             data-light-src="{% static 'core/images/logo_text_light.png' %}"
+             data-dark-src="{% static 'core/images/logo_text_dark.png' %}">
+      </div>
+      <p>Browse verified boarding houses near campus, message landlords directly, and manage your stay in one place.</p>
+      <p style="color:rgba(255,255,255,0.5);margin:1.25rem 0 0;">&copy; BHIMS &middot; DMMMSU–NLUC, Bacnotan</p>
+    </div>
+    <div>
+      <h3>Platform</h3>
+      <div class="bhims-footer-links">
+        <a href="{% url 'student_login' %}">Student portal</a>
+        <a href="{% url 'landlord_login' %}">Landlord portal</a>
+      </div>
+    </div>
+    <div>
+      <h3>Campus</h3>
+      <div class="bhims-footer-links">
+        <span>DMMMSU – North La Union Campus</span>
+        <span>Bacnotan, La Union, Philippines</span>
+      </div>
+    </div>
+  </div>
+</footer>

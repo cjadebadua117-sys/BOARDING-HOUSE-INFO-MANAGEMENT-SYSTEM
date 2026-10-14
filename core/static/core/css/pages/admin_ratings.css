@@ -1,0 +1,21 @@
+/* Extracted verbatim from core/templates/core/core\admin_ratings.html
+   This <link> sits exactly where the <style> tag was, so the
+   cascade order — and therefore which layer wins — is unchanged. */
+.rating-stars { color: var(--bhims-badge-pending); letter-spacing: 2px; font-size: 1rem; }
+    .rating-comment {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        max-width: 320px;
+    }
+    .star-filter { display: inline-flex; gap: 8px; flex-wrap: wrap; }
+    .star-filter a {
+        text-decoration: none; font-size: var(--fs-sm); font-weight: 700;
+        padding: 6px 16px; border-radius: 999px; color: var(--bhims-text-muted);
+        background: var(--ce-card, #fffdf9);
+        border: 1px solid var(--ce-line, rgba(31, 43, 40, 0.14));
+        transition: all 0.2s ease;
+    }
+    .star-filter a:hover { background: var(--ce-accent-wash, rgba(23, 104, 94, 0.09)); border-color: var(--ce-accent, #17685e); color: var(--ce-accent-deep, #0f4f47); }
+    .star-filter a.active { color: var(--ce-on-accent, #fff); background: var(--ce-accent, #17685e); border-color: var(--ce-accent-deep, #0f4f47); }

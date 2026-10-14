@@ -1,0 +1,43 @@
+/* Extracted verbatim from core/templates/core/core\landlord_my_ratings.html
+   This <link> sits exactly where the <style> tag was, so the
+   cascade order — and therefore which layer wins — is unchanged. */
+.rating-card {
+        background: var(--bhims-glass-bg-primary);
+        -webkit-backdrop-filter: var(--bhims-glass-primary);
+        backdrop-filter: var(--bhims-glass-primary);
+        border: var(--bhims-glass-border);
+        border-radius: 18px;
+        box-shadow: var(--bhims-glass-shadow);
+        padding: 1.25rem 1.4rem;
+        transition: transform 0.25s var(--bhims-ease-smooth, ease), box-shadow 0.25s ease;
+    }
+    .rating-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 16px 36px -14px rgba(0, 0, 0, 0.35);
+    }
+    .rating-stars { color: var(--bhims-badge-pending); letter-spacing: 2px; font-size: 1.05rem; }
+    .rating-stars .dim { opacity: 0.22; }
+    .tenant-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: var(--ce-accent-wash, rgba(20, 86, 60, 0.10));
+        color: var(--ce-accent, #14563c);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: var(--fs-md);
+        flex-shrink: 0;
+        border: 1px solid var(--ce-line, rgba(35, 43, 40, 0.15));
+    }
+    .star-filter { display: inline-flex; gap: 8px; flex-wrap: wrap; }
+    .star-filter a {
+        text-decoration: none; font-size: var(--fs-sm); font-weight: 700;
+        padding: 6px 16px; border-radius: 999px; color: var(--bhims-text-muted);
+        background: var(--ce-card, #fffdf7);
+        border: 1px solid var(--ce-line, rgba(35, 43, 40, 0.15));
+        transition: all 0.2s ease;
+    }
+    .star-filter a:hover { background: var(--ce-accent-wash, rgba(20, 86, 60, 0.08)); border-color: var(--ce-line-strong, rgba(35,43,40,0.28)); color: var(--bhims-text); }
+    .star-filter a.active { color: var(--ce-on-accent, #fffdf7); background: var(--ce-accent, #14563c); border-color: var(--ce-accent-deep, #0e3f2c); box-shadow: none; }

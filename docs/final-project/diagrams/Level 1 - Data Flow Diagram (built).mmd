@@ -1,0 +1,97 @@
+%% BHIMS - Level 1 Data Flow Diagram (built system)
+%% Process numbering matches the midterm IPO table 1:1, so the four final modules
+%% map onto it directly: A = 2.0, B = 3.0 + 4.0 + 5.0, C = 6.0 + 7.0, D = 1.0 + 8.0.
+%% Render: venv\Scripts\python.exe tools\render_diagrams.py docs\final-project\diagrams
+flowchart LR
+    STU["<b>STUDENT</b>"]
+    LAN["<b>LANDLORD</b>"]
+    ADM["<b>ADMINISTRATOR</b>"]
+
+    P1("<b>1.0 User &amp;<br/>Account Management</b>")
+    P2("<b>2.0 Boarding House &amp;<br/>Room Management</b>")
+    P3("<b>3.0 Search &amp;<br/>Availability</b>")
+    P4("<b>4.0 Inquiry &amp;<br/>Messaging</b>")
+    P5("<b>5.0 Booking<br/>Management</b>")
+    P6("<b>6.0 Rating &amp;<br/>Review</b>")
+    P7("<b>7.0 User<br/>Reporting</b>")
+    P8("<b>8.0 Administration &amp;<br/>Analytics</b>")
+
+    D1[("D1 | USERS")]
+    D2[("D2 | HOUSES &amp; ROOMS")]
+    D3[("D3 | AMENITIES &amp; BARANGAYS")]
+    D4[("D4 | INQUIRIES &amp; MESSAGES")]
+    D5[("D5 | BOOKINGS")]
+    D6[("D6 | LANDLORD RATINGS")]
+    D7[("D7 | USER REPORTS")]
+    D8[("D8 | AUDIT LOG &amp; SETTINGS")]
+
+    %% --- 1.0 accounts ---
+    STU -- "registration (program or<br/>K-12 grade level), login" --> P1
+    LAN -- "registration, login" --> P1
+    ADM -- "create / edit / deactivate<br/>accounts" --> P1
+    P1 -- "account &amp; role records" --> D1
+    D1 -- "verified credentials,<br/>role" --> P1
+    P1 -- "active session,<br/>role-based access" --> STU
+    P1 -- "landlord ID,<br/>account status" --> LAN
+
+    %% --- 2.0 listings ---
+    LAN -- "house, room, rate, capacity,<br/>amenity, photo data,<br/>availability toggles" --> P2
+    P2 -- "listing &amp; room records" --> D2
+    D2 -- "listing data" --> P2
+    D3 -- "barangay list &amp;<br/>campus distance" --> P2
+    ADM -- "approve / reject" --> P2
+    ADM -- "barangay &amp; site settings" --> D3
+    P2 -- "approval status<br/>(pending / approved / rejected)" --> LAN
+
+    %% --- 3.0 search ---
+    STU -- "search &amp; filter criteria<br/>(barangay, price, room type,<br/>amenity, availability, sort)" --> P3
+    D2 -- "approved houses and<br/>bookable rooms" --> P3
+    D6 -- "average landlord rating" --> P3
+    P3 -- "matching listings, bookable-only<br/>room count and lowest price" --> STU
+
+    %% --- 4.0 inquiry ---
+    STU <-- "inquiry &amp; messages" --> P4
+    LAN <-- "replies" --> P4
+    P4 -- "inquiry &amp; message records" --> D4
+    D4 -- "thread history,<br/>timestamps" --> P4
+
+    %% --- 5.0 booking ---
+    STU -- "booking request for a room" --> P5
+    D5 -- "existing bookings<br/>(capacity check)" --> P5
+    LAN -- "accept / decline" --> P5
+    P5 -- "booking with status<br/>(pending / confirmed /<br/>declined / cancelled)" --> D5
+    P5 -- "room availability update" --> D2
+    P5 -- "confirmed or declined<br/>booking status" --> STU
+    P5 -. "accepted inquiry" .-> P4
+
+    %% --- 6.0 rating ---
+    D5 -- "confirmed booking<br/>(eligibility key)" --> P6
+    STU -- "1-5 star rating<br/>+ comment" --> P6
+    P6 -- "rating record<br/>(one per booking)" --> D6
+    P6 -- "updated average rating" --> STU
+    P6 -- "average rating received" --> LAN
+
+    %% --- 7.0 reporting ---
+    STU -- "report user<br/>(reason, details)" --> P7
+    LAN -- "report user" --> P7
+    P7 -- "report record" --> D7
+    D7 -- "pending reports" --> P7
+    ADM -- "resolve / dismiss" --> P7
+    P7 -- "action taken" --> STU
+
+    %% --- 8.0 administration & analytics ---
+    ADM <-- "dashboard &amp; analytics,<br/>audit trail" --> P8
+    D2 -- "listing counts" --> P8
+    D5 -- "booking &amp; occupancy stats" --> P8
+    D6 -- "rating stats" --> P8
+    D7 -- "report stats" --> P8
+    P8 -- "admin action record" --> D8
+    D8 -- "site settings" --> P8
+    P8 -- "user &amp; listing updates" --> D1
+
+    classDef entity fill:#f8eae4,stroke:#8c4a2f,stroke-width:2.5px,color:#3a2a20
+    classDef process fill:#ffffff,stroke:#c1592a,stroke-width:3px,color:#3a2a20
+    classDef store fill:#eef2f7,stroke:#4a6785,stroke-width:2px,color:#22303f
+    class STU,LAN,ADM entity
+    class P1,P2,P3,P4,P5,P6,P7,P8 process
+    class D1,D2,D3,D4,D5,D6,D7,D8 store

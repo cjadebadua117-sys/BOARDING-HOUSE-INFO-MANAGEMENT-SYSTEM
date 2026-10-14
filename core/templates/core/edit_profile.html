@@ -1,0 +1,120 @@
+{% extends "app_base.html" %}
+{% load static %}
+{% block title %}Edit Profile - BHIMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/pages/edit_profile.css' %}">
+{% endblock %}
+
+{% block topbar_title %}
+    <span style="font-family: var(--font-display); font-weight: 700; color: var(--bhims-text);">Edit Profile</span>
+{% endblock %}
+
+{% block app_content %}
+<div class="edit-profile-page">
+    <div class="app-content" style="padding-top: 2rem; padding-bottom: 3rem;">
+        <div class="edit-form-card bhims-press">
+            <div class="edit-form-header">
+                <h1><i class="bi bi-person-gear text-teal me-1" aria-hidden="true"></i> Edit Profile</h1>
+                <p class="text-muted mb-0">Update your personal information</p>
+            </div>
+
+            <!-- Avatar Upload -->
+            <div class="avatar-upload text-center">
+                {% if user.profile_picture %}
+                <img src="{{ user.profile_picture.url }}" alt="{{ user.display_name }}" class="avatar-preview" id="avatarPreview">
+                {% else %}
+                <div class="avatar-placeholder" id="avatarPlaceholder">{{ user.display_name|first|upper }}</div>
+                {% endif %}
+                <label for="avatarInput" class="avatar-upload-label" aria-label="Change avatar">
+                    <i class="bi bi-camera" style="font-size: 0.9rem;"></i>
+                </label>
+                <form method="post" action="{% url 'update_avatar' %}" enctype="multipart/form-data" style="display: none;" id="avatarForm">
+                    {% csrf_token %}
+                    <input type="file" id="avatarInput" name="avatar" accept="image/*" onchange="document.getElementById('avatarForm').submit();">
+                </form>
+            </div>
+
+            <form method="post" novalidate data-validate>
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}<div class="bhims-field-error">{{ form.first_name.errors|striptags }}</div>{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}<div class="bhims-field-error">{{ form.last_name.errors|striptags }}</div>{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}<div class="bhims-field-error">{{ form.email.errors|striptags }}</div>{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.phone_number.id_for_label }}">{{ form.phone_number.label }}</label>
+                            {{ form.phone_number }}
+                            {% if form.phone_number.errors %}<div class="bhims-field-error">{{ form.phone_number.errors|striptags }}</div>{% endif %}
+                        </div>
+                    </div>
+                    {% if form.address %}
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
+                            {{ form.address }}
+                            {% if form.address.errors %}<div class="bhims-field-error">{{ form.address.errors|striptags }}</div>{% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-actions">
+                    <a href="{% url 'profile' %}" class="btn-cancel bhims-press"><i class="bi bi-x-lg me-1"></i> Cancel</a>
+                    <button type="submit" class="btn-save bhims-press"><i class="bi bi-save me-1"></i> Save Changes</button>
+                </div>
+            </form>
+
+            <p class="text-center mb-0 mt-4">
+                <a href="{% url 'change_password' %}" style="color: var(--bhims-teal); font-weight: 600; text-decoration: none;">
+                    <i class="bi bi-shield-lock me-1"></i> Change password instead
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var avatarInput = document.getElementById('avatarInput');
+    var avatarPreview = document.getElementById('avatarPreview');
+    var avatarPlaceholder = document.getElementById('avatarPlaceholder');
+    if (avatarInput) {
+        avatarInput.addEventListener('change', function () {
+            var file = this.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    if (avatarPreview) {
+                        avatarPreview.src = e.target.result;
+                        avatarPreview.style.display = 'block';
+                    }
+                    if (avatarPlaceholder) avatarPlaceholder.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+})();
+</script>
+{% endblock %}

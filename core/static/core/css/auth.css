@@ -1,0 +1,1042 @@
+/* ============================================================================
+   BHIMS · Authentication surface
+   ----------------------------------------------------------------------------
+   A single, self-contained stylesheet for every signed-out page (student,
+   landlord and admin sign in, student registration, password recovery).
+
+   It is intentionally NOT layered on top of the site's theme sheets: the auth
+   pages are their own document, so nothing here has to out-specify or undo a
+   site-wide !important rule. One file, one visual language.
+
+   Layout: a two-column split on desktop — a printed brand panel on the left,
+   the form sheet on the right — collapsing to a single column under 980px.
+   ==========================================================================*/
+
+/* --- Tokens -------------------------------------------------------------- */
+:root {
+    --a-accent: #0e7c6b;
+    --a-accent-strong: #0a6455;
+    --a-on-accent: #ffffff;
+    --a-accent-soft: #e6f2ef;
+    --a-accent-ring: rgba(14, 124, 107, 0.16);
+    --a-ink: #15211f;
+    --a-ink-2: #46544f;
+    --a-ink-3: #7b8783;
+    --a-line: #e2dfd7;
+    --a-line-strong: #cbc7bc;
+    --a-canvas: #f3f2ee;
+    --a-card: #ffffff;
+    --a-danger: #b23a30;
+    --a-danger-bg: #fdf4f3;
+    --a-danger-line: #eec9c5;
+    --a-warn: #8a6420;
+    --a-warn-bg: #fdf8ee;
+    --a-radius: 14px;
+    /* Two numbers decide the composition: the band the brand ground keeps on
+       the left, and the widest the sheet may get when it fills the rest.
+       Everything else — copy width, seal width, panel padding — measures from
+       them, so nothing can slide under the card. */
+    --a-brand-band: 25rem;
+    --a-card-w: 1280px;
+    --a-shadow: 0 1px 2px rgba(18, 26, 24, 0.05), 0 26px 48px -30px rgba(18, 26, 24, 0.34);
+    --a-font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --a-font-display: 'Fraunces', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+    color-scheme: light;
+}
+
+[data-theme="dark"] {
+    --a-accent: #4fc3ac;
+    --a-accent-strong: #6fd6bf;
+    --a-on-accent: #08201c;
+    --a-accent-soft: rgba(79, 195, 172, 0.12);
+    --a-accent-ring: rgba(79, 195, 172, 0.22);
+    --a-ink: #eef2f0;
+    --a-ink-2: #b3bfbb;
+    --a-ink-3: #8a9692;
+    --a-line: #2b3634;
+    --a-line-strong: #3b4744;
+    --a-canvas: #0e1413;
+    --a-card: #16201e;
+    --a-danger: #f0908a;
+    --a-danger-bg: rgba(180, 58, 48, 0.14);
+    --a-danger-line: rgba(240, 144, 138, 0.32);
+    --a-warn: #e5c07b;
+    --a-warn-bg: rgba(229, 192, 123, 0.12);
+    --a-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 26px 48px -30px rgba(0, 0, 0, 0.8);
+    color-scheme: dark;
+}
+
+/* --- Base ---------------------------------------------------------------- */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body.auth-body {
+    margin: 0;
+    font-family: var(--a-font);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--a-ink);
+    background: var(--a-canvas);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Deliberately unqualified: .auth-submit is an <a> on the recovery pages,
+   and a `.auth-body a` rule would out-specify its colour. */
+a { color: inherit; }
+img { display: block; }
+
+/* Tabs and panes rely on the `hidden` attribute, so it must always win. */
+.auth-body [hidden] { display: none !important; }
+
+.auth-body :focus-visible {
+    outline: 2px solid var(--a-accent);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+.auth-skip {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 2100;   /* above the sticky navbar, so it is readable on focus */
+    padding: 10px 16px;
+    background: var(--a-card);
+    border: 1px solid var(--a-line-strong);
+    border-radius: 0 0 10px 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+.auth-skip:focus { left: 0; }
+
+/* ═══ Site chrome: the shared navbar ══════════════════════════════════════ */
+/* These pages are their own document, so the bar is styled here instead of by
+   loading the four global sheets — those lean on !important, which is exactly
+   why the auth surface had to be isolated. The markup still comes from the one
+   shared partial (core/includes/navbar.html), and the values are the ones
+   Campus Editorial resolves to site-wide, so this is the same bar: flat card,
+   hairline rule, ink-soft links, same theme button. */
+:root {
+    --nav-h: 62px;                 /* replaced with the real height by JS */
+    --nav-card: #fffdf7;
+    --nav-line: rgba(35, 43, 40, 0.28);
+    --nav-ink-soft: #4d5852;
+    --nav-accent: #14563c;
+    --nav-accent-wash: rgba(20, 86, 60, 0.08);
+    /* Opaque, not the site's translucent glass: here the collapsed menu falls
+       over the dark brand photograph, where 8% show-through reads as a smear. */
+    --nav-popover: #fffdf7;
+    --bhims-teal: #14563c;         /* the hamburger icon strokes with this */
+}
+
+[data-theme="dark"] {
+    --nav-card: #1b2220;
+    --nav-line: rgba(233, 230, 219, 0.26);
+    --nav-ink-soft: #aaada2;
+    --nav-accent: #79c79b;
+    --nav-accent-wash: rgba(121, 199, 155, 0.14);
+    --nav-popover: #1b2220;
+    --bhims-teal: #79c79b;
+}
+
+.bhims-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 1200;
+    width: 100%;
+    padding: 0.35rem 0;
+    background: var(--nav-card);
+    border-bottom: 1px solid var(--nav-line);
+    transform: translateZ(0);
+}
+
+.bhims-topbar-inner {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0.35rem 1.5rem;
+}
+
+.bhims-topbar-left { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+.bhims-brand { display: inline-flex; align-items: center; gap: 0.6rem; min-width: 0; text-decoration: none; }
+.bhims-brand-mark { height: 38px; width: auto; display: block; flex-shrink: 0; transition: transform 0.25s ease; }
+.bhims-brand:hover .bhims-brand-mark { transform: translateY(-1px) scale(1.03); }
+.bhims-brand-text { display: inline-flex; align-items: center; min-width: 0; }
+.bhims-word { height: 30px; width: auto; display: block; }
+.bhims-topbar-actions { display: inline-flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+
+.bhims-nav { display: flex; align-items: center; flex-wrap: wrap; gap: 1.15rem; }
+.bhims-nav-link {
+    color: var(--nav-ink-soft);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 0.4rem 0.6rem;
+    border-radius: 8px;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+.bhims-nav-link:hover,
+.bhims-nav-link.is-active { color: var(--nav-accent); background: var(--nav-accent-wash); }
+
+/* Icon buttons are flat glyphs here too — not boxed cards. */
+.bhims-theme-btn,
+.bhims-menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--nav-ink-soft);
+    font-size: 1.15rem;
+    cursor: pointer;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+.bhims-theme-btn:hover,
+.bhims-menu-toggle:hover { color: var(--nav-accent); background: var(--nav-accent-wash); }
+.bhims-theme-btn .bi-sun { display: none; }
+[data-theme="dark"] .bhims-theme-btn .bi-sun { display: inline-block; }
+[data-theme="dark"] .bhims-theme-btn .bi-moon-stars { display: none; }
+
+/* Hidden on desktop, revealed with the collapsed nav — the same discipline
+   the rest of the site settled on. */
+.bhims-menu-toggle { display: none; }
+
+@media (max-width: 820px) {
+    .bhims-menu-toggle { display: inline-flex; }
+    .bhims-brand-mark { height: 34px; }
+    .bhims-word { height: 26px; }
+
+    .bhims-nav {
+        display: none;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.25rem;
+        margin: 0;
+        padding: 0.6rem 1rem 1rem;
+        background: var(--nav-popover);
+        border-bottom: 1px solid var(--nav-line);
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 18px 40px -22px rgba(18, 26, 24, 0.45);
+    }
+    .bhims-topbar.is-open .bhims-nav { display: flex; }
+
+    .bhims-nav-link {
+        display: inline-flex;
+        align-items: center;
+        min-height: 48px;
+        padding: 0.6rem 0.75rem;
+        border-radius: 12px;
+        font-size: 1rem;
+    }
+}
+
+/* --- Page: the card sits in the middle of the brand ground --------------- */
+/* One column. The photograph and the masthead are the page itself, and the
+   card is the only thing standing in the middle of it, so the eye goes
+   straight to the form. The bar is sticky and in flow, so the ground fills
+   what is left of the viewport instead of adding a navbar's worth of scroll. */
+.auth-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    min-height: calc(100vh - var(--nav-h));
+    min-height: calc(100dvh - var(--nav-h));
+}
+
+/* ═══ The brand ground: full-bleed, behind everything ════════════════════ */
+/* Fixed rather than sticky, so a long registration form scrolls over a still
+   ground. It is decoration and never takes a click — the wordmark link opts
+   back in just below. */
+.auth-brand {
+    position: fixed;
+    inset: var(--nav-h) 0 0 0;   /* starts under the bar, never behind it */
+    z-index: 0;
+    overflow: hidden;
+    background: #0b2a26;
+    color: #eef5f2;
+    isolation: isolate;
+    pointer-events: none;
+}
+
+.auth-brand::before {
+    /* campus photograph, bled in as texture rather than a hero image */
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('../images/dmmmsu-campus-hd.jpg') center / cover no-repeat;
+    opacity: 0.3;
+    filter: grayscale(0.7) contrast(1.05) brightness(0.9);
+    mix-blend-mode: luminosity;
+}
+
+.auth-brand::after {
+    /* deep gradient wash + a hairline grid, the way a printed cover is ruled */
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(120% 90% at 8% 4%, rgba(40, 158, 136, 0.4) 0%, rgba(11, 42, 38, 0) 58%),
+        radial-gradient(90% 70% at 100% 100%, rgba(6, 22, 20, 0.8) 0%, rgba(6, 22, 20, 0) 62%),
+        linear-gradient(160deg, rgba(9, 36, 32, 0.78) 0%, rgba(6, 26, 24, 0.95) 100%),
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 96px),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 96px);
+}
+
+.auth-brand-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    height: 100%;
+    padding: clamp(1.6rem, 3vw, 2.8rem);
+}
+
+/* The wordmark is a real link, so it stays clickable through the ground. */
+.auth-brand-inner a { pointer-events: auto; }
+
+.auth-wordmark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    text-decoration: none;
+    color: inherit;
+    width: fit-content;
+}
+
+.auth-wordmark img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    padding: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 11px;
+}
+
+.auth-wordmark-text { display: block; min-width: 0; }
+
+.auth-wordmark strong {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+}
+
+.auth-wordmark-sub {
+    display: block;
+    margin-top: 0.2rem;
+    max-width: 34ch;
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    color: rgba(238, 245, 242, 0.6);
+}
+
+/* The flexible middle: headline block sits low, like a masthead — and stays
+   in the band left of the card, never under it. */
+.auth-brand-copy {
+    margin-top: auto;
+    /* Stays inside the band the panel reserves for it — never under the card. */
+    max-width: calc(var(--a-brand-band) - 5.5rem);
+}
+
+.auth-brand-kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.66rem;
+    margin: 0 0 1.15rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(238, 245, 242, 0.72);
+}
+.auth-brand-kicker::after {
+    content: '';
+    flex: 1 1 auto;
+    max-width: 120px;
+    height: 1px;
+    background: rgba(238, 245, 242, 0.28);
+}
+
+.auth-brand-copy h1 {
+    margin: 0 0 1.1rem;
+    font-family: var(--a-font-display);
+    font-weight: 600;
+    font-variation-settings: 'SOFT' 0, 'WONK' 1;
+    font-size: clamp(2.1rem, 3.1vw, 3.1rem);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+}
+
+.auth-brand-lead {
+    margin: 0;
+    max-width: 46ch;
+    font-size: 1rem;
+    line-height: 1.65;
+    color: rgba(238, 245, 242, 0.82);
+}
+
+.auth-brand-points {
+    list-style: none;
+    margin: 1.9rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+}
+
+.auth-brand-points li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    font-size: 0.9rem;
+    color: rgba(238, 245, 242, 0.86);
+}
+
+.auth-brand-points i {
+    flex: 0 0 auto;
+    margin-top: 0.12rem;
+    color: #6fe0c4;
+    font-size: 0.95rem;
+}
+
+.auth-brand-foot {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(238, 245, 242, 0.16);
+    /* Same band rule as the copy: the rule and the credit stay left of the
+       card instead of running underneath it. */
+    max-width: calc(var(--a-brand-band) - 4rem);
+}
+
+.auth-brand-foot span { min-width: 0; }
+
+.auth-brand-foot img {
+    /* Sized to keep the credit on two lines inside the band left of a 600px
+       card — any larger and the second sentence wraps to a third and fourth. */
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    flex: 0 0 auto;
+}
+
+.auth-brand-foot span {
+    font-size: 0.68rem;
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+    color: rgba(238, 245, 242, 0.7);
+}
+
+/* ═══ Right: form panel ══════════════════════════════════════════════════ */
+.auth-panel {
+    position: relative;
+    z-index: 1;                 /* one layer above the brand ground */
+    display: flex;
+    flex-direction: column;
+    /* The sheet takes every pixel the brand band does not claim: no dead
+       ground down either side of it. */
+    align-items: stretch;
+    justify-content: center;
+    padding: clamp(1rem, 2.4vw, 1.9rem);
+    padding-left: calc(var(--a-brand-band) + clamp(1rem, 2.4vw, 1.9rem));
+    background: transparent;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: var(--a-card-w);
+    margin: auto 0;   /* centred in the panel; the panel is what stretches */
+    background: var(--a-card);
+    border: 1px solid var(--a-line);
+    border-radius: var(--a-radius);
+    box-shadow: var(--a-shadow);
+    padding: clamp(1.75rem, 3.2vw, 2.6rem);
+}
+
+/* --- Card header --------------------------------------------------------- */
+.auth-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.75rem;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--a-accent);
+}
+
+/* h1 as well as h2: the student split screen makes its form heading the page's
+   h1 (the panel half took the h1 the shared brand panel used to carry), and it
+   must pick up the same type treatment. */
+.auth-card :is(h1, h2) {
+    margin: 0 0 0.45rem;
+    font-family: var(--a-font-display);
+    font-size: clamp(1.85rem, 2.9vw, 2.4rem);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+}
+
+.auth-sub {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--a-ink-2);
+}
+
+.auth-card-head { margin-bottom: 1.75rem; }
+
+/* --- Tabs (student: sign in / create account) ---------------------------- */
+.auth-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+    padding: 3px;
+    margin-bottom: 1.6rem;
+    background: var(--a-canvas);
+    border: 1px solid var(--a-line);
+    border-radius: 11px;
+}
+
+.auth-tab {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    padding: 0.7rem 0.5rem;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 0.97rem;
+    font-weight: 600;
+    color: var(--a-ink-2);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.auth-tab:hover { color: var(--a-ink); }
+.auth-tab[aria-selected="true"] {
+    background: var(--a-card);
+    color: var(--a-ink);
+    box-shadow: 0 1px 2px rgba(18, 26, 24, 0.1);
+}
+.auth-tab:focus-visible { outline-offset: 1px; }
+
+/* --- Form fields --------------------------------------------------------- */
+/* One column: even on a 600px sheet, paired inputs make native selects
+   truncate their own option text. */
+.auth-form-grid { display: grid; grid-template-columns: 1fr; }
+.auth-span { grid-column: 1 / -1; }
+
+.auth-group {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin: 0.5rem 0 1rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--a-ink-3);
+}
+.auth-group:first-child { margin-top: 0; }
+.auth-group::after {
+    content: '';
+    flex: 1 1 auto;
+    height: 1px;
+    background: var(--a-line);
+}
+.auth-group i { color: var(--a-accent); font-size: 0.86rem; }
+
+.field { margin-bottom: 1.15rem; min-width: 0; }
+
+/* The strength meter belongs to the password row above it, not to the grid. */
+.auth-form-grid > .pwd-meter {
+    grid-column: 1 / -1;
+    margin: -0.45rem 0 0.95rem;
+}
+
+.field-optional {
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--a-ink-3);
+}
+
+.field-label {
+    display: block;
+    margin-bottom: 0.45rem;
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--a-ink-2);
+}
+
+.field-control { position: relative; }
+
+.field-control input,
+.field-control select,
+.field-control textarea {
+    width: 100%;
+    min-height: 54px;
+    padding: 0.85rem 1rem;
+    font-family: inherit;
+    font-size: 1.05rem;
+    color: var(--a-ink);
+    background: var(--a-card);
+    border: 1px solid var(--a-line-strong);
+    border-radius: 12px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    appearance: none;
+}
+
+.field-control input::placeholder { color: var(--a-ink-3); }
+
+.field-control input:focus,
+.field-control select:focus,
+.field-control textarea:focus {
+    outline: none;
+    border-color: var(--a-accent);
+    box-shadow: 0 0 0 3px var(--a-accent-ring);
+}
+
+.field-control select {
+    padding-right: 2.7rem;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 16 16' fill='none' stroke='%237b8783' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 6l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+}
+
+.field-control:has(.eye-toggle) input { padding-right: 3.1rem; }
+
+.eye-toggle {
+    position: absolute;
+    right: 0.35rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: 8px;
+    color: var(--a-ink-3);
+    cursor: pointer;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+.eye-toggle:hover { color: var(--a-ink); background: var(--a-canvas); }
+
+.field-msg {
+    display: flex;
+    gap: 0.35rem;
+    margin: 0.4rem 0 0;
+    font-size: 0.87rem;
+    font-weight: 500;
+    line-height: 1.45;
+    color: var(--a-danger);
+}
+.field-msg::before {
+    content: '\26A0\FE0F';
+    font-size: 0.85em;
+    line-height: inherit;
+}
+.field.has-error .field-control input,
+.field.has-error .field-control select { border-color: var(--a-danger-line); }
+.field.has-error .field-control input:focus,
+.field.has-error .field-control select:focus {
+    border-color: var(--a-danger);
+    box-shadow: 0 0 0 3px rgba(178, 58, 48, 0.12);
+}
+
+.field-hint {
+    margin: 0.4rem 0 0;
+    font-size: 0.85rem;
+    color: var(--a-ink-2);
+}
+
+/* --- Password strength -------------------------------------------------- */
+.pwd-meter {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+}
+.pwd-bars { display: flex; flex: 1 1 auto; gap: 4px; }
+.pwd-bars i {
+    flex: 1 1 0;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--a-line);
+    transition: background 0.2s ease;
+}
+.pwd-meter[data-score="1"] .pwd-bars i:nth-child(-n+1) { background: #d0554a; }
+.pwd-meter[data-score="2"] .pwd-bars i:nth-child(-n+2) { background: #d99833; }
+.pwd-meter[data-score="3"] .pwd-bars i:nth-child(-n+3) { background: #3f9ad6; }
+.pwd-meter[data-score="4"] .pwd-bars i { background: #17a67f; }
+.pwd-label {
+    min-width: 60px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-align: right;
+    color: var(--a-ink-2);
+}
+
+/* --- Alerts -------------------------------------------------------------- */
+.auth-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    margin-bottom: 1.2rem;
+    padding: 0.8rem 0.95rem;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    border: 1px solid var(--a-danger-line);
+    border-radius: 10px;
+    background: var(--a-danger-bg);
+    color: var(--a-danger);
+}
+.auth-alert i { flex: 0 0 auto; margin-top: 0.1rem; }
+
+.auth-alert-info {
+    border-color: var(--a-line);
+    background: var(--a-warn-bg);
+    color: var(--a-warn);
+}
+
+.auth-alert ul { margin: 0; padding-left: 1.1rem; }
+.auth-alert li + li { margin-top: 0.2rem; }
+.auth-alert a { font-weight: 600; text-decoration: underline; }
+
+/* --- Submitted form summary --------------------------------------------- */
+.auth-summary {
+    margin-bottom: 1.2rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--a-danger-line);
+    border-left: 3px solid var(--a-danger);
+    border-radius: 10px;
+    background: var(--a-danger-bg);
+    font-size: 0.85rem;
+    color: var(--a-danger);
+}
+.auth-summary strong { display: block; margin-bottom: 0.35rem; }
+.auth-summary ul { margin: 0; padding-left: 1.05rem; }
+.auth-summary li + li { margin-top: 0.2rem; }
+.auth-summary a { color: inherit; font-weight: 600; }
+
+/* --- Remember / forgot row ---------------------------------------------- */
+.auth-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 1.25rem 0 0;
+    font-size: 0.93rem;
+}
+
+.auth-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--a-ink-2);
+    cursor: pointer;
+    user-select: none;
+}
+.auth-check input {
+    width: 19px;
+    height: 19px;
+    margin: 0;
+    accent-color: var(--a-accent);
+    cursor: pointer;
+}
+
+.auth-row a {
+    color: var(--a-accent);
+    font-weight: 600;
+    text-decoration: none;
+    padding: 0.25rem 0;
+}
+.auth-row a:hover { text-decoration: underline; }
+
+/* --- Submit ------------------------------------------------------------- */
+.auth-submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 0.95rem 1.4rem;
+    font-family: inherit;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--a-on-accent);
+    background: var(--a-accent);
+    border: 1px solid transparent;
+    border-radius: 12px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+}
+.auth-submit:hover {
+    background: var(--a-accent-strong);
+    box-shadow: 0 10px 22px -14px rgba(14, 124, 107, 0.9);
+}
+.auth-submit:active { transform: translateY(1px); }
+.auth-submit:disabled { opacity: 0.72; cursor: progress; transform: none; box-shadow: none; }
+
+/* --- Notice + privacy footnotes ----------------------------------------- */
+.auth-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    margin: 1.35rem 0 0;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--a-line);
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--a-ink-2);
+}
+.auth-notice i { flex: 0 0 auto; margin-top: 0.12rem; color: var(--a-accent); }
+.auth-notice strong { color: var(--a-ink); }
+
+.auth-privacy {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin: 1.1rem 0 0;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: var(--a-ink-2);
+}
+.auth-privacy i { flex: 0 0 auto; margin-top: 0.1rem; color: var(--a-accent); }
+
+/* --- Pane footer (switch between panes) --------------------------------- */
+.auth-pane-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.4rem 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1.15rem;
+    border-top: 1px solid var(--a-line);
+    font-size: 0.92rem;
+    color: var(--a-ink-2);
+}
+.auth-pane-foot button {
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 0.2rem 0;
+    font: inherit;
+    font-weight: 600;
+    color: var(--a-accent);
+    cursor: pointer;
+}
+.auth-pane-foot button:hover { text-decoration: underline; }
+.auth-pane-foot a { color: var(--a-accent); font-weight: 600; text-decoration: none; }
+.auth-pane-foot a:hover { text-decoration: underline; }
+
+/* Footnotes and hints sit behind the card's border, so only the strongest
+   combination clears AA here.
+
+   These used to ink near-white on the assumption that the foot sits on the
+   dark brand panel. It does not: .auth-brand is a sibling <aside>, so
+   .auth-foot actually rests on the auth canvas (--a-canvas, near-white).
+   Measured on every signed-out page the result was 1.01:1 — invisible.
+   The --a-ink-* tokens flip with the theme, so they are correct in both. */
+.auth-foot-note { color: var(--a-ink-2); }
+
+.field-hint,
+.pwd-label,
+.auth-privacy { color: var(--a-ink); }
+
+/* --- Panel footer: portal cross-links ----------------------------------- */
+.auth-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem 0.9rem;
+    width: 100%;
+    max-width: var(--a-card-w);
+    margin-top: auto;
+    padding-top: 1.1rem;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    /* Sits on the auth canvas, not the brand panel — see .auth-foot-note. */
+    color: var(--a-ink-2);
+    text-align: center;
+}
+.auth-foot-note { white-space: nowrap; }
+.auth-foot-links { display: flex; align-items: center; gap: 0.55rem; }
+.auth-foot-links a { color: var(--a-ink); font-weight: 500; text-decoration: none; }
+.auth-foot-links a:hover { color: var(--a-accent); text-decoration: underline; }
+.auth-foot-links a + a::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 3px;
+    margin-right: 0.55rem;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.45;
+    vertical-align: middle;
+}
+
+/* --- Recovery / status screens ------------------------------------------ */
+.auth-status {
+    text-align: center;
+    padding: 0.5rem 0 0.25rem;
+}
+.auth-status-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1.1rem;
+    border-radius: 50%;
+    background: var(--a-accent-soft);
+    color: var(--a-accent);
+    font-size: 1.7rem;
+}
+.auth-status .auth-submit { margin-top: 1.5rem; }
+
+.pane-inner { min-width: 0; }
+
+/* --- Entrance: one quiet rise, nothing more ----------------------------- */
+@keyframes authRise {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.auth-card > * { animation: authRise 0.42s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.auth-card > *:nth-child(2) { animation-delay: 0.05s; }
+.auth-card > *:nth-child(3) { animation-delay: 0.09s; }
+.auth-card > *:nth-child(4) { animation-delay: 0.13s; }
+
+/* --- Tab swap: sign in ⇄ create account --------------------------------- */
+/* The student card hosts both forms. Instead of the old sliding track (which
+   needed a fixed height for every pane and clipped long error states), each
+   pane simply stays in the document and the incoming one arrives from the
+   side it lives on — sign-up from the right, sign-in from the left — while
+   the card eases from its old height to the new one. One motion, no magic
+   numbers, and a failed POST still renders exactly where the server put it. */
+@keyframes paneInRight {
+    from { opacity: 0; transform: translate3d(24px, 0, 0); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes paneInLeft {
+    from { opacity: 0; transform: translate3d(-24px, 0, 0); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+.auth-pane.pane-enter-right { animation: paneInRight 0.38s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.auth-pane.pane-enter-left  { animation: paneInLeft  0.38s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Only for the duration of a swap: the outgoing pane is already display:none,
+   so clipping just hides the tab list's reflow while the card re-measures. */
+.auth-card.pane-animating { overflow: hidden; }
+
+/* --- Responsive --------------------------------------------------------- */
+/* The card keeps the middle at every width; what gives way is the ground.
+   Narrow the sheet first, then strip the ground back to the wordmark alone —
+   every ground element needs a band beside the card, and the band is all this
+   formula measures. On a phone the navbar's wordmark carries the identity. */
+@media (max-width: 1240px) {
+    /* No band to reserve, so the sheet centres again — and the ground drops
+       back to plain art, which the navbar wordmark already speaks for. */
+    :root {
+        --a-card-w: 520px;
+        --a-brand-band: 0rem;
+    }
+
+    .auth-brand-inner { display: none; }
+    .auth-panel { padding-left: clamp(1rem, 2.4vw, 1.9rem); align-items: center; }
+}
+
+@media (max-width: 980px) {
+    .auth-panel { padding: 1.5rem 1.1rem 2rem; }
+    .auth-card { margin-top: 0; }
+}
+
+@media (max-width: 560px) {
+    .auth-card { padding: 1.4rem 1.2rem; }
+    .auth-card :is(h1, h2) { font-size: 1.45rem; }
+    .auth-foot { text-align: left; }
+}
+
+/* --- Coarse pointers: finger-sized targets -------------------------------- */
+/* auth.css is deliberately self-contained — the signed-out pages are their own
+   document and never load the site's Premium Styles.css. That sheet already
+   carries a `@media (pointer: coarse)` block for the shared navbar, footer and
+   breadcrumbs, and none of it reached these pages, so every control the auth
+   surface owns had to be sized here instead. Without this block every auth page
+   shipped 42px buttons on a phone.
+
+   Width AND height are both set: a 44px-tall button that is only 38px wide is
+   still a miss. */
+@media (pointer: coarse) {
+    .bhims-brand,
+    .bhims-brand-text { min-height: 44px; }
+
+    .bhims-theme-btn,
+    .bhims-menu-toggle { width: 44px; height: 44px; }
+
+    /* The skip link is off-screen until focused, but it is a real control and
+       has to be finger-sized the moment it appears. */
+    .auth-skip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+    }
+
+    .eye-toggle { width: 44px; height: 44px; }
+
+    /* Standalone text controls. Each of these is a flex/grid item in normal
+       use, so switching them to inline-flex is a no-op for layout and only
+       gives the box a height to grow into. */
+    .auth-foot-links a,
+    .auth-row a,
+    .auth-row-end a,
+    .auth-pane-foot a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+    }
+}
+
+/* --- Reduced motion ----------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+    .auth-card > *,
+    .auth-pane.pane-enter-left,
+    .auth-pane.pane-enter-right { animation: none !important; }
+    .auth-body * { transition: none !important; }
+}

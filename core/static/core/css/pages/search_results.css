@@ -1,0 +1,313 @@
+/* Extracted verbatim from core/templates/core/core\search_results.html
+   This <link> sits exactly where the <style> tag was, so the
+   cascade order — and therefore which layer wins — is unchanged. */
+.search-page {
+        background: transparent;
+        min-height: 0;
+        padding: 0;
+        max-width: none;
+        margin: 0;
+    }
+    .filter-sidebar {
+        position: relative;
+        max-height: none;
+        overflow-y: visible;
+    }
+    .filter-card {
+        background: rgba(255, 255, 255, 0.02) !important;
+        -webkit-backdrop-filter: blur(40px) saturate(180%);
+        backdrop-filter: blur(40px) saturate(180%);
+        border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+        border-left: 1px solid rgba(255, 255, 255, 0.12) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.04) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+        border-radius: 24px !important;
+        padding: 28px !important;
+        box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.15), 0 20px 40px 0 rgba(0, 0, 0, 0.45) !important;
+    }
+    [data-theme="dark"] .filter-card {
+        background: rgba(10, 10, 14, 0.22) !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.10) !important;
+        border-left: 1px solid rgba(255, 255, 255, 0.10) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.03) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+        box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.08), 0 20px 40px 0 rgba(0, 0, 0, 0.55) !important;
+    }
+    .filter-card h6 {
+        font-family: var(--font-display);
+        color: var(--bhims-teal);
+        margin-bottom: 1rem;
+        font-size: var(--fs-lg);
+    }
+    .filter-section { margin-bottom: 1.5rem; }
+    .filter-section:last-child { margin-bottom: 0; }
+    .filter-label {
+        display: block;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.40);
+        font-size: 0.82rem;
+        letter-spacing: 0.075em;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+    }
+    [data-theme="light"] .filter-label {
+        color: var(--bhims-text-muted);
+    }
+    .filter-control {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.25);
+        color: #f5f5f7;
+        font-size: 0.95rem;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.20);
+        transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .filter-control:focus {
+        outline: none;
+        background: rgba(0, 0, 0, 0.35);
+        border-color: rgba(255, 255, 255, 0.25);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.20), 0 0 0 4px rgba(255, 255, 255, 0.03);
+    }
+    [data-theme="light"] .filter-control {
+        background: rgba(255, 255, 255, 0.60);
+        border: 1px solid rgba(0, 0, 0, 0.10);
+        color: var(--bhims-text);
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+    }
+    [data-theme="light"] .filter-control:focus {
+        background: rgba(255, 255, 255, 0.80);
+        border-color: var(--ce-accent, #14563c);
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06), 0 0 0 4px var(--ce-accent-wash, rgba(20, 86, 60, 0.10));
+    }
+    .amenity-checkbox-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    .amenity-checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        color: var(--bhims-text);
+        font-size: var(--fs-sm);
+        font-weight: 500;
+    }
+    .amenity-checkbox-label input { accent-color: var(--bhims-teal); }
+    .filter-actions { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.5rem; }
+    .filter-btn { min-height: 44px; }
+    .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .results-title {
+        font-family: var(--font-display);
+        font-weight: 700;
+        color: var(--bhims-text);
+        font-size: var(--fs-2xl);
+        margin: 0;
+    }
+    .view-toggle { display: flex; gap: 0.5rem; }
+    .view-toggle .btn {
+        padding: 0.5rem 1rem;
+        font-size: var(--fs-sm);
+    }
+    .result-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+    .result-card {
+        background: var(--bhims-paper-raised);
+        border: 1px solid var(--bhims-ink-line);
+        border-radius: var(--bhims-radius);
+        overflow: hidden;
+        box-shadow: var(--bhims-glass-inner-glow);
+        transition: transform 0.25s var(--bhims-ease-smooth), box-shadow 0.25s var(--bhims-ease-smooth), border-color 0.25s var(--bhims-ease-smooth);
+        display: flex;
+        flex-direction: column;
+    }
+    .result-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--bhims-glass-shadow-hover);
+        border-color: var(--bhims-ink-line-strong);
+    }
+    .result-image {
+        height: 200px;
+        background: var(--bhims-paper-sunken);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--bhims-teal);
+        position: relative;
+        overflow: hidden;
+    }
+    .result-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .result-badge {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        z-index: 1;
+    }
+    .result-body {
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+    .result-title {
+        font-family: var(--font-display);
+        font-weight: 700;
+        color: var(--bhims-text);
+        font-size: var(--fs-xl);
+        margin: 0 0 0.5rem;
+    }
+    .result-location {
+        color: var(--bhims-text-muted);
+        font-size: var(--fs-sm);
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+    .result-location i { color: var(--bhims-teal); }
+    .result-meta {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+    .result-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        background: var(--bhims-icon-tint);
+        color: var(--bhims-text);
+        padding: 0.3rem 0.75rem;
+        border-radius: 9999px;
+        font-size: var(--fs-xs);
+        font-weight: 600;
+    }
+    /* [a11y] The price pill used --bhims-text as background with white text —
+       white-on-near-white (≈1.1:1) in dark mode. Solid dark-green works on
+       both themes and keeps the price visually dominant. */
+    .result-pill.price { background: var(--ce-accent, #14563c); color: var(--ce-on-accent, #fffdf7); }
+    .result-description {
+        color: var(--bhims-text-muted);
+        font-size: var(--fs-sm);
+        line-height: 1.5;
+        margin-bottom: 1rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        flex: 1;
+    }
+    .result-amenities {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin-bottom: 1rem;
+    }
+    .result-amenity {
+        background: var(--bhims-icon-tint);
+        color: var(--bhims-teal);
+        padding: 0.2rem 0.6rem;
+        border-radius: 9999px;
+        font-size: var(--fs-xs);
+        font-weight: 500;
+    }
+    .result-footer {
+        padding-top: 1rem;
+        border-top: 1px solid var(--bhims-border);
+    }
+    .btn-view-result {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: var(--bhims-teal);
+        color: #fff;
+        border: none;
+        border-radius: var(--bhims-radius-sm);
+        padding: 0.5rem 1.25rem;
+        font-weight: 700;
+        font-size: var(--fs-sm);
+        text-decoration: none;
+        transition: background-color 0.18s ease, transform 0.12s ease;
+    }
+    .btn-view-result:hover,
+    .btn-view-result:focus-visible {
+        background: var(--bhims-teal-hover);
+        color: #fff;
+        transform: translateY(-1px);
+    }
+    /* [a11y] In dark mode the teal flips to a light blue (white text ≈1.9:1,
+       and iOS dark theme forces links to a paler blue still) — switch to ink
+       text there. The `a` in the selector out-specifies `html[...] a`. */
+    [data-theme="dark"] a.btn-view-result,
+    [data-theme="dark"] .btn-view-result { color: #0d2436 !important; }
+    [data-theme="dark"] .btn-view-result:hover {
+        background: var(--bhims-teal);
+        filter: brightness(1.08);
+    }
+    .btn-view-result:active { transform: translateY(1px) scale(0.98); }
+    .empty-results {
+        grid-column: 1 / -1;
+        background: var(--bhims-paper-raised);
+        border: 1px dashed var(--bhims-ink-line-strong);
+        border-radius: var(--bhims-radius);
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+    .empty-results i { font-size: 3rem; color: var(--bhims-teal); margin-bottom: 1.25rem; display: block; }
+    .empty-results h3 { font-family: var(--font-display); font-weight: 700; color: var(--bhims-text); font-size: var(--fs-2xl); margin-bottom: 0.75rem; }
+    .empty-results p { color: var(--bhims-text-muted); max-width: 500px; margin: 0 auto 1.5rem; }
+    .pagination-custom {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+    .page-link-custom {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        height: 44px;
+        padding: 0 0.75rem;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 10px;
+        color: var(--bhims-teal);
+        background: rgba(255,255,255,0.03);
+        -webkit-backdrop-filter: blur(8px) saturate(120%);
+        backdrop-filter: blur(8px) saturate(120%);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: var(--fs-sm);
+        transition: all 0.18s ease;
+    }
+    .page-link-custom:hover { background: rgba(255,255,255,0.06); color: var(--ios-primary); border-color: rgba(29,111,164,0.40); }
+    .page-link-custom.active { background: var(--ce-accent, #14563c); color: var(--ce-on-accent, #fffdf7); border-color: var(--ce-accent-deep, #0e3f2c); }
+    .skeleton-result-card {
+        background: var(--bhims-paper-raised);
+        border: 1px solid var(--bhims-ink-line);
+        border-radius: var(--bhims-radius);
+        overflow: hidden;
+    }
+    .skeleton-result-card .sk-img { height: 200px; }
+    .skeleton-result-card .sk-body { padding: 1.25rem; }
+    .skeleton-result-card .sk-line { height: 14px; margin-bottom: 10px; }
+    .skeleton-result-card .sk-line.short { width: 60%; }
+    .skeleton-result-card .sk-pill { height: 20px; width: 80px; border-radius: 999px; display: inline-block; margin-right: 0.5rem; }
+    @media (max-width: 991.98px) {
+        .filter-sidebar { position: static; max-height: none; margin-bottom: 2rem; }
+    }

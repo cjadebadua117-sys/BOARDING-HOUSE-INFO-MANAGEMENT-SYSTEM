@@ -1,0 +1,28 @@
+{% comment %}
+One labelled form field. Pass:
+  field    — a bound Django form field (required)
+  span     — 1 to make it full width inside the two-column registration grid
+  wrap_id  — 1 to emit id="<field>_wrap" (used by the error-summary anchors)
+  hidden   — 1 to render the row hidden (the K-12 grade-level row)
+  hint     — helper text shown when the field has no error
+  icon     — a bootstrap-icons name drawn inside the control, e.g. bi-person
+             (decorative: every field keeps its real <label>)
+{% endcomment %}
+<div class="field{% if span %} auth-span{% endif %}{% if field.errors %} has-error{% endif %}"
+     {% if wrap_id %}id="{{ field.id_for_label }}_wrap"{% endif %}{% if hidden %} hidden{% endif %}>
+    <label class="field-label" for="{{ field.id_for_label }}">
+        {{ field.label }}{% if not field.field.required %} <span class="field-optional">(optional)</span>{% endif %}
+    </label>
+    <div class="field-control">
+        {% if icon %}<i class="bi {{ icon }} field-icon" aria-hidden="true"></i>{% endif %}
+        {{ field }}
+        {% if field.widget_type == 'password' %}
+            {% include 'core/auth/_eye_toggle.html' with target=field.id_for_label %}
+        {% endif %}
+    </div>
+    {% if field.errors %}
+        <p class="field-msg">{% for e in field.errors %}{{ e|striptags }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</p>
+    {% elif hint %}
+        <p class="field-hint">{{ hint }}</p>
+    {% endif %}
+</div>

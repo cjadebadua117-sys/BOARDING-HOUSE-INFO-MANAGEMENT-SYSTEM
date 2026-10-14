@@ -1,0 +1,448 @@
+/* ============================================================================
+   BHIMS · Student portal — split-screen sign in / create account
+   ----------------------------------------------------------------------------
+   Loaded ONLY by core/auth/login_student.html, after auth.css, so the other
+   four signed-out pages (landlord, admin, password recovery) keep the single
+   printed brand ground they already ship with.
+
+   The composition is the split-screen one: the form sheet on the left, a
+   saturated colour panel on the right. Pressing the panel's outlined button
+   trades the two sides — the sheet slides across one column and the panel
+   takes the column it left. Motion is a single 480ms translate; the content
+   behind it swaps at the halfway point so the visitor never sees the
+   destination state sitting still before the slide begins.
+
+   Both halves stay on screen at all times. Nothing hides the form and nothing
+   advances on a timer, so a half-typed password is never interrupted.
+   ==========================================================================*/
+
+/* --- One grid, both halves ---------------------------------------------- */
+/* Three numbers hold the whole composition together. --split-gutter is the
+   breathing room at the edge of each half, --split-col the width of the text
+   column, --split-pad the inset inside it. Because both halves use the same
+   three, the panel's headline lands exactly across the fold from the form's
+   own heading — the composition reads as one page, not two stacked designs.
+
+   Measured at 1440px: cell 720 - 2x49 gutter = 622; column 34rem (544)
+   centred in 622 leaves 88px, so both text columns start at x = 88 + pad. */
+.auth-split {
+    --split-gutter: clamp(1.5rem, 3.4vw, 3.4rem);
+    --split-col: 34rem;
+    --split-pad: clamp(1.6rem, 2.6vw, 2.3rem);
+    min-height: calc(100vh - var(--nav-h));
+    min-height: calc(100dvh - var(--nav-h));
+}
+
+/* --- The slide ---------------------------------------------------------- */
+/* Two halves side by side, each one column wide. A percentage in a transform
+   resolves against the element's OWN width, which here is exactly one column
+   — so translateX(100%) moves a half precisely one column across. The sheet
+   goes right, the panel goes left, and they trade places in a single motion.
+
+   They pass through each other at the halfway point, so the colour panel sits
+   above the form (z-index) while it crosses — which is exactly what the
+   reference does when its magenta block slides over the sign-in card. */
+.auth-split-track {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    min-height: inherit;
+}
+
+.auth-split-cell {
+    min-width: 0;
+    transition: transform 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+}
+
+/* Default: sign-in sheet left, invitation to register right. */
+.auth-split[data-side="left"] .auth-split-cell--sheet { transform: translateX(0); }
+.auth-split[data-side="left"] .auth-split-cell--brand { transform: translateX(0); }
+
+/* Swapped: invitation to sign in left, registration sheet right. */
+.auth-split[data-side="right"] .auth-split-cell--sheet { transform: translateX(100%); }
+.auth-split[data-side="right"] .auth-split-cell--brand { transform: translateX(-100%); }
+
+/* JS toggles these; without it both sheets simply stack, which is a usable
+   page rather than a broken one. */
+.auth-sheet[hidden],
+.auth-split-brandpanel[hidden] { display: none !important; }
+
+/* ============================================================================
+   Left: the form sheet
+   ==========================================================================*/
+/* Reuses .auth-panel so base.html's script (password reveal, autofill hints,
+   double-submit guard, scroll-to-first-error) keeps working untouched. */
+.auth-split-sheet {
+    width: 100%;
+    min-width: 0;
+    padding: var(--split-gutter);
+    align-items: center;
+    justify-content: center;
+    /* The card is the only thing on this side; it owns the column so the two
+       halves can be measured against each other. */
+    --auth-card-w: var(--split-col);
+}
+
+.auth-split-sheet .auth-card {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: var(--split-col);
+    margin: auto 0;
+    padding: var(--split-pad);
+    border-radius: 20px;
+    box-shadow:
+        0 1px 2px rgba(18, 26, 24, 0.05),
+        0 2px 4px -2px rgba(18, 26, 24, 0.06),
+        0 28px 56px -32px rgba(18, 26, 24, 0.4);
+}
+
+/* A single accent hairline across the top of the sheet: the one flourish the
+   form side needs, since the panel carries all the colour. */
+.auth-split-sheet .auth-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--a-accent-strong), var(--a-accent));
+}
+
+.auth-split-sheet .auth-card-head { margin-bottom: 1.55rem; }
+
+.auth-split-sheet .auth-submit {
+    background: linear-gradient(180deg, var(--a-accent) 0%, var(--a-accent-strong) 100%);
+    border-color: transparent;
+    box-shadow: 0 10px 22px -14px var(--a-accent);
+    transition: transform 0.12s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+
+.auth-split-sheet .auth-submit:hover { filter: brightness(1.07); }
+.auth-split-sheet .auth-submit:active { transform: translateY(1px); }
+
+.auth-split-sheet .auth-foot {
+    width: 100%;
+    max-width: var(--split-col);
+    margin: 1.5rem auto 0;
+}
+
+/* ============================================================================
+   Right: the colour panel
+   ==========================================================================*/
+.auth-split-brand {
+    position: relative;
+    z-index: 2;                    /* rides over the sheet while they cross */
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.4rem, 3vh, 2.4rem);
+    height: calc(100vh - var(--nav-h));
+    height: calc(100dvh - var(--nav-h));
+    width: 100%;
+    padding: var(--split-gutter);
+    overflow: hidden;
+    isolation: isolate;
+    /* One flat saturated ground, the way the reference block reads. The
+       gradient is only wide enough to stop the panel looking printed. */
+    background:
+        radial-gradient(88% 66% at 86% 4%, rgba(255, 255, 255, 0.17) 0%, rgba(255, 255, 255, 0) 62%),
+        linear-gradient(158deg, var(--a-accent) 0%, var(--a-accent-strong) 100%);
+    color: var(--a-on-accent);
+}
+
+/* --- Wordmark ------------------------------------------------------------ */
+/* Sits above the copy column and never swaps, so the panel keeps its identity
+   whichever half is showing. */
+.auth-split-brandmark {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    flex: none;
+    width: 100%;
+    max-width: var(--split-col);
+    margin: 0 auto;
+    padding-inline: var(--split-pad);
+}
+
+.auth-split-brandmark img {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+    opacity: 0.92;
+}
+
+.auth-split-brandmark span {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.auth-split-brandmark strong {
+    font-size: 1.02rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+}
+
+.auth-split-brandmark em {
+    font-style: normal;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    opacity: 0.72;
+}
+
+/* --- Copy column --------------------------------------------------------- */
+.auth-split-brandpanel {
+    position: relative;
+    z-index: 1;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: clamp(1.05rem, 2.2vh, 1.75rem);
+    width: 100%;
+    max-width: var(--split-col);
+    margin: 0 auto;
+    padding-inline: var(--split-pad);
+}
+
+/* --- Art ----------------------------------------------------------------- */
+/* The watermark is white ink on the colour ground, so ANY text box overlapping
+   it falls to about 2.9:1 — and no opacity low enough to fix that would still
+   be visible. Both shapes are therefore kept below the copy column, and
+   tools/verify_split_visual.py freezes their drifts and fails the build if a
+   line of copy ever intersects one.
+
+   They DRIFT rather than turn. A turning square sweeps a circle of s*sqrt(2),
+   and the free band below the bullets is barely 200px tall — a spin large
+   enough to read would put its own corners under the text. */
+.auth-split-art {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.auth-split-ring {
+    position: absolute;
+    left: 9%;
+    bottom: 4%;
+    width: 10rem;
+    height: 10rem;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    opacity: 0.15;
+}
+
+.auth-split-seal {
+    position: absolute;
+    right: 3%;
+    bottom: 3%;
+    width: min(10rem, 32%);
+    height: auto;
+    opacity: 0.3;
+    animation: sealDrift 18s ease-in-out infinite alternate;
+}
+
+@keyframes sealDrift {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(0, -9px, 0); }
+}
+
+/* --- Copy ---------------------------------------------------------------- */
+/* The hairline trailing the kicker is the same device the registration form
+   already uses on its group rules, so the panel and the form speak one
+   language. */
+.auth-split-kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0;
+    font-size: 0.71rem;
+    font-weight: 700;
+    letter-spacing: 0.17em;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
+
+.auth-split-kicker::after {
+    content: '';
+    flex: 1 1 auto;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.4;
+}
+
+.auth-split-title {
+    margin: 0;
+    font-family: var(--a-font-display);
+    font-size: clamp(2.05rem, 3.5vw, 3.1rem);
+    font-weight: 600;
+    line-height: 1.06;
+    letter-spacing: -0.022em;
+    text-wrap: balance;
+}
+
+.auth-split-lead {
+    margin: 0;
+    max-width: 30rem;
+    font-size: clamp(0.95rem, 1.05vw, 1.04rem);
+    line-height: 1.62;
+    opacity: 0.9;
+}
+
+/* --- The outlined call to action ---------------------------------------- */
+/* Outlined pill on the colour ground, the way the reference states its action.
+   It is a real link to ?mode=…, so without JS it still navigates and reloads
+   onto the other half — the script only upgrades it to the slide.
+   Inverts to a solid fill on hover; the focus ring is drawn outside the border
+   so it never eats the 2px outline. */
+.auth-split-cta {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 48px;              /* comfortable pointer target */
+    padding: 0.85rem 1.7rem;
+    border: 2px solid currentColor;
+    border-radius: 999px;
+    background: transparent;
+    color: inherit;
+    text-decoration: none;
+    font: inherit;
+    font-size: 0.79rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.auth-split-cta:hover {
+    background: var(--a-on-accent);
+    color: var(--a-accent);
+}
+
+.auth-split-cta:active { transform: translateY(1px); }
+
+.auth-split-cta:focus-visible {
+    outline: 3px solid var(--a-on-accent);
+    outline-offset: 3px;
+}
+
+.auth-split-cta .bi { font-size: 1rem; transition: transform 0.18s ease; }
+/* The arrow names the direction the panel travels, so it must nudge that way. */
+.auth-split-cta[data-goto="signup"] .bi { transform: translateX(3px); }
+.auth-split-cta[data-goto="signin"] .bi { transform: translateX(-3px); }
+.auth-split-cta[data-goto="signup"]:hover .bi { transform: translateX(6px); }
+.auth-split-cta[data-goto="signin"]:hover .bi { transform: translateX(-6px); }
+
+/* --- Supporting points --------------------------------------------------- */
+/* Deliberately the LAST thing on the panel: the art occupies the space below
+   them and nothing may be set over it. */
+.auth-split-points {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.7rem;
+}
+
+.auth-split-points li {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-size: 0.92rem;
+    line-height: 1.4;
+    opacity: 0.92;
+}
+
+/* A ringed disc rather than a bare glyph, so the list reads as three marks
+   rather than three loose icons. currentColor keeps it correct on both the
+   light and the dark ground. */
+.auth-split-points i {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    font-size: 0.76rem;
+    opacity: 0.85;
+}
+
+/* --- The way back -------------------------------------------------------- */
+/* "other half" link at the foot of each sheet: right-aligned on its own line,
+   so it reads as a route out rather than as part of the form row. */
+.auth-row-end {
+    justify-content: flex-end;
+    margin-top: 1.4rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--a-line);
+}
+
+.auth-row-end a { font-weight: 600; }
+
+/* ============================================================================
+   Responsive
+   ==========================================================================*/
+@media (max-width: 1240px) {
+    /* One column wide enough for a form; the panel keeps its own. */
+    .auth-split { --split-col: 30rem; }
+}
+
+@media (max-width: 980px) {
+    /* Below this the two halves cannot both hold a legible form, so the slide
+       is dropped entirely: the track goes back to one column in document
+       order (sheet, then panel) and the panel stops pinning. There is no
+       sideways movement left to trigger a "slide" expectation. */
+    .auth-split-track {
+        width: 100%;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .auth-split-cell {
+        transform: none !important;
+        transition: none;
+    }
+
+    .auth-split-brand {
+        z-index: auto;
+        height: auto;
+        min-height: 0;
+        gap: 1.5rem;
+    }
+
+    .auth-split-brandpanel { gap: 1rem; }
+
+    /* Once the halves stack the panel is a compact banner with no free band,
+       and a watermark behind text is a contrast failure no opacity can fix.
+       Both shapes go; the panel keeps its colour, copy and CTA, which is all
+       a narrow screen has room for. */
+    .auth-split-art { display: none; }
+}
+
+@media (max-width: 560px) {
+    .auth-split { --split-gutter: 1.1rem; --split-pad: 1.3rem; }
+    .auth-split-sheet .auth-card { padding: 1.4rem 1.2rem; border-radius: 16px; }
+    .auth-split-title { font-size: 1.8rem; }
+    .auth-split-cta { width: 100%; }
+}
+
+/* --- Reduced motion ----------------------------------------------------- */
+/* No sideways slide and no drifting art — the halves still swap, they just
+   arrive instantly instead of travelling. */
+@media (prefers-reduced-motion: reduce) {
+    .auth-split-cell { transition: none; transform: none !important; }
+    .auth-split-art { display: none; }
+    .auth-split-cta,
+    .auth-split-cta .bi,
+    .auth-split-sheet .auth-submit { transition: none; }
+}

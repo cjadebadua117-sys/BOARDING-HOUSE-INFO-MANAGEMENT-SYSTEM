@@ -1,0 +1,172 @@
+{% extends "app_base.html" %}
+{% load static %}
+{% block title %}Ratings - BHIMS Admin{% endblock %}
+
+{% block extra_css %}
+{% include "includes/admin_styles.html" %}
+<link rel="stylesheet" href="{% static 'core/css/pages/admin_ratings.css' %}">
+{% endblock %}
+
+{% block app_content %}
+<div class="admin-page">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Admin</div>
+            <h1>Ratings</h1>
+            <p>Ratings students have given landlords across the system.</p>
+        </div>
+        <span class="pill pill-approved"><i class="bi bi-star-fill me-1"></i>{{ average_rating|floatformat:1|default:"0" }} / 5 · {{ rating_count }} total</span>
+    </div>
+
+    {% if rating_count %}
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="glass-card text-center h-100 p-4">
+                <p class="eyebrow mb-1">Average rating</p>
+                <div style="font-size: 2.2rem; font-weight: 700; color: var(--bhims-text);">{{ average_rating|floatformat:1 }}</div>
+                <div class="rating-stars" aria-label="{{ average_rating|floatformat:1 }} out of 5 stars">
+                    <span style="display:inline-block; position:relative;">
+                        <span style="opacity:0.25;">★★★★★</span>
+                        <span style="position:absolute; left:0; top:0; width:{% widthratio average_rating 5 100 %}%; overflow:hidden; white-space:nowrap;">★★★★★</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card h-100 p-4">
+                <p class="eyebrow mb-2">Rating distribution</p>
+                {% for s, count in distribution.items %}
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <small style="width: 52px; color: var(--bhims-text-muted);">{{ s }} star{{ s|pluralize }}</small>
+                    <div style="flex:1; height: 6px; border-radius: 999px; background: rgba(128,128,128,0.15); overflow: hidden;">
+                        <div style="height:100%; width:{% widthratio count rating_count 100 %}%; background: linear-gradient(90deg, var(--bhims-primary), var(--bhims-teal)); border-radius: 999px;"></div>
+                    </div>
+                    <small style="width: 26px; text-align:right; color: var(--bhims-text);">{{ count }}</small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card h-100 p-4">
+                <p class="eyebrow mb-2">Quick stats</p>
+                <div class="d-flex justify-content-between mb-2">
+                    <span style="color: var(--bhims-text-muted);">Total ratings</span>
+                    <strong style="color: var(--bhims-text);">{{ rating_count }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span style="color: var(--bhims-text-muted);">5-star ratings</span>
+                    <strong style="color: var(--bhims-text);">{{ distribution.5 }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span style="color: var(--bhims-text-muted);">Low (≤ 2 star)</span>
+                    <strong style="color: var(--bhims-text);">{{ low_count }}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span style="color: var(--bhims-text-muted);">With comments</span>
+                    <strong style="color: var(--bhims-text);">{{ comment_count }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+        <div class="star-filter">
+            <a href="{% url 'admin_ratings' %}{% if search %}?search={{ search|urlencode }}{% endif %}" class="{% if not stars %}active{% endif %}">All</a>
+            {% for s in "54321" %}
+            <a href="?stars={{ s }}{% if search %}&search={{ search|urlencode }}{% endif %}" class="{% if stars == s %}active{% endif %}">
+                {{ s }} <i class="bi bi-star-fill" style="font-size: 0.7rem;"></i>
+            </a>
+            {% endfor %}
+        </div>
+        <form method="get" class="d-flex gap-2" style="max-width: 320px; flex: 1;">
+            {% if stars %}<input type="hidden" name="stars" value="{{ stars }}">{% endif %}
+            <input type="search" name="search" value="{{ search }}" class="form-control form-control-sm" aria-label="Search ratings" placeholder="Search student, landlord, house, comment…">
+            <button class="btn btn-sm btn-primary" type="submit"><i class="bi bi-search"></i></button>
+        </form>
+    </div>
+
+    {% if ratings %}
+    <div class="admin-table-wrap">
+        <div class="table-responsive">
+            <table class="table admin-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Landlord</th>
+                        <th>Boarding House</th>
+                        <th>Rating</th>
+                        <th>Comment</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rating in ratings %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'user_profile' rating.student.pk %}" class="text-decoration-none fw-semibold" style="color: var(--bhims-text);">
+                                {{ rating.student.display_name }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{% url 'admin_landlord_detail' rating.landlord.pk %}" class="text-decoration-none fw-semibold" style="color: var(--bhims-text);">
+                                {{ rating.landlord.display_name }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if rating.booking and rating.booking.room and rating.booking.room.boarding_house %}
+                                {{ rating.booking.room.boarding_house.name }}
+                            {% else %}
+                                <span class="text-muted">&mdash;</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="rating-stars" aria-label="{{ rating.rating }} out of 5 stars">
+                                {% if rating.rating >= 1 %}★{% else %}<span style="opacity:0.2;">★</span>{% endif %}{% if rating.rating >= 2 %}★{% else %}<span style="opacity:0.2;">★</span>{% endif %}{% if rating.rating >= 3 %}★{% else %}<span style="opacity:0.2;">★</span>{% endif %}{% if rating.rating >= 4 %}★{% else %}<span style="opacity:0.2;">★</span>{% endif %}{% if rating.rating >= 5 %}★{% else %}<span style="opacity:0.2;">★</span>{% endif %}
+                            </span>
+                            <small class="d-block text-muted">{{ rating.rating }}/5</small>
+                        </td>
+                        <td>
+                            {% if rating.comment %}
+                                <span class="rating-comment">{{ rating.comment }}</span>
+                            {% else %}
+                                <span class="text-muted">&mdash;</span>
+                            {% endif %}
+                        </td>
+                        <td><small>{{ rating.created_at|date:"M j, Y g:i A" }}</small></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="mt-4" aria-label="Ratings pagination">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if stars %}&stars={{ stars }}{% endif %}{% if search %}&search={{ search|urlencode }}{% endif %}">&laquo;</a></li>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                {% if page_obj.number == num %}
+                <span class="page-link">{{ num }}</span>
+                {% else %}
+                <a class="page-link" href="?page={{ num }}{% if stars %}&stars={{ stars }}{% endif %}{% if search %}&search={{ search|urlencode }}{% endif %}">{{ num }}</a>
+                {% endif %}
+            </li>
+            {% endfor %}
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if stars %}&stars={{ stars }}{% endif %}{% if search %}&search={{ search|urlencode }}{% endif %}">&raquo;</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-star" style="font-size: 2.5rem; color: var(--bhims-teal);"></i>
+        <p class="mt-2 mb-0" style="color: var(--bhims-text-muted);">No ratings yet. Students can rate a landlord after a confirmed booking.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

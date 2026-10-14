@@ -1,0 +1,111 @@
+{% load static %}
+{# Shared listing detail body - included by boarding_detail.html (public shell) and boarding_detail_app.html (sidebar app shell). #}
+<link rel="stylesheet" href="{% static 'core/css/pages/boarding_detail_content.css' %}">
+<div class="detail-page">
+    <a href="{% url 'listing_list' %}" class="back-link">
+        <i class="bi bi-arrow-left"></i> All listings
+    </a>
+
+    {% with photos=house.get_photo_list %}
+    {% if photos %}
+    <div class="listing-hero{% if photos|length == 1 %} is-single{% endif %}">
+        {% for photo in photos|slice:":5" %}
+        <img src="{{ photo }}" alt="{% if forloop.first %}{{ house.name }}{% else %}Photo of {{ house.name }}{% endif %}" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}" decoding="async">
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="listing-hero is-empty" aria-hidden="true">
+        <i class="bi bi-house-door"></i>
+        <span>Photos coming soon</span>
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <div class="listing-layout">
+        <div class="listing-copy">
+            <h1>{{ house.name }}</h1>
+            <a href="{% url 'user_profile' house.owner.pk %}" class="owner-chip">
+                <i class="bi bi-person-circle"></i>
+                {{ house.owner.display_name }}
+            </a>
+            {% if house.description %}
+            <p class="description">{{ house.description }}</p>
+            {% endif %}
+
+            <h2 class="rooms-title">Rooms</h2>
+            {% if rooms %}
+                {% for room in rooms %}
+                <div class="room-item">
+                    <div class="room-item-media">
+                        {% comment %}
+                        primary_photo reads the prefetch cache; room.photos.first
+                        would re-query the database for every room.
+                        {% endcomment %}
+                        {% with photo=room.primary_photo %}
+                        {% if photo %}
+                            <img src="{{ photo.image.url }}" alt="{{ room.name|default:room.room_type }}" loading="lazy" decoding="async">
+                        {% else %}
+                            <div class="room-item-placeholder"><i class="bi bi-image"></i></div>
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                    <div class="room-item-body">
+                        <div class="room-header">
+                            <h3 class="room-name">{{ room.name|default:room.room_type }}</h3>
+                            <span class="availability-badge">{{ room.occupied_count }}/{{ room.capacity }} filled</span>
+                        </div>
+                        <div class="room-meta">
+                            <span><i class="bi bi-people"></i>{{ room.capacity }} beds</span>
+                            <span><i class="bi bi-grid-1x2"></i>{{ room.room_type }}</span>
+                        </div>
+                        <p class="room-price">₱{{ room.price|floatformat:0 }}<span class="text-muted" style="font-size:0.85rem;font-weight:500;"> / month</span></p>
+                        {% if room.amenities.all %}
+                        <div class="amenities-list">
+                            {% for amenity in room.amenities.all %}
+                            <span class="amenity-tag">{{ amenity.name }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <a href="{% url 'send_inquiry' room.pk %}" class="btn btn-primary">
+                            <i class="bi bi-chat-dots"></i> Inquire about this room
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="bhims-empty">
+                <i class="bi bi-house-x"></i>
+                <h3>No rooms listed</h3>
+                <p>This house has no rooms yet. Try another listing nearby.</p>
+                <a href="{% url 'listing_list' %}" class="btn btn-primary">Browse listings</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <aside class="listing-summary">
+            <h2>{{ house.name }}</h2>
+            <p class="summary-loc"><i class="bi bi-geo-alt"></i> {{ house.barangay_display }}, {{ house.address }}</p>
+            <dl>
+                <div>
+                    <dt>From</dt>
+                    <dd>
+                        {% with cheapest=rooms|dictsort:'monthly_rate'|first %}
+                        {% if cheapest %}₱{{ cheapest.price|floatformat:0 }} / month{% else %}Ask landlord{% endif %}
+                        {% endwith %}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Who can stay</dt>
+                    <dd>{{ house.get_gender_allowed_display }}</dd>
+                </div>
+                <div>
+                    <dt>Open rooms</dt>
+                    <dd>{% if rooms %}{{ rooms|length }} available{% else %}Currently full{% endif %}</dd>
+                </div>
+            </dl>
+            {% if rooms %}
+            <a href="{% url 'send_inquiry' rooms.0.pk %}" class="btn btn-primary" style="width:100%;">Message landlord</a>
+            {% endif %}
+        </aside>
+    </div>
+</div>

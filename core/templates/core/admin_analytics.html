@@ -1,0 +1,202 @@
+{% extends "app_base.html" %}
+{% load static %}
+{% block title %}Analytics - BHIMS Admin{% endblock %}
+
+{% block extra_css %}
+{% include "includes/admin_styles.html" %}
+<link rel="stylesheet" href="{% static 'core/css/pages/admin_analytics.css' %}">
+{% endblock %}
+
+{% block app_content %}
+<div class="admin-page analytics-page">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Admin</div>
+            <h1>Analytics</h1>
+            <p>Key metrics and trends for the boarding house management system.</p>
+        </div>
+    </div>
+
+    <div class="stat-grid">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-people"></i></div>
+            <div>
+                <div class="stat-number" data-count="{{ total_students }}">{{ total_students }}</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-person-badge"></i></div>
+            <div>
+                <div class="stat-number" data-count="{{ total_landlords }}">{{ total_landlords }}</div>
+                <div class="stat-label">Total Landlords</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-buildings"></i></div>
+            <div>
+                <div class="stat-number" data-count="{{ total_boarding_houses }}">{{ total_boarding_houses }}</div>
+                <div class="stat-label">Total Boarding Houses</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-calendar-check"></i></div>
+            <div>
+                <div class="stat-number" data-count="{{ total_bookings }}">{{ total_bookings }}</div>
+                <div class="stat-label">Total Bookings</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="admin-table-wrap p-4">
+                <h2 class="h5 mb-4 fw-bold" style="color: var(--bhims-text);">Monthly Registrations (Last 6 Months)</h2>
+                <div class="chart-wrap"><canvas id="registrationChart"></canvas></div>
+                <p class="text-muted mt-2 mb-0 small">
+                    Shows the number of new student and landlord registrations per month over the last 6 months.
+                </p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="admin-table-wrap p-4">
+                <h2 class="h5 mb-4 fw-bold" style="color: var(--bhims-text);">Boarding House Status Distribution</h2>
+                <div class="chart-wrap"><canvas id="statusChart"></canvas></div>
+                <p class="text-muted mt-2 mb-0 small">
+                    Distribution of boarding houses by their current status (Available, Full, Unavailable).
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-8">
+            <div class="admin-table-wrap">
+                <div class="p-4" style="border-bottom: 1px solid var(--bhims-border);">
+                    <h2 class="h5 mb-0 fw-bold" style="color: var(--bhims-text);">Recent Activity</h2>
+                </div>
+                {% if recent_activities %}
+                <div class="list-group list-group-flush">
+                    {% for activity in recent_activities %}
+                    <div class="list-group-item" style="background: transparent; border-color: var(--bhims-border);">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h3 class="h6 mb-1">{{ activity.description }}</h3>
+                            <small class="text-muted">{{ activity.timestamp|date:"M d, H:i" }}</small>
+                        </div>
+                        <p class="mb-0" style="color: var(--bhims-text-muted);">{{ activity.details }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-clock-history"></i>
+                    <p class="mb-0">No recent activity found.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="admin-table-wrap p-4">
+                <h2 class="h5 mb-4 fw-bold" style="color: var(--bhims-text);">Quick Actions</h2>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'admin_pending_listings' %}" class="btn btn-uppercase btn-primary">
+                        <i class="bi bi-hourglass-split"></i> Review Listings
+                    </a>
+                    <a href="{% url 'admin_create_landlord' %}" class="btn btn-uppercase btn-primary">
+                        <i class="bi bi-person-plus"></i> Add Landlord
+                    </a>
+                    <a href="{% url 'admin_landlord_list' %}" class="btn btn-uppercase btn-outline-primary">
+                        <i class="bi bi-people"></i> Manage Landlords
+                    </a>
+                    <a href="{% url 'admin_dashboard' %}" class="btn btn-uppercase btn-outline-primary">
+                        <i class="bi bi-speedometer2"></i> Go to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'vendor/chart.umd.min.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    /* [a11y] Labels were hardcoded white — invisible on the light cards.
+       Derive axis/legend colors from the active theme instead. */
+    const axisColor = getComputedStyle(document.documentElement).getPropertyValue('--bhims-text').trim() || '#232b28';
+    const tickColor = getComputedStyle(document.documentElement).getPropertyValue('--bhims-text-muted').trim() || '#4d5852';
+    const gridColor = document.documentElement.getAttribute('data-theme') === 'light' ? 'rgba(35,43,40,0.14)' : 'rgba(233,230,219,0.10)';
+    /* Chart palettes resolve to the Campus Editorial identity: seal green
+       plus its dark and light companions (no more Chart.js-era blues). */
+    const ceAccent = getComputedStyle(document.documentElement).getPropertyValue('--ce-accent').trim() || '#14563c';
+    const ceAccentDeep = getComputedStyle(document.documentElement).getPropertyValue('--ce-accent-deep').trim() || '#0e3f2c';
+    const ceGold = getComputedStyle(document.documentElement).getPropertyValue('--ce-gold').trim() || '#9c7418';
+
+    const registrationCtx = document.getElementById('registrationChart').getContext('2d');
+    new Chart(registrationCtx, {
+        type: 'line',
+        data: {
+            labels: {{ chart_labels|safe }},
+            datasets: [{
+                label: 'Students',
+                data: {{ student_data|safe }},
+                borderColor: ceAccent,
+                backgroundColor: ceAccent,
+                tension: 0.35,
+                borderWidth: 2,
+                pointRadius: 3,
+                pointHoverRadius: 5,
+                fill: false
+            }, {
+                label: 'Landlords',
+                data: {{ landlord_data|safe }},
+                borderColor: ceGold,
+                backgroundColor: ceGold,
+                tension: 0.35,
+                borderWidth: 2,
+                pointRadius: 3,
+                pointHoverRadius: 5,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { color: axisColor, boxWidth: 14 } }
+            },
+            scales: {
+                x: { ticks: { color: tickColor }, grid: { display: false } },
+                y: { beginAtZero: true, ticks: { color: tickColor, precision: 0 }, grid: { color: gridColor } }
+            }
+        }
+    });
+
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Available', 'Full', 'Unavailable'],
+            datasets: [{
+                data: {{ status_data|safe }},
+                backgroundColor: [ceAccent, ceAccentDeep, ceGold],
+                borderColor: 'rgba(255,255,255,0.08)',
+                borderWidth: 2,
+                hoverOffset: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '62%',
+            plugins: {
+                legend: { position: 'bottom', labels: { color: axisColor, boxWidth: 14 } }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
+
+

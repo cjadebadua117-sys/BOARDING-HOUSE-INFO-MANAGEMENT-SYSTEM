@@ -1,0 +1,880 @@
+{% extends "app_base.html" %}
+{% load static %}
+
+{% block title %}My Profile - BHIMS{% endblock %}
+
+{% block app_content %}
+<style>
+    :root {
+        /* Role accents resolve to the Campus Editorial identity: the seal
+           green for both roles — the old sky-blue vs teal split fought the
+           system palette (see the identity-pass notes in Campus Editorial.css). */
+        --student-glow: var(--ce-accent, #14563c);
+        --landlord-glow: var(--ce-accent, #14563c);
+        --panel-bg: rgba(15, 23, 42, 0.8);
+    }
+    [data-theme="light"] :root {
+        --panel-bg: rgba(255, 255, 255, 0.7);
+    }
+
+    .profile-center-container {
+        min-height: 70vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .id-card-premium {
+        background: var(--bhims-glass-bg-primary);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        backdrop-filter: blur(24px) saturate(180%);
+        width: 100%;
+        max-width: 940px;
+        border-radius: 28px;
+        border: var(--bhims-glass-border);
+        border-top: var(--bhims-glass-border-top);
+        display: flex;
+        overflow: hidden;
+        box-shadow: var(--bhims-glass-shadow-lg), var(--bhims-glass-inner-glow);
+        position: relative;
+    }
+
+    .role-indicator {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 6px;
+        background: {% if is_instructor %}var(--landlord-glow){% else %}var(--student-glow){% endif %};
+        box-shadow: none;
+    }
+
+    .id-sidebar {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.03);
+        -webkit-backdrop-filter: blur(12px) saturate(150%);
+        backdrop-filter: blur(12px) saturate(150%);
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        border-right: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    [data-theme="light"] .id-sidebar {
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .avatar-ring {
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        padding: 4px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+        margin-bottom: 20px;
+        cursor: {% if is_own_profile %}pointer{% else %}default{% endif %};
+        position: relative;
+    }
+
+    .avatar-ring img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid var(--bhims-paper);
+    }
+
+    .avatar-hint {
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        color: var(--bhims-text-muted);
+        background: rgba(255, 255, 255, 0.05);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 999px;
+        padding: 4px 10px;
+        white-space: nowrap;
+    }
+
+    .user-badge {
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        padding: 6px 16px;
+        border-radius: 100px;
+        background: var(--ce-accent-wash, rgba(20, 86, 60, 0.1));
+        color: var(--ce-accent, #14563c);
+        border: 1px solid var(--ce-line, rgba(35, 43, 40, 0.15));
+        margin-top: 8px;
+    }
+
+    .id-main {
+        flex: 2;
+        padding: 50px;
+    }
+
+    .welcome-text {
+        margin-bottom: 34px;
+    }
+
+    .welcome-text h1 {
+        font-size: 34px;
+        font-weight: 800;
+        color: var(--bhims-text);
+        margin: 0;
+        letter-spacing: -1px;
+    }
+
+    .welcome-text span {
+        color: var(--bhims-text-muted);
+        font-size: 14px;
+    }
+
+    .info-grid-premium {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px 30px;
+    }
+
+    .data-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .data-cell label {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--bhims-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .data-cell p {
+        font-size: 16px;
+        color: var(--bhims-text);
+        font-weight: 500;
+        margin: 0;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        color: var(--bhims-text);
+        background: rgba(255, 255, 255, 0.03);
+        -webkit-backdrop-filter: blur(8px) saturate(120%);
+        backdrop-filter: blur(8px) saturate(120%);
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--ce-accent, #14563c);
+        box-shadow: 0 0 0 3px var(--ce-accent-wash, rgba(20, 86, 60, 0.10));
+    }
+
+    .field-errors {
+        color: #fca5a5;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    .field-errors:empty {
+        display: none;
+    }
+
+    .btn-row {
+        margin-top: 34px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn-action-premium {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: none;
+        background: var(--bhims-teal);
+        color: #fff;
+        padding: 12px 24px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .btn-action-premium:hover {
+        background: var(--bhims-teal-hover);
+        box-shadow: var(--bhims-glass-shadow);
+    }
+
+    .btn-action-premium.secondary {
+        background: var(--bhims-glass-bg-secondary);
+        color: var(--bhims-text);
+        border: 1px solid var(--bhims-border);
+        backdrop-filter: blur(8px);
+    }
+    .btn-action-premium.secondary:hover {
+        background: var(--bhims-glass-bg-primary);
+    }
+
+    .btn-action-premium {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: none;
+        background: var(--ce-accent, #14563c);
+        color: var(--ce-on-accent, #fffdf7);
+        padding: 12px 24px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: var(--ce-shadow);
+    }
+    .btn-action-premium:hover {
+        background: var(--ce-accent-deep, #0e3f2c);
+        box-shadow: var(--ce-shadow-hover);
+    }
+    .btn-action-premium.secondary {
+        background: rgba(255, 255, 255, 0.03);
+        -webkit-backdrop-filter: blur(8px) saturate(120%);
+        backdrop-filter: blur(8px) saturate(120%);
+        color: var(--bhims-teal);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .btn-action-premium.secondary:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    .cropper-modal {
+        position: fixed;
+        inset: 0;
+        background: var(--bhims-paper);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 2147483647;
+        padding: 20px;
+    }
+
+    .cropper-panel {
+        width: min(92vw, 560px);
+        background: rgba(255, 255, 255, 0.03);
+        -webkit-backdrop-filter: blur(16px) saturate(120%);
+        backdrop-filter: blur(16px) saturate(120%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        box-shadow: var(--bhims-glass-shadow), var(--bhims-glass-inner-glow);
+        padding: 16px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .cropper-panel h3 {
+        margin: 0 0 12px;
+        font-size: 16px;
+        color: var(--bhims-text);
+    }
+
+    .cropper-stage {
+        width: 100%;
+        height: min(62vh, 420px);
+        background: #000;
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+        isolation: isolate;
+    }
+
+    .cropper-stage img {
+        max-width: 100%;
+        display: block;
+    }
+
+    .cropper-view-box {
+        outline: 2px solid var(--bhims-teal) !important;
+        outline-color: var(--bhims-teal) !important;
+    }
+
+    .cropper-dashed {
+        border-color: rgba(255, 255, 255, 0.85) !important;
+    }
+
+    .cropper-center::before,
+    .cropper-center::after {
+        background-color: rgba(255, 255, 255, 0.95) !important;
+    }
+
+    .cropper-line {
+        background-color: rgba(20, 86, 60, 0.95) !important;
+    }
+
+    .cropper-point {
+        background-color: var(--bhims-teal) !important;
+        width: 12px !important;
+        height: 12px !important;
+        opacity: 1 !important;
+        border-radius: 2px;
+    }
+
+    .cropper-modal {
+        background-color: rgba(0, 0, 0, 0.68) !important;
+        opacity: 1 !important;
+    }
+
+    .cropper-stage,
+    .cropper-container,
+    .cropper-wrap-box,
+    .cropper-canvas {
+        touch-action: none;
+    }
+
+    body.cropper-open > *:not(#cropper-modal) {
+        visibility: hidden !important;
+    }
+
+    body.cropper-open #cropper-modal {
+        visibility: visible !important;
+    }
+
+    .cropper-actions {
+        margin-top: 14px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    @media (max-width: 800px) {
+        .id-card-premium {
+            flex-direction: column;
+        }
+
+        .id-sidebar {
+            border-right: none;
+            border-bottom: 1px solid var(--bhims-ink-faint);
+            padding: 24px 16px;
+        }
+
+        .avatar-ring {
+            width: 120px;
+            height: 120px;
+        }
+
+        .avatar-hint {
+            font-size: 12px;
+        }
+
+        .user-badge {
+            font-size: 11px;
+        }
+
+        .data-cell label {
+            font-size: 11px;
+        }
+
+        .id-main {
+            padding: 32px 20px;
+        }
+
+        .info-grid-premium {
+            grid-template-columns: 1fr;
+        }
+
+        .welcome-text h1 {
+            font-size: 24px;
+        }
+
+        .btn-action-premium {
+            padding: 14px 24px;
+        }
+    }
+</style>
+
+<div class="profile-center-container">
+    <div class="id-card-premium">
+        <div class="role-indicator"></div>
+
+        <div class="id-sidebar">
+            <input type="file" id="profile-picture-input" accept="image/*" class="hidden"
+                   aria-label="Choose a new profile picture" tabindex="-1">
+
+            <div class="avatar-ring" id="avatar-trigger" {% if is_own_profile %}title="Click to change photo"{% endif %}>
+                <img
+                    id="profile-avatar"
+                    src="{% if profile and profile.profile_picture %}{{ profile.profile_picture.url }}{% else %}{% static 'core/images/default-avatar.png' %}{% endif %}"
+                    alt="Profile"
+                >
+                {% if is_own_profile %}<span class="avatar-hint">Change Photo</span>{% endif %}
+            </div>
+
+            <span class="user-badge">{% if is_instructor %}LANDLORD{% else %}STUDENT{% endif %}</span>
+            <p style="color: var(--bhims-text-muted); font-size: 13px; margin-top: 15px;">@{{ profile_user.username }}</p>
+        </div>
+
+        <div class="id-main">
+            <div class="welcome-text">
+                <h1 id="profile-title">{{ profile_user.first_name|default:profile_user.username|capfirst }}'s Profile</h1>
+                <span>Manage your identity and account settings.</span>
+            </div>
+
+            <div id="profile-display" class="info-grid-premium">
+                <div class="data-cell">
+                    <label>Full Name</label>
+                    <p id="profile-display-full-name">{{ profile_user.display_name }}</p>
+                </div>
+                <div class="data-cell">
+                    <label>Email Address</label>
+                    <p id="profile-display-email">{{ profile_user.email|default:"Not Provided" }}</p>
+                </div>
+                <div class="data-cell">
+                    <label>{% if is_instructor %}Landlord ID{% else %}Student ID{% endif %}</label>
+                    <p id="profile-display-student-id">{{ profile.student_id|default:"Pending" }}</p>
+                </div>
+                <div class="data-cell">
+                    <label>Phone Number</label>
+                    <p id="profile-display-phone">{{ profile.phone_number|default:"Not Provided" }}</p>
+                </div>
+                <div class="data-cell" style="grid-column: 1 / -1;">
+                    <label>Bio</label>
+                    <p id="profile-display-bio">{{ profile.bio|default:"No bio yet." }}</p>
+                </div>
+                <div class="data-cell">
+                    <label>Member Since</label>
+                    <p>{{ profile_user.date_joined|date:"F Y" }}</p>
+                </div>
+            </div>
+
+            {% if is_own_profile %}
+            <form id="profile-edit-form" method="post" action="" class="hidden">
+                {% csrf_token %}
+                <div class="info-grid-premium">
+                    <div class="data-cell">
+                        <label for="id_first_name">First Name</label>
+                        {{ form.first_name }}
+                        <div class="field-errors" id="error-first_name">{% if form.first_name.errors %}{{ form.first_name.errors|striptags }}{% endif %}</div>
+                    </div>
+                    <div class="data-cell">
+                        <label for="id_last_name">Last Name</label>
+                        {{ form.last_name }}
+                        <div class="field-errors" id="error-last_name">{% if form.last_name.errors %}{{ form.last_name.errors|striptags }}{% endif %}</div>
+                    </div>
+                    <div class="data-cell">
+                        <label for="id_phone_number">Phone Number</label>
+                        {{ form.phone_number }}
+                        <div class="field-errors" id="error-phone_number">{% if form.phone_number.errors %}{{ form.phone_number.errors|striptags }}{% endif %}</div>
+                    </div>
+                    {% if form.bio %}
+                    <div class="data-cell" style="grid-column: 1 / -1;">
+                        <label for="id_bio">Bio</label>
+                        {{ form.bio }}
+                        <div class="field-errors" id="error-bio">{% if form.bio.errors %}{{ form.bio.errors|striptags }}{% endif %}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </form>
+
+            <div class="btn-row">
+                <button type="button" id="edit-profile-btn" class="btn-action-premium">Edit Profile</button>
+                <button type="button" id="cancel-edit-btn" class="btn-action-premium secondary hidden">Cancel</button>
+
+                {% if user.is_staff or user.is_superuser %}
+                    {% if is_own_profile %}
+                        <button type="button" class="btn-action-premium secondary" onclick="clearProfilePicture()" style="background: #dc2626; color: white;">Clear Profile Picture</button>
+                        <button type="button" class="btn-action-premium secondary" onclick="clearBio()" style="background: #dc2626; color: white;">Clear Bio</button>
+                    {% endif %}
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if is_own_profile %}
+<link href="{% static 'vendor/cropper.min.css' %}" rel="stylesheet">
+<script src="{% static 'vendor/cropper.min.js' %}"></script>
+
+<div id="cropper-modal" class="cropper-modal" aria-hidden="true">
+    <div class="cropper-panel">
+        <h3>Adjust your photo</h3>
+        <div class="cropper-stage">
+            <img id="cropper-image" alt="Crop preview"
+                 src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+        </div>
+        <div class="cropper-actions">
+            <button type="button" id="cropper-cancel-btn" class="btn-action-premium secondary">Cancel</button>
+            <button type="button" id="cropper-save-btn" class="btn-action-premium">Save Photo</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    const avatarTrigger = document.getElementById('avatar-trigger');
+    const avatarInput = document.getElementById('profile-picture-input');
+    const avatarImage = document.getElementById('profile-avatar');
+    const editBtn = document.getElementById('edit-profile-btn');
+    const cancelBtn = document.getElementById('cancel-edit-btn');
+    const profileDisplay = document.getElementById('profile-display');
+    const editForm = document.getElementById('profile-edit-form');
+    const csrfTokenInput = document.querySelector('#profile-edit-form input[name="csrfmiddlewaretoken"]');
+    const csrfToken = (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || (csrfTokenInput ? csrfTokenInput.value : '');
+    const cropperModal = document.getElementById('cropper-modal');
+    const cropperImage = document.getElementById('cropper-image');
+    const cropperSaveBtn = document.getElementById('cropper-save-btn');
+    const cropperCancelBtn = document.getElementById('cropper-cancel-btn');
+    let cropper = null;
+
+    if (cropperModal && cropperModal.parentElement !== document.body) {
+        document.body.appendChild(cropperModal);
+    }
+
+    let editMode = {{ form.errors|yesno:'true,false' }};
+
+    function applyEditMode(enabled) {
+        editMode = enabled;
+        if (enabled) {
+            profileDisplay.classList.add('hidden');
+            editForm.classList.remove('hidden');
+            cancelBtn.classList.remove('hidden');
+            editBtn.textContent = 'Save Changes';
+        } else {
+            profileDisplay.classList.remove('hidden');
+            editForm.classList.add('hidden');
+            cancelBtn.classList.add('hidden');
+            editBtn.textContent = 'Edit Profile';
+        }
+    }
+
+    applyEditMode(editMode);
+
+    function captureEditValues() {
+        const values = {};
+        if (!editForm) return values;
+        const fd = new FormData(editForm);
+        fd.forEach((value, key) => {
+            if (key === 'csrfmiddlewaretoken') return;
+            values[key] = value;
+        });
+        return values;
+    }
+
+    function restoreEditValues(values) {
+        if (!editForm) return;
+        Object.keys(values || {}).forEach((key) => {
+            const field = editForm.querySelector(`[name="${key}"]`);
+            if (field) field.value = values[key] ?? '';
+        });
+    }
+
+    function clearFieldErrors() {
+        if (editForm) {
+            editForm.querySelectorAll('.field-errors').forEach(el => { el.textContent = ''; });
+            editForm.querySelectorAll('[aria-invalid="true"]').forEach(el => el.removeAttribute('aria-invalid'));
+        }
+    }
+
+    function applyFieldErrors(errors) {
+        if (!errors) return;
+        Object.keys(errors).forEach((fieldName) => {
+            const target = document.getElementById(`error-${fieldName}`);
+            if (target) target.textContent = (errors[fieldName] || []).join(' ');
+            if (editForm) {
+                const input = editForm.querySelector(`[name="${fieldName}"]`);
+                if (input) input.setAttribute('aria-invalid', 'true');
+            }
+        });
+    }
+
+    function updateProfileDisplay(profileData) {
+        if (!profileData) return;
+
+        const fullNameEl = document.getElementById('profile-display-full-name');
+        const emailEl = document.getElementById('profile-display-email');
+        const studentIdEl = document.getElementById('profile-display-student-id');
+        const phoneEl = document.getElementById('profile-display-phone');
+        const bioEl = document.getElementById('profile-display-bio');
+        const titleEl = document.getElementById('profile-title');
+
+        const fullName = profileData.full_name || profileData.username || '';
+        const email = profileData.email || '';
+        const studentId = profileData.student_id || '';
+        const phone = profileData.phone_number || '';
+        const bio = profileData.bio || '';
+
+        if (fullNameEl) fullNameEl.textContent = fullName || 'Not Provided';
+        if (emailEl) emailEl.textContent = email || 'Not Provided';
+        if (studentIdEl) studentIdEl.textContent = studentId || 'Pending';
+        if (phoneEl) phoneEl.textContent = phone || 'Not Provided';
+        if (bioEl) bioEl.textContent = bio || 'No bio yet.';
+
+        if (titleEl) {
+            const displayName = profileData.first_name || profileData.username || 'User';
+            const cap = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+            titleEl.textContent = `${cap}'s Profile`;
+        }
+
+        const navUser = document.querySelector('a.nav-link.user');
+        if (navUser) navUser.textContent = fullName || (profileData.username || navUser.textContent);
+    }
+
+    let savedValues = captureEditValues();
+
+    async function saveProfileChanges() {
+        if (!editForm) return;
+        clearFieldErrors();
+
+        const payload = captureEditValues();
+        editBtn.disabled = true;
+        const prevText = editBtn.textContent;
+        editBtn.textContent = 'Saving...';
+
+        fetch(editForm.action || window.location.pathname, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json().then(data => ({ ok: res.ok, data })))
+        .then(({ ok, data }) => {
+            if (!ok || !data.success) {
+                createToast('error', 'Error', data.message || 'Could not save changes.');
+                applyFieldErrors(data.errors || {});
+                return;
+            }
+
+            createToast('success', 'Done', data.message || 'Profile updated.');
+            if (data.profile) {
+                updateProfileDisplay(data.profile);
+                restoreEditValues({
+                    first_name: data.profile.first_name || '',
+                    last_name: data.profile.last_name || '',
+                    phone_number: data.profile.phone_number || '',
+                    bio: data.profile.bio || '',
+                });
+                savedValues = captureEditValues();
+            } else {
+                savedValues = captureEditValues();
+            }
+            applyEditMode(false);
+        })
+        .catch((err) => {
+            createToast('error', 'Error', err.message || 'Could not save changes.');
+        })
+        .finally(() => {
+            editBtn.disabled = false;
+            if (editMode) {
+                editBtn.textContent = prevText;
+            }
+        });
+    }
+
+    editBtn.addEventListener('click', function () {
+        if (!editMode) {
+            savedValues = captureEditValues();
+            applyEditMode(true);
+            return;
+        }
+        saveProfileChanges();
+    });
+
+    cancelBtn.addEventListener('click', function () {
+        restoreEditValues(savedValues);
+        clearFieldErrors();
+        applyEditMode(false);
+    });
+
+    if (editForm) {
+        editForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            if (editMode) {
+                saveProfileChanges();
+            }
+        });
+    }
+
+    avatarTrigger.addEventListener('click', function () {
+        avatarInput.click();
+    });
+
+    function closeCropper() {
+        cropperModal.style.display = 'none';
+        cropperModal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('cropper-open');
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        avatarInput.value = '';
+    }
+
+    avatarInput.addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        if (!file) {
+            return;
+        }
+
+        if (!file.type.startsWith('image/')) {
+            createToast('error', 'Error', 'Please select an image file.');
+            avatarInput.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (loadEvent) {
+            cropperImage.src = loadEvent.target.result;
+            document.body.classList.add('cropper-open');
+            cropperModal.style.display = 'flex';
+            cropperModal.setAttribute('aria-hidden', 'false');
+
+            if (cropper) {
+                cropper.destroy();
+            }
+
+            cropper = new Cropper(cropperImage, {
+                aspectRatio: 1,
+                viewMode: 1,
+                dragMode: 'crop',
+                autoCropArea: 0.8,
+                background: false,
+                guides: true,
+                center: true,
+                highlight: true,
+                movable: true,
+                zoomable: true,
+                zoomOnTouch: true,
+                zoomOnWheel: true,
+                wheelZoomRatio: 0.1,
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                minContainerWidth: 260,
+                minContainerHeight: 260,
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+
+    cropperCancelBtn.addEventListener('click', closeCropper);
+
+    cropperModal.addEventListener('click', function (event) {
+        if (event.target === cropperModal) {
+            closeCropper();
+        }
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && cropperModal.style.display === 'flex') {
+            closeCropper();
+        }
+    });
+
+    cropperSaveBtn.addEventListener('click', function () {
+        if (!cropper) {
+            return;
+        }
+        cropper.getCroppedCanvas({ width: 800, height: 800 }).toBlob(function (blob) {
+            if (!blob) {
+                createToast('error', 'Error', 'Could not process image.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('profile_picture', blob, 'profile-picture.jpg');
+
+            fetch("{% url 'update_avatar' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            .then(function (response) {
+                return response.json().then(function (data) {
+                    if (!response.ok || (data && data.success === false)) {
+                        throw new Error((data && data.message) ? data.message : 'Upload failed.');
+                    }
+                    return data;
+                });
+            })
+            .then(function (data) {
+                avatarImage.src = data.image_url + '?t=' + Date.now();
+                createToast('success', 'Done', data.message || 'Profile picture updated.');
+                closeCropper();
+            })
+            .catch(function (error) {
+                createToast('error', 'Error', error.message || 'Could not upload profile picture.');
+            });
+        }, 'image/jpeg', 0.92);
+    });
+
+    function clearProfilePicture() {
+        if (!confirm('Are you sure you want to remove your profile picture?')) return;
+
+        fetch(window.location.pathname, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ clear_profile_picture: true })
+        })
+        .then(res => res.json().then(data => ({ ok: res.ok, data })))
+        .then(({ ok, data }) => {
+            if (!ok) {
+                createToast('error', 'Error', 'Could not clear profile picture.');
+                return;
+            }
+            createToast('success', 'Done', 'Profile picture cleared.');
+            location.reload();
+        })
+        .catch(error => createToast('error', 'Error', error.message));
+    }
+
+    function clearBio() {
+        if (!confirm('Are you sure you want to clear your bio?')) return;
+
+        fetch(window.location.pathname, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ clear_bio: true })
+        })
+        .then(res => res.json().then(data => ({ ok: res.ok, data })))
+        .then(({ ok, data }) => {
+            if (!ok) {
+                createToast('error', 'Error', 'Could not clear bio.');
+                return;
+            }
+            createToast('success', 'Done', 'Bio cleared.');
+            const bioEl = document.getElementById('profile-display-bio');
+            if (bioEl) bioEl.textContent = 'No bio yet.';
+        })
+        .catch(error => createToast('error', 'Error', error.message));
+    }
+})();
+</script>
+{% endif %}
+{% endblock %}

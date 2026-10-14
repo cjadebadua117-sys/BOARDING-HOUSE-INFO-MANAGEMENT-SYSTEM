@@ -1,0 +1,535 @@
+/* ==========================================================================
+   LIQUID GLASS · depth & clarity layer
+   Loaded LAST (after tokens/premium/ios-theme). Pure visual upgrade:
+   dynamic-specular glass, deeper materials, squircle radius, springy
+   transforms. Layout, markup, and every Django behavior stay untouched.
+
+   120fps discipline: every animated property is transform/opacity ONLY.
+   No width/height/top/left/margin/box-shadow/filter animations. Hover
+   elevation is faked with a pre-baked ::after glow that fades via opacity.
+   ========================================================================== */
+
+/* ---------- 1. Design tokens ---------- */
+:root {
+    --lg-blue: #1d6fa4;
+    --lg-teal: #0f9d9d;
+    --lg-indigo: #457b9d;
+    --lg-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --lg-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --lg-dur-fast: 0.22s;
+    --lg-dur: 0.38s;
+    --lg-radius: 24px;
+    --lg-radius-lg: 32px;
+}
+
+[data-theme="dark"] {
+    --lg-blue: #1d6fa4;
+    --lg-teal: #24a0a0;
+}
+
+/* ---------- 2. Materials: three glass tiers + specular edge ---------- */
+.lg-glass,
+.card,
+.glass-card,
+.stat-card,
+.hero-card,
+.profile-card,
+.profile-main,
+.inquiry-card,
+.inquiries-card,
+.booking-card,
+.room-card,
+.listing-card,
+.result-card,
+.house-card,
+.house-content,
+.landing-feature-card,
+.rooms-card,
+.rooms-section,
+.filter-card,
+.thread-header,
+.messages-container,
+.image-gallery,
+.booking-table-wrap,
+.admin-table-wrap,
+.filter-card,
+.form-card,
+.bhims-toast,
+.modal-content {
+    position: relative;
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05) 45%, rgba(255, 255, 255, 0.02)),
+        var(--bhims-glass-bg-primary, rgba(255, 255, 255, 0.55)) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+    backdrop-filter: blur(28px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.28) !important;
+    border-radius: var(--lg-radius) !important;
+    box-shadow:
+        0 1px 0 0 rgba(255, 255, 255, 0.45) inset,
+        -1px -1px 0 0 rgba(255, 255, 255, 0.12) inset,
+        0 24px 60px -28px rgba(10, 30, 60, 0.45) !important;
+    will-change: transform;
+    transition: transform var(--lg-dur) var(--lg-ease-out),
+                opacity var(--lg-dur) var(--lg-ease-out);
+}
+
+/* Dynamic specular highlight: a soft light band across the top-left edge.
+   Pure ::after overlay -> composited once, zero per-frame cost. */
+.lg-glass::before,
+.card::before,
+.glass-card::before,
+.stat-card::before,
+.listing-card::before,
+.result-card::before,
+.house-card::before,
+.room-card::before,
+.booking-card::before,
+.profile-card::before,
+.filter-card::before,
+.form-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(115deg,
+        rgba(255, 255, 255, 0.35) 0%,
+        rgba(255, 255, 255, 0.06) 28%,
+        transparent 55%);
+    opacity: 0.9;
+}
+
+/* Hover glow baked into ::after — opacity-only fade keeps 120fps */
+.lg-glass::after,
+.card::after,
+.glass-card::after,
+.stat-card::after,
+.listing-card::after,
+.result-card::after,
+.house-card::after,
+.room-card::after,
+.booking-card::after,
+.profile-card::after,
+.filter-card::after,
+.form-card::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow: 0 32px 80px -32px rgba(29, 111, 164, 0.30),
+                0 0 0 1px rgba(255, 255, 255, 0.35) inset;
+    opacity: 0;
+    transition: opacity var(--lg-dur) var(--lg-ease-out);
+    z-index: -1;
+}
+
+[data-theme="dark"] .lg-glass,
+[data-theme="dark"] .card,
+[data-theme="dark"] .glass-card,
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .hero-card,
+[data-theme="dark"] .profile-card,
+[data-theme="dark"] .inquiry-card,
+[data-theme="dark"] .booking-card,
+[data-theme="dark"] .room-card,
+[data-theme="dark"] .listing-card,
+[data-theme="dark"] .result-card,
+[data-theme="dark"] .house-card,
+[data-theme="dark"] .landing-feature-card,
+[data-theme="dark"] .rooms-card,
+[data-theme="dark"] .filter-card,
+[data-theme="dark"] .form-card,
+[data-theme="dark"] .booking-table-wrap,
+[data-theme="dark"] .admin-table-wrap {
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.02) 50%),
+        var(--bhims-glass-bg-primary, rgba(18, 28, 42, 0.55)) !important;
+    border-color: rgba(255, 255, 255, 0.14) !important;
+    box-shadow:
+        0 1px 0 0 rgba(255, 255, 255, 0.16) inset,
+        0 24px 60px -28px rgba(0, 0, 0, 0.7) !important;
+}
+
+/* ---------- 3. Interactive elements: springy, transform-only ---------- */
+.btn,
+.btn-primary,
+.btn-outline-primary,
+.btn-success,
+.btn-danger,
+.create-btn,
+.submit-btn,
+.auth-submit,
+.star-filter a,
+.report-filter a,
+.page-link,
+.sidebar-link {
+    transition: transform var(--lg-dur-fast) var(--lg-ease-spring),
+                opacity var(--lg-dur-fast) var(--lg-ease-out),
+                background-color var(--lg-dur-fast) ease;
+    will-change: transform;
+}
+
+.btn:hover,
+.create-btn:hover,
+.submit-btn:hover,
+.auth-submit:hover {
+    transform: translateY(-2px) scale(1.02);
+}
+
+.btn:active,
+.create-btn:active,
+.submit-btn:active,
+.auth-submit:active,
+.star-filter a:active,
+.report-filter a:active {
+    transform: scale(0.96);
+}
+
+/* Buttons get the glass capsule treatment */
+.btn,
+.create-btn,
+.submit-btn {
+    border-radius: 999px !important;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.5) inset,
+        0 8px 24px -12px rgba(29, 111, 164, 0.35);
+}
+
+/* Inputs: glass wells with iOS focus ring (box-shadow static, ring opacity
+   handled by border-color transition = paint-only, cheap) */
+.form-control,
+.form-select,
+.auth-input-wrap input {
+    border-radius: 16px !important;
+    background: rgba(255, 255, 255, 0.10) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.30) !important;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    transition: border-color var(--lg-dur-fast) ease,
+                transform var(--lg-dur-fast) var(--lg-ease-out);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--lg-blue) !important;
+    box-shadow: 0 0 0 4px rgba(29, 111, 164, 0.20) !important;
+    transform: scale(1.005);
+}
+
+.form-control:focus-visible,
+.form-select:focus-visible {
+    outline: none;
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-color: rgba(255, 255, 255, 0.16) !important;
+}
+
+/* ---------- 4. Topbar & sidebar: deeper floating glass ---------- */
+.bhims-topbar,
+.navbar {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08)) !important;
+    -webkit-backdrop-filter: blur(32px) saturate(200%) !important;
+    backdrop-filter: blur(32px) saturate(200%) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25) !important;
+}
+
+[data-theme="dark"] .bhims-topbar,
+[data-theme="dark"] .navbar {
+    background: linear-gradient(135deg, rgba(20, 30, 48, 0.55), rgba(14, 20, 34, 0.45)) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.10) !important;
+}
+
+.app-sidebar {
+    /* K3 fix: the sidebar sits beside content, not over it — no blur needed.
+       Flat paper panel with a hairline, matching the editorial masthead. */
+    background: var(--ce-card, #fffdf9) !important;
+    border-right: 1px solid var(--ce-line, rgba(31, 43, 40, 0.14)) !important;
+}
+
+[data-theme="dark"] .app-sidebar {
+    background: linear-gradient(165deg,
+        rgba(24, 34, 54, 0.60),
+        rgba(14, 22, 38, 0.45) 60%,
+        rgba(69, 123, 157, 0.10)) !important;
+    border-right-color: rgba(255, 255, 255, 0.09) !important;
+}
+
+.sidebar-link {
+    border-radius: 16px !important;
+}
+
+.sidebar-link.active {
+    /* K3/K4 fix: the glass chip + glow is the old scene. An active nav item
+       is a wayfinding state — flat accent wash, no ribbon, no shadow. */
+    background: var(--ce-accent-wash, rgba(23, 104, 94, 0.09)) !important;
+    border: 1px solid transparent;
+    box-shadow: none;
+    color: var(--ce-accent-deep, #0f4f47);
+}
+
+/* ---------- 5. Ambient scene: retired ----------
+   The aurora blobs belonged to the glassmorphism scene. The committed
+   direction is printed-paper editorial: no ambient gradients. Layers are
+   disabled here so the keyframes below stay harmless if referenced. */
+body::before {
+    content: none !important;
+}
+
+body::after {
+    content: none !important;
+}
+
+/* (dark aurora override retired with the layer) */
+
+@keyframes lg-drift-a {
+    from { transform: translate3d(-2.5%, -1.5%, 0) scale(1); }
+    to   { transform: translate3d(2.5%, 2%, 0) scale(1.06); }
+}
+
+@keyframes lg-drift-b {
+    from { transform: translate3d(2%, 1.5%, 0) rotate(0.001deg); }
+    to   { transform: translate3d(-2.5%, -2%, 0) rotate(0.001deg); }
+}
+
+/* ---------- 6. Micro-detail: squircle avatars, glass tables ---------- */
+.sidebar-avatar,
+.tenant-avatar,
+.tenant-avatar2 {
+    border-radius: 14px !important;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 14px -6px rgba(10, 30, 60, 0.4);
+}
+
+.admin-table tbody tr,
+.table tbody tr {
+    transition: background-color var(--lg-dur-fast) ease;
+}
+
+.badge,
+.pill {
+    /* K3 fix: glass blur on status badges is reflexive — badges are small
+       solid labels, there is nothing to layer. Solid paper wash instead. */
+    border-radius: 999px !important;
+    border: 1px solid var(--ce-line, rgba(31, 43, 40, 0.14));
+}
+
+/* Page enters with one smooth fade+rise (opacity+transform only) */
+.app-content {
+    animation: lg-page-in 0.5s var(--lg-ease-out) both;
+}
+
+@keyframes lg-page-in {
+    from { opacity: 0; transform: translate3d(0, 10px, 0); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* Toast entrance: springy slide (transform-only) */
+.bhims-toast {
+    animation: lg-toast-in 0.5s var(--lg-ease-spring) both;
+}
+
+@keyframes lg-toast-in {
+    from { opacity: 0; transform: translate3d(110%, 0, 0); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* ---------- 7. 120fps guardrails ----------
+   Force every custom animation to compositor-friendly properties and
+   promote heavy layers. Applies globally so future CSS inherits the rule. */
+.card *,
+.glass-card *,
+.stat-card * {
+    transition-property: transform, opacity, background-color, border-color, color;
+}
+
+/* Scrollbars: slim glass pills */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: rgba(120, 140, 170, 0.35);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(120, 140, 170, 0.55);
+    background-clip: padding-box;
+    border: 3px solid transparent;
+}
+
+/* ---------- 8. Reduced motion & battery: kill the aurora + springs ---- */
+@media (prefers-reduced-motion: reduce) {
+    body::before,
+    body::after {
+        animation: none !important;
+    }
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001s !important;
+        transition-duration: 0.001s !important;
+    }
+}
+
+/* ==========================================================================
+   PRECISION LAYER — realistic depth, engineered detail (no neon)
+   Static rules only: nothing here animates, so the 120fps budget is intact.
+   ========================================================================== */
+
+/* Buttons: physical depth — light from above (top bevel, bottom core shadow) */
+.btn,
+.create-btn,
+.submit-btn {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.45),
+        inset 0 -1px 0 rgba(15, 45, 70, 0.10),
+        0 1px 2px rgba(10, 30, 60, 0.18),
+        0 8px 20px -10px rgba(29, 111, 164, 0.35) !important;
+}
+
+[data-theme="dark"] .btn,
+[data-theme="dark"] .create-btn,
+[data-theme="dark"] .submit-btn {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.30),
+        0 1px 2px rgba(0, 0, 0, 0.40),
+        0 8px 20px -10px rgba(0, 0, 0, 0.50) !important;
+}
+
+/* Cards: two-shadow grounding — tight contact shadow + wide ambient shadow
+   (how real objects sit on a surface; replaces the single diffuse glow) */
+.lg-glass,
+.card,
+.glass-card,
+.stat-card,
+.listing-card,
+.result-card,
+.house-card,
+.room-card,
+.booking-card,
+.profile-card,
+.filter-card,
+.form-card {
+    box-shadow:
+        0 1px 0 0 rgba(255, 255, 255, 0.45) inset,
+        -1px -1px 0 0 rgba(255, 255, 255, 0.12) inset,
+        0 1px 2px rgba(10, 30, 60, 0.10),
+        0 12px 28px -14px rgba(10, 30, 60, 0.28),
+        0 32px 64px -32px rgba(10, 30, 60, 0.30) !important;
+}
+
+[data-theme="dark"] .lg-glass,
+[data-theme="dark"] .card,
+[data-theme="dark"] .glass-card,
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .listing-card,
+[data-theme="dark"] .result-card,
+[data-theme="dark"] .house-card,
+[data-theme="dark"] .room-card,
+[data-theme="dark"] .booking-card,
+[data-theme="dark"] .profile-card,
+[data-theme="dark"] .filter-card,
+[data-theme="dark"] .form-card {
+    box-shadow:
+        0 1px 0 0 rgba(255, 255, 255, 0.14) inset,
+        -1px -1px 0 0 rgba(255, 255, 255, 0.05) inset,
+        0 1px 3px rgba(0, 0, 0, 0.45),
+        0 12px 28px -14px rgba(0, 0, 0, 0.50),
+        0 32px 64px -32px rgba(0, 0, 0, 0.55) !important;
+}
+
+/* Hairline structure: crisp 1px separations read as engineered, not decorated */
+.card-header,
+.card-footer,
+.thread-header,
+.admin-table thead th,
+.table thead th {
+    border-color: rgba(29, 111, 164, 0.14) !important;
+}
+
+[data-theme="dark"] .card-header,
+[data-theme="dark"] .card-footer,
+[data-theme="dark"] .thread-header,
+[data-theme="dark"] .admin-table thead th,
+[data-theme="dark"] .table thead th {
+    border-color: rgba(255, 255, 255, 0.10) !important;
+}
+
+/* Primary action: the one solid, confident surface in the system */
+.btn-primary,
+.create-btn,
+.submit-btn,
+.auth-submit {
+    background: linear-gradient(180deg, #2486c2, #1d6fa4) !important;
+    border: 1px solid rgba(13, 74, 112, 0.55) !important;
+    color: #fff !important;
+    text-shadow: 0 -1px 0 rgba(10, 30, 55, 0.35);
+}
+
+[data-theme="dark"] .btn-primary,
+[data-theme="dark"] .create-btn,
+[data-theme="dark"] .submit-btn,
+[data-theme="dark"] .auth-submit {
+    background: linear-gradient(180deg, #2486c2, #185a88) !important;
+}
+
+/* Secondary actions: quiet glass, consistent across every context */
+.btn-secondary,
+.btn-outline-primary,
+.btn-outline-secondary {
+    background: rgba(255, 255, 255, 0.55) !important;
+    border: 1px solid rgba(29, 111, 164, 0.28) !important;
+    color: #14507a !important;
+}
+
+[data-theme="dark"] .btn-secondary,
+[data-theme="dark"] .btn-outline-primary,
+[data-theme="dark"] .btn-outline-secondary {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.22) !important;
+    color: #9ec9e8 !important;
+}
+
+/* Stat numerals: tabular figures so dashboards align like an instrument panel */
+.stat-content h3,
+.stat-content .stat-value {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+}
+
+/* Focus keyboard ring: precise 2px + soft halo, institutional blue */
+.btn:focus-visible,
+.create-btn:focus-visible,
+.submit-btn:focus-visible,
+.sidebar-link:focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible {
+    outline: 2px solid rgba(36, 134, 194, 0.85) !important;
+    outline-offset: 2px;
+}
+
+/* On weak GPUs / low-power mode, drop the blur cost but keep the look */
+@media (prefers-reduced-transparency: reduce) {
+    .lg-glass, .card, .glass-card, .stat-card,
+    .booking-table-wrap, .admin-table-wrap,
+    .bhims-topbar, .navbar, .app-sidebar {
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+        background: rgba(255, 255, 255, 0.86) !important;
+    }
+    [data-theme="dark"] .lg-glass,
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .glass-card,
+    [data-theme="dark"] .stat-card,
+    [data-theme="dark"] .bhims-topbar,
+    [data-theme="dark"] .navbar,
+    [data-theme="dark"] .app-sidebar {
+        background: rgba(20, 30, 48, 0.92) !important;
+    }
+}

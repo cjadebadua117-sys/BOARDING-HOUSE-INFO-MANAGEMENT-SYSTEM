@@ -1,0 +1,60 @@
+%% Module B - ERD extract: Search, Inquiry & Booking (owner: Christian)
+%% The tables the workflow writes: one conversation per student+room, and a
+%% booking whose status drives room availability.
+%% Render: venv\Scripts\python.exe tools\render_diagrams.py docs\final-project\diagrams
+erDiagram
+    USER ||--o{ INQUIRY : "sends"
+    ROOM ||--o{ INQUIRY : "is asked about"
+    INQUIRY ||--o{ INQUIRY_MESSAGE : "contains"
+    USER ||--o{ INQUIRY_MESSAGE : "posts"
+    USER ||--o{ BOOKING : "requests"
+    ROOM ||--o{ BOOKING : "is booked in"
+    BOARDING_HOUSE ||--|{ ROOM : "contains"
+
+    USER {
+        int id PK
+        string role "student or landlord"
+        string full_name
+    }
+    BOARDING_HOUSE {
+        int id PK
+        string name
+        string barangay
+        string status "must be approved to be searchable"
+        boolean is_active
+    }
+    ROOM {
+        int id PK
+        int boarding_house_id FK
+        string room_type
+        decimal monthly_rate
+        int capacity
+        boolean is_available
+        boolean is_active
+    }
+    INQUIRY {
+        int id PK
+        int student_id FK
+        int room_id FK
+        string status "pending / open / closed / rejected"
+        string subject
+        text message_text
+        datetime created_at
+    }
+    INQUIRY_MESSAGE {
+        int id PK
+        int inquiry_id FK
+        int sender_id FK
+        text message_text
+        datetime sent_at
+    }
+    BOOKING {
+        int id PK
+        int student_id FK
+        int room_id FK
+        string status "pending / confirmed / declined / cancelled"
+        datetime requested_at
+        datetime confirmed_at
+        date move_in_date
+        text notes
+    }

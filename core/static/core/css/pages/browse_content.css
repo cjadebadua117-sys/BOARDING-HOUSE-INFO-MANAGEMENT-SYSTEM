@@ -1,0 +1,655 @@
+/* Shared Browse page body - included by boardings_list.html (public shell)
+   and boardings_list_app.html (sidebar app shell) so markup, CSS and JS live
+   in exactly one place. */
+
+    .browse-page {
+        width: 100%;
+        max-width: var(--container-xl);
+        margin: 0 auto;
+        padding: var(--space-8) var(--space-6) 4rem;
+    }
+    /* Inside the app shell, .app-content already pads and centers */
+    .app-content .browse-page {
+        max-width: none;
+        padding: 0 0 2rem;
+    }
+    @media (max-width: 640px) {
+        .browse-page { padding: var(--space-6) var(--space-4) 3rem; }
+    }
+
+    /* The filter bar sits ABOVE the results and spans the same width, so the
+       grid owns the whole page instead of a 320px column. It was a left
+       sidebar, and on a 1366x768 laptop it was 638px tall in a 768px viewport:
+       Sort and the Apply button fell below the fold, i.e. the panel hid its own
+       action, while every card was squeezed to 283px. */
+    .browse-layout {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--space-5);
+        align-items: start;
+    }
+
+    /* The panel is a <details open>, i.e. a disclosure that is already open:
+       a no-JS visitor, and every desktop visitor, gets the full panel exactly
+       as before. One column puts it first on small screens, where an always-open
+       panel is a whole screen of fields with no boarding house visible — the
+       page's own script closes it there, and this collapses it to a single row
+       so the listings start immediately below. */
+    .browse-filter-card > summary {
+        cursor: pointer;
+        list-style: none;
+    }
+    .browse-filter-card > summary::-webkit-details-marker {
+        display: none;
+    }
+    .filter-card-head-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .filter-card-chevron {
+        display: none;
+        color: var(--bhims-text-muted);
+        transition: transform 0.2s ease;
+    }
+    .browse-filter-card[open] .filter-card-chevron {
+        transform: rotate(180deg);
+    }
+    @media (max-width: 991.98px) {
+        .filter-card-chevron {
+            display: inline-flex;
+        }
+        .browse-filter-card:not([open]) {
+            padding: 0.9rem 1.1rem;
+        }
+        .browse-filter-card:not([open]) .filter-card-head {
+            margin-bottom: 0;
+        }
+        .browse-filter-card:not([open]):hover {
+            border-color: var(--ce-accent, #14563c);
+        }
+    }
+
+    .browse-filter-card {
+        background: var(--bhims-paper-raised);
+        border: 1px solid var(--bhims-border);
+        border-radius: var(--bhims-radius);
+        padding: 1.25rem;
+        box-shadow: var(--bhims-glass-inner-glow);
+        transition: box-shadow 0.25s var(--bhims-ease-smooth), border-color 0.25s var(--bhims-ease-smooth);
+    }
+    .browse-filter-card:hover {
+        border-color: var(--bhims-ink-line-strong);
+        box-shadow: var(--bhims-glass-shadow-hover), var(--bhims-glass-inner-glow);
+    }
+    .filter-card-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    .filter-card-title {
+        font-family: var(--font-display);
+        font-size: var(--fs-base);
+        font-weight: 700;
+        color: var(--bhims-text);
+        margin: 0;
+    }
+    .filter-reset-link {
+        text-decoration: none;
+        color: var(--bhims-teal);
+        font-weight: 600;
+        font-size: var(--fs-sm);
+        transition: color 0.18s ease;
+    }
+    .filter-reset-link:hover {
+        color: var(--bhims-teal-hover);
+    }
+    .browse-filter-card .form-label {
+        font-size: var(--fs-xs);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--bhims-text-muted);
+        margin-bottom: 0.3rem;
+    }
+    .browse-filter-card .form-control,
+    .browse-filter-card .form-select {
+        background: var(--bhims-glass-bg-primary);
+        border-color: var(--bhims-border);
+    }
+    .browse-filter-card .form-control:focus,
+    .browse-filter-card .form-select:focus {
+        border-color: var(--ce-accent, #14563c);
+        box-shadow: 0 0 0 3px var(--ce-accent-wash, rgba(20, 86, 60, 0.12));
+    }
+    .filter-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+    .filter-hint {
+        color: var(--bhims-text-muted);
+        font-size: var(--fs-xs);
+    }
+
+    .browse-results {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        min-width: 0;
+    }
+
+    .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        flex-wrap: wrap;
+        /* Without this the count row's box ended exactly where the grid began
+           (0px), so "12 boarding houses on the board" looked cut off by the
+           first card's photo. */
+        margin-bottom: 0.9rem;
+    }
+    .results-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+    .results-count {
+        margin: 0;
+        font-size: var(--fs-sm);
+        color: var(--bhims-text-muted);
+    }
+    .results-count strong {
+        color: var(--bhims-text);
+        font-size: var(--fs-sm);
+    }
+    .results-page {
+        font-size: var(--fs-xs);
+        color: var(--bhims-text-muted);
+    }
+    .results-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-shrink: 0;
+    }
+    .results-divider {
+        width: 1px;
+        height: 18px;
+        background: var(--bhims-border);
+    }
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.35rem 0.65rem 0.35rem 0.6rem;
+        border-radius: 999px;
+        background: var(--ce-accent-wash, rgba(20, 86, 60, 0.08));
+        color: var(--ce-accent-deep, #0e3f2c);
+        font-size: var(--fs-xs);
+        font-weight: 600;
+        text-decoration: none;
+        border: 1px solid rgba(20, 86, 60, 0.18);
+        transition: background 0.18s ease, color 0.18s ease;
+    }
+    .chip:hover {
+        background: var(--ce-accent);
+        color: var(--ce-on-accent, #fffdf7);
+        border-color: var(--ce-accent);
+    }
+    .chip-remove {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.25);
+        color: inherit;
+        text-decoration: none;
+        transition: background 0.18s ease, transform 0.12s ease;
+    }
+    .chip:hover .chip-remove {
+        background: rgba(255,255,255,0.35);
+    }
+    .chip-remove:hover {
+        transform: scale(1.1);
+    }
+    .btn-text-reset {
+        background: transparent;
+        border-color: transparent;
+        box-shadow: none;
+    }
+    .btn-ghost {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: transparent;
+        border: 1px solid var(--bhims-border);
+        color: var(--bhims-text);
+        border-radius: var(--bhims-radius-sm);
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        font-size: var(--fs-sm);
+        text-decoration: none;
+        transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+    }
+    .btn-ghost:hover {
+        background: var(--ce-accent-wash, rgba(20, 86, 60, 0.06));
+        border-color: var(--ce-accent, #14563c);
+        color: var(--ce-accent-deep, #0e3f2c);
+    }
+    .btn-ghost .bi {
+        font-size: 0.9rem;
+    }
+
+    .active-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+    }
+
+    .listing-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .result-card {
+        background: var(--bhims-paper-raised);
+        border: 1px solid var(--bhims-border);
+        border-radius: var(--bhims-radius);
+        overflow: hidden;
+        box-shadow: var(--bhims-glass-inner-glow);
+        transition: transform 0.25s var(--bhims-ease-smooth),
+                    box-shadow 0.25s var(--bhims-ease-smooth),
+                    border-color 0.25s var(--bhims-ease-smooth);
+        display: flex;
+        flex-direction: column;
+    }
+    .result-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--bhims-glass-shadow-hover), var(--bhims-glass-inner-glow);
+        border-color: var(--bhims-ink-line-strong);
+    }
+    .result-image {
+        position: relative;
+        height: 188px;
+        background: var(--bhims-paper-sunken);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    .result-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    .no-photo {
+        color: var(--bhims-text-muted);
+        font-size: var(--text-xl);
+    }
+    .result-badges {
+        position: absolute;
+        top: 0.65rem;
+        left: 0.65rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        z-index: 1;
+    }
+    /* The price sits on a landlord's photo, so it needs its own dark bed.
+       Before this it was cream text straight onto the photograph with only a
+       soft shadow: measured against the pixels behind it that is 1.9:1 on a
+       pale wall, i.e. the ₱ number vanished. The scrim darkens the bottom
+       band of every photo; the plate is the second safety net for images the
+       scrim alone cannot save. No backdrop-filter: it costs frames on the
+       low-end phones this page is built for. */
+    .result-image::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 55%;
+        background: linear-gradient(to top,
+            rgba(8, 18, 13, 0.70) 0%,
+            rgba(8, 18, 13, 0.34) 48%,
+            rgba(8, 18, 13, 0) 100%);
+        pointer-events: none;
+        z-index: 0;
+    }
+    .result-price {
+        position: absolute;
+        bottom: 0.6rem;
+        right: 0.6rem;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        text-align: right;
+        padding: 0.3rem 0.5rem;
+        border-radius: 0.6rem;
+        background: rgba(8, 18, 13, 0.55);
+        border: 1px solid rgba(255, 253, 247, 0.14);
+    }
+    .result-price-value {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: var(--fs-xl);
+        /* Fixed cream, not var(--ce-on-accent): that token is the ink for text
+           ON the green accent, so it inverts with the theme (near-black in
+           dark mode) while the photo underneath cannot. */
+        color: #fffdf7;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.55);
+        line-height: 1;
+    }
+    .result-price-unit {
+        font-size: var(--fs-xs);
+        color: rgba(255, 253, 247, 0.88);
+        text-shadow: 0 1px 3px rgba(0,0,0,0.55);
+        letter-spacing: 0.02em;
+    }
+    .result-body {
+        padding: 1rem 1.1rem 1.1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        flex: 1;
+    }
+    .result-title-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    .result-title {
+        font-family: var(--font-display);
+        font-weight: 700;
+        color: var(--bhims-text);
+        font-size: var(--fs-lg);
+        margin: 0;
+        line-height: 1.2;
+        word-break: break-word;
+    }
+    .result-location {
+        color: var(--bhims-text-muted);
+        font-size: var(--fs-sm);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+    .result-location i {
+        color: var(--bhims-teal);
+        font-size: 0.85rem;
+    }
+    .result-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+    }
+    .result-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        background: var(--bhims-icon-tint);
+        color: var(--bhims-text);
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+        font-size: var(--fs-xs);
+        font-weight: 600;
+    }
+    .result-pill-muted {
+        background: transparent;
+        color: var(--bhims-text-muted);
+        border: 1px solid var(--bhims-border);
+    }
+    .result-amenities {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin-top: 0.15rem;
+    }
+    .result-amenity {
+        background: var(--ce-accent-wash, rgba(20, 86, 60, 0.10));
+        color: var(--ce-accent-deep, #0e3f2c);
+        padding: 0.15rem 0.5rem;
+        border-radius: 999px;
+        font-size: var(--fs-xs);
+        font-weight: 500;
+        border: 1px solid rgba(20, 86, 60, 0.14);
+    }
+    .result-description {
+        color: var(--bhims-text-muted);
+        font-size: var(--fs-xs);
+        line-height: 1.5;
+        margin: 0.1rem 0 0.2rem;
+        /* The clamp is a nicety (it is what draws the "…"), not the mechanism.
+           Chrome normalises display:-webkit-box to flow-root, so on a flex item
+           it never fires: the copy was sliced by whatever height flex left over
+           — two lines on one card, three on the next, mid-word, no ellipsis.
+           max-height is the part that always holds: exactly two lines
+           (line-height 1.5 × 2 = 3em) on every card in the row. */
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        max-height: 3em;
+        overflow: hidden;
+    }
+    .result-footer {
+        padding-top: 0.6rem;
+        border-top: 1px solid var(--bhims-border);
+        margin-top: auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .btn-view-result {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        background: var(--ce-accent, #14563c);
+        color: var(--ce-on-accent, #fffdf7);
+        border: none;
+        border-radius: var(--bhims-radius-sm);
+        padding: 0.45rem 1rem;
+        font-weight: 700;
+        font-size: var(--fs-sm);
+        text-decoration: none;
+        transition: background 0.18s ease, transform 0.12s ease;
+    }
+    .btn-view-result:hover,
+    .btn-view-result:focus-visible {
+        background: var(--ce-accent-deep, #0e3f2c);
+        color: var(--ce-on-accent, #fffdf7);
+        transform: translateY(-1px);
+    }
+    .btn-view-result:active {
+        transform: translateY(1px) scale(0.98);
+    }
+    .result-full-notice {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        color: var(--bhims-text-muted);
+        font-size: var(--fs-xs);
+        font-weight: 600;
+    }
+    .result-full-notice .bi {
+        color: var(--bhims-text-muted);
+    }
+
+    .pagination-custom {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+    }
+    .page-link-custom {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        height: 44px;
+        padding: 0 0.75rem;
+        border: 1px solid var(--bhims-border);
+        border-radius: 10px;
+        color: var(--bhims-teal);
+        background: var(--bhims-glass-bg-primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: var(--fs-sm);
+        transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+    }
+    .page-link-custom:hover {
+        background: var(--ce-accent-wash, rgba(20, 86, 60, 0.08));
+        color: var(--ce-accent-deep, #0e3f2c);
+        border-color: var(--ce-accent, #14563c);
+    }
+    .page-link-custom:focus-visible {
+        outline: 2px solid var(--ce-accent, #14563c);
+        outline-offset: 2px;
+    }
+    .page-link-ghost {
+        color: var(--bhims-text-muted);
+        border-color: var(--bhims-border);
+        cursor: default;
+        pointer-events: none;
+        opacity: 0.5;
+    }
+    .page-status {
+        font-size: var(--fs-sm);
+        color: var(--bhims-text-muted);
+        padding: 0 0.3rem;
+    }
+
+    .skeleton-card {
+        background: var(--bhims-paper-raised);
+        border: 1px solid var(--bhims-border);
+        border-radius: var(--bhims-radius);
+        overflow: hidden;
+    }
+    .skeleton-card .result-image {
+        height: 188px;
+    }
+    .skeleton-card .result-body {
+        padding: 1rem 1.1rem 1.1rem;
+    }
+    .skeleton {
+        background: linear-gradient(90deg, var(--bhims-border) 25%, var(--bhims-paper-sunken) 50%, var(--bhims-border) 75%);
+        background-size: 200% 100%;
+        animation: bhims-shimmer 1.4s ease-in-out infinite;
+        border-radius: 8px;
+    }
+    @keyframes bhims-shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+    .sk-img {
+        width: 100%;
+        height: 100%;
+    }
+    .sk-line {
+        height: 12px;
+        width: 100%;
+        margin-bottom: 8px;
+    }
+    .sk-line.short {
+        width: 55%;
+        margin-left: 0;
+    }
+    .sk-pills {
+        display: flex;
+        gap: 0.4rem;
+        margin-top: 6px;
+    }
+    .sk-pill {
+        height: 22px;
+        width: 70px;
+        border-radius: 999px;
+    }
+
+    .results-empty {
+        grid-column: 1 / -1;
+        background: var(--bhims-paper-raised);
+        border: 1px solid var(--bhims-border);
+        border-radius: var(--bhims-radius);
+        padding: 3rem 2rem;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .empty-illustration {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: var(--ce-accent-wash, rgba(20, 86, 60, 0.08));
+        color: var(--ce-accent-deep, #0e3f2c);
+        margin-bottom: 0.25rem;
+    }
+    .empty-illustration .bi {
+        font-size: 1.75rem;
+    }
+    .empty-title {
+        font-family: var(--font-display);
+        font-weight: 700;
+        color: var(--bhims-text);
+        margin: 0;
+        font-size: var(--fs-2xl);
+    }
+    .empty-body {
+        color: var(--bhims-text-muted);
+        max-width: 420px;
+        margin: 0;
+        font-size: var(--fs-sm);
+        line-height: 1.6;
+    }
+    .empty-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 0.5rem;
+        justify-content: center;
+    }
+
+    @media (max-width: 640px) {
+        .listing-grid {
+            grid-template-columns: 1fr;
+        }
+        .results-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .results-controls {
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+        .results-empty {
+            padding: 2rem 1.25rem;
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .result-card,
+        .browse-filter-card,
+        .page-link-custom,
+        .chip,
+        .btn-ghost,
+        .skeleton {
+            animation: none !important;
+            transition: none !important;
+        }
+    }

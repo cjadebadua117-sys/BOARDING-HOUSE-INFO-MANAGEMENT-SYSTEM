@@ -1,0 +1,120 @@
+{% load static %}
+<aside class="app-sidebar" aria-label="Main navigation">
+    <!-- Ambient sheen so the frost reads as glass -->
+    <div class="sidebar-sheen" aria-hidden="true"></div>
+
+    <!-- Sidebar content - centered, max width 264px -->
+    <div class="sidebar-content">
+
+    <!-- Drawer header: close button only (logo lives in the topbar) -->
+    <div class="sidebar-brand">
+        <button type="button" class="sidebar-close" id="sidebarClose" aria-label="Close sidebar">
+            <i class="bi bi-x-lg" aria-hidden="true"></i>
+        </button>
+    </div>
+
+    <!-- Nav links (role-aware; active state resolved server-side per URL) -->
+    <nav class="sidebar-nav">
+        <p class="sidebar-heading">Menu</p>
+        <div class="sidebar-links">
+            {% if request.user.is_authenticated %}
+            {% if request.user.role == 'student' %}
+            <a href="{% url 'student_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">
+                <i class="bi bi-grid-1x2"></i><span>Dashboard</span>
+            </a>
+            <a href="{% url 'listing_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'listing_list' or request.resolver_match.url_name == 'boarding_detail' %}active{% endif %}">
+                <i class="bi bi-house-door"></i><span>Browse Listings</span>
+            </a>
+            <a href="{% url 'student_inquiry_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'student_inquiry_list' or request.resolver_match.url_name == 'student_inquiry_thread' %}active{% endif %}">
+                <i class="bi bi-chat-dots"></i><span>My Inquiries</span>
+                {% if pending_inquiries_count %}<span class="new-chip">NEW</span>{% endif %}
+            </a>
+            <a href="{% url 'student_bookings' %}" class="sidebar-link {% if request.resolver_match.url_name == 'student_bookings' %}active{% endif %}">
+                <i class="bi bi-patch-check"></i><span>My Bookings</span>
+            </a>
+            {% elif request.user.role == 'landlord' %}
+            <a href="{% url 'landlord_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'landlord_dashboard' %}active{% endif %}">
+                <i class="bi bi-grid-1x2"></i><span>Dashboard</span>
+            </a>
+            <a href="{% url 'landlord_boarding_house_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'landlord_boarding_house_list' or request.resolver_match.url_name == 'landlord_boarding_house_detail' or request.resolver_match.url_name == 'boarding_house_create' or request.resolver_match.url_name == 'boarding_house_edit' or request.resolver_match.url_name == 'room_create' or request.resolver_match.url_name == 'room_edit' %}active{% endif %}">
+                <i class="bi bi-buildings"></i><span>My Boarding Houses</span>
+            </a>
+            <a href="{% url 'landlord_inquiry_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'landlord_inquiry_list' or request.resolver_match.url_name == 'landlord_inquiry_thread' %}active{% endif %}">
+                <i class="bi bi-chat-dots"></i><span>Inquiries</span>
+                {% if pending_inquiries_count %}<span class="new-chip">NEW</span>{% endif %}
+            </a>
+            <a href="{% url 'landlord_bookings' %}" class="sidebar-link {% if request.resolver_match.url_name == 'landlord_bookings' %}active{% endif %}">
+                <i class="bi bi-people"></i><span>Bookings</span>
+            </a>
+            <a href="{% url 'landlord_my_ratings' %}" class="sidebar-link {% if request.resolver_match.url_name == 'landlord_my_ratings' %}active{% endif %}">
+                <i class="bi bi-star"></i><span>My Ratings</span>
+            </a>
+            {% elif request.user.role == 'admin' %}
+            <a href="{% url 'admin_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                <i class="bi bi-grid-1x2"></i><span>Dashboard</span>
+            </a>
+            <a href="{% url 'admin_pending_listings' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_pending_listings' %}active{% endif %}">
+                <i class="bi bi-hourglass-split"></i><span>Pending Listings</span>
+            </a>
+            <a href="{% url 'admin_landlord_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_landlord_list' or request.resolver_match.url_name == 'admin_landlord_detail' or request.resolver_match.url_name == 'admin_edit_landlord' %}active{% endif %}">
+                <i class="bi bi-people"></i><span>Manage Landlords</span>
+            </a>
+            <a href="{% url 'admin_student_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_student_list' %}active{% endif %}">
+                <i class="bi bi-mortarboard"></i><span>Manage Students</span>
+            </a>
+            <a href="{% url 'admin_reports' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_reports' %}active{% endif %}">
+                <i class="bi bi-flag"></i><span>User Reports</span>
+            </a>
+            <a href="{% url 'admin_ratings' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_ratings' %}active{% endif %}">
+                <i class="bi bi-star"></i><span>Ratings</span>
+            </a>
+            <a href="{% url 'admin_barangay_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_barangay_list' %}active{% endif %}">
+                <i class="bi bi-map"></i><span>Edit Barangays</span>
+            </a>
+            <a href="{% url 'admin_analytics' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_analytics' %}active{% endif %}">
+                <i class="bi bi-bar-chart-line"></i><span>Analytics</span>
+            </a>
+            <a href="{% url 'admin_settings' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_settings' %}active{% endif %}">
+                <i class="bi bi-gear"></i><span>System Settings</span>
+            </a>
+            {% endif %}
+            {% if request.user.role != 'admin' %}
+            <a href="{% url 'profile' %}" class="sidebar-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                <i class="bi bi-person-circle"></i><span>My Profile</span>
+            </a>
+            {% endif %}
+            {% else %}
+            <a href="{% url 'student_login' %}" class="sidebar-link">
+                <i class="bi bi-box-arrow-in-right"></i><span>Student Login</span>
+            </a>
+            <a href="{% url 'landlord_login' %}" class="sidebar-link">
+                <i class="bi bi-box-arrow-in-right"></i><span>Landlord Login</span>
+            </a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Glass profile card (mirrors the demo's avatar footer, wired to real data) -->
+    {% if request.user.is_authenticated %}
+    <div class="sidebar-profile">
+        {% if request.user.profile_picture %}
+        <img class="sidebar-avatar" src="{{ request.user.profile_picture.url }}" alt="{{ request.user.display_name }}">
+        {% else %}
+        <span class="sidebar-avatar sidebar-avatar-initial" aria-hidden="true">{{ request.user.display_name|first|upper }}</span>
+        {% endif %}
+        <div class="sidebar-profile-info">
+            <p class="sidebar-profile-name">{{ request.user.display_name }}</p>
+            <p class="sidebar-profile-role">{{ request.user.role }}</p>
+        </div>
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="sidebar-logout" title="Logout" aria-label="Log out">
+                <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+            </button>
+        </form>
+    </div>
+    {% endif %}
+</aside>
+
+<link rel="stylesheet" href="{% static 'core/css/pages/sidebar.css' %}">
+

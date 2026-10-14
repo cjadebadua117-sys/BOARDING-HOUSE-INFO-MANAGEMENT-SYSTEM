@@ -1,0 +1,5 @@
+{% if person.profile_picture %}
+<img class="msg-avatar" src="{{ person.profile_picture.url }}" alt="{{ person.display_name }}">
+{% else %}
+<span class="msg-avatar msg-avatar-fallback">{{ person.display_name|first|upper }}</span>
+{% endif %}

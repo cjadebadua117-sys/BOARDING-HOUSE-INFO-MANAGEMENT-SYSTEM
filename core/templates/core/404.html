@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Page Not Found - BHIMS{% endblock %}
+{% block breadcrumb %}{% endblock %}
+{% block content %}
+<div class="bhims-empty" style="max-width: 560px; margin: 5rem auto;">
+    <i class="bi bi-compass" aria-hidden="true"></i>
+    <h1 class="h3">404 &middot; Page not found</h1>
+    <p style="font-size: 1.05rem;">The page you are looking for doesn't exist or may have been moved.</p>
+    <a href="{% url 'home' %}" class="btn btn-primary" style="display: inline-flex;">Back to Home</a>
+</div>
+{% endblock %}

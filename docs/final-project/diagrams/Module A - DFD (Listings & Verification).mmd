@@ -1,0 +1,27 @@
+%% Module A - Level 1 DFD extract: Boarding House & Room Management (process 2.0)
+%% Owner: Noemi. Shows only the processes, stores and flows this module touches.
+%% Render: venv\Scripts\python.exe tools\render_diagrams.py docs\final-project\diagrams
+flowchart LR
+    LAN["<b>LANDLORD</b>"]
+    ADM["<b>ADMINISTRATOR</b>"]
+    STU["<b>STUDENT</b>"]
+
+    P2("<b>2.0 Boarding House &amp;<br/>Room Management</b>")
+
+    D2[("D2 | HOUSES &amp; ROOMS")]
+    D3[("D3 | AMENITIES &amp; BARANGAYS")]
+
+    LAN -- "house, room, rate, capacity,<br/>amenity and photo data,<br/>availability toggles" --> P2
+    P2 -- "listing &amp; room records<br/>(status pending)" --> D2
+    D2 -- "existing listing data<br/>(edit, resubmit rejected)" --> P2
+    D3 -- "amenity list, barangay list<br/>+ distance from campus" --> P2
+    ADM -- "approve / reject" --> P2
+    P2 -- "approval status<br/>(pending / approved / rejected)" --> LAN
+    P2 -- "approved listing with bookable<br/>rooms reaches search results" --> STU
+
+    classDef entity fill:#f8eae4,stroke:#8c4a2f,stroke-width:2.5px,color:#3a2a20
+    classDef process fill:#ffffff,stroke:#c1592a,stroke-width:3px,color:#3a2a20
+    classDef store fill:#eef2f7,stroke:#4a6785,stroke-width:2px,color:#22303f
+    class STU,LAN,ADM entity
+    class P2 process
+    class D2,D3 store

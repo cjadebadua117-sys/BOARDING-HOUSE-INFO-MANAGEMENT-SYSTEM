@@ -1,0 +1,130 @@
+/* Extracted verbatim from core/templates/core/base.html
+   block 2/3. This <link> sits exactly where the <style> tag
+   was, so cascade order — and which layer wins — is unchanged. */
+#toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 10000;
+            pointer-events: none;
+        }
+        .bhims-toast {
+            width: min(400px, calc(100vw - 40px));
+            background: var(--bhims-glass-bg-primary);
+            -webkit-backdrop-filter: var(--bhims-glass-primary);
+            backdrop-filter: var(--bhims-glass-primary);
+            color: var(--bhims-text);
+            border-radius: 16px;
+            box-shadow: var(--bhims-glass-shadow), var(--bhims-glass-inner-glow);
+            display: flex;
+            align-items: flex-start;
+            padding: 15px 18px;
+            position: relative;
+            overflow: hidden;
+            border: var(--bhims-glass-border);
+            border-left: 4px solid;
+            pointer-events: auto;
+            animation: bhimsSlideInRight 0.4s ease forwards;
+            font-family: 'Inter', sans-serif;
+        }
+        .bhims-toast.success { border-color: var(--bhims-moss); }
+        .bhims-toast.error { border-color: var(--bhims-badge-rejected); }
+        .bhims-toast.warning { border-color: var(--bhims-badge-pending); }
+        .bhims-toast.info { border-color: var(--bhims-info); }
+
+        .bhims-toast .toast-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 14px;
+            font-size: 22px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .bhims-toast.success .toast-icon { color: var(--bhims-moss); }
+        .bhims-toast.error .toast-icon { color: var(--bhims-badge-rejected); }
+        .bhims-toast.warning .toast-icon { color: var(--bhims-badge-pending); }
+        .bhims-toast.info .toast-icon { color: var(--bhims-info); }
+
+        .bhims-toast .toast-content { flex: 1; min-width: 0; }
+        .bhims-toast .toast-title {
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--bhims-text);
+            font-size: 15.5px;
+            margin-bottom: 2px;
+        }
+        .bhims-toast .toast-message {
+            font-size: 13.5px;
+            color: var(--bhims-text-muted);
+            margin: 0;
+            line-height: 1.45;
+        }
+
+        .bhims-toast .toast-close {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            line-height: 1;
+            color: var(--bhims-text-muted);
+            padding: 0;
+            margin-left: 10px;
+            margin-top: -2px;
+            min-width: auto;
+            width: auto;
+            flex: 0 0 auto;
+            transition: color 0.3s;
+        }
+        .bhims-toast .toast-close:hover { color: var(--bhims-text); }
+
+        .bhims-toast .progress-track {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            width: 100%;
+            background: var(--ce-line, rgba(35, 43, 40, 0.10));
+        }
+        .bhims-toast .progress-bar { height: 100%; width: 100%; }
+        .bhims-toast.success .progress-bar { background-color: var(--bhims-moss); }
+        .bhims-toast.error .progress-bar { background-color: var(--bhims-badge-rejected); }
+        .bhims-toast.warning .progress-bar { background-color: var(--bhims-badge-pending); }
+        .bhims-toast.info .progress-bar { background-color: var(--bhims-info); }
+
+        @keyframes bhimsSlideInRight {
+            from { transform: translateX(110%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes bhimsSlideInTop {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes bhimsFadeOut {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0; transform: scale(0.9); }
+        }
+        @keyframes bhimsTimer {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+        .bhims-toast:hover .progress-bar { animation-play-state: paused; }
+
+        @media screen and (max-width: 480px) {
+            #toast-container {
+                right: 0;
+                left: 0;
+                top: 10px;
+                width: 100%;
+                align-items: center;
+                padding: 0 10px;
+            }
+            .bhims-toast {
+                width: 100%;
+                max-width: 400px;
+                animation: bhimsSlideInTop 0.4s ease forwards;
+            }
+        }

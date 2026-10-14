@@ -1,0 +1,163 @@
+{% extends 'core/auth/base.html' %}
+{% load static %}
+
+{% comment %}
+The landlord portal, wearing the student deck's clothes — deliberately cut the
+other way:
+
+  * MIRRORED composition. The student deck holds the sign-in sheet on the right
+    and sweeps the ground in from the left; this one holds the sheet on the
+    left and brings the ground in from the right.
+  * A different ground. The same campus photograph, but under a deep ink-blue
+    wash instead of teal, framed on the building, with gold running through the
+    invitations and the account panel.
+  * A different second half. Landlords cannot register themselves — accounts are
+    issued in person by DMMMSU — so the half the curve travels to is the "how to
+    get an account" panel rather than a second form.
+
+Nothing about the swap is a client-side trick: the sign-in form is the real
+Django form posting to the real view, and the account panel is plain markup.
+With no JavaScript the sign-in sheet is what you get, and the invitation button
+is a plain link to the route that explains how accounts are issued.
+{% endcomment %}
+
+{% block auth_title %}Landlord sign in{% endblock %}
+
+{% block auth_style %}
+<link rel="stylesheet" href="{% static 'core/css/auth-deck.css' %}?v=2">
+{% endblock %}
+
+{% block auth_layout %}
+<main class="auth-panel auth-deck auth-deck--landlord" id="auth-main"
+      data-mode="signin" data-alt-mode="account">
+    <h1 class="auth-deck-sr">Sign in to the landlord portal</h1>
+
+    <!-- ══ The curve: one ellipse, only its edge ever on screen ══ -->
+    <span class="auth-deck-blob" aria-hidden="true"></span>
+
+    {% comment %}The two invitations, one per half. While signing in the live one
+    is the account invitation on the ground; the sign-in invitation rides off
+    the canvas over the sheet, and the markup parks it for assistive technology
+    before the script ever runs.{% endcomment %}
+    <div class="auth-deck-invites">
+        <section class="auth-deck-invite auth-deck-invite--account" data-invite="account" aria-hidden="false">
+            <div>
+                <p class="auth-deck-kicker">Not on the map yet?</p>
+                <h2>Every room, accounted&nbsp;for.</h2>
+                <p>Publish your boarding houses, answer student inquiries and keep every bed's availability current. Landlord accounts are issued by DMMMSU.</p>
+                <a class="auth-deck-cta" href="{% url 'landlord_register' %}" data-goto="account">How to get an account</a>
+            </div>
+        </section>
+
+        <section class="auth-deck-invite auth-deck-invite--signin" data-invite="signin" aria-hidden="true" inert>
+            <div>
+                <p class="auth-deck-kicker">Already a landlord?</p>
+                <h2>Welcome back.</h2>
+                <p>Sign in to pick up your listings, inquiries and bookings exactly where you left them.</p>
+                <a class="auth-deck-cta" href="{% url 'landlord_login' %}" data-goto="signin" tabindex="-1">Sign in</a>
+            </div>
+        </section>
+    </div>
+
+    <!-- ══ The sheets: one half-width track, the two halves stacked in it ══ -->
+    <div class="auth-deck-forms">
+
+        <!-- ────────── Sign in ────────── -->
+        <section class="auth-deck-sheet auth-deck-sheet--signin" data-sheet="signin"
+                 aria-labelledby="signinHeading">
+            <div class="auth-deck-sheet-inner">
+                <header class="auth-deck-head">
+                    <p class="auth-eyebrow"><i class="bi bi-house-door-fill" aria-hidden="true"></i> Landlord portal</p>
+                    <h2 id="signinHeading">Sign in to your dashboard</h2>
+                    <p class="auth-sub">Manage your listings and keep up with every student inquiry.</p>
+                </header>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="auth-alert{% if message.tags != 'error' %} auth-alert-info{% endif %}" role="alert">
+                            <i class="bi {% if message.tags == 'error' %}bi-exclamation-octagon-fill{% else %}bi-info-circle-fill{% endif %}" aria-hidden="true"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% for h in form.hidden_fields %}{{ h }}{% endfor %}
+                    <input type="hidden" name="next" value="{{ next }}">
+
+                    {% comment %}The view flashes a message for every failed
+                    sign-in; only fall back to the form's own error when there is
+                    none, so the visitor never reads the same sentence twice.{% endcomment %}
+                    {% if form.non_field_errors and not messages %}
+                        <div class="auth-alert" role="alert">
+                            <i class="bi bi-exclamation-octagon-fill" aria-hidden="true"></i>
+                            <span>{% for e in form.non_field_errors %}{{ e|striptags }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</span>
+                        </div>
+                    {% endif %}
+
+                    {% for field in form.visible_fields %}
+                        {% if field.name == 'username' %}
+                            {% include 'core/auth/_field.html' with field=field icon="bi-person" only %}
+                        {% elif field.name == 'password' %}
+                            {% include 'core/auth/_field.html' with field=field icon="bi-lock" only %}
+                        {% else %}
+                            {% include 'core/auth/_field.html' with field=field only %}
+                        {% endif %}
+                    {% endfor %}
+
+                    <div class="auth-row">
+                        <label class="auth-check"><input type="checkbox" name="remember_me" id="remember_me"> Keep me signed in</label>
+                        <a href="{% url 'password_reset' %}">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="auth-submit">Sign in as landlord</button>
+                </form>
+
+                <div class="auth-deck-foot">
+                    <span>Signing in as a student or an administrator?</span>
+                    <nav aria-label="Other portals">
+                        <a href="{% url 'student_login' %}">Student</a>
+                        <a href="{% url 'admin_login' %}">Administrator</a>
+                    </nav>
+                </div>
+            </div>
+        </section>
+
+        <!-- ────────── How to get an account ────────── -->
+        <section class="auth-deck-sheet auth-deck-sheet--account" data-sheet="account"
+                 aria-labelledby="accountHeading" hidden>
+            <div class="auth-deck-sheet-inner">
+                <header class="auth-deck-head">
+                    <p class="auth-eyebrow"><i class="bi bi-patch-check-fill" aria-hidden="true"></i> Issued in person, not self-made</p>
+                    <h2 id="accountHeading">Get your boarding house listed</h2>
+                    <p class="auth-sub">One visit to the campus housing office is the whole process.</p>
+                </header>
+
+                <span class="auth-deck-rule" aria-hidden="true"></span>
+
+                <ol class="auth-deck-steps">
+                    <li><span><strong>Visit the housing office.</strong> Drop by the DMMMSU&ndash;NLUC campus housing office with a valid ID.</span></li>
+                    <li><span><strong>Bring proof of ownership.</strong> A title, a lease, or a letter from the owner of the boarding house.</span></li>
+                    <li><span><strong>Collect your credentials.</strong> Staff create the account and hand you the username and a first password.</span></li>
+                    <li><span><strong>Sign in and publish.</strong> Add your boarding houses and rooms, then answer the student inquiries that follow.</span></li>
+                </ol>
+
+                <div class="auth-deck-actions">
+                    <a class="auth-deck-cta auth-deck-cta--ink" href="{% url 'landlord_login' %}" data-goto="signin">Back to sign in</a>
+                    <a class="auth-deck-quiet" href="{% url 'listing_list' %}">See how listings look</a>
+                </div>
+
+                <div class="auth-notice">
+                    <i class="bi bi-shield-lock-fill" aria-hidden="true"></i>
+                    <span><strong>Why not online?</strong> A landlord account is verified against the property before it can publish anything, so BHIMS keeps that step in the housing office's hands.</span>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+{% endblock %}
+
+{% block auth_script %}
+<script src="{% static 'core/js/auth-deck.js' %}?v=2" defer></script>
+{% endblock %}

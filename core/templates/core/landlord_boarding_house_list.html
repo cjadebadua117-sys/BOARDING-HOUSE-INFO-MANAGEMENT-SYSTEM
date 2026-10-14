@@ -1,0 +1,65 @@
+{% extends "app_base.html" %}
+{% block title %}My Boarding Houses - Boarding House Information Management System{% endblock %}
+{% block app_content %}
+<div class="landlord-page">
+<div class="page-header">
+    <div>
+        <p class="eyebrow">Properties</p>
+        <h1>My Boarding Houses</h1>
+        <p>Manage your boarding houses and rooms.</p>
+    </div>
+    <a href="{% url 'boarding_house_create' %}" class="create-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 1.1rem; height: 1.1rem;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        Add Boarding House
+    </a>
+</div>
+
+{% if houses %}
+<div class="houses-grid">
+  {% for house in houses %}
+  <article class="listing-card bhims-press house-card">
+    <div class="card-image">
+      {% if house.image %}
+      <img src="{{ house.image.url }}" alt="{{ house.name }}" loading="lazy" decoding="async">
+      {% else %}
+      <div class="no-photo" aria-hidden="true">
+        <i class="bi bi-house-door"></i>
+        <span>No photo yet</span>
+      </div>
+      {% endif %}
+      <div class="card-overlay" aria-hidden="true"></div>
+      <div class="card-badges">
+        {% if house.is_active %}<span class="gender-pill"><i class="bi bi-check-circle"></i> Active</span>{% else %}<span class="gender-pill" style="opacity:0.6;">Inactive</span>{% endif %}
+        {% if house.gender_allowed and house.gender_allowed != 'both' %}<span class="gender-pill">{{ house.get_gender_allowed_display }}</span>{% endif %}
+      </div>
+    </div>
+    <div class="card-body">
+      <h3 class="card-title">{{ house.name }}</h3>
+      <p class="card-location">
+        <i class="bi bi-geo-alt-fill"></i>
+        {{ house.barangay_display }}, {{ house.address }}
+      </p>
+      <div class="meta-row">
+        <span class="room-type-pill"><i class="bi bi-grid-1x2"></i> {{ house.total_rooms }} total rooms</span>
+      </div>
+      <p class="card-description">{{ house.description|truncatechars:120 }}</p>
+      <div class="card-actions">
+        <a href="{% url 'landlord_boarding_house_detail' house.pk %}" class="manage-btn">Manage <i class="bi bi-arrow-right"></i></a>
+        <a href="{% url 'boarding_house_edit' house.pk %}" class="edit-btn"><i class="bi bi-pencil-square"></i></a>
+      </div>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="bhims-empty">
+    <i class="bi bi-buildings"></i>
+    <h3>No boarding houses yet</h3>
+    <p>Create your first boarding house to start managing rooms and receiving student inquiries.</p>
+    <a href="{% url 'boarding_house_create' %}" class="btn btn-primary">Create Your First Boarding House</a>
+</div>
+{% endif %}
+</div>
+{% endblock %}

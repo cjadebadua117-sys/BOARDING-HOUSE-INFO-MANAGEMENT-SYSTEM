@@ -1,0 +1,1 @@
+(function () { var link = document.querySelector(".skip-link"); if (!link) return; link.addEventListener("keydown", function (e) { if (e.key === "Tab") { link.style.top = ""; } }); link.addEventListener("blur", function () { link.style.top = ""; }); })();
