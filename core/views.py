@@ -288,7 +288,26 @@ def decorate_house_cards(houses, room_filter=None, room_photos_first=False):
             Prefetch('rooms', queryset=rooms, to_attr='bookable_rooms')
         )
     )
+
+    # The landlord's rating, so a student can weigh who they are renting from
+    # before opening the listing. One grouped query for the whole page, keyed by
+    # owner id (not one per card), and the same numbers the landlord's profile
+    # shows: the average out of five, the count, and that average as a percent.
+    owners = {house.owner_id for house in houses}
+    ratings_by_owner = {}
+    if owners:
+        for row in (
+            LandlordRating.objects.filter(landlord_id__in=owners)
+            .values('landlord_id')
+            .annotate(avg=Avg('rating'), n=Count('id'))
+        ):
+            ratings_by_owner[row['landlord_id']] = (row['avg'], row['n'])
+
     for house in houses:
+        avg, rating_count = ratings_by_owner.get(house.owner_id, (None, 0))
+        house.landlord_rating_avg = avg
+        house.landlord_rating_count = rating_count
+        house.landlord_rating_percent = round(avg / 5 * 100) if avg is not None else None
         if room_photos_first:
             house.card_photo_url = (
                 room_photo_by_house.get(house.id)
@@ -1119,26 +1138,10 @@ def user_profile(request, pk):
         raise Http404('Profile not found.')
     if person.role == 'landlord':
         # A landlord's public card lists what a student could actually book.
+        # Rating now happens from the student's My Inquiries page once the
+        # conversation is settled, so this page only shows the results.
         houses = visible_listings().filter(owner=person).order_by('-id')
         ratings = person.landlord_ratings_received.select_related('student')
-        eligible_booking = None
-        can_rate = False
-        has_rated = False
-        if viewer.role == User.Role.STUDENT:
-            has_rated = LandlordRating.objects.filter(
-                student=viewer,
-                landlord=person,
-            ).exists()
-            # Deterministic pick, oldest confirmed first: a student with two
-            # confirmed rooms under one landlord still rates once (unique
-            # constraint), and the rating must not land on a different property
-            # each time the page is opened.
-            eligible_booking = Booking.objects.filter(
-                student=viewer,
-                status=Booking.Status.CONFIRMED,
-                room__boarding_house__owner=person,
-            ).order_by('confirmed_at', 'id').select_related('room__boarding_house').first() if not has_rated else None
-            can_rate = eligible_booking is not None
         return render(request, 'core/user_profile.html', {
             'person': person,
             'viewed_is_landlord': True,
@@ -1146,8 +1149,6 @@ def user_profile(request, pk):
             'ratings': ratings,
             'average_rating': ratings.aggregate(Avg('rating'))['rating__avg'],
             'rating_count': ratings.count(),
-            'can_rate': can_rate,
-            'has_rated': has_rated,
         })
 
     phone_visible = False
@@ -1165,6 +1166,22 @@ def user_profile(request, pk):
     })
 
 
+def _rating_redirect(request, landlord):
+    """Return to wherever the rating form was shown.
+
+    The form lives on the student's My Inquiries page (and the conversation
+    thread it opens), so that is the default; a `next` field lets a form shown
+    anywhere else send the student back to it.
+    """
+    from django.utils.http import url_has_allowed_host_and_scheme
+    nxt = request.POST.get('next') or ''
+    if nxt and url_has_allowed_host_and_scheme(
+        nxt, allowed_hosts={request.get_host()}, require_https=request.is_secure(),
+    ):
+        return redirect(nxt)
+    return redirect('student_inquiry_list')
+
+
 @login_required
 @user_passes_test(student_required)
 @require_POST
@@ -1172,24 +1189,34 @@ def rate_landlord(request, pk):
     landlord = get_object_or_404(User, pk=pk, role=User.Role.LANDLORD)
     if LandlordRating.objects.filter(student=request.user, landlord=landlord).exists():
         messages.info(request, 'You have already rated this landlord.')
-        return redirect('user_profile', pk=landlord.pk)
+        return _rating_redirect(request, landlord)
 
     # Race guard: the DB unique constraint on (student, landlord) is the last
     # line of defense; wrapping the pick-booking + save in one transaction
     # with an IntegrityError fallback turns what used to be a 500 page under
     # double-submits into a friendly 'already rated' message.
     from django.db import IntegrityError, transaction
-    # Deterministic pick, oldest confirmed first. Without an explicit order the
-    # database was free to attach the single rating to either property, so a
+    # A rating is earned by a settled conversation: the landlord accepted the
+    # student (a confirmed booking) or declined them (a rejected inquiry).
+    # Deterministic pick, oldest confirmed first: without an explicit order the
+    # database was free to attach the rating to either property, so a
     # landlord-facing per-property rating could point at the wrong house.
     booking = Booking.objects.filter(
         student=request.user,
         status=Booking.Status.CONFIRMED,
         room__boarding_house__owner=landlord,
     ).order_by('confirmed_at', 'id').select_related('room__boarding_house').first()
-    if not booking:
-        messages.error(request, 'You can rate a landlord only after a confirmed booking.')
-        return redirect('user_profile', pk=landlord.pk)
+    declined = Inquiry.objects.filter(
+        student=request.user,
+        status=Inquiry.Status.REJECTED,
+        room__boarding_house__owner=landlord,
+    ).exists()
+    if not booking and not declined:
+        messages.error(
+            request,
+            'You can rate a landlord only after they accept or decline your inquiry.',
+        )
+        return _rating_redirect(request, landlord)
 
     form = LandlordRatingForm(request.POST)
     if form.is_valid():
@@ -1198,12 +1225,14 @@ def rate_landlord(request, pk):
                 rating = form.save(commit=False)
                 rating.student = request.user
                 rating.landlord = landlord
+                # No booking when the landlord declined - the rating still
+                # records the student's experience with that landlord.
                 rating.booking = booking
                 rating.save()
             messages.success(request, 'Your rating has been submitted.')
         except IntegrityError:
             messages.info(request, 'You have already rated this landlord.')
-    return redirect('user_profile', pk=landlord.pk)
+    return _rating_redirect(request, landlord)
 
 
 @login_required
@@ -1269,16 +1298,47 @@ def student_dashboard(request):
 @login_required
 @user_passes_test(student_required)
 def student_inquiry_list(request):
-    inquiries = Inquiry.objects.filter(student=request.user).select_related(
-        'room', 'room__boarding_house'
-    ).order_by('-created_at')
+    inquiries = (
+        Inquiry.objects.filter(student=request.user)
+        .select_related('room', 'room__boarding_house__owner')
+        .order_by('-created_at')
+    )
 
     # Unread conversations (a landlord reply since the student last opened
     # the thread) each get a NEW chip, mirroring the landlord's own list.
+    inquiries = _with_latest_message(inquiries)
     new_inquiry_ids = {
-        inq.pk for inq in _with_latest_message(inquiries)
+        inq.pk for inq in inquiries
         if _inquiry_has_new_message(inq, 'last_viewed_by_student')
     }
+    inquiries = list(inquiries)
+
+    # Rating lives here now, on the settled conversations. Two bulk lookups
+    # keep it off the per-row query count: which landlords the student has
+    # already rated, and which rooms they hold a confirmed booking in. A
+    # settled conversation is one the landlord accepted (a confirmed booking
+    # in that room) or declined (the inquiry itself is rejected).
+    landlord_ids = {inq.room.boarding_house.owner_id for inq in inquiries}
+    rated_landlord_ids = set(
+        LandlordRating.objects.filter(
+            student=request.user, landlord_id__in=landlord_ids,
+        ).values_list('landlord_id', flat=True)
+    )
+    accepted_room_ids = set(
+        Booking.objects.filter(
+            student=request.user,
+            status=Booking.Status.CONFIRMED,
+            room_id__in=[inq.room_id for inq in inquiries],
+        ).values_list('room_id', flat=True)
+    )
+    for inq in inquiries:
+        landlord_id = inq.room.boarding_house.owner_id
+        inq.landlord_id = landlord_id
+        inq.has_rated_landlord = landlord_id in rated_landlord_ids
+        settled = (
+            inq.status == Inquiry.Status.REJECTED or inq.room_id in accepted_room_ids
+        )
+        inq.can_rate_landlord = settled and not inq.has_rated_landlord
 
     return render(request, 'core/student_inquiry_list.html', {
         'inquiries': inquiries,
@@ -1341,9 +1401,30 @@ def inquiry_thread(request, pk):
         status=Booking.Status.CONFIRMED,
     ).first()
 
+    # The student rates the landlord from here once the conversation is
+    # settled - the landlord accepted (a confirmed booking exists) or declined
+    # (the inquiry is rejected). Same rule rate_landlord enforces.
+    rating_landlord = None
+    if request.user == inquiry.student:
+        landlord = inquiry.room.boarding_house.owner
+        has_rated = LandlordRating.objects.filter(
+            student=request.user, landlord=landlord,
+        ).exists()
+        settled = (
+            accepted_booking is not None
+            or inquiry.status == Inquiry.Status.REJECTED
+        )
+        if settled:
+            rating_landlord = {
+                'landlord': landlord,
+                'has_rated': has_rated,
+                'can_rate': not has_rated,
+            }
+
     return render(request, 'core/inquiry_thread.html', {
         'inquiry': inquiry,
         'accepted_booking': accepted_booking,
+        'rating_landlord': rating_landlord,
         'last_message_id': inquiry.messages.last().id if inquiry.messages.exists() else 0,
     })
 

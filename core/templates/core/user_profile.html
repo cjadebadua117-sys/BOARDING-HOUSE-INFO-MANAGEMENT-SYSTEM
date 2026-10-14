@@ -51,23 +51,6 @@
                     <span class="up-rating-score">{% if average_rating %}{{ average_rating|floatformat:1 }} / 5{% else %}No rating yet{% endif %}</span>
                     <span class="up-rating-count">({{ rating_count }} review{{ rating_count|pluralize }})</span>
                 </div>
-                {% if can_rate %}
-                    <form method="post" action="{% url 'rate_landlord' person.pk %}" class="up-rating-form">
-                        {% csrf_token %}
-                        <label for="landlord-rating">Rate this landlord</label>
-                        <select id="landlord-rating" name="rating" class="form-select mb-2" required>
-                            <option value="5">5 stars - Excellent</option>
-                            <option value="4">4 stars - Very good</option>
-                            <option value="3">3 stars - Good</option>
-                            <option value="2">2 stars - Needs improvement</option>
-                            <option value="1">1 star - Poor</option>
-                        </select>
-                        <textarea name="comment" class="form-control mb-2" rows="3" maxlength="500" placeholder="Share a short, respectful experience (optional)"></textarea>
-                        <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-star-fill me-1"></i>Submit rating</button>
-                    </form>
-                {% elif has_rated %}
-                    <p class="up-since mb-0 mt-2">You have already rated this landlord.</p>
-                {% endif %}
             </div>
 
             <h2 class="up-section-title">Active Listings</h2>

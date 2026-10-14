@@ -1,4 +1,4 @@
-"""BHIMS backup tool — database + uploaded media.
+r"""BHIMS backup tool — database + uploaded media.
 
 Usage (from the project root):
     venv\\Scripts\\python.exe "tools\\Database Backup.py"
@@ -65,7 +65,7 @@ def backup_database():
     if result.returncode != 0:
         print(f'!! mysqldump failed: {result.stderr.decode(errors="ignore")[:300]}')
         return None
-    print(f'✓ database  -> {out.name} ({out.stat().st_size // 1024} KB)')
+    print(f'[ok] database -> {out.name} ({out.stat().st_size // 1024} KB)')
     return out
 
 
@@ -80,7 +80,7 @@ def backup_media():
         for path in media.rglob('*'):
             if path.is_file():
                 zf.write(path, path.relative_to(media))
-    print(f'✓ media     -> {out.name} ({out.stat().st_size // 1024} KB)')
+    print(f'[ok] media    -> {out.name} ({out.stat().st_size // 1024} KB)')
     return out
 
 

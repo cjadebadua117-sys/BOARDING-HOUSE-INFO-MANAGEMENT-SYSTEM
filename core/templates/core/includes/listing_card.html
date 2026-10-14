@@ -56,6 +56,19 @@
             {{ house.barangay_display }}
         </p>
 
+        {% comment %}The landlord's rating, so a student can weigh who they are
+        renting from before opening the listing. Same figures as the landlord's
+        profile: the average out of five, and that average as a percent.{% endcomment %}
+        {% if house.landlord_rating_count %}
+        <p class="result-rating" aria-label="Landlord rating {{ house.landlord_rating_avg|floatformat:1 }} out of 5, {{ house.landlord_rating_percent }} percent">
+            <span class="result-rating-stars"><i class="bi bi-star-fill" aria-hidden="true"></i> {{ house.landlord_rating_avg|floatformat:1 }}</span>
+            <span class="result-rating-percent">{{ house.landlord_rating_percent }}%</span>
+            <span class="result-rating-count">({{ house.landlord_rating_count }} review{{ house.landlord_rating_count|pluralize }})</span>
+        </p>
+        {% else %}
+        <p class="result-rating result-rating-empty"><i class="bi bi-star" aria-hidden="true"></i> No landlord ratings yet</p>
+        {% endif %}
+
         <div class="result-meta">
             <span class="result-pill"><i class="bi bi-grid-1x2" aria-hidden="true"></i> {{ house.card_room_type|default:"Standard" }}</span>
             {% if house.address %}
@@ -140,6 +153,14 @@
             <i class="bi bi-geo-alt"></i>
             {{ house.barangay_display }}, {{ house.address }}
         </p>
+        {% if house.landlord_rating_count %}
+        <p class="card-rating" aria-label="Landlord rating {{ house.landlord_rating_avg|floatformat:1 }} out of 5, {{ house.landlord_rating_percent }} percent">
+            <i class="bi bi-star-fill" aria-hidden="true"></i>
+            {{ house.landlord_rating_avg|floatformat:1 }}
+            <span class="card-rating-percent">{{ house.landlord_rating_percent }}%</span>
+            <span class="card-rating-count">({{ house.landlord_rating_count }})</span>
+        </p>
+        {% endif %}
         <div class="meta-row">
             {% comment %}
             card_room_type is derived by the view from the already-prefetched

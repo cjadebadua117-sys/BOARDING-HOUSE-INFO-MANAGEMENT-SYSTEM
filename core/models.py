@@ -503,10 +503,15 @@ class LandlordRating(models.Model):
         on_delete=models.CASCADE,
         related_name='landlord_ratings_received',
     )
+    # Optional: a decision to decline leaves the student with no booking, but
+    # they may still rate the landlord once the inquiry has been settled either
+    # way (accepted -> a confirmed booking, declined -> no booking).
     booking = models.OneToOneField(
         Booking,
         on_delete=models.CASCADE,
         related_name='landlord_rating',
+        blank=True,
+        null=True,
     )
     rating = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)],

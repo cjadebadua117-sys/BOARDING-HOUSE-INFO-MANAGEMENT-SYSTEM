@@ -189,6 +189,37 @@
     .declined-banner h3 { color: var(--bhims-danger-hover); }
     .accept-banner p { margin: 0.4rem 0 0; color: var(--bhims-teal-strong); line-height: 1.55; }
     .declined-banner p { color: var(--bhims-danger-hover); }
+    /* Rating the landlord once the conversation is settled (accepted or
+       declined). Sits in the thread header, below the status banner. */
+    .thread-rate-panel {
+        margin-top: 1rem;
+        padding: 1.25rem 1.5rem;
+        border: var(--bhims-glass-border);
+        border-radius: 12px;
+        background: var(--bhims-glass-bg-primary);
+    }
+    .thread-rate-panel h3,
+    .thread-rate-panel .h3 {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: var(--fs-lg);
+        color: var(--bhims-text);
+        margin: 0 0 0.25rem 0;
+    }
+    .thread-rate-panel .h3 i { color: var(--bhims-teal-strong); margin-right: 0.35rem; }
+    .thread-rate-hint {
+        color: var(--bhims-text-muted);
+        font-size: var(--fs-sm);
+        margin: 0 0 0.75rem 0;
+    }
+    .thread-rate-form .form-label {
+        font-weight: 600;
+        color: var(--bhims-text);
+        margin-bottom: 0.25rem;
+    }
+    .thread-rate-form .form-select,
+    .thread-rate-form .form-control { margin-bottom: 0.75rem; }
+    .thread-rate-form .btn-primary-bhims { margin-top: 0.25rem; }
     .reject-btn {
         background: var(--bhims-danger-text) !important;
         border: 1px solid var(--bhims-danger-hover) !important;

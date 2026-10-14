@@ -15,18 +15,27 @@
 {% if inquiries %}
 <div class="inquiry-stack">
     {% for inquiry in inquiries %}
-    <a class="inquiry-row" href="{% url 'student_inquiry_thread' inquiry.pk %}">
+    <div class="inquiry-row">
         <div>
-            <h3>{{ inquiry.room.boarding_house.name }}{% if inquiry.pk in new_inquiry_ids %}<span class="new-chip">NEW</span>{% endif %}</h3>
+            <h3>
+                <a class="inquiry-row-link" href="{% url 'student_inquiry_thread' inquiry.pk %}">{{ inquiry.room.boarding_house.name }}</a>{% if inquiry.pk in new_inquiry_ids %}<span class="new-chip">NEW</span>{% endif %}
+            </h3>
             <p>{{ inquiry.message_text|truncatechars:110 }}</p>
             <div class="inquiry-meta">
-                <span class="status-chip {% if inquiry.status == 'open' %}is-open{% elif inquiry.status == 'pending' %}is-pending{% elif inquiry.status == 'declined' %}is-declined{% else %}is-closed{% endif %}">{{ inquiry.get_status_display }}</span>
+                <span class="status-chip {% if inquiry.status == 'open' %}is-open{% elif inquiry.status == 'pending' %}is-pending{% elif inquiry.status == 'rejected' %}is-declined{% else %}is-closed{% endif %}">{{ inquiry.get_status_display }}</span>
                 <span>{{ inquiry.room.name|default:inquiry.room.room_type }}</span>
                 <span>{{ inquiry.last_activity|date:"M j, Y g:i A" }}</span>
             </div>
         </div>
-        <span class="inquiry-cta">Conversation <i class="bi bi-arrow-right"></i></span>
-    </a>
+        <div class="inquiry-row-side">
+            <a class="inquiry-cta" href="{% url 'student_inquiry_thread' inquiry.pk %}">Conversation <i class="bi bi-arrow-right"></i></a>
+            {% if inquiry.can_rate_landlord %}
+            <a class="inquiry-rate-btn" href="{% url 'student_inquiry_thread' inquiry.pk %}#rate-landlord"><i class="bi bi-star-fill" aria-hidden="true"></i> Rate landlord</a>
+            {% elif inquiry.has_rated_landlord %}
+            <span class="inquiry-rated"><i class="bi bi-check2" aria-hidden="true"></i> Rated</span>
+            {% endif %}
+        </div>
+    </div>
     {% endfor %}
 </div>
 {% else %}

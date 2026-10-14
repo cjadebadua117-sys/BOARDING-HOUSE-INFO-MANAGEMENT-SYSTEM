@@ -62,6 +62,32 @@
             </form>
         </div>
         {% endif %}
+
+        {% if rating_landlord %}
+        <div class="thread-rate-panel" id="rate-landlord">
+            {% if rating_landlord.can_rate %}
+            <h2 class="h3"><i class="bi bi-star-fill" aria-hidden="true"></i> Rate {{ rating_landlord.landlord.display_name }}</h2>
+            <p class="thread-rate-hint">Your conversation has been settled &mdash; share a short, honest experience.</p>
+            <form method="post" action="{% url 'rate_landlord' rating_landlord.landlord.pk %}" class="thread-rate-form">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{% url 'student_inquiry_thread' inquiry.pk %}">
+                <label for="thread-rating" class="form-label">Rating</label>
+                <select id="thread-rating" name="rating" class="form-select" required>
+                    <option value="5">5 stars - Excellent</option>
+                    <option value="4">4 stars - Very good</option>
+                    <option value="3">3 stars - Good</option>
+                    <option value="2">2 stars - Needs improvement</option>
+                    <option value="1">1 star - Poor</option>
+                </select>
+                <label for="thread-rating-comment" class="form-label">Comment (optional)</label>
+                <textarea id="thread-rating-comment" name="comment" class="form-control" rows="3" maxlength="500" placeholder="Share a short, respectful experience (optional)"></textarea>
+                <button type="submit" class="btn-primary-bhims"><i class="bi bi-star-fill"></i> Submit rating</button>
+            </form>
+            {% elif rating_landlord.has_rated %}
+            <p class="thread-rate-hint"><i class="bi bi-check2-circle" aria-hidden="true"></i> You have already rated this landlord.</p>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
 
     <div class="messages-container" id="messages-container">

@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from .forms import StudentRegistrationForm
-from .models import AdminActionLog, BoardingHouse, Booking, LandlordRating, Room, User
+from .models import AdminActionLog, BoardingHouse, Booking, Inquiry, LandlordRating, Room, User
 
 
 class StudentRegistrationFlowTests(TestCase):
@@ -65,6 +65,41 @@ class BrowsePageTests(TestCase):
         self.assertContains(response, 'Room type')
         self.assertContains(response, 'Barangay')
         self.assertContains(response, 'Amenities')
+
+    def test_listing_card_shows_the_landlord_rating(self):
+        """A student can see the landlord's stars and percentage on the card."""
+        landlord = User.objects.create_user(
+            email='rated-owner@gmail.com', password='OwnerPass123',
+            role=User.Role.LANDLORD, full_name='Rated Owner',
+            username='rated-owner@gmail.com',
+        )
+        house = BoardingHouse.objects.create(
+            owner=landlord, name='Rated Home', address='9 Main Street',
+            barangay='Sapilang', status=BoardingHouse.Status.APPROVED,
+            description='A rated place for students',
+        )
+        # Capacity 2: the rating needs a confirmed booking, and a room with no
+        # space left would hide the house from the board entirely.
+        room = Room.objects.create(
+            boarding_house=house, room_type='Single', monthly_rate=2500,
+            capacity=2, is_available=True,
+        )
+        student = User.objects.create_user(
+            email='rater@gmail.com', password='StudentPass123',
+            role=User.Role.STUDENT, username='rater@gmail.com',
+        )
+        LandlordRating.objects.create(
+            student=student, landlord=landlord,
+            booking=Booking.objects.create(
+                student=student, room=room, status=Booking.Status.CONFIRMED,
+            ),
+            rating=5, comment='Great place.',
+        )
+
+        response = self.client.get('/listings/?barangay=Sapilang')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '100%')     # 5/5 as a percentage
+        self.assertContains(response, '1 review')
 
 
 class ListingPriceValidationTests(TestCase):
@@ -142,13 +177,13 @@ class LandlordRatingTests(TestCase):
             {'rating': 5, 'comment': 'Helpful and responsive.'},
         )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, f'/users/{self.landlord.pk}/')
+        self.assertEqual(response.url, '/students/inquiries/')
         self.assertEqual(LandlordRating.objects.get().rating, 5)
         duplicate = self.client.post(
             f'/users/{self.landlord.pk}/rate/', {'rating': 4},
         )
         self.assertEqual(duplicate.status_code, 302)
-        self.assertEqual(duplicate.url, f'/users/{self.landlord.pk}/')
+        self.assertEqual(duplicate.url, '/students/inquiries/')
         self.assertEqual(LandlordRating.objects.count(), 1)
 
     def test_student_without_confirmed_booking_cannot_rate(self):
@@ -157,7 +192,7 @@ class LandlordRatingTests(TestCase):
             f'/users/{self.landlord.pk}/rate/', {'rating': 5},
         )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, f'/users/{self.landlord.pk}/')
+        self.assertEqual(response.url, '/students/inquiries/')
         self.assertFalse(LandlordRating.objects.exists())
 
     def test_landlord_cannot_submit_rating(self):
@@ -167,6 +202,56 @@ class LandlordRatingTests(TestCase):
         )
         self.assertEqual(response.status_code, 302)
         self.assertFalse(LandlordRating.objects.exists())
+
+    # --- Rating moved into My Inquiries ------------------------------------
+    # The rating form used to sit on the landlord's profile page. It now lives
+    # on the student's My Inquiries page (and the thread it opens) and appears
+    # only once the landlord has settled the conversation: accepted (a
+    # confirmed booking) or declined (the inquiry is rejected).
+
+    def _settled_inquiry(self, student, status=Inquiry.Status.CLOSED):
+        return Inquiry.objects.create(
+            student=student, room=self.booking.room, status=status,
+            message_text='Can I book this room?',
+        )
+
+    def test_my_inquiries_offers_rating_after_acceptance(self):
+        self._settled_inquiry(self.student)
+        self.client.login(username='student@gmail.com', password='StudentPass123')
+        response = self.client.get('/students/inquiries/')
+        self.assertContains(response, 'Rate landlord')
+
+    def test_my_inquiries_hides_rating_before_a_decision(self):
+        self._settled_inquiry(self.other_student, Inquiry.Status.OPEN)
+        self.client.login(username='other@gmail.com', password='OtherPass123')
+        response = self.client.get('/students/inquiries/')
+        self.assertNotContains(response, 'Rate landlord')
+
+    def test_thread_shows_rating_form_after_acceptance(self):
+        inquiry = self._settled_inquiry(self.student)
+        self.client.login(username='student@gmail.com', password='StudentPass123')
+        response = self.client.get(f'/students/inquiries/{inquiry.pk}/')
+        self.assertContains(response, 'id="rate-landlord"')
+        self.assertContains(response, 'Submit rating')
+
+    def test_student_can_rate_after_being_declined(self):
+        self._settled_inquiry(self.other_student, Inquiry.Status.REJECTED)
+        self.client.login(username='other@gmail.com', password='OtherPass123')
+        response = self.client.post(
+            f'/users/{self.landlord.pk}/rate/',
+            {'rating': 4, 'comment': 'Quick to reply.'},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/students/inquiries/')
+        rating = LandlordRating.objects.get()
+        self.assertEqual(rating.rating, 4)
+        self.assertIsNone(rating.booking)
+
+    def test_profile_page_no_longer_carries_the_rating_form(self):
+        self.client.login(username='student@gmail.com', password='StudentPass123')
+        response = self.client.get(f'/users/{self.landlord.pk}/')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Submit rating')
 
 
 class RatingsPagesTests(TestCase):

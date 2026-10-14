@@ -1676,6 +1676,19 @@ main a:not(.btn):not(.create-btn):not(.btn-bhims):not(.btn-register-bhims):not(.
     line-height: 1.4;
 }
 .listing-card .card-location i { color: var(--bhims-teal); margin-top: 0.15rem; }
+/* Landlord rating on the compact (landing/search) card. */
+.listing-card .card-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0.2rem 0 0;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--bhims-text);
+}
+.listing-card .card-rating i { color: #f0a829; }
+.listing-card .card-rating-percent { color: var(--bhims-teal); }
+.listing-card .card-rating-count { font-weight: 600; color: var(--bhims-text-muted); }
 .listing-card .meta-row {
     display: flex;
     flex-wrap: wrap;
@@ -1924,6 +1937,42 @@ main#main-content {
     font-size: 0.82rem;
     color: var(--bhims-teal);
     white-space: nowrap;
+}
+/* The row is a plain container so a settled conversation can carry a rating
+   action beside the Conversation link without nesting anchors. */
+.inquiry-row-link {
+    color: inherit;
+    text-decoration: none;
+}
+.inquiry-row-link:hover { color: var(--bhims-teal); }
+.inquiry-row-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+    text-align: right;
+}
+.inquiry-rate-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 10px;
+    background: var(--bhims-teal);
+    color: #ffffff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.inquiry-rate-btn:hover { filter: brightness(1.08); color: #ffffff; }
+.inquiry-rated {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--bhims-text-muted);
 }
 
 .listing-layout {

@@ -389,6 +389,27 @@
         color: var(--bhims-teal);
         font-size: 0.85rem;
     }
+    .result-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin: 0;
+        font-size: var(--fs-sm);
+        color: var(--bhims-text-muted);
+    }
+    .result-rating-stars {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-weight: 700;
+        color: var(--bhims-text);
+    }
+    .result-rating-stars i { color: #f0a829; font-size: 0.85rem; }
+    .result-rating-percent {
+        font-weight: 700;
+        color: var(--bhims-teal);
+    }
+    .result-rating-empty i { color: var(--bhims-text-muted); }
     .result-meta {
         display: flex;
         flex-wrap: wrap;
