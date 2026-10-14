@@ -242,16 +242,57 @@
     var meter = document.getElementById('pwdMeter');
     if (pwd && meter) {
         var LABELS = ['Strength', 'Weak', 'Fair', 'Good', 'Strong'];
-        pwd.addEventListener('input', function () {
-            var value = pwd.value;
+
+        /* Length carries the score: a long password is strong even when it is
+           all one kind of character ("correcthorsebatterystaple"), so the
+           length bands add up on their own instead of a long passphrase being
+           held back for lacking an uppercase letter or a symbol. Character
+           variety is a bonus that lifts a shorter password, never a gate that
+           a long one has to clear. */
+        function scorePassword(value) {
+            if (!value) return 0;
+
+            var length = value.length;
+            var classes = 0;
+            if (/[a-z]/.test(value)) classes++;
+            if (/[A-Z]/.test(value)) classes++;
+            if (/\d/.test(value)) classes++;
+            if (/[^A-Za-z0-9]/.test(value)) classes++;
+
+            var distinct = {};
+            var distinctCount = 0;
+            for (var i = 0; i < length; i++) {
+                var ch = value.charAt(i);
+                if (!distinct[ch]) { distinct[ch] = 1; distinctCount++; }
+            }
+
             var score = 0;
-            if (value.length >= 8) score++;
-            if (value.length >= 12) score++;
-            if (/[A-Z]/.test(value) && /[a-z]/.test(value) && /\d/.test(value)) score++;
-            if (/[^A-Za-z0-9]/.test(value)) score++;
-            if (!value) score = 0;
+            if (length >= 8) score++;
+            if (length >= 12) score++;
+            if (length >= 16) score++;
+            if (length >= 20) score++;
+
+            if (classes >= 3 && length >= 8) score++;
+            if (classes === 4 && length >= 8) score++;
+
+            /* One character class is fine when it is long (a passphrase), but
+               a short all-one-kind password is not strong. */
+            if (classes <= 1 && length < 20) score = Math.min(score, 2);
+
+            /* Junk in disguise: the same few characters over and over. */
+            if (distinctCount <= 3) score = Math.min(score, 1);
+
+            if (score > 4) score = 4;
+            if (score < 1) score = 1;   /* anything typed reads at least Weak */
+            return score;
+        }
+
+        var syncMeter = function () {
+            var score = scorePassword(pwd.value);
             meter.dataset.score = score;
             meter.querySelector('.pwd-label').textContent = LABELS[score];
-        });
+        };
+        pwd.addEventListener('input', syncMeter);
+        syncMeter();
     }
 })();
