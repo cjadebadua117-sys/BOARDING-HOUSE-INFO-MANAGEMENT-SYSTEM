@@ -116,6 +116,7 @@
     .id-main {
         flex: 2;
         padding: 50px;
+        min-width: 0;
     }
 
     .welcome-text {
@@ -145,6 +146,10 @@
         display: flex;
         flex-direction: column;
         gap: 6px;
+        /* A grid item defaults to min-width:auto, so one long unbreakable
+           token (an email like demo_student01@example.com) widened the track
+           past the card and pushed the text out over the card edge at 320px. */
+        min-width: 0;
     }
 
     .data-cell label {
@@ -160,6 +165,7 @@
         color: var(--bhims-text);
         font-weight: 500;
         margin: 0;
+        overflow-wrap: anywhere;
     }
 
     .form-control {
@@ -390,6 +396,7 @@
 
         .id-main {
             padding: 32px 20px;
+            width: 100%;
         }
 
         .info-grid-premium {
