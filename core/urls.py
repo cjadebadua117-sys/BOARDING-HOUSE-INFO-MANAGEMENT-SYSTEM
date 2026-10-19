@@ -65,6 +65,10 @@ urlpatterns = [
 
     # Profile
     path('profile/', views.profile, name='profile'),
+    # JSON endpoint used by the inline editor on the profile page. Must stay a
+    # distinct URL: /profile/ renders the page, so POSTing there returned HTML
+    # and the client's res.json() blew up with "Unexpected token '<'".
+    path('profile/update/', views.update_profile, name='update_profile'),
     path('profile/edit/', views.edit_profile, name='edit_profile'),
     path('profile/avatar/', views.update_avatar, name='update_avatar'),
     path('profile/change-password/', views.change_password, name='change_password'),

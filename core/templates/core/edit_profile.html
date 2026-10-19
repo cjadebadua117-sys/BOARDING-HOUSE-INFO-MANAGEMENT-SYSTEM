@@ -75,6 +75,15 @@
                         </div>
                     </div>
                     {% endif %}
+                    {% if form.bio %}
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.bio.id_for_label }}">{{ form.bio.label }}</label>
+                            {{ form.bio }}
+                            {% if form.bio.errors %}<div class="bhims-field-error">{{ form.bio.errors|striptags }}</div>{% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
 
                 <div class="form-actions">

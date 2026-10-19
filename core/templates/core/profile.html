@@ -468,7 +468,7 @@
             </div>
 
             {% if is_own_profile %}
-            <form id="profile-edit-form" method="post" action="" class="hidden">
+            <form id="profile-edit-form" method="post" action="{% url 'update_profile' %}" class="hidden">
                 {% csrf_token %}
                 <div class="info-grid-premium">
                     <div class="data-cell">
@@ -631,7 +631,10 @@
         if (bioEl) bioEl.textContent = bio || 'No bio yet.';
 
         if (titleEl) {
-            const displayName = profileData.first_name || profileData.username || 'User';
+            // Mirrors the server-side title (first_name|default:username); a
+            // user with no first name must not become "User's Profile".
+            const displayName = profileData.first_name || profileData.full_name
+                || profileData.username || 'User';
             const cap = displayName.charAt(0).toUpperCase() + displayName.slice(1);
             titleEl.textContent = `${cap}'s Profile`;
         }
@@ -651,7 +654,7 @@
         const prevText = editBtn.textContent;
         editBtn.textContent = 'Saving...';
 
-        fetch(editForm.action || window.location.pathname, {
+        fetch(editForm.action || '{% url 'update_profile' %}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -660,7 +663,18 @@
             },
             body: JSON.stringify(payload)
         })
-        .then(res => res.json().then(data => ({ ok: res.ok, data })))
+        // Never assume JSON: an error page or a redirect to login is HTML, and
+        // res.json() would surface the cryptic "Unexpected token '<'".
+        .then(async res => {
+            let data = null;
+            try { data = await res.json(); } catch (err) { data = null; }
+            if (!data) {
+                throw new Error(res.ok
+                    ? 'Unexpected response from the server. Please reload and try again.'
+                    : `Server error (${res.status}). Please reload and try again.`);
+            }
+            return { ok: res.ok, data };
+        })
         .then(({ ok, data }) => {
             if (!ok || !data.success) {
                 createToast('error', 'Error', data.message || 'Could not save changes.');
@@ -836,7 +850,7 @@
     function clearProfilePicture() {
         if (!confirm('Are you sure you want to remove your profile picture?')) return;
 
-        fetch(window.location.pathname, {
+        fetch('{% url 'update_profile' %}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -860,7 +874,7 @@
     function clearBio() {
         if (!confirm('Are you sure you want to clear your bio?')) return;
 
-        fetch(window.location.pathname, {
+        fetch('{% url 'update_profile' %}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

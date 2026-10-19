@@ -346,7 +346,12 @@ class StudentProfileUpdateForm(StudentProfileEditForm):
 class LandlordProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'phone_number']
+        # Bio is editable for landlords too — the profile page renders the
+        # field conditionally, so omitting it here hid it from every landlord.
+        fields = ['first_name', 'last_name', 'phone_number', 'bio']
+        widgets = {
+            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
 
     def save(self, commit=True):
         previous_full_name = self.instance.full_name

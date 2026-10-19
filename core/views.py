@@ -1020,6 +1020,23 @@ def profile_view(request):
     return render(request, 'core/profile.html', context)
 
 
+def _serialize_profile(user):
+    """Profile fields the client needs to refresh the card after a save."""
+    return {
+        'username': user.username,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'full_name': user.full_name,
+        'email': user.email,
+        'student_id': user.student_id or '',
+        'program': user.get_program_display() if user.program else '',
+        'program_custom': user.program_custom or '',
+        'phone_number': user.phone_number or '',
+        'bio': user.bio or '',
+        'profile_picture': user.profile_picture.url if user.profile_picture else '',
+    }
+
+
 @login_required
 def update_profile(request):
     if request.method != 'POST':
@@ -1035,9 +1052,38 @@ def update_profile(request):
         }, status=403)
 
     try:
-        payload = json.loads(request.body)
-    except (json.JSONDecodeError, TypeError):
+        payload = json.loads(request.body or b'{}')
+    except (json.JSONDecodeError, TypeError, UnicodeDecodeError):
         return JsonResponse({'success': False, 'message': 'Invalid data received.'}, status=400)
+    if not isinstance(payload, dict):
+        return JsonResponse({'success': False, 'message': 'Invalid data received.'}, status=400)
+
+    from .models import log_admin_action
+
+    # The "Clear bio" / "Clear Profile Picture" buttons send a single flag, not
+    # the whole form. Handle them before validation, which would otherwise
+    # reject the payload for missing name/phone fields.
+    if payload.get('clear_bio'):
+        user.bio = ''
+        user.save(update_fields=['bio'])
+        log_admin_action(request.user, 'profile_updated', request.user)
+        return JsonResponse({
+            'success': True,
+            'message': 'Bio cleared.',
+            'profile': _serialize_profile(user),
+        })
+
+    if payload.get('clear_profile_picture'):
+        if user.profile_picture:
+            user.profile_picture.delete(save=False)
+            user.profile_picture = ''
+            user.save(update_fields=['profile_picture'])
+        log_admin_action(request.user, 'profile_updated', request.user)
+        return JsonResponse({
+            'success': True,
+            'message': 'Profile picture cleared.',
+            'profile': _serialize_profile(user),
+        })
 
     if user.role == 'student':
         form = StudentProfileUpdateForm(payload, instance=user)
@@ -1045,20 +1091,11 @@ def update_profile(request):
         form = LandlordProfileUpdateForm(payload, instance=user)
     if form.is_valid():
         form.save()
-        from .models import log_admin_action
         log_admin_action(request.user, 'profile_updated', request.user)
         return JsonResponse({
             'success': True,
             'message': 'Profile updated successfully.',
-            'profile': {
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'full_name': user.full_name,
-                'program': user.get_program_display() if user.program else '',
-                'program_custom': user.program_custom or '',
-                'phone_number': user.phone_number,
-                'bio': user.bio,
-            }
+            'profile': _serialize_profile(user),
         })
     else:
         return JsonResponse({'success': False, 'message': 'Please correct the errors.', 'errors': form.errors}, status=400)

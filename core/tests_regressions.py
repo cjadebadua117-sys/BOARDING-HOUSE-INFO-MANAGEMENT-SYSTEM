@@ -8,6 +8,7 @@ Reported in .audit/AUDIT_REPORT.md (H1, H3, M1, M2, M3) plus two notes from the
 same pass (closed-thread messaging, the accept message outside the transaction).
 """
 
+import json
 import pathlib
 from datetime import timedelta
 
@@ -464,3 +465,75 @@ class InquiryNewBadgeTests(TestCase):
         self.client.get(reverse('student_inquiry_thread', args=[self.inquiry.pk]))
         response = self.client.get(reverse('student_inquiry_list'))
         self.assertNotContains(response, 'new-chip')
+
+
+class ProfileSaveEndpointTests(TestCase):
+    """The profile page's Save Changes button posted JSON to /profile/ itself,
+    which only renders HTML, so every save died with
+    "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON". The JSON view
+    existed but had no URL, and landlords had no bio field to save at all."""
+
+    def setUp(self):
+        self.landlord = make_user('save-landlord@gmail.com', User.Role.LANDLORD)
+        self.student = make_user('save-student@gmail.com', User.Role.STUDENT)
+
+    def _post(self, user, payload):
+        self.client.login(username=user.email, password='StrongPass123')
+        return self.client.post(
+            reverse('update_profile'),
+            data=json.dumps(payload),
+            content_type='application/json',
+        )
+
+    def test_update_profile_url_is_json_not_html(self):
+        response = self._post(self.student, {
+            'first_name': 'Sam', 'last_name': 'Cruz',
+            'phone_number': '09170001111', 'bio': 'Third-year CS student.',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'].split(';')[0], 'application/json')
+        self.assertTrue(response.json()['success'])
+
+    def test_landlord_can_save_a_bio(self):
+        response = self._post(self.landlord, {
+            'first_name': 'Liza', 'last_name': 'Reyes',
+            'phone_number': '09096631300', 'bio': "I'm build different",
+        })
+        self.assertEqual(response.status_code, 200, response.content)
+        self.landlord.refresh_from_db()
+        self.assertEqual(self.landlord.bio, "I'm build different")
+        self.assertEqual(response.json()['profile']['bio'], "I'm build different")
+
+    def test_student_can_save_a_bio(self):
+        response = self._post(self.student, {
+            'first_name': 'Sam', 'last_name': 'Cruz',
+            'phone_number': '09170001111', 'bio': 'Looking for a dorm near CIS.',
+        })
+        self.assertEqual(response.status_code, 200, response.content)
+        self.student.refresh_from_db()
+        self.assertEqual(self.student.bio, 'Looking for a dorm near CIS.')
+        # The client redraws the profile title from this payload, so it needs a
+        # name fallback for users without a first name.
+        self.assertEqual(
+            response.json()['profile']['username'], self.student.username,
+        )
+
+    def test_landlord_form_exposes_the_bio_field(self):
+        self.client.login(username=self.landlord.email, password='StrongPass123')
+        response = self.client.get(reverse('profile'))
+        self.assertContains(response, 'id_bio')
+
+    def test_clear_bio_empties_it_without_the_rest_of_the_form(self):
+        self.student.bio = 'Old bio'
+        self.student.save(update_fields=['bio'])
+        response = self._post(self.student, {'clear_bio': True})
+        self.assertEqual(response.status_code, 200, response.content)
+        self.student.refresh_from_db()
+        self.assertEqual(self.student.bio, '')
+
+    def test_invalid_payload_returns_json_errors(self):
+        # bio is capped at 300 characters by the model/form.
+        response = self._post(self.student, {'bio': 'x' * 301})
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(response.json()['success'])
+        self.assertIn('bio', response.json()['errors'])
