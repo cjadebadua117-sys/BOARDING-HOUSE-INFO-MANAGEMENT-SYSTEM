@@ -1,14 +1,12 @@
-%% Module B - ERD extract: Search, Inquiry & Booking (owner: Christian)
-%% The tables the workflow writes: one conversation per student+room, and a
-%% booking whose status drives room availability.
+%% Module B - ERD extract: Search & Inquiry (owner: Mac)
+%% The tables this module writes: one conversation per student + room, with a
+%% per-side read marker that drives the NEW badge. Booking lives in Module C.
 %% Render: venv\Scripts\python.exe tools\render_diagrams.py docs\final-project\diagrams
 erDiagram
     USER ||--o{ INQUIRY : "sends"
     ROOM ||--o{ INQUIRY : "is asked about"
     INQUIRY ||--o{ INQUIRY_MESSAGE : "contains"
     USER ||--o{ INQUIRY_MESSAGE : "posts"
-    USER ||--o{ BOOKING : "requests"
-    ROOM ||--o{ BOOKING : "is booked in"
     BOARDING_HOUSE ||--|{ ROOM : "contains"
 
     USER {
@@ -39,6 +37,8 @@ erDiagram
         string status "pending / open / closed / rejected"
         string subject
         text message_text
+        datetime last_viewed_by_landlord "NEW badge for the landlord"
+        datetime last_viewed_by_student "NEW badge for the student"
         datetime created_at
     }
     INQUIRY_MESSAGE {
@@ -47,14 +47,4 @@ erDiagram
         int sender_id FK
         text message_text
         datetime sent_at
-    }
-    BOOKING {
-        int id PK
-        int student_id FK
-        int room_id FK
-        string status "pending / confirmed / declined / cancelled"
-        datetime requested_at
-        datetime confirmed_at
-        date move_in_date
-        text notes
     }

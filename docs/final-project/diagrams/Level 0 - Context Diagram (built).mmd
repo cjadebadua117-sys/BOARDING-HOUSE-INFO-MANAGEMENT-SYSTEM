@@ -7,11 +7,11 @@ flowchart LR
 
     SYS(("<b>BOARDING HOUSE<br/>INFORMATION MANAGEMENT<br/>SYSTEM</b><br/>0"))
 
-    STU -- "registration (program or<br/>K-12 grade level), login,<br/>search & filter criteria, inquiries<br/>&amp; chat messages, booking requests,<br/>landlord ratings, user reports" --> SYS
+    STU -- "registration (program or<br/>K-12 grade level), login,<br/>search & filter criteria, inquiries<br/>&amp; chat messages, landlord ratings,<br/>user reports" --> SYS
     SYS -- "listings &amp; room details with<br/>availability, inquiry replies,<br/>booking status, average landlord<br/>rating" --> STU
 
     LAN -- "house / room / rate / amenity /<br/>photo data, availability updates,<br/>inquiry replies, accept or decline<br/>decisions, resubmitted listings,<br/>user reports" --> SYS
-    SYS -- "student inquiries, booking<br/>requests, approval status,<br/>ratings received" --> LAN
+    SYS -- "student inquiries, booking<br/>status, approval status,<br/>ratings received" --> LAN
 
     ADM -- "approve / reject decisions,<br/>account &amp; barangay management,<br/>resolve or dismiss reports" --> SYS
     SYS -- "pending listings, user reports,<br/>dashboard analytics,<br/>audit trail" --> ADM

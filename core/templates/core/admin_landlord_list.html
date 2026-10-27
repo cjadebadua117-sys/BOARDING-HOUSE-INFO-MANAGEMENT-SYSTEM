@@ -58,9 +58,9 @@
                         <td>{{ landlord.email }}</td>
                         <td>{{ landlord.phone_number|default:"—" }}</td>
                         <td><span class="pill pill-approved">{{ landlord.boarding_houses.count }}</span></td>
-                        <td>
+                        <td style="white-space: nowrap;">
                             {% if landlord.avg_rating %}
-                            <span style="color: var(--bhims-badge-pending);" aria-label="{{ landlord.avg_rating|floatformat:1 }} out of 5">★</span>
+                            {% include 'includes/star_rating.html' with rating=landlord.avg_rating star_class='star-rating-sm' %}
                             <span class="fw-semibold" style="color: var(--bhims-text);">{{ landlord.avg_rating|floatformat:1 }}</span>
                             <small class="text-muted">({{ landlord.rating_total }})</small>
                             {% else %}

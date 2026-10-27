@@ -1,0 +1,256 @@
+/* ============================================================
+   BHIMS MOTION LAYER
+   ------------------------------------------------------------
+   Loaded last, after every identity layer, so it only adds
+   movement — never colour or layout. Delete this file's <link>
+   (and motion.js) to return the system to a static UI.
+
+   Rules:
+   • Motion is progressive enhancement. `html.motion` is set by
+     motion.js only after it has confirmed IntersectionObserver
+     and that the visitor has not asked for reduced motion. With
+     no JS, or reduced motion, every page renders exactly as
+     before and nothing is hidden.
+   • One calm preset: entrances 300–360ms, ≤8px travel, and cards
+     answer the pointer with border/shadow instead of lifting.
+   • Nothing loops, blinks or drifts once settled.
+   ============================================================ */
+
+/* Motion tokens — the single place the preset is tuned. */
+html.motion {
+    --m-reveal-dur: 0.34s;
+    --m-reveal-dist: 8px;
+    --m-page-dur: 0.26s;
+    --m-out-dur: 0.12s;
+    --m-overlay-dur: 0.22s;
+    --m-modal-dur: 0.2s;
+    --m-zoom: 1.015;
+    --m-stagger: 30ms;
+}
+
+/* ---------- 1. Page enter / leave ----------
+   IMPORTANT: the page wrapper (\#main-content) must never carry a
+   transform. The app sidebar is `position: fixed` INSIDE that wrapper;
+   any non-none transform on the ancestor makes it the containing block,
+   so the sidebar stops hugging the viewport — it drops below the topbar,
+   stretches to page height and overlaps content. A fade-only page
+   transition keeps fixed panels fixed. */
+@keyframes m-page-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+@keyframes m-page-out {
+    from { opacity: 1; transform: none; }
+    to   { opacity: 0.78; transform: none; }
+}
+html.motion #main-content {
+    animation: m-page-in var(--m-page-dur, 0.26s) ease both;
+    /* Hard guard: the fixed sidebar lives inside this wrapper, so this
+       element must never accept a transform from any layer. */
+    transform: none !important;
+}
+html.motion body.m-leaving #main-content {
+    animation: m-page-out var(--m-out-dur, 0.12s) ease-in both;
+}
+
+/* ---------- 2. Scroll reveals ---------- */
+@keyframes m-rise {
+    from { opacity: 0; transform: translateY(var(--m-reveal-dist, 8px)); }
+    to   { opacity: 1; transform: none; }
+}
+@keyframes m-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+html.motion .m-reveal {
+    opacity: 0;
+}
+html.motion .m-reveal.m-in {
+    animation: m-rise var(--m-reveal-dur, 0.34s) cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: var(--m-delay, 0ms);
+}
+/* Rows and chips read better as a fade than a slide. */
+html.motion .m-reveal.m-fade.m-in { animation-name: m-fade; }
+
+/* ---------- 4. Hover & press: clickable surfaces ---------- */
+/* Shared easing so every widget feels like one machine. */
+:root { --m-ease: cubic-bezier(0.16, 1, 0.3, 1); }
+
+/* Calm preset: cards answer the pointer with their border and shadow,
+   but they never move, so a grid of listings stays still while you read.
+   The base UI already lifted cards on hover (Premium Styles and
+   browse_content.css), so this neutralises those lifts with enough
+   specificity to beat their !important rules. */
+html.motion .card:hover,
+html.motion .listing-card:hover,
+html.motion .result-card:hover,
+html.motion .stat-card:hover,
+html.motion .house-card:hover,
+html.motion .room-card:hover,
+html.motion .feature-card:hover,
+html.motion .profile-card:hover {
+    transform: none !important;
+}
+html.motion .result-card,
+html.motion .listing-card,
+html.motion .room-card,
+html.motion .feature-card,
+html.motion .profile-card {
+    transition: box-shadow 0.26s var(--m-ease),
+                border-color 0.26s var(--m-ease);
+}
+html.motion .result-card:hover img,
+html.motion .listing-card:hover img,
+html.motion .room-card:hover img {
+    transform: scale(var(--m-zoom, 1.015));
+}
+html.motion .result-card img,
+html.motion .listing-card img,
+html.motion .room-card img {
+    transition: transform 0.45s var(--m-ease);
+}
+
+html.motion .stat-card {
+    transition: border-color 0.22s var(--m-ease),
+                box-shadow 0.22s var(--m-ease);
+}
+
+html.motion .inquiry-row,
+html.motion .booking-row,
+html.motion .list-row {
+    transition: border-color 0.2s var(--m-ease),
+                box-shadow 0.2s var(--m-ease);
+}
+html.motion .inquiry-row:hover,
+html.motion .booking-row:hover {
+    border-left-color: var(--ce-accent) !important;
+}
+
+html.motion .admin-table tbody tr {
+    transition: background-color 0.18s ease, box-shadow 0.18s ease;
+}
+html.motion .admin-table tbody tr:hover {
+    box-shadow: inset 3px 0 0 var(--ce-accent);
+}
+
+/* Buttons: a press, not a jump. */
+html.motion .btn,
+html.motion .create-btn,
+html.motion .submit-btn,
+html.motion .btn-view-result,
+html.motion .carousel-nav,
+html.motion .sidebar-toggle,
+html.motion .theme-toggle {
+    transition: transform 0.16s var(--m-ease),
+                box-shadow 0.2s var(--m-ease),
+                filter 0.2s ease;
+}
+html.motion .btn:active,
+html.motion .create-btn:active,
+html.motion .submit-btn:active,
+html.motion .btn-view-result:active,
+html.motion .carousel-nav:active {
+    transform: translateY(1px) scale(0.985);
+}
+html.motion .btn:hover,
+html.motion .create-btn:hover,
+html.motion .submit-btn:hover { filter: brightness(1.04); }
+
+/* Sidebar: the icon leans toward the destination. */
+html.motion .sidebar-link i,
+html.motion .sidebar-link svg {
+    transition: transform 0.24s var(--m-ease), color 0.2s ease;
+}
+html.motion .sidebar-link:hover i,
+html.motion .sidebar-link:hover svg { transform: translateX(1px) scale(1.03); }
+html.motion .sidebar-link.active::before {
+    transition: height 0.25s var(--m-ease);
+}
+html.motion .sidebar-link:hover.active::before { height: 24px !important; }
+
+/* Top navigation underline grows from the left. */
+html.motion .navbar-nav .nav-link,
+html.motion .bhims-nav a:not(.btn) {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0% 1px;
+    transition: background-size 0.28s var(--m-ease), color 0.2s ease;
+}
+html.motion .navbar-nav .nav-link:hover,
+html.motion .bhims-nav a:not(.btn):hover { background-size: 100% 1px; }
+
+/* Theme toggle: a small turn when used. */
+html.motion .theme-toggle:active { transform: rotate(-18deg) scale(0.94); }
+
+/* ---------- 5. Forms & focus ---------- */
+html.motion .form-control,
+html.motion .form-select {
+    transition: border-color 0.2s ease, box-shadow 0.22s ease,
+                background-color 0.2s ease;
+}
+
+/* ---------- 6. Overlays ---------- */
+@keyframes m-toast-in {
+    from { opacity: 0; transform: translateY(6px) scale(0.99); }
+    to   { opacity: 1; transform: none; }
+}
+html.motion .bhims-toast,
+html.motion #toast-container .toast {
+    animation: m-toast-in var(--m-overlay-dur, 0.22s) var(--m-ease) both;
+}
+@keyframes m-modal-in {
+    from { opacity: 0; transform: translateY(8px) scale(0.992); }
+    to   { opacity: 1; transform: none; }
+}
+html.motion .modal.show .modal-dialog {
+    animation: m-modal-in var(--m-modal-dur, 0.2s) var(--m-ease) both;
+}
+html.motion .dropdown-menu.show {
+    animation: m-toast-in var(--m-overlay-dur, 0.18s) var(--m-ease) both;
+}
+
+/* ---------- 7. Theme change: a soft cross-fade ---------- */
+html.motion body,
+html.motion .app-sidebar,
+html.motion .app-content .card,
+html.motion .admin-table-wrap {
+    transition: background-color 0.24s ease, border-color 0.24s ease,
+                color 0.18s ease;
+}
+
+/* ---------- 8. Smooth in-page anchors ---------- */
+html.motion { scroll-behavior: smooth; }
+
+/* ---------- 9. Reduced motion: everything settles instantly ---------- */
+@media (prefers-reduced-motion: reduce) {
+    html.motion #main-content,
+    html.motion .m-reveal.m-in,
+    html.motion .stat-grid .stat-card,
+    html.motion .landing-features-grid .feature-card,
+    html.motion .result-grid .result-card,
+    html.motion .bhims-toast,
+    html.motion #toast-container .toast,
+    html.motion .modal.show .modal-dialog,
+    html.motion .dropdown-menu.show {
+        animation: none !important;
+    }
+    html.motion .m-reveal { opacity: 1 !important; }
+    html.motion { scroll-behavior: auto; }
+    html.motion .result-card:hover,
+    html.motion .listing-card:hover,
+    html.motion .room-card:hover,
+    html.motion .feature-card:hover,
+    html.motion .stat-card:hover,
+    html.motion .result-card:hover img,
+    html.motion .listing-card:hover img,
+    html.motion .room-card:hover img {
+        transform: none !important;
+    }
+}
+
+/* ---------- 10. Print: no motion, no hidden sections ---------- */
+@media print {
+    html.motion .m-reveal { opacity: 1 !important; animation: none !important; }
+    html.motion #main-content { animation: none !important; }
+}

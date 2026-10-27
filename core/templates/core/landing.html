@@ -65,34 +65,38 @@
     .landing-kicker {
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.55));
-        -webkit-backdrop-filter: blur(14px) saturate(1.5);
-        backdrop-filter: blur(14px) saturate(1.5);
-        border: 1px solid rgba(255, 255, 255, 0.7);
-        border-radius: 999px;
-        padding: 0.45rem 1rem;
-        color: #4d5f77;
+        gap: 0.55rem;
+        background: rgba(255, 255, 255, 0.95);
+        -webkit-backdrop-filter: blur(16px) saturate(1.5);
+        backdrop-filter: blur(16px) saturate(1.5);
+        border: 1px solid rgba(255, 255, 255, 1);
+        border-radius: 9999px;
+        padding: 0.42rem 1.15rem;
+        color: #14532d;
         text-transform: uppercase;
-        font-weight: 700;
-        letter-spacing: 0.1em;
-        font-size: 11px;
-        box-shadow: 0 8px 20px -12px rgba(21, 46, 74, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        font-weight: 800;
+        letter-spacing: 0.09em;
+        font-size: 12px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.9);
         margin: 0 0 var(--space-5);
     }
     [data-theme="dark"] .landing-kicker {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
-        border-color: rgba(255, 255, 255, 0.16);
-        color: var(--ce-accent, #79c79b);
-        box-shadow: none;
+        background: rgba(10, 22, 15, 0.88);
+        border-color: rgba(52, 211, 153, 0.35);
+        color: #4ade80;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
     }
     .landing-kicker::before {
         content: '';
-        width: 7px;
-        height: 7px;
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
-        background: var(--ce-accent, #14563c);
-        box-shadow: 0 0 10px rgba(20, 86, 60, 0.55);
+        background: #16a34a;
+        box-shadow: 0 0 8px rgba(22, 163, 74, 0.8);
+    }
+    [data-theme="dark"] .landing-kicker::before {
+        background: #4ade80;
+        box-shadow: 0 0 10px #4ade80;
     }
     .landing-brand {
         display: flex;

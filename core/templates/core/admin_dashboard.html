@@ -10,18 +10,18 @@
 <div class="admin-page">
     <div class="page-header">
         <div>
-            <div class="eyebrow">Admin</div>
-            <h1>Overview</h1>
-            <p>An overview of the Boarding House Information Management System for NLUC students.</p>
+            <div class="eyebrow">DMMMSU NLUC Housing Administration</div>
+            <h1>Housing Oversight & Accreditation</h1>
+            <p>Monitor student housing welfare, verify local landlord listings, and review safety compliance across Bacnotan barangays.</p>
         </div>
         <div class="d-inline-flex gap-2">
             {% if pending_listings %}
-            <a href="{% url 'admin_pending_listings' %}" class="btn btn-uppercase btn-primary">
-                <i class="bi bi-hourglass-split"></i> Review {{ pending_listings }} Listing{{ pending_listings|pluralize }}
+            <a href="{% url 'admin_pending_listings' %}" class="btn btn-primary">
+                <i class="bi bi-shield-check"></i> Review {{ pending_listings }} Listing{{ pending_listings|pluralize }}
             </a>
             {% else %}
-            <a href="{% url 'admin_create_landlord' %}" class="btn btn-uppercase btn-primary">
-                <i class="bi bi-person-plus"></i> Add Landlord
+            <a href="{% url 'admin_create_landlord' %}" class="btn btn-primary">
+                <i class="bi bi-person-plus"></i> Add Landlord Account
             </a>
             {% endif %}
         </div>
@@ -29,50 +29,50 @@
 
     <div class="stat-grid stat-grid-7">
         <div class="stat-card">
-            <div class="stat-icon"><i class="bi bi-people"></i></div>
-            <div>
+            <div class="stat-icon"><i class="bi bi-mortarboard"></i></div>
+            <div class="stat-content">
                 <div class="stat-number" data-count="{{ total_students }}">{{ total_students }}</div>
                 <div class="stat-label">Active Students</div>
             </div>
         </div>
         <div class="stat-card">
             <div class="stat-icon"><i class="bi bi-person-badge"></i></div>
-            <div>
+            <div class="stat-content">
                 <div class="stat-number" data-count="{{ total_landlords }}">{{ total_landlords }}</div>
-                <div class="stat-label">Landlords</div>
+                <div class="stat-label">Registered Landlords</div>
             </div>
         </div>
         <div class="stat-card">
             <div class="stat-icon"><i class="bi bi-buildings"></i></div>
-            <div>
+            <div class="stat-content">
                 <div class="stat-number" data-count="{{ total_boarding_houses }}">{{ total_boarding_houses }}</div>
                 <div class="stat-label">Boarding Houses</div>
             </div>
         </div>
         <div class="stat-card">
             <div class="stat-icon"><i class="bi bi-door-open"></i></div>
-            <div>
+            <div class="stat-content">
                 <div class="stat-number" data-count="{{ total_available_rooms }}">{{ total_available_rooms }}</div>
                 <div class="stat-label">Available Rooms</div>
             </div>
         </div>
         <div class="stat-card">
             <div class="stat-icon"><i class="bi bi-hourglass-split"></i></div>
-            <div>
+            <div class="stat-content">
                 <div class="stat-number" data-count="{{ pending_listings }}">{{ pending_listings }}</div>
-                <div class="stat-label">Pending Listings</div>
+                <div class="stat-label">Pending Approval</div>
             </div>
         </div>
         <div class="stat-card">
             <div class="stat-icon"><i class="bi bi-chat-dots"></i></div>
-            <div>
+            <div class="stat-content">
                 <div class="stat-number" data-count="{{ total_inquiries }}">{{ total_inquiries }}</div>
-                <div class="stat-label">Total Inquiries</div>
+                <div class="stat-label">Student Inquiries</div>
             </div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon"><i class="bi bi-door-closed"></i></div>
-            <div>
+            <div class="stat-icon"><i class="bi bi-grid"></i></div>
+            <div class="stat-content">
                 <div class="stat-number" data-count="{{ total_rooms }}">{{ total_rooms }}</div>
                 <div class="stat-label">Total Rooms</div>
             </div>

@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,15 +18,15 @@
         (function () {
             try {
                 // One-time reset after the black-theme breakage — restore teal paper default
-                if (localStorage.getItem('bhims-theme-version') !== 'teal-v2') {
-                    localStorage.setItem('bhims-theme', 'light');
-                    localStorage.setItem('bhims-theme-version', 'teal-v2');
+                if (localStorage.getItem('bhims-theme-version') !== 'vd-v1') {
+                    localStorage.setItem('bhims-theme', 'dark');
+                    localStorage.setItem('bhims-theme-version', 'vd-v1');
                 }
-                var t = localStorage.getItem('bhims-theme') || 'light';
-                if (t !== 'dark' && t !== 'light') t = 'light';
+                var t = localStorage.getItem('bhims-theme') || 'dark';
+                if (t !== 'dark' && t !== 'light') t = 'dark';
                 document.documentElement.setAttribute('data-theme', t);
             } catch (e) {
-                document.documentElement.setAttribute('data-theme', 'light');
+                document.documentElement.setAttribute('data-theme', 'dark');
             }
         })();
     </script>
@@ -61,7 +61,12 @@
     <link rel="stylesheet" href="{% static 'core/css/Liquid Glass.css' %}?v=2">
     <!-- Campus Editorial: final identity layer — Fraunces serif, warm paper,
          hairline rules, full-strength photography. Overrides all glass layers. -->
-    <link rel="stylesheet" href="{% static 'core/css/Campus Editorial.css' %}?v=27">
+    <link rel="stylesheet" href="{% static 'core/css/Campus Editorial.css' %}?v=33">
+    <!-- BHIMS Bespoke Human-Made Collegiate Craftsman Identity & UX System -->
+    <link rel="stylesheet" href="{% static 'core/css/Vercel Dark.css' %}?v=5">
+    <!-- Motion layer: additive only — deleting this link (and motion.js)
+         returns the system to the static UI. -->
+    <link rel="stylesheet" href="{% static 'core/css/Motion.css' %}?v=8">
 </head>
 <body class="has-motion">
     <a class="skip-link" href="#main-content">Skip to content</a>
@@ -87,6 +92,12 @@
     <main id="main-content">
         {% block content %}{% endblock %}
     </main>
+
+    <!-- MODALS: kept outside <main>/the app shell so their z-index is not
+         trapped in a parent stacking context (the app shell isolates, and the
+         page-in animation transforms, so a modal inside it renders UNDER its
+         own backdrop and every click hits the backdrop instead). -->
+    {% block modals %}{% endblock %}
 
     <!-- FOOTER -->
     {% comment %}
@@ -288,8 +299,8 @@
     <script>
     (function () {
         var html = document.documentElement;
-        var savedTheme = 'light';
-        try { savedTheme = localStorage.getItem('bhims-theme') || 'light'; } catch (e) {}
+        var savedTheme = 'dark';
+        try { savedTheme = localStorage.getItem('bhims-theme') || 'dark'; } catch (e) {}
         html.setAttribute('data-theme', savedTheme);
 
         // Wordmark images that must re-ink when the theme flips (navbar, sidebar, footer)
@@ -342,6 +353,7 @@
     })();
     </script>
 
+    <script src="{% static 'core/js/motion.js' %}?v=7" defer></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

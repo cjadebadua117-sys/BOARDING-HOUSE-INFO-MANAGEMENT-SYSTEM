@@ -24,6 +24,13 @@ package-lock.json
 .freebuff/
 .claude/
 
+# Deploy state: database dump, archives, and the saved host answers (DB password)
+.deploy/
+
+# Vendor toolchain and generated verification output, not part of the system
+platform-tools/
+tools/verify_out/
+
 # Logs and debug output
 *.log
 *_check.txt

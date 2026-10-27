@@ -60,9 +60,8 @@
         renting from before opening the listing. Same figures as the landlord's
         profile: the average out of five, and that average as a percent.{% endcomment %}
         {% if house.landlord_rating_count %}
-        <p class="result-rating" aria-label="Landlord rating {{ house.landlord_rating_avg|floatformat:1 }} out of 5, {{ house.landlord_rating_percent }} percent">
-            <span class="result-rating-stars"><i class="bi bi-star-fill" aria-hidden="true"></i> {{ house.landlord_rating_avg|floatformat:1 }}</span>
-            <span class="result-rating-percent">{{ house.landlord_rating_percent }}%</span>
+        <p class="result-rating" aria-label="Landlord rating {{ house.landlord_rating_avg|floatformat:1 }} out of 5 from {{ house.landlord_rating_count }} review{{ house.landlord_rating_count|pluralize }}">
+            <span class="result-rating-stars">{% include 'includes/star_rating.html' with rating=house.landlord_rating_avg star_class='star-rating-sm' %} {{ house.landlord_rating_avg|floatformat:1 }}</span>
             <span class="result-rating-count">({{ house.landlord_rating_count }} review{{ house.landlord_rating_count|pluralize }})</span>
         </p>
         {% else %}
@@ -154,10 +153,9 @@
             {{ house.barangay_display }}, {{ house.address }}
         </p>
         {% if house.landlord_rating_count %}
-        <p class="card-rating" aria-label="Landlord rating {{ house.landlord_rating_avg|floatformat:1 }} out of 5, {{ house.landlord_rating_percent }} percent">
-            <i class="bi bi-star-fill" aria-hidden="true"></i>
+        <p class="card-rating" aria-label="Landlord rating {{ house.landlord_rating_avg|floatformat:1 }} out of 5 from {{ house.landlord_rating_count }} review{{ house.landlord_rating_count|pluralize }}">
+            {% include 'includes/star_rating.html' with rating=house.landlord_rating_avg star_class='star-rating-sm' %}
             {{ house.landlord_rating_avg|floatformat:1 }}
-            <span class="card-rating-percent">{{ house.landlord_rating_percent }}%</span>
             <span class="card-rating-count">({{ house.landlord_rating_count }})</span>
         </p>
         {% endif %}

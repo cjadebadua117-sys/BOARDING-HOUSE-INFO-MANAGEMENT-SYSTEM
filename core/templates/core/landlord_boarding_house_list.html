@@ -31,7 +31,13 @@
       {% endif %}
       <div class="card-overlay" aria-hidden="true"></div>
       <div class="card-badges">
-        {% if house.is_active %}<span class="gender-pill"><i class="bi bi-check-circle"></i> Active</span>{% else %}<span class="gender-pill" style="opacity:0.6;">Inactive</span>{% endif %}
+        {% if house.status == 'approved' %}
+        <span class="gender-pill"><i class="bi bi-check-circle"></i> Approved</span>
+        {% elif house.status == 'pending' %}
+        <span class="gender-pill" style="opacity:0.85;"><i class="bi bi-hourglass-split"></i> Awaiting approval</span>
+        {% else %}
+        <span class="gender-pill" style="opacity:0.7;"><i class="bi bi-x-circle"></i> Rejected — not visible to students</span>
+        {% endif %}
         {% if house.gender_allowed and house.gender_allowed != 'both' %}<span class="gender-pill">{{ house.get_gender_allowed_display }}</span>{% endif %}
       </div>
     </div>

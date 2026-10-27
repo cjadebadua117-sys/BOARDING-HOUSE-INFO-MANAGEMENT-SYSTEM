@@ -15,7 +15,7 @@ erDiagram
     USER ||--o{ INQUIRY_MESSAGE : "posts"
     USER ||--o{ BOOKING : "requests"
     ROOM ||--o{ BOOKING : "is booked in"
-    BOOKING ||--|| LANDLORD_RATING : "unlocks one"
+    BOOKING ||--o| LANDLORD_RATING : "unlocks one"
     USER ||--o{ LANDLORD_RATING : "gives"
     USER ||--o{ LANDLORD_RATING : "receives"
     USER ||--o{ USER_REPORT : "files"
@@ -102,7 +102,7 @@ erDiagram
         int id PK
         int student_id FK
         int landlord_id FK
-        int booking_id FK "unique - one rating per booking"
+        int booking_id FK "optional - set when accepted"
         int rating "1 to 5"
         text comment
         datetime created_at

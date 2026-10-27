@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.db import DatabaseError, transaction
 from django.db.models import Avg, Count, Exists, F, IntegerField, Min, OuterRef, Prefetch, Q, Subquery
-from django.db.models.functions import Coalesce
+from django.db.models.functions import Coalesce, Lower
 from django.shortcuts import get_object_or_404, redirect, render
 from django.http import Http404
 from django.core.exceptions import ValidationError
@@ -49,7 +49,10 @@ from .models import (
     UserReport,
     LandlordRating,
     site_setting,
+    student_access_enabled,
     annotate_room_bookings,
+    BACNOTAN_BARANGAYS,
+    BARANGAY_DISTANCES,
     LANDING_CACHE_KEY,
     LISTING_CACHE_KEY,
     MAX_MESSAGE_CHARS,
@@ -95,6 +98,62 @@ def visible_listings():
         status=BoardingHouse.Status.APPROVED,
         is_active=True,
     )
+
+
+def barangay_filter_choices():
+    """The barangay options the student-facing filters may offer, as
+    (value, label) pairs.
+
+    Admin -> Edit Barangays is the single source of truth. The browse and
+    search views used to build the list from each house's own `barangay`
+    string as well, so a listing left over from before a barangay was removed
+    quietly added an option the admin never created. Only the barangays the
+    admin maintains belong in the list; if the table has not been populated
+    yet, fall back to the built-in six so a fresh install still has a usable
+    filter.
+
+    The table must still name every barangay a live listing sits in — that is
+    the data migration's job (0026), not the filter's: a house whose barangay
+    has no row can be seen on the board but never selected from the filter.
+    """
+    try:
+        rows = list(Barangay.objects.values_list('name', 'distance_from_campus'))
+    except DatabaseError:
+        rows = []
+    if not rows:
+        rows = [(name, BARANGAY_DISTANCES.get(name, '')) for name in BACNOTAN_BARANGAYS]
+    return [
+        (name, f'{name} ({distance})' if distance else name)
+        for name, distance in rows
+    ]
+
+
+def barangay_active_listing_counts():
+    """How many listings students can actually see, per barangay.
+
+    Keyed by the case-folded name, because a listing stores its barangay as
+    plain text: the row for Auring's Transient Home says "Poblacion" while the
+    admin may have typed "poblacion". The admin table compared the two exactly
+    and reported 0 active listings for a barangay the student filter could
+    fill with that house. A house with no bookable room is not counted either
+    — the student pages hide it, so counting it here would disagree with them
+    in the other direction.
+    """
+    rows = (
+        visible_listings()
+        .values(key=Lower('barangay'))
+        .annotate(count=Count('id'))
+    )
+    return {row['key']: row['count'] for row in rows}
+
+
+def barangay_rows_with_counts():
+    """(Barangay, student-visible listing count) for the admin table."""
+    counts = barangay_active_listing_counts()
+    return [
+        (barangay, counts.get((barangay.name or '').strip().lower(), 0))
+        for barangay in Barangay.objects.all()
+    ]
 
 
 def invalidate_listing_caches():
@@ -190,7 +249,10 @@ def _apply_listing_filters(houses, cleaned, amenity_ids):
             )
         )
     if cleaned.get('barangay'):
-        houses = houses.filter(barangay=cleaned['barangay'])
+        # Case-insensitive: the admin's spelling and the listing's spelling are
+        # allowed to differ ("poblacion" vs "Poblacion"), and both fixed
+        # filter sources must return the same houses.
+        houses = houses.filter(barangay__iexact=cleaned['barangay'].strip())
 
     if cleaned.get('q'):
         term = cleaned['q']
@@ -635,26 +697,10 @@ def listing_list(request):
         # DB tables might not exist yet (migrations not applied). Return empty queryset and skip DB lookups.
         houses = BoardingHouse.objects.none()
     
-    barangays = []
-    try:
-        # Only barangays a student could actually book in, so the filter never
-        # offers a choice that is guaranteed to return nothing.
-        barangays = list(visible_listings().values_list('barangay', flat=True).distinct())
-    except Exception:
-        barangays = []
-    try:
-        official = list(Barangay.objects.values_list('name', 'distance_from_campus'))
-        if official:
-            barangays = list(dict.fromkeys([o[0] for o in official] + barangays))
-        official_distances = dict(official)
-    except Exception:
-        official_distances = {}
-
     form = ListingFilterForm(request.GET)
-    form.fields['barangay'].choices = [('', 'Any')] + [
-        (b, f'{b} ({official_distances[b]})' if official_distances.get(b) else b)
-        for b in barangays
-    ]
+    # Exactly the barangays an admin maintains: a house's free-text barangay
+    # must never add a choice of its own to the student's filter.
+    form.fields['barangay'].choices = [('', 'Any')] + barangay_filter_choices()
     # Style filter widgets with Bootstrap field classes
     form.fields['barangay'].widget.attrs['class'] = 'form-select'
     form.fields['sort'].widget.attrs['class'] = 'form-select'
@@ -737,9 +783,20 @@ def boarding_detail(request, pk):
             .order_by('monthly_rate', 'id')
         ) if room.has_space()
     ]
+    # Landlord reputation, so the student can weigh who they are renting from
+    # right on the listing page. One aggregate query for the page.
+    owner_rating = LandlordRating.objects.filter(landlord=house.owner).aggregate(
+        avg=Avg('rating'), n=Count('id'),
+    )
+
     # Logged-in users keep their sidebar shell; visitors get the public navbar.
     template = 'core/boarding_detail_app.html' if request.user.is_authenticated else 'core/boarding_detail.html'
-    return render(request, template, {'house': house, 'rooms': rooms})
+    return render(request, template, {
+        'house': house,
+        'rooms': rooms,
+        'owner_rating_avg': owner_rating['avg'],
+        'owner_rating_count': owner_rating['n'],
+    })
 
 
 _ROLE_DASHBOARDS = {
@@ -775,7 +832,7 @@ def _redirect_if_authenticated(request):
 def student_register(request):
     from django.contrib.auth.forms import AuthenticationForm
     next_url = request.POST.get('next') or request.GET.get('next') or ''
-    if site_setting('student_registration_enabled', '1') != '1':
+    if not student_access_enabled():
         messages.error(request, 'Student registration is currently disabled. Please contact the BHIMS admin.')
         return redirect('home')
     if request.method == 'POST':
@@ -796,6 +853,7 @@ def student_register(request):
         'next': next_url,
         # The registration route always opens on the sign-up pane.
         'initial_mode': 'signup',
+        'student_registration_enabled': True,
     })
 
 
@@ -806,6 +864,7 @@ def accounts_login(request):
     from django.contrib.auth.forms import AuthenticationForm
     next_url = _safe_redirect_target(request.POST.get('next') or request.GET.get('next'))
     form = AuthenticationForm(request, data=request.POST or None)
+    registration_enabled = student_access_enabled()
     if request.method == 'POST':
         locked, _fails, _until = _lockout_state(request)
         if locked:
@@ -829,25 +888,39 @@ def accounts_login(request):
         remember_me = request.POST.get('remember_me')
         user = authenticate(request, username=username, password=password)
         if user is not None and user.is_active:
-            login(request, user)
-            _clear_login_failures(request)
-            if remember_me:
-                request.session.set_expiry(1209600)  # 2 weeks
+            if user.role == User.Role.STUDENT and not registration_enabled:
+                # The admin has closed the student side. A correct student
+                # password must not open a session; this is not a failed
+                # credential, so it is not counted against the lockout.
+                messages.error(
+                    request,
+                    'Student sign-in is currently disabled. Please contact the BHIMS admin.',
+                )
             else:
-                request.session.set_expiry(0)  # expire when the browser closes
-            role_dashboards = {
-                User.Role.STUDENT: 'student_dashboard',
-                User.Role.LANDLORD: 'landlord_dashboard',
-                User.Role.ADMIN: 'admin_dashboard',
-            }
-            return redirect(next_url or role_dashboards.get(user.role, 'profile'))
-        _record_login_failure(request)
-        messages.error(request, 'Invalid credentials or account disabled.')
+                login(request, user)
+                _clear_login_failures(request)
+                if remember_me:
+                    request.session.set_expiry(1209600)  # 2 weeks
+                else:
+                    request.session.set_expiry(0)  # expire when the browser closes
+                role_dashboards = {
+                    User.Role.STUDENT: 'student_dashboard',
+                    User.Role.LANDLORD: 'landlord_dashboard',
+                    User.Role.ADMIN: 'admin_dashboard',
+                }
+                return redirect(next_url or role_dashboards.get(user.role, 'profile'))
+        else:
+            _record_login_failure(request)
+            messages.error(request, 'Invalid credentials or account disabled.')
     # A failed sign-up reopens the registration half, and so does a
     # ?mode=signup link — the deck keeps that parameter in the address bar, so
     # reloading one has to land on the same half instead of flashing the
     # sign-in form first. A failed sign-in stays put.
-    initial_mode = 'signup' if (
+    # With registration switched off there is no sign-up sheet to show, so a
+    # stale ?mode=signup link (or a failed sign-up POST) must land on sign-in
+    # instead — otherwise the page's title says "Create your account" while
+    # neither form is visible.
+    initial_mode = 'signup' if registration_enabled and (
         request.POST.get('password1') is not None or request.GET.get('mode') == 'signup'
     ) else 'signin'
     return render(request, 'core/auth/login_student.html', {
@@ -855,6 +928,7 @@ def accounts_login(request):
         'reg_form': StudentRegistrationForm(auto_id='reg_%s'),
         'next': next_url,
         'initial_mode': initial_mode,
+        'student_registration_enabled': registration_enabled,
     })
 
 
@@ -872,7 +946,13 @@ def student_login(request):
     from django.contrib.auth.forms import AuthenticationForm
     next_url = _safe_redirect_target(request.POST.get('next') or request.GET.get('next'))
     form = AuthenticationForm(request, data=request.POST or None)
-    if request.method == 'POST':
+    registration_enabled = student_access_enabled()
+    if request.method == 'POST' and not registration_enabled:
+        messages.error(
+            request,
+            'Student sign-in is currently disabled. Please contact the BHIMS admin.',
+        )
+    elif request.method == 'POST':
         locked, _fails, _until = _lockout_state(request)
         if locked:
             messages.error(request, 'Too many failed attempts. This account is temporarily locked — try again in about 30 minutes.')
@@ -907,7 +987,11 @@ def student_login(request):
             messages.error(request, 'Invalid credentials or account disabled.')
     # A failed sign-up reopens the registration half, and so does a
     # ?mode=signup link — see accounts_login above.
-    initial_mode = 'signup' if (
+    # With registration switched off there is no sign-up sheet to show, so a
+    # stale ?mode=signup link (or a failed sign-up POST) must land on sign-in
+    # instead — otherwise the page's title says "Create your account" while
+    # neither form is visible.
+    initial_mode = 'signup' if registration_enabled and (
         request.POST.get('password1') is not None or request.GET.get('mode') == 'signup'
     ) else 'signin'
     return render(request, 'core/auth/login_student.html', {
@@ -915,6 +999,7 @@ def student_login(request):
         'reg_form': StudentRegistrationForm(auto_id='reg_%s'),
         'next': next_url,
         'initial_mode': initial_mode,
+        'student_registration_enabled': registration_enabled,
     })
 
 
@@ -1824,6 +1909,33 @@ def landlord_boarding_house_detail(request, pk):
 
 @login_required
 @user_passes_test(landlord_required)
+@require_POST
+def resubmit_listing(request, pk):
+    """Send a rejected listing back to the admin queue.
+
+    The admin reject confirmation has always told landlords they can resubmit,
+    but there was no route to do it: a rejected house stayed invisible to
+    students forever. Resubmitting only clears the rejection — it never
+    approves the house itself, so the admin still decides.
+    """
+    house = get_object_or_404(BoardingHouse, pk=pk, owner=request.user)
+    if house.status == BoardingHouse.Status.REJECTED:
+        house.status = BoardingHouse.Status.PENDING
+        house.is_active = False
+        house.save(update_fields=['status', 'is_active'])
+        messages.success(
+            request,
+            f'"{house.name}" was resubmitted and is now waiting for admin approval.',
+        )
+    elif house.status == BoardingHouse.Status.PENDING:
+        messages.info(request, 'This listing is already waiting for admin approval.')
+    else:
+        messages.info(request, 'This listing is already approved and visible to students.')
+    return redirect('landlord_boarding_house_detail', pk=house.pk)
+
+
+@login_required
+@user_passes_test(landlord_required)
 def landlord_inquiry_list(request):
     inquiries = Inquiry.objects.filter(
         room__boarding_house__owner=request.user
@@ -2245,14 +2357,30 @@ def admin_pending_listings(request):
     )
     paginator = Paginator(pending, 10)
     page_obj = paginator.get_page(request.GET.get('page'))
-    return render(request, 'core/admin_pending_listings.html', {'page_obj': page_obj})
+    # Rejected listings stay reviewable: a landlord may fix the details and
+    # resubmit, and the admin needs a way to approve one after the fact.
+    rejected = (
+        BoardingHouse.objects.filter(status=BoardingHouse.Status.REJECTED)
+        .select_related('owner')
+        .annotate(total_rooms=Count('rooms'))
+        .order_by('-id')[:20]
+    )
+    return render(request, 'core/admin_pending_listings.html', {
+        'page_obj': page_obj,
+        'rejected': rejected,
+    })
 
 
 @login_required
 @user_passes_test(admin_required)
 @require_POST
 def admin_approve_listing(request, pk):
-    house = get_object_or_404(BoardingHouse, pk=pk, status=BoardingHouse.Status.PENDING)
+    # Pending is the normal case; a rejected listing can be approved too
+    # (after the landlord fixes and resubmits, or at the admin's discretion).
+    house = get_object_or_404(
+        BoardingHouse, pk=pk,
+        status__in=[BoardingHouse.Status.PENDING, BoardingHouse.Status.REJECTED],
+    )
     house.status = BoardingHouse.Status.APPROVED
     house.is_active = True
     house.save()
@@ -2279,20 +2407,17 @@ def admin_reject_listing(request, pk):
 @login_required
 @user_passes_test(admin_required)
 def admin_barangay_list(request):
-    barangays = Barangay.objects.all()
-    barangay_counts = {
-        row['barangay']: row['count']
-        for row in BoardingHouse.objects.filter(status=BoardingHouse.Status.APPROVED)
-        .values('barangay')
-        .annotate(count=Count('barangay'))
-    }
-    barangay_data = [(b, barangay_counts.get(b.name, 0)) for b in barangays]
+    barangay_data = barangay_rows_with_counts()
     form = BarangayForm()
     add_error = False
     if request.method == 'POST':
         form = BarangayForm(request.POST)
         if form.is_valid():
             form.save()
+            # The browse page is cached for logged-out visitors; without this
+            # a new barangay stays missing from their filter until the cache
+            # expires.
+            invalidate_listing_caches()
             messages.success(request, 'Barangay added successfully!')
             return redirect('admin_barangay_list')
         # Invalid submit: fall through so the template reopens the Add
@@ -2316,17 +2441,13 @@ def admin_barangay_edit(request, pk):
         form = BarangayForm(request.POST, instance=barangay)
         if form.is_valid():
             form.save()
+            # A renamed barangay or a new distance label must reach the cached
+            # browse filter at once, not on the next cache miss.
+            invalidate_listing_caches()
             messages.success(request, 'Barangay updated successfully!')
             return redirect('admin_barangay_list')
-        barangays = Barangay.objects.all()
-        barangay_counts = {
-            row['barangay']: row['count']
-            for row in BoardingHouse.objects.filter(status=BoardingHouse.Status.APPROVED)
-            .values('barangay')
-            .annotate(count=Count('barangay'))
-        }
         return render(request, 'core/admin_barangays.html', {
-            'barangay_data': [(b, barangay_counts.get(b.name, 0)) for b in barangays],
+            'barangay_data': barangay_rows_with_counts(),
             'form': BarangayForm(),
             # Prefixed ids keep the hidden Add form's inputs from colliding
             # with the Edit form's (duplicate id= is invalid + breaks labels).
@@ -2343,6 +2464,7 @@ def admin_barangay_delete(request, pk):
     barangay = get_object_or_404(Barangay, pk=pk)
     name = barangay.name
     barangay.delete()
+    invalidate_listing_caches()
     from .models import log_admin_action
     log_admin_action(request.user, 'barangay_deleted', barangay)
     messages.success(request, f'Barangay "{name}" removed.')
@@ -2365,7 +2487,7 @@ def admin_settings(request):
             'site_name': site_setting('site_name', 'BHIMS'),
             'tagline': site_setting('tagline', 'Your Home Away From Home, Near NLUC'),
             'support_email': site_setting('support_email', ''),
-            'student_registration_enabled': site_setting('student_registration_enabled', '1') == '1',
+            'student_registration_enabled': student_access_enabled(),
         })
     return render(request, 'core/admin_settings.html', {'form': form})
 
@@ -2458,21 +2580,14 @@ def search_results(request):
     # unfiltered fallback needs a stable order of its own.
     qs = visible_listings().order_by('-id')
 
-    barangays = []
-    try:
-        barangays = list(qs.values_list('barangay', flat=True).distinct())
-    except Exception:
-        pass
-    try:
-        official = list(Barangay.objects.values_list('name', 'distance_from_campus'))
-        if official:
-            barangays = list(dict.fromkeys([o[0] for o in official] + barangays))
-    except Exception:
-        pass
+    # The same admin-maintained list as the browse page: no barangay appears
+    # in this filter unless an admin added it under Edit Barangays.
+    barangay_options = barangay_filter_choices()
+    barangays = [name for name, _label in barangay_options]
     all_amenities = Amenity.objects.all()
 
     form = ListingFilterForm(request.GET)
-    form.fields['barangay'].choices = [('', 'All')] + [(b, b) for b in barangays]
+    form.fields['barangay'].choices = [('', 'All')] + barangay_options
     for field in ['price_min', 'price_max', 'room_type', 'amenities', 'sort', 'barangay']:
         form.fields[field].widget.attrs['class'] = 'form-control' if field != 'sort' else 'form-select'
 

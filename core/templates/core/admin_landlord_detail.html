@@ -44,7 +44,7 @@
                     <dt class="fw-semibold" style="color: var(--bhims-text);">Student Rating</dt>
                     <dd>
                         {% if average_rating %}
-                        <span style="color: var(--bhims-badge-pending); letter-spacing: 1px;">★★★★★</span>
+                        {% include 'includes/star_rating.html' with rating=average_rating star_class='star-rating-sm' %}
                         <span class="fw-bold" style="color: var(--bhims-text);">{{ average_rating|floatformat:1 }} / 5</span>
                         <small class="text-muted d-block">{{ rating_count }} rating{{ rating_count|pluralize }}</small>
                         {% else %}

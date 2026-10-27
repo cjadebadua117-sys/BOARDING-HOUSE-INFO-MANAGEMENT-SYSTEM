@@ -32,6 +32,7 @@ urlpatterns = [
     path('landlords/boarding-houses/add/', views.boarding_house_create, name='boarding_house_create'),
     path('landlords/boarding-houses/<int:pk>/', views.landlord_boarding_house_detail, name='landlord_boarding_house_detail'),
     path('landlords/boarding-houses/<int:pk>/edit/', views.boarding_house_edit, name='boarding_house_edit'),
+    path('landlords/boarding-houses/<int:pk>/resubmit/', views.resubmit_listing, name='resubmit_listing'),
     path('landlords/boarding-houses/<int:pk>/rooms/add/', views.room_create, name='room_create'),
     path('landlords/rooms/<int:pk>/edit/', views.room_edit, name='room_edit'),
     path('landlords/rooms/<int:pk>/toggle-availability/', views.toggle_room_availability, name='toggle_room_availability'),

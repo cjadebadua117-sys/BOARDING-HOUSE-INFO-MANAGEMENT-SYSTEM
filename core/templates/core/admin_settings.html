@@ -18,7 +18,7 @@
     <div class="row g-4">
         <div class="col-lg-7 col-xl-6">
             <div class="admin-table-wrap p-4 h-100" style="background: var(--bhims-cream-light);">
-                <form method="post" novalidate>
+                <form method="post" id="settingsForm" novalidate>
                     {% csrf_token %}
 
                     {% for field in form %}
@@ -29,7 +29,7 @@
                         </div>
                         <div>
                             <label class="form-label mb-0" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                            <small class="d-block text-muted">Students can sign up on their own when this is on.</small>
+                            <small class="d-block text-muted">When this is on, students can sign up and sign in. Turning it off closes both and ends active student sessions. The switch saves as soon as you flip it.</small>
                             {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors|striptags }}</div>{% endif %}
                         </div>
                     </div>
@@ -69,11 +69,29 @@
                     </li>
                     <li class="d-flex gap-3">
                         <i class="bi bi-person-plus" style="color: var(--bhims-teal);"></i>
-                        <span><strong style="color: var(--bhims-text);">Student registration</strong> — toggle self-service signup on or off.</span>
+                        <span><strong style="color: var(--bhims-text);">Student registration</strong> — controls student sign-up and sign-in.</span>
                     </li>
                 </ul>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var form = document.getElementById('settingsForm');
+    var toggle = document.getElementById('id_student_registration_enabled');
+    if (!form || !toggle) return;
+
+    /* Save the moment the switch moves. The setting used to look changed only
+       until the next reload, because nothing was written until Save was
+       pressed — and a toggle is read as "this is now off". */
+    toggle.addEventListener('change', function () {
+        if (form.requestSubmit) form.requestSubmit();
+        else form.submit();
+    });
+})();
+</script>
 {% endblock %}

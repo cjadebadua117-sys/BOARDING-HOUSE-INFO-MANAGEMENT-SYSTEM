@@ -21,56 +21,70 @@
        spans 3 of 12 columns (four per row).
        `.stat-grid-7` is the seven-card strip (the Overview): its last three
        cards span 4 columns each so the second row is flush too. */
-    .stat-grid {
+    .stat-grid,
+    .stat-grid-7 {
         display: grid;
-        grid-template-columns: repeat(12, minmax(0, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 3rem;
+        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+        gap: 0.85rem;
+        margin-bottom: 2rem;
     }
-    .stat-grid > * { grid-column: span 3; }
-    .stat-grid-7 > :nth-child(n + 5) { grid-column: span 4; }
+    .stat-grid > *,
+    .stat-grid-7 > *,
+    .stat-grid-7 > :nth-child(n + 5),
+    .stat-grid-7 > :last-child {
+        grid-column: auto !important;
+    }
     .stat-card {
-        background: rgba(255,255,255,0.03);
-        -webkit-backdrop-filter: blur(24px) saturate(180%);
-        backdrop-filter: blur(24px) saturate(180%);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-top: 3px solid var(--bhims-teal);
-        border-radius: 20px;
-        padding: 1.75rem;
+        background: var(--vd-surface, #ffffff);
+        border: 1px solid var(--vd-line, rgba(0,0,0,0.08));
+        border-radius: 12px;
+        padding: 0.65rem 0.80rem;
         display: flex;
         align-items: center;
-        gap: 1.25rem;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 32px 0 rgba(0,0,0,0.37);
+        gap: 0.65rem;
+        min-height: 72px;
+        box-sizing: border-box;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
         transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
     .stat-card:hover {
         transform: translateY(-2px);
-        box-shadow: var(--bhims-shadow-sm);
-        border-color: var(--bhims-ink-line-strong);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+        border-color: var(--vd-line-strong, rgba(0,0,0,0.15));
     }
     .stat-icon {
-        width: 56px;
-        height: 56px;
-        border-radius: 14px;
-        background: var(--bhims-icon-tint);
-        color: var(--bhims-teal);
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: var(--vd-accent-wash, rgba(21, 128, 61, 0.1));
+        color: var(--vd-accent, #15803d);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: var(--fs-2xl);
+        font-size: 1.05rem;
         flex-shrink: 0;
     }
     .stat-number {
-        font-family: var(--font-display);
+        font-family: var(--vd-font, inherit);
         font-weight: 800;
-        font-size: 2rem;
-        color: var(--bhims-text);
+        font-size: 1.35rem;
+        color: var(--vd-ink, inherit);
         line-height: 1;
+        font-variant-numeric: tabular-nums;
+        margin-bottom: 0.2rem;
     }
     .stat-label {
-        color: var(--bhims-text-muted);
-        font-size: var(--fs-sm);
-        margin-top: 0.35rem;
+        color: var(--vd-ink-muted, rgba(0,0,0,0.6));
+        font-size: 0.67rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        line-height: 1.25;
+        white-space: normal;
+        word-break: normal;
+        overflow: visible;
+        text-overflow: clip;
+        margin: 0;
     }
 
     /* On/off switch: a real track and knob, in the site's green rather than
@@ -259,20 +273,28 @@
     }
 
     @media (max-width: 992px) {
-        /* Two per row; seven cards would leave a single half-width card alone
-           on the last row, so that one takes the full width instead. */
-        .stat-grid > * { grid-column: span 6; }
-        .stat-grid-7 > :nth-child(n + 5) { grid-column: span 6; }
-        .stat-grid-7 > :last-child { grid-column: span 12; }
-    }
-    @media (max-width: 576px) {
-        /* One per row. The nth-child rules need naming here too: they are more
-           specific than `.stat-grid-7 > *` and would otherwise leave cards 5
-           and 6 sharing a half-width row. */
+        .stat-grid,
+        .stat-grid-7 {
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        }
         .stat-grid > *,
         .stat-grid-7 > *,
         .stat-grid-7 > :nth-child(n + 5),
-        .stat-grid-7 > :last-child { grid-column: span 12; }
+        .stat-grid-7 > :last-child {
+            grid-column: auto !important;
+        }
+    }
+    @media (max-width: 576px) {
+        .stat-grid,
+        .stat-grid-7 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .stat-grid > *,
+        .stat-grid-7 > *,
+        .stat-grid-7 > :nth-child(n + 5),
+        .stat-grid-7 > :last-child {
+            grid-column: auto !important;
+        }
         .btn-uppercase.btn-sm {
             padding: 0.55rem 1rem;
             font-size: 0.8rem;

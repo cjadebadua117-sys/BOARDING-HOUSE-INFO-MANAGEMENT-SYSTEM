@@ -24,12 +24,7 @@
             <div class="glass-card text-center h-100 p-4">
                 <p class="eyebrow mb-1">Average rating</p>
                 <div style="font-size: 2.2rem; font-weight: 700; color: var(--bhims-text);">{{ average_rating|floatformat:1 }}</div>
-                <div class="rating-stars" aria-label="{{ average_rating|floatformat:1 }} out of 5 stars">
-                    <span style="display:inline-block; position:relative;">
-                        <span style="opacity:0.25;">★★★★★</span>
-                        <span style="position:absolute; left:0; top:0; width:{% widthratio average_rating 5 100 %}%; overflow:hidden; white-space:nowrap;">★★★★★</span>
-                    </span>
-                </div>
+                {% include 'includes/star_rating.html' with rating=average_rating star_class='rating-stars star-rating-lg' %}
             </div>
         </div>
         <div class="col-md-4">
@@ -39,7 +34,7 @@
                 <div class="d-flex align-items-center gap-2 mb-1">
                     <small style="width: 52px; color: var(--bhims-text-muted);">{{ s }} star{{ s|pluralize }}</small>
                     <div style="flex:1; height: 6px; border-radius: 999px; background: rgba(128,128,128,0.15); overflow: hidden;">
-                        <div style="height:100%; width:{% widthratio count rating_count 100 %}%; background: linear-gradient(90deg, var(--bhims-primary), var(--bhims-teal)); border-radius: 999px;"></div>
+                        <div style="height:100%; width:{% widthratio count rating_count 100 %}%; background: linear-gradient(90deg, var(--bhims-teal), var(--bhims-teal-deep)); border-radius: 999px;"></div>
                     </div>
                     <small style="width: 26px; text-align:right; color: var(--bhims-text);">{{ count }}</small>
                 </div>

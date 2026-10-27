@@ -25,7 +25,7 @@ its previous copy, and a fixed card keeps rendering the broken one.
             {% else %}
             <a href="{% url 'admin_dashboard' %}" class="create-btn"><i class="bi bi-speedometer2"></i> Admin Dashboard</a>
             {% endif %}
-        {% else %}
+        {% elif student_registration_enabled %}
         <a href="{% url 'student_register' %}" class="create-btn"><i class="bi bi-person-plus"></i> Create an Account</a>
         {% endif %}
     </div>

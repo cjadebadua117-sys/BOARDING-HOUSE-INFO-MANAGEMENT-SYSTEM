@@ -1,0 +1,1349 @@
+/* ==========================================================================
+   BHIMS · Human-Made Collegiate Craftsman Identity & UX System
+   Boarding House Information Management System — DMMMSU NLUC (Bacnotan, La Union)
+   
+   Crafted with purpose, collegiate warmth, and tactile human delight.
+   Eliminates sterile, generic AI templates in favor of authentic campus character:
+     — Primary Accent: DMMMSU Pine Forest & Radiant Emerald (#15803d / #22c55e)
+     — Warm Accent: Bacnotan Harvest Sun Amber (#d97706 / #f59e0b)
+     — Light Mode: Warm Campus Linen & Stone (#fbfaf7 / #ffffff)
+     — Dark Mode: Botanical Evergreen Obsidian (#0b1410 / #121e17)
+     — Typography: Confident editorial rhythm, tabular currency figures
+     — Cards & Buttons: Layered depth, tactile press states, smooth spring hover lifts
+   ========================================================================== */
+
+/* ==========================================================================
+   1. CORE TOKENS (Shared across themes)
+   ========================================================================== */
+:root {
+    /* Brand Primary: Institutional Evergreen & Radiant Mint */
+    --vd-brand-forest: #14532d;
+    --vd-brand-emerald: #15803d;
+    --vd-brand-emerald-bright: #16a34a;
+    --vd-brand-mint: #22c55e;
+    --vd-brand-mint-luminous: #4ade80;
+
+    /* Brand Warm: Bacnotan Harvest Gold & Sun Amber */
+    --vd-amber: #d97706;
+    --vd-amber-bright: #f59e0b;
+    --vd-amber-light: #fbbf24;
+    --vd-amber-wash: rgba(217, 119, 6, 0.12);
+
+    /* Radii: Organic, modern, tactile rounded corners */
+    --vd-radius-xs: 4px;
+    --vd-radius-sm: 8px;
+    --vd-radius: 12px;
+    --vd-radius-lg: 16px;
+    --vd-radius-xl: 20px;
+    --vd-radius-full: 9999px;
+
+    /* Typography */
+    --vd-font: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --vd-font-heading: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --vd-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+    /* Easing curves: Human spring and smooth momentum */
+    --vd-ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+    --vd-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --vd-ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================================================
+   2. DARK THEME TOKENS — Botanical Evergreen Obsidian
+   ========================================================================== */
+:root,
+html[data-theme="dark"] {
+    /* Ground & Surfaces */
+    --vd-ground: #0a120e;
+    --vd-surface: #111d16;
+    --vd-surface-raised: #17271e;
+    --vd-surface-overlay: #1d3227;
+
+    /* Inks / Typography */
+    --vd-ink: #f1f6f3;
+    --vd-ink-secondary: rgba(241, 246, 243, 0.86);
+    --vd-ink-muted: #9eb5aa;
+    --vd-ink-faint: #678073;
+
+    /* Lines & Borders */
+    --vd-line: rgba(52, 211, 153, 0.13);
+    --vd-line-strong: rgba(52, 211, 153, 0.24);
+    --vd-line-accent: rgba(52, 211, 153, 0.38);
+
+    /* Shadows: Deep, diffused, atmospheric */
+    --vd-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --vd-shadow-sm: 0 3px 10px rgba(0, 0, 0, 0.35);
+    --vd-shadow-md: 0 8px 24px -6px rgba(0, 0, 0, 0.45);
+    --vd-shadow-lg: 0 16px 38px -10px rgba(0, 0, 0, 0.55);
+
+    /* Accents for Dark Mode: Luminous Emerald & Amber */
+    --vd-accent: #22c55e;
+    --vd-accent-hover: #34d399;
+    --vd-accent-bright: #4ade80;
+    --vd-accent-deep: #16a34a;
+    --vd-accent-wash: rgba(34, 197, 94, 0.15);
+    --vd-accent-wash-hover: rgba(34, 197, 94, 0.24);
+    --vd-on-accent: #052e16;
+
+    /* Status Washes (Dark) */
+    --vd-ok-wash: rgba(34, 197, 94, 0.16);
+    --vd-ok-ink: #4ade80;
+    --vd-ok-line: rgba(74, 222, 128, 0.32);
+
+    --vd-warn-wash: rgba(245, 158, 11, 0.16);
+    --vd-warn-ink: #fbbf24;
+    --vd-warn-line: rgba(251, 191, 36, 0.32);
+
+    --vd-bad-wash: rgba(239, 68, 68, 0.16);
+    --vd-bad-ink: #f87171;
+    --vd-bad-line: rgba(248, 113, 113, 0.32);
+
+    --vd-info-wash: rgba(14, 165, 233, 0.16);
+    --vd-info-ink: #38bdf8;
+    --vd-info-line: rgba(56, 189, 248, 0.32);
+
+    /* Focus ring */
+    --focus-ring: #22c55e;
+}
+
+/* ==========================================================================
+   3. LIGHT THEME TOKENS — Warm Campus Linen & Bacnotan Stone
+   ========================================================================== */
+html[data-theme="light"] {
+    /* Ground & Surfaces */
+    --vd-ground: #f9f8f5;
+    --vd-surface: #ffffff;
+    --vd-surface-raised: #f2efe9;
+    --vd-surface-overlay: #ffffff;
+
+    /* Inks / Typography */
+    --vd-ink: #16221c;
+    --vd-ink-secondary: rgba(22, 34, 28, 0.88);
+    --vd-ink-muted: #506157;
+    --vd-ink-faint: #7d8f85;
+
+    /* Lines & Borders */
+    --vd-line: rgba(22, 40, 30, 0.09);
+    --vd-line-strong: rgba(22, 40, 30, 0.16);
+    --vd-line-accent: rgba(21, 128, 61, 0.28);
+
+    /* Shadows: Warm, tactile, natural ambient light */
+    --vd-shadow-xs: 0 1px 2px rgba(22, 34, 28, 0.04);
+    --vd-shadow-sm: 0 2px 8px -2px rgba(22, 34, 28, 0.08);
+    --vd-shadow-md: 0 8px 24px -8px rgba(22, 34, 28, 0.12);
+    --vd-shadow-lg: 0 16px 36px -12px rgba(22, 34, 28, 0.16);
+
+    /* Accents for Light Mode: Rich Deep Pine Forest */
+    --vd-accent: #15803d;
+    --vd-accent-hover: #166534;
+    --vd-accent-bright: #16a34a;
+    --vd-accent-deep: #14532d;
+    --vd-accent-wash: rgba(21, 128, 61, 0.10);
+    --vd-accent-wash-hover: rgba(21, 128, 61, 0.18);
+    --vd-on-accent: #ffffff;
+
+    /* Status Washes (Light) */
+    --vd-ok-wash: #dcfce7;
+    --vd-ok-ink: #15803d;
+    --vd-ok-line: rgba(21, 128, 61, 0.25);
+
+    --vd-warn-wash: #fef3c7;
+    --vd-warn-ink: #b45309;
+    --vd-warn-line: rgba(180, 83, 9, 0.25);
+
+    --vd-bad-wash: #fee2e2;
+    --vd-bad-ink: #b91c1c;
+    --vd-bad-line: rgba(185, 28, 28, 0.25);
+
+    --vd-info-wash: #e0f2fe;
+    --vd-info-ink: #0369a1;
+    --vd-info-line: rgba(3, 105, 161, 0.25);
+
+    /* Focus ring */
+    --focus-ring: #15803d;
+}
+
+/* ==========================================================================
+   4. SYSTEM TOKEN BRIDGES (Empowers all pre-existing classes)
+   ========================================================================== */
+:root,
+html[data-theme="dark"],
+html[data-theme="light"] {
+    --ce-paper: var(--vd-ground);
+    --ce-card: var(--vd-surface);
+    --ce-ink: var(--vd-ink);
+    --ce-ink-soft: var(--vd-ink-muted);
+    --ce-ink-faint: var(--vd-ink-faint);
+    --ce-line: var(--vd-line);
+    --ce-line-strong: var(--vd-line-strong);
+    --ce-shadow: var(--vd-shadow-sm);
+    --ce-shadow-hover: var(--vd-shadow-md);
+    --ce-accent: var(--vd-accent);
+    --ce-accent-deep: var(--vd-accent-hover);
+    --ce-accent-wash: var(--vd-accent-wash);
+    --ce-on-accent: var(--vd-on-accent);
+    --ce-gold: var(--vd-amber);
+    --ce-gold-wash: var(--vd-amber-wash);
+    --ce-radius: var(--vd-radius);
+    --ce-radius-sm: var(--vd-radius-sm);
+
+    --bhims-teal: var(--vd-accent);
+    --bhims-teal-hover: var(--vd-accent-hover);
+    --bhims-teal-strong: var(--vd-accent-bright);
+    --bhims-teal-deep: var(--vd-accent-deep);
+    --bhims-text: var(--vd-ink);
+    --bhims-text-secondary: var(--vd-ink-secondary);
+    --bhims-text-muted: var(--vd-ink-muted);
+    --bhims-text-faint: var(--vd-ink-faint);
+    --bhims-paper: var(--vd-ground);
+    --bhims-paper-raised: var(--vd-surface);
+    --bhims-border: var(--vd-line);
+    --bhims-ink-line: var(--vd-line);
+    --bhims-ink-line-strong: var(--vd-line-strong);
+    --bhims-radius: var(--vd-radius);
+    --bhims-radius-sm: var(--vd-radius-sm);
+
+    --bhims-badge-verified-bg: var(--vd-ok-wash);
+    --bhims-badge-verified: var(--vd-ok-ink);
+    --bhims-badge-pending-bg: var(--vd-warn-wash);
+    --bhims-badge-pending: var(--vd-warn-ink);
+    --bhims-badge-rejected-bg: var(--vd-bad-wash);
+    --bhims-badge-rejected: var(--vd-bad-ink);
+
+    --ios-surface: var(--vd-ground);
+    --ios-card: var(--vd-surface);
+    --ios-border: var(--vd-line);
+    --ios-text: var(--vd-ink);
+    --ios-muted: var(--vd-ink-muted);
+    --ios-primary: var(--vd-accent);
+}
+
+/* ==========================================================================
+   5. BASE GROUND & TYPOGRAPHY WITH CHARACTER
+   ========================================================================== */
+html, body {
+    background-color: var(--vd-ground) !important;
+    background-image: none !important;
+    color: var(--vd-ink) !important;
+    font-family: var(--vd-font) !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.01em;
+}
+
+::selection {
+    background: var(--vd-accent-wash-hover);
+    color: var(--vd-ink);
+}
+
+/* Scrollbars */
+html {
+    scrollbar-color: var(--vd-line-strong) transparent;
+}
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--vd-line-strong);
+    border-radius: var(--vd-radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--vd-accent);
+}
+
+/* Headings: Authoritative, warm, human collegiate character */
+h1, h2, h3, h4, h5, h6,
+.display-1, .display-2, .display-3, .display-4,
+.card-title, .section-header h2, .page-header h1, .page-header h2 {
+    font-family: var(--vd-font-heading) !important;
+    color: var(--vd-ink) !important;
+    letter-spacing: -0.028em !important;
+    line-height: 1.25 !important;
+}
+
+.page-header h1 {
+    font-weight: 800 !important;
+    font-size: clamp(1.85rem, 3.5vw, 2.4rem) !important;
+    margin-bottom: 0.35rem !important;
+}
+
+.page-header p {
+    color: var(--vd-ink-muted) !important;
+    font-size: 1.02rem !important;
+    max-width: 650px !important;
+}
+
+/* Eyebrows: Warm collegiate subtitle badge with luminous pip */
+.eyebrow,
+.page-header .eyebrow,
+.section-header .eyebrow {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.45rem !important;
+    color: var(--vd-accent) !important;
+    font-size: 0.76rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.12em !important;
+    margin-bottom: 0.4rem !important;
+}
+.eyebrow::before,
+.page-header .eyebrow::before,
+.section-header .eyebrow::before {
+    content: '' !important;
+    display: inline-block !important;
+    width: 6px !important;
+    height: 6px !important;
+    border-radius: 50% !important;
+    background: var(--vd-accent) !important;
+    box-shadow: 0 0 8px var(--vd-accent) !important;
+}
+
+/* Section Header Underline: Tasteful emerald accent ribbon */
+.section-header h2::after,
+.page-header h1::after {
+    content: '' !important;
+    display: block !important;
+    width: 38px !important;
+    height: 3px !important;
+    border-radius: 2px !important;
+    background: linear-gradient(90deg, var(--vd-accent), var(--vd-amber)) !important;
+    margin-top: 0.5rem !important;
+}
+
+/* Links */
+a {
+    color: var(--vd-accent) !important;
+    text-decoration: none !important;
+    transition: color 0.18s ease !important;
+}
+a:hover {
+    color: var(--vd-accent-hover) !important;
+}
+
+/* ==========================================================================
+   6. TOPBAR NAVIGATION (Clean frosted header with campus dignity)
+   ========================================================================== */
+.bhims-topbar {
+    background: var(--vd-surface) !important;
+    border-bottom: 1px solid var(--vd-line) !important;
+    box-shadow: var(--vd-shadow-xs) !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    padding: 0.65rem 1.25rem !important;
+    transition: background 0.2s ease, border-color 0.2s ease !important;
+}
+
+.bhims-brand-mark {
+    height: 38px !important;
+    width: auto !important;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15)) !important;
+}
+
+.bhims-nav-link {
+    color: var(--vd-ink-muted) !important;
+    font-weight: 600 !important;
+    font-size: 0.90rem !important;
+    padding: 0.5rem 0.9rem !important;
+    border-radius: var(--vd-radius-sm) !important;
+    transition: all 0.18s ease !important;
+}
+.bhims-nav-link:hover,
+.bhims-nav-link.is-active {
+    color: var(--vd-accent) !important;
+    background: var(--vd-accent-wash) !important;
+}
+
+/* Theme switch button: satisfying rotating micro-interaction */
+.bhims-theme-btn {
+    background: var(--vd-surface-raised) !important;
+    border: 1px solid var(--vd-line-strong) !important;
+    color: var(--vd-ink) !important;
+    border-radius: var(--vd-radius) !important;
+    width: 38px !important;
+    height: 38px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.22s var(--vd-ease-spring) !important;
+}
+.bhims-theme-btn:hover {
+    background: var(--vd-accent-wash) !important;
+    color: var(--vd-accent) !important;
+    border-color: var(--vd-accent) !important;
+    transform: rotate(18deg) scale(1.08) !important;
+}
+
+/* ==========================================================================
+   7. SIDEBAR NAVIGATION (Human-crafted collegiate drawer & rail)
+   ========================================================================== */
+.app-sidebar {
+    background: var(--vd-surface) !important;
+    border-right: 1px solid var(--vd-line) !important;
+    box-shadow: var(--vd-shadow-sm) !important;
+    transition: all 0.25s var(--vd-ease-spring) !important;
+}
+
+.sidebar-heading {
+    color: var(--vd-ink-faint) !important;
+    font-size: 0.72rem !important;
+    font-weight: 750 !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase !important;
+    padding: 0.75rem 0.85rem 0.35rem !important;
+}
+
+/* Sidebar navigation links */
+.sidebar-link {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.85rem !important;
+    color: var(--vd-ink-muted) !important;
+    border-radius: var(--vd-radius-sm) !important;
+    padding: 0.65rem 0.95rem !important;
+    margin-bottom: 0.25rem !important;
+    font-size: 0.915rem !important;
+    font-weight: 550 !important;
+    position: relative !important;
+    transition: all 0.18s var(--vd-ease-spring) !important;
+    border: 1px solid transparent !important;
+}
+
+.sidebar-link i {
+    font-size: 1.15rem !important;
+    color: var(--vd-ink-faint) !important;
+    transition: all 0.18s ease !important;
+}
+
+.sidebar-link:hover {
+    background: var(--vd-surface-raised) !important;
+    color: var(--vd-ink) !important;
+    transform: translateX(4px) !important;
+    border-color: var(--vd-line) !important;
+}
+.sidebar-link:hover i {
+    color: var(--vd-accent) !important;
+    transform: scale(1.1) !important;
+}
+
+/* Active navigation item: Warm illuminated pill + crisp vertical ribbon */
+.sidebar-link.active,
+[data-theme="light"] .sidebar-link.active,
+[data-theme="dark"] .sidebar-link.active {
+    background: var(--vd-accent-wash) !important;
+    color: var(--vd-accent) !important;
+    font-weight: 700 !important;
+    border-color: var(--vd-line-accent) !important;
+    box-shadow: 0 2px 8px -2px var(--vd-accent-wash) !important;
+    transform: none !important;
+}
+.sidebar-link.active i {
+    color: var(--vd-accent) !important;
+}
+.sidebar-link.active::before {
+    content: '' !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 20% !important;
+    bottom: 20% !important;
+    width: 3.5px !important;
+    border-radius: 0 4px 4px 0 !important;
+    background: var(--vd-accent) !important;
+    box-shadow: 0 0 10px var(--vd-accent) !important;
+}
+
+/* "NEW" chip */
+.new-chip {
+    background: var(--vd-amber) !important;
+    color: #ffffff !important;
+    font-size: 0.65rem !important;
+    font-weight: 800 !important;
+    padding: 0.15rem 0.45rem !important;
+    border-radius: var(--vd-radius-full) !important;
+    margin-left: auto !important;
+    letter-spacing: 0.05em !important;
+}
+
+/* Sidebar user identity card */
+.sidebar-profile {
+    background: var(--vd-surface-raised) !important;
+    border: 1px solid var(--vd-line-strong) !important;
+    border-radius: var(--vd-radius) !important;
+    padding: 0.85rem !important;
+    margin: 1rem 0.5rem 0.5rem !important;
+    box-shadow: var(--vd-shadow-xs) !important;
+}
+.sidebar-profile-name {
+    color: var(--vd-ink) !important;
+    font-weight: 700 !important;
+    font-size: 0.88rem !important;
+}
+.sidebar-profile-role {
+    color: var(--vd-accent) !important;
+    background: var(--vd-accent-wash) !important;
+    border: 1px solid var(--vd-line-accent) !important;
+    font-size: 0.68rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.06em !important;
+    padding: 0.2rem 0.55rem !important;
+    border-radius: var(--vd-radius-full) !important;
+}
+.sidebar-avatar {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: var(--vd-radius-full) !important;
+    border: 1.5px solid var(--vd-accent) !important;
+    object-fit: cover !important;
+}
+.sidebar-avatar-initial {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: var(--vd-radius-full) !important;
+    background: linear-gradient(135deg, var(--vd-accent), var(--vd-accent-deep)) !important;
+    color: var(--vd-on-accent) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 750 !important;
+    font-size: 0.95rem !important;
+}
+.sidebar-logout {
+    background: transparent !important;
+    border: none !important;
+    color: var(--vd-ink-faint) !important;
+    font-size: 1.15rem !important;
+    padding: 0.4rem !important;
+    border-radius: var(--vd-radius-sm) !important;
+    cursor: pointer !important;
+    transition: all 0.18s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+.sidebar-logout:hover {
+    color: var(--vd-bad-ink) !important;
+    background: var(--vd-bad-wash) !important;
+    transform: scale(1.1) !important;
+}
+
+/* ==========================================================================
+   8. STAT CARDS: Compact, Sleek, Organized Metric Tiles (Small & Clean)
+   ========================================================================== */
+.stats-row,
+.stat-grid,
+.stat-grid-7 {
+    display: grid !important;
+    gap: 0.85rem !important;
+    margin-bottom: 1.75rem !important;
+}
+
+.stats-row {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)) !important;
+}
+
+.stat-grid,
+.stat-grid-7,
+.admin-page .stat-grid,
+.admin-page .stat-grid-7 {
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)) !important;
+}
+
+/* Explicitly cancel old layout spans so all cards stay small, uniform, and neat */
+.stat-grid > *,
+.stat-grid-7 > *,
+.stat-grid-7 > :nth-child(n + 5),
+.stat-grid-7 > :last-child,
+.admin-page .stat-grid > *,
+.admin-page .stat-grid-7 > * {
+    grid-column: auto !important;
+}
+
+@media (max-width: 576px) {
+    .stat-grid,
+    .stat-grid-7 {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* Small, compact card styling */
+.stat-card,
+.admin-page .stat-card,
+.stat-grid .stat-card {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 0.65rem !important;
+    padding: 0.65rem 0.80rem !important;
+    min-height: 72px !important;
+    box-sizing: border-box !important;
+    background: var(--vd-surface) !important;
+    border: 1px solid var(--vd-line) !important;
+    border-radius: var(--vd-radius) !important;
+    box-shadow: var(--vd-shadow-xs) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    transition: transform 0.2s var(--vd-ease-spring),
+                box-shadow 0.2s var(--vd-ease-spring),
+                border-color 0.2s ease !important;
+}
+
+/* Subtle top accent line */
+.stat-card::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 2.5px !important;
+    background: linear-gradient(90deg, var(--vd-accent), transparent 75%) !important;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: var(--vd-shadow-sm) !important;
+    border-color: var(--vd-line-strong) !important;
+}
+
+/* Small, compact emblem badge */
+.stat-icon,
+.admin-page .stat-icon,
+.stat-grid .stat-icon {
+    flex: 0 0 34px !important;
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: var(--vd-radius-sm) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: var(--vd-accent-wash) !important;
+    border: 1px solid var(--vd-line-accent) !important;
+    color: var(--vd-accent) !important;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
+    transition: transform 0.2s var(--vd-ease-spring) !important;
+    margin: 0 !important;
+}
+.stat-icon i,
+.stat-icon svg,
+.admin-page .stat-icon i,
+.stat-grid .stat-icon i {
+    font-size: 1.05rem !important;
+    width: 1.05rem !important;
+    height: 1.05rem !important;
+    color: var(--vd-accent) !important;
+}
+
+.stat-card:hover .stat-icon {
+    transform: scale(1.06) rotate(3deg) !important;
+}
+
+/* Compact Typography */
+.stat-content {
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 0 !important;
+    flex: 1 !important;
+}
+.stat-content .stat-value,
+.stat-content h2,
+.stat-content h3,
+.stat-number,
+.admin-page .stat-number {
+    font-size: 1.35rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.025em !important;
+    line-height: 1 !important;
+    color: var(--vd-ink) !important;
+    margin: 0 0 0.18rem 0 !important;
+    font-variant-numeric: tabular-nums !important;
+}
+.stat-content p,
+.stat-label,
+.admin-page .stat-label {
+    margin: 0 !important;
+    color: var(--vd-ink-muted) !important;
+    font-size: 0.67rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.03em !important;
+    line-height: 1.25 !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    display: block !important;
+}
+
+/* ==========================================================================
+   9. LISTING & ACCOMMODATION CARDS (Crafted for Real Students & Landlords)
+   ========================================================================== */
+.listing-card,
+.result-card,
+.house-card {
+    background: var(--vd-surface) !important;
+    border: 1px solid var(--vd-line) !important;
+    border-radius: var(--vd-radius-lg) !important;
+    overflow: hidden !important;
+    box-shadow: var(--vd-shadow-xs) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    position: relative !important;
+    transition: transform 0.28s var(--vd-ease-spring),
+                box-shadow 0.28s var(--vd-ease-spring),
+                border-color 0.24s ease !important;
+}
+
+.listing-card:hover,
+.result-card:hover,
+.house-card:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: var(--vd-shadow-lg) !important;
+    border-color: var(--vd-line-strong) !important;
+}
+
+/* Image frame with cinematic smooth zoom */
+.result-image,
+.card-image {
+    position: relative !important;
+    height: 200px !important;
+    background: var(--vd-surface-raised) !important;
+    overflow: hidden !important;
+}
+.result-image img,
+.house-image {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    transition: transform 0.45s var(--vd-ease-spring) !important;
+}
+.listing-card:hover .result-image img,
+.result-card:hover .result-image img,
+.house-card:hover .house-image {
+    transform: scale(1.05) !important;
+}
+
+/* Price plate floating on bottom right of the photo */
+.result-price,
+.card-price-overlay {
+    position: absolute !important;
+    bottom: 0.75rem !important;
+    right: 0.75rem !important;
+    background: rgba(10, 18, 14, 0.88) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border-radius: var(--vd-radius-sm) !important;
+    padding: 0.35rem 0.75rem !important;
+    color: #ffffff !important;
+    display: inline-flex !important;
+    align-items: baseline !important;
+    gap: 0.25rem !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35) !important;
+    z-index: 2 !important;
+}
+.result-price-value {
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em !important;
+    color: #ffffff !important;
+    font-variant-numeric: tabular-nums !important;
+}
+.result-price-unit {
+    font-size: 0.72rem !important;
+    color: rgba(255, 255, 255, 0.75) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+}
+
+/* Floating verification and vacancy badges */
+.result-badges {
+    position: absolute !important;
+    top: 0.75rem !important;
+    left: 0.75rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.35rem !important;
+    z-index: 2 !important;
+}
+.badge-bhims-verified {
+    background: var(--vd-amber) !important;
+    color: #ffffff !important;
+    font-weight: 750 !important;
+    font-size: 0.72rem !important;
+    padding: 0.3rem 0.65rem !important;
+    border-radius: var(--vd-radius-full) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    letter-spacing: 0.04em !important;
+}
+.badge-bhims-open {
+    background: var(--vd-accent) !important;
+    color: var(--vd-on-accent) !important;
+    font-weight: 750 !important;
+    font-size: 0.72rem !important;
+    padding: 0.3rem 0.65rem !important;
+    border-radius: var(--vd-radius-full) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+}
+.badge-bhims-full {
+    background: #e11d48 !important;
+    color: #ffffff !important;
+    font-weight: 750 !important;
+    font-size: 0.72rem !important;
+    padding: 0.3rem 0.65rem !important;
+    border-radius: var(--vd-radius-full) !important;
+}
+
+/* Card Body Content */
+.result-body,
+.card-body {
+    padding: 1.25rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+}
+
+.result-title,
+.card-title {
+    font-size: 1.15rem !important;
+    font-weight: 750 !important;
+    margin-bottom: 0.35rem !important;
+    color: var(--vd-ink) !important;
+    line-height: 1.3 !important;
+}
+
+.result-location,
+.card-location {
+    color: var(--vd-ink-muted) !important;
+    font-size: 0.85rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    margin-bottom: 0.65rem !important;
+}
+.result-location i,
+.card-location i {
+    color: var(--vd-accent) !important;
+}
+
+/* Star rating chips */
+.result-rating {
+    font-size: 0.82rem !important;
+    color: var(--vd-amber) !important;
+    margin-bottom: 0.65rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+}
+.result-rating-count {
+    color: var(--vd-ink-faint) !important;
+    font-size: 0.75rem !important;
+}
+
+/* Amenities Tags */
+.result-amenities {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.35rem !important;
+    margin: 0.5rem 0 0.85rem !important;
+}
+.result-amenity,
+.amenity-chip,
+.result-pill,
+.room-type-pill {
+    background: var(--vd-surface-raised) !important;
+    border: 1px solid var(--vd-line) !important;
+    color: var(--vd-ink-muted) !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    padding: 0.25rem 0.55rem !important;
+    border-radius: var(--vd-radius-sm) !important;
+}
+
+/* Card action footer */
+.result-footer,
+.card-footer {
+    background: transparent !important;
+    border-top: 1px solid var(--vd-line) !important;
+    padding: 0.85rem 0 0 !important;
+    margin-top: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.5rem !important;
+}
+
+/* ==========================================================================
+   10. TACTILE PHYSICAL BUTTONS (Weight, Depth, Micro-Spring Response)
+   ========================================================================== */
+.btn-primary, .btn-success, .btn-bhims, .ios-btn, .create-btn, .submit-btn,
+.btn-submit, .btn-register-bhims, .btn-accept-bhims, .bhims-login-btn,
+.landing-btn-primary, .btn-teal, .manage-btn, .edit-btn, .btn-view-result,
+main a.btn-primary, main a.create-btn, main a.manage-btn {
+    background: linear-gradient(180deg, var(--vd-accent-bright), var(--vd-accent)) !important;
+    color: var(--vd-on-accent) !important;
+    border: 1px solid var(--vd-accent) !important;
+    border-radius: var(--vd-radius-sm) !important;
+    font-weight: 650 !important;
+    font-size: 0.90rem !important;
+    letter-spacing: -0.01em !important;
+    padding: 0.65rem 1.25rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.45rem !important;
+    box-shadow: 0 4px 14px -3px var(--vd-accent-wash), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    transition: all 0.2s var(--vd-ease-spring) !important;
+}
+
+.btn-primary:hover, .btn-success:hover, .btn-bhims:hover, .ios-btn:hover,
+.landing-btn-primary:hover, .create-btn:hover, .submit-btn:hover,
+.btn-submit:hover, .btn-teal:hover, .manage-btn:hover, .btn-view-result:hover,
+main a.btn-primary:hover, main a.create-btn:hover, main a.manage-btn:hover {
+    background: linear-gradient(180deg, var(--vd-accent-hover), var(--vd-accent-bright)) !important;
+    color: var(--vd-on-accent) !important;
+    border-color: var(--vd-accent-hover) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 22px -4px var(--vd-accent-wash-hover), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+.btn-primary:active, .create-btn:active, .submit-btn:active,
+main a.btn-primary:active, main a.create-btn:active {
+    transform: scale(0.97) !important;
+    box-shadow: 0 2px 6px -1px var(--vd-accent-wash) !important;
+}
+
+/* Secondary & Outline Buttons */
+.btn-outline-primary, .ios-btn-soft, .landing-btn-outline, .view-all-btn,
+.btn-secondary-bhims, main a.btn-outline-primary, main a.view-all-btn {
+    background: var(--vd-surface-raised) !important;
+    color: var(--vd-ink) !important;
+    border: 1px solid var(--vd-line-strong) !important;
+    border-radius: var(--vd-radius-sm) !important;
+    font-weight: 600 !important;
+    font-size: 0.88rem !important;
+    padding: 0.55rem 1.05rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.4rem !important;
+    cursor: pointer !important;
+    transition: all 0.18s ease !important;
+}
+.btn-outline-primary:hover, .landing-btn-outline:hover, .view-all-btn:hover,
+main a.view-all-btn:hover {
+    background: var(--vd-accent-wash) !important;
+    border-color: var(--vd-accent) !important;
+    color: var(--vd-accent) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Danger Button */
+.btn-danger, .btn-reject-bhims {
+    background: linear-gradient(180deg, #f43f5e, #e11d48) !important;
+    color: #ffffff !important;
+    border: 1px solid #be123c !important;
+    border-radius: var(--vd-radius-sm) !important;
+    font-weight: 650 !important;
+    box-shadow: 0 4px 12px -2px rgba(225, 29, 72, 0.35) !important;
+    transition: all 0.18s ease !important;
+}
+.btn-danger:hover, .btn-reject-bhims:hover {
+    background: linear-gradient(180deg, #fb7185, #f43f5e) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 18px -2px rgba(225, 29, 72, 0.45) !important;
+}
+
+/* ==========================================================================
+   11. FORMS & INPUTS: Comfortable, Tactile, Clear Focus Rings
+   ========================================================================== */
+.form-control, .form-select,
+input:not([type="checkbox"]):not([type="radio"]), select, textarea {
+    background: var(--vd-surface) !important;
+    border: 1.5px solid var(--vd-line-strong) !important;
+    border-radius: var(--vd-radius-sm) !important;
+    color: var(--vd-ink) !important;
+    padding: 0.70rem 1rem !important;
+    font-size: 0.925rem !important;
+    box-shadow: var(--vd-shadow-xs) !important;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease !important;
+}
+
+.form-control:focus, .form-select:focus,
+input:not([type="checkbox"]):not([type="radio"]):focus, select:focus, textarea:focus {
+    background: var(--vd-surface) !important;
+    border-color: var(--vd-accent) !important;
+    box-shadow: 0 0 0 3.5px var(--vd-accent-wash), var(--vd-shadow-xs) !important;
+    outline: none !important;
+}
+
+.form-label {
+    font-weight: 650 !important;
+    color: var(--vd-ink) !important;
+    font-size: 0.88rem !important;
+    margin-bottom: 0.4rem !important;
+    display: inline-block !important;
+}
+
+.form-card,
+.edit-form-card,
+.auth-pane {
+    background: var(--vd-surface) !important;
+    border: 1px solid var(--vd-line) !important;
+    border-radius: var(--vd-radius-lg) !important;
+    box-shadow: var(--vd-shadow-sm) !important;
+    padding: 1.75rem !important;
+}
+
+/* ==========================================================================
+   12. TABLES: Elegant, Clean Data Architecture
+   ========================================================================== */
+.admin-table-wrap,
+.booking-table-wrap,
+.table-responsive {
+    background: var(--vd-surface) !important;
+    border: 1px solid var(--vd-line) !important;
+    border-radius: var(--vd-radius-lg) !important;
+    box-shadow: var(--vd-shadow-xs) !important;
+    overflow: hidden !important;
+}
+
+.table {
+    margin-bottom: 0 !important;
+    background: transparent !important;
+}
+.table thead th {
+    background: var(--vd-surface-raised) !important;
+    border-bottom: 1px solid var(--vd-line-strong) !important;
+    color: var(--vd-ink-muted) !important;
+    font-size: 0.74rem !important;
+    font-weight: 750 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
+    padding: 0.85rem 1.15rem !important;
+}
+.table tbody td {
+    padding: 0.95rem 1.15rem !important;
+    border-bottom: 1px solid var(--vd-line) !important;
+    color: var(--vd-ink) !important;
+    vertical-align: middle !important;
+    transition: background 0.15s ease !important;
+}
+.table tbody tr:hover td {
+    background: var(--vd-surface-raised) !important;
+}
+
+/* ==========================================================================
+   13. STATUS CHIPS & BADGES (High-contrast, Beautiful Washes)
+   ========================================================================== */
+.status-chip,
+.pill,
+.badge {
+    font-weight: 700 !important;
+    font-size: 0.75rem !important;
+    padding: 0.28rem 0.65rem !important;
+    border-radius: var(--vd-radius-full) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    border: 1px solid transparent !important;
+}
+
+/* Approved / Open / Available */
+.pill-approved, .pill.pill-approved,
+.status-chip.is-open, .status-chip.is-available,
+.badge.bg-success, .availability-badge.available {
+    background: var(--vd-ok-wash) !important;
+    color: var(--vd-ok-ink) !important;
+    border-color: var(--vd-ok-line) !important;
+}
+
+/* Pending / Reviewing */
+.pill-pending, .pill.pill-pending,
+.status-chip.is-pending, .badge.bg-warning {
+    background: var(--vd-warn-wash) !important;
+    color: var(--vd-warn-ink) !important;
+    border-color: var(--vd-warn-line) !important;
+}
+
+/* Rejected / Declined / Full */
+.pill-rejected, .pill.pill-rejected,
+.status-chip.is-declined, .status-chip.is-closed,
+.badge.bg-danger, .badge-bhims-full {
+    background: var(--vd-bad-wash) !important;
+    color: var(--vd-bad-ink) !important;
+    border-color: var(--vd-bad-line) !important;
+}
+
+/* ==========================================================================
+   14. INQUIRIES & MESSAGING THREADS (Real Human Messaging UX)
+   ========================================================================== */
+.inquiry-row, .booking-row, .inquiry-item {
+    background: var(--vd-surface) !important;
+    border: 1px solid var(--vd-line) !important;
+    border-radius: var(--vd-radius) !important;
+    padding: 1.15rem 1.35rem !important;
+    margin-bottom: 0.85rem !important;
+    box-shadow: var(--vd-shadow-xs) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    text-decoration: none !important;
+    transition: all 0.2s var(--vd-ease-spring) !important;
+}
+.inquiry-row:hover, .booking-row:hover {
+    transform: translateX(4px) !important;
+    border-color: var(--vd-accent) !important;
+    box-shadow: var(--vd-shadow-sm) !important;
+}
+
+.inquiry-meta {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+    color: var(--vd-ink-muted) !important;
+    font-size: 0.84rem !important;
+    margin-top: 0.35rem !important;
+}
+
+/* Chat bubble styling: Warm collegiate conversation flow */
+.message-bubble {
+    padding: 0.85rem 1.15rem !important;
+    font-size: 0.925rem !important;
+    line-height: 1.5 !important;
+    max-width: 75% !important;
+    box-shadow: var(--vd-shadow-xs) !important;
+}
+.message-bubble.sent,
+.message-bubble.mine,
+.message-bubble.message-student {
+    background: linear-gradient(135deg, var(--vd-accent), var(--vd-accent-deep)) !important;
+    color: #ffffff !important;
+    border-radius: 16px 16px 4px 16px !important;
+    border: none !important;
+}
+.message-bubble.sent *,
+.message-bubble.mine *,
+.message-bubble.message-student * {
+    color: #ffffff !important;
+}
+
+.message-bubble.received,
+.message-bubble.theirs,
+.message-bubble.message-landlord {
+    background: var(--vd-surface-raised) !important;
+    color: var(--vd-ink) !important;
+    border: 1px solid var(--vd-line-strong) !important;
+    border-radius: 16px 16px 16px 4px !important;
+}
+
+/* ==========================================================================
+   15. EMPTY STATES: Human, Helpful, Encouraging
+   ========================================================================== */
+.bhims-empty,
+.empty-state {
+    background: var(--vd-surface) !important;
+    border: 1.5px dashed var(--vd-line-strong) !important;
+    border-radius: var(--vd-radius-xl) !important;
+    padding: 3.5rem 2rem !important;
+    text-align: center !important;
+    box-shadow: var(--vd-shadow-xs) !important;
+    margin: 1.5rem 0 !important;
+}
+
+.bhims-empty i,
+.bhims-empty svg,
+.empty-state i {
+    font-size: 2.75rem !important;
+    color: var(--vd-accent) !important;
+    margin-bottom: 1rem !important;
+    display: inline-block !important;
+    filter: drop-shadow(0 4px 10px var(--vd-accent-wash)) !important;
+}
+
+.bhims-empty h3,
+.empty-state h3 {
+    font-size: 1.35rem !important;
+    font-weight: 750 !important;
+    color: var(--vd-ink) !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.bhims-empty p,
+.empty-state p {
+    color: var(--vd-ink-muted) !important;
+    max-width: 480px !important;
+    margin: 0 auto 1.25rem !important;
+    font-size: 0.95rem !important;
+    line-height: 1.6 !important;
+}
+
+/* ==========================================================================
+   16. LANDING PAGE HERO & SHOWCASE (Welcoming University Portal)
+   ========================================================================== */
+.landing-hero {
+    border-radius: 0 0 var(--vd-radius-xl) var(--vd-radius-xl) !important;
+    box-shadow: var(--vd-shadow-md) !important;
+}
+
+.landing-kicker,
+.landing-hero-copy .landing-kicker,
+.landing-hero .landing-kicker,
+.landing-hero p.landing-kicker {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.55rem !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 1) !important;
+    border-radius: 9999px !important;
+    padding: 0.42rem 1.15rem !important;
+    color: #14532d !important;
+    font-size: 0.76rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.09em !important;
+    text-transform: uppercase !important;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+    margin-bottom: 1.25rem !important;
+    text-shadow: none !important;
+}
+.landing-kicker::before,
+.landing-hero-copy .landing-kicker::before,
+.landing-hero .landing-kicker::before {
+    content: '' !important;
+    display: inline-block !important;
+    width: 8px !important;
+    height: 8px !important;
+    border-radius: 50% !important;
+    background: #16a34a !important;
+    box-shadow: 0 0 8px rgba(22, 163, 74, 0.8) !important;
+    margin-right: 0.15rem !important;
+}
+[data-theme="dark"] .landing-kicker,
+[data-theme="dark"] .landing-hero-copy .landing-kicker,
+[data-theme="dark"] .landing-hero .landing-kicker,
+html[data-theme="dark"] .landing-kicker,
+html[data-theme="dark"] .landing-hero-copy .landing-kicker,
+html[data-theme="dark"] .landing-hero .landing-kicker {
+    background: rgba(10, 22, 15, 0.88) !important;
+    border: 1px solid rgba(52, 211, 153, 0.35) !important;
+    color: #4ade80 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45) !important;
+}
+[data-theme="dark"] .landing-kicker::before,
+[data-theme="dark"] .landing-hero-copy .landing-kicker::before,
+[data-theme="dark"] .landing-hero .landing-kicker::before,
+html[data-theme="dark"] .landing-kicker::before {
+    background: #4ade80 !important;
+    box-shadow: 0 0 10px #4ade80 !important;
+}
+
+.landing-title {
+    font-size: clamp(2.35rem, 5.5vw, 4.15rem) !important;
+    font-weight: 850 !important;
+    letter-spacing: -0.035em !important;
+    line-height: 1.08 !important;
+}
+
+.landing-sub {
+    font-size: 1.10rem !important;
+    line-height: 1.7 !important;
+    color: var(--vd-ink-secondary) !important;
+}
+
+.landing-trust-bar {
+    background: var(--vd-surface) !important;
+    border: 1px solid var(--vd-line) !important;
+    border-radius: var(--vd-radius-lg) !important;
+    box-shadow: var(--vd-shadow-sm) !important;
+}
+
+.landing-feature-card {
+    background: var(--vd-surface) !important;
+    border: 1px solid var(--vd-line) !important;
+    border-radius: var(--vd-radius-lg) !important;
+    padding: 2rem !important;
+    box-shadow: var(--vd-shadow-xs) !important;
+    transition: transform 0.25s var(--vd-ease-spring), box-shadow 0.25s ease !important;
+}
+.landing-feature-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: var(--vd-shadow-md) !important;
+    border-color: var(--vd-line-strong) !important;
+}
+
+/* Feature Icon Box */
+.feature-icon-box {
+    width: 54px !important;
+    height: 54px !important;
+    border-radius: var(--vd-radius) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: var(--vd-accent-wash) !important;
+    border: 1px solid var(--vd-line-accent) !important;
+    color: var(--vd-accent) !important;
+    font-size: 1.5rem !important;
+    margin-bottom: 1.25rem !important;
+}
+
+/* ==========================================================================
+   17. MODALS, TOASTS & OVERLAYS
+   ========================================================================== */
+.modal-content {
+    background: var(--vd-surface) !important;
+    border: 1px solid var(--vd-line-strong) !important;
+    border-radius: var(--vd-radius-lg) !important;
+    box-shadow: var(--vd-shadow-lg) !important;
+    overflow: hidden !important;
+}
+.modal-header {
+    background: var(--vd-surface-raised) !important;
+    border-bottom: 1px solid var(--vd-line) !important;
+    padding: 1.25rem 1.5rem !important;
+}
+.modal-footer {
+    background: var(--vd-surface-raised) !important;
+    border-top: 1px solid var(--vd-line) !important;
+    padding: 1rem 1.5rem !important;
+}
+
+.bhims-toast {
+    background: var(--vd-surface) !important;
+    border: 1px solid var(--vd-line-strong) !important;
+    border-radius: var(--vd-radius) !important;
+    box-shadow: var(--vd-shadow-lg) !important;
+    color: var(--vd-ink) !important;
+}
+
+/* ==========================================================================
+   18. OVERRIDE OF PREVIOUS FLAT SCRIPT (Enforce Human-Made Motion & Hover)
+   ========================================================================== */
+html.motion .card:hover,
+html.motion .listing-card:hover,
+html.motion .result-card:hover,
+html.motion .stat-card:hover,
+html.motion .house-card:hover,
+html.motion .feature-card:hover {
+    transform: translateY(-4px) !important;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2.5px solid var(--vd-accent) !important;
+    outline-offset: 2px !important;
+}

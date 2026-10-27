@@ -126,6 +126,49 @@ class AdminTOTPMiddleware:
         return self.get_response(request)
 
 
+class StudentAccessMiddleware:
+    """End student sessions while the student side is switched off.
+
+    The System Settings switch is read as "students may use the portal", not
+    only "students may create an account": when it is off, a student with an
+    existing session must not keep browsing as if nothing changed. Blocking
+    the login view alone still left already-signed-in students inside.
+
+    Assets are exempt so the closed login page can load its own CSS; the HTML
+    request that lands on it is what ends the session. Admins and landlords
+    are never touched — the role check runs before the setting is read.
+    """
+
+    EXEMPT_PREFIXES = ('/static/', '/media/')
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        user = getattr(request, 'user', None)
+        if (
+            user is not None
+            and user.is_authenticated
+            and getattr(user, 'role', None) == 'student'
+            and not request.path.startswith(self.EXEMPT_PREFIXES)
+        ):
+            from core.models import student_access_enabled
+            if not student_access_enabled():
+                from django.contrib import messages
+                from django.contrib.auth import logout
+                from django.shortcuts import redirect
+
+                # Flush first: logout clears the session, which would also
+                # throw away a message queued before it.
+                logout(request)
+                messages.error(
+                    request,
+                    'Student sign-in is currently disabled. Please contact the BHIMS admin.',
+                )
+                return redirect('student_login')
+        return self.get_response(request)
+
+
 class GZipTextMiddleware(GZipMiddleware):
     """Compress text responses only.
 

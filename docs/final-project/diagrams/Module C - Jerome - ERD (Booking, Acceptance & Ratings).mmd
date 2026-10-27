@@ -1,0 +1,53 @@
+%% Module C - ERD extract: Booking, Acceptance & Ratings (owner: Jerome)
+%% Accepting creates the BOOKING (guarded, row-locked); declining rejects the
+%% INQUIRY. LANDLORD_RATING is unique per student + landlord, and its booking
+%% link is set only when the landlord accepted.
+%% Render: venv\Scripts\python.exe tools\render_diagrams.py docs\final-project\diagrams
+erDiagram
+    USER ||--o{ INQUIRY : "sends"
+    ROOM ||--o{ INQUIRY : "is asked about"
+    USER ||--o{ BOOKING : "books"
+    ROOM ||--o{ BOOKING : "is booked in"
+    BOOKING ||--o| LANDLORD_RATING : "unlocks one"
+    USER ||--o{ LANDLORD_RATING : "gives"
+    USER ||--o{ LANDLORD_RATING : "receives"
+
+    USER {
+        int id PK
+        string role "student or landlord"
+        string full_name
+    }
+    ROOM {
+        int id PK
+        int boarding_house_id FK
+        decimal monthly_rate
+        int capacity
+        boolean is_available
+        boolean is_active
+    }
+    INQUIRY {
+        int id PK
+        int student_id FK
+        int room_id FK
+        string status "rejected inquiry can still be rated"
+        text message_text
+    }
+    BOOKING {
+        int id PK
+        int student_id FK
+        int room_id FK
+        string status "confirmed on accept"
+        datetime requested_at
+        datetime confirmed_at
+        date move_in_date
+        text notes
+    }
+    LANDLORD_RATING {
+        int id PK
+        int student_id FK
+        int landlord_id FK
+        int booking_id FK "OneToOne, empty after a decline"
+        int rating "1 to 5"
+        text comment "unique: one per student + landlord"
+        datetime created_at
+    }

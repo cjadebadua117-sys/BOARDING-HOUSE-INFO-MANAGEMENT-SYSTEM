@@ -28,6 +28,13 @@
                 <i class="bi bi-person-circle"></i>
                 {{ house.owner.display_name }}
             </a>
+            {% if owner_rating_count %}
+            <p class="owner-rating">
+                {% include 'includes/star_rating.html' with rating=owner_rating_avg star_class='star-rating-sm' %}
+                <strong>{{ owner_rating_avg|floatformat:1 }}</strong>
+                <span class="text-muted">({{ owner_rating_count }} rating{{ owner_rating_count|pluralize }})</span>
+            </p>
+            {% endif %}
             {% if house.description %}
             <p class="description">{{ house.description }}</p>
             {% endif %}

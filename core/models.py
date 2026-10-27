@@ -6,7 +6,7 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
+from django.db import DatabaseError, models
 from django.db.models.signals import post_save, post_delete
 from django.utils.translation import gettext_lazy as _
 
@@ -73,6 +73,30 @@ BARANGAY_DISTANCES = {
     'Sapilang': 'Walking distance',
     'Say-oan': '4.5 km',
 }
+
+
+def canonical_barangay_name(name):
+    """Return the spelling the admin's barangay table uses for `name`.
+
+    A boarding house stores its barangay as plain text, so "Poblacion" and
+    the admin's "poblacion" are the same barangay to a student (the filters
+    match case-insensitively) but two different strings to code that compares
+    them exactly — which is how the admin table reported 0 active listings for
+    a barangay the student page could fill with houses. New writes go through
+    here so a listing keeps the admin's spelling instead of creating its own
+    variant.
+    """
+    if not name:
+        return name
+    wanted = name.strip().casefold()
+    try:
+        for candidate in Barangay.objects.values_list('name', flat=True):
+            if candidate.strip().casefold() == wanted:
+                return candidate
+    except DatabaseError:
+        # Table not ready (e.g. during first migrate) — keep what was given.
+        pass
+    return name
 
 
 
@@ -231,8 +255,11 @@ class BoardingHouse(models.Model):
     def barangay_display(self):
         # Cached map lookup instead of one query per house per render (N+1
         # when listing pages render dozens of cards). Invalidated whenever a
-        # Barangay row changes.
-        return barangay_display_map().get(self.barangay, self.barangay)
+        # Barangay row changes. The key is case-folded because a listing may
+        # hold "Poblacion" while the admin table holds "poblacion"; the exact
+        # lookup used to drop the distance label that every other house gets.
+        key = (self.barangay or '').strip().casefold()
+        return barangay_display_map().get(key, self.barangay)
 
     @property
     def image_ok(self):
@@ -382,7 +409,8 @@ def barangay_display_map():
             # display_name is a Python property, so it must be evaluated
             # per-object (values_list would raise FieldError).
             _barangay_display_cache = {
-                b.name: b.display_name for b in Barangay.objects.all()
+                b.name.strip().casefold(): b.display_name
+                for b in Barangay.objects.all()
             }
         except Exception:
             # Table not ready (e.g. during first migrate) — fall back to raw names.
@@ -594,6 +622,23 @@ def site_setting(key, default=''):
         return obj.value if obj.value != '' else default
     except SiteSetting.DoesNotExist:
         return default
+
+
+def student_access_enabled():
+    """Whether students may use the portal at all.
+
+    The switch is labelled "Allow student registration" and its key is
+    `student_registration_enabled`, but an admin who turns it off means the
+    student side is closed: new accounts cannot be created AND existing
+    students cannot sign in. Reading it through one helper keeps the signup
+    route, both login views, the templates and the session guard agreeing.
+    A database that is not ready yet falls back to the historical default
+    (open) rather than breaking every request.
+    """
+    try:
+        return site_setting('student_registration_enabled', '1') == '1'
+    except Exception:
+        return True
 
 
 class UserReport(models.Model):

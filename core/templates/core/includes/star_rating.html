@@ -1,0 +1,18 @@
+{% comment %}
+Fractional 5-star display.
+
+Pass `rating` (0–5, may be None/empty). Renders five outlined stars with a
+clipped, coloured overlay whose width is exactly rating/5 of the row, so an
+average of 2.5 draws two and a half stars — not five, and not two.
+
+Usage:
+    {% include 'includes/star_rating.html' with rating=average_rating %}
+    {% include 'includes/star_rating.html' with rating=house.landlord_rating_avg star_class='star-rating-sm' %}
+{% endcomment %}
+{% with value=rating|default:0 %}
+<span class="star-rating{% if star_class %} {{ star_class }}{% endif %}"
+      role="img" aria-label="{{ value|floatformat:1 }} out of 5 stars">
+    <span class="star-rating-track" aria-hidden="true">★★★★★</span>
+    <span class="star-rating-fill" aria-hidden="true" style="width:{% widthratio value 5 100 %}%;">★★★★★</span>
+</span>
+{% endwith %}

@@ -52,9 +52,9 @@
         .modal-footer { border-top: 1px solid var(--bhims-border); }
 
         /* ---- Status badge helper classes (warm palette) ---- */
-        .badge-bhims-verified { background: var(--bhims-badge-verified-bg); color: var(--bhims-badge-verified); }
+        .badge-bhims-verified, .badge-bhims-open { background: var(--bhims-badge-verified-bg); color: var(--bhims-badge-verified); }
         .badge-bhims-pending { background: var(--bhims-badge-pending-bg); color: var(--bhims-badge-pending); }
-        .badge-bhims-rejected { background: var(--bhims-badge-rejected-bg); color: var(--bhims-badge-rejected); }
+        .badge-bhims-rejected, .badge-bhims-full { background: var(--bhims-badge-rejected-bg); color: var(--bhims-badge-rejected); }
 
         /* Page-header geometry is shared by every dashboard; skin is owned
            by Premium Styles.css + Campus Editorial.css. */

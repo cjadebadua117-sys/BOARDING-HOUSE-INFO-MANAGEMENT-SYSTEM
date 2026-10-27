@@ -4,7 +4,7 @@ from django.contrib.auth.forms import PasswordChangeForm as DjangoPasswordChange
 from django.core.validators import MinValueValidator, RegexValidator
 
 from .models import BoardingHouse, User, Inquiry, Room, Barangay, SiteSetting, UserReport, LandlordRating
-from .models import BACNOTAN_BARANGAYS, BARANGAY_DISTANCES
+from .models import BACNOTAN_BARANGAYS, BARANGAY_DISTANCES, canonical_barangay_name
 from .models import validate_image_size, validate_image_file
 
 
@@ -193,13 +193,27 @@ class BoardingHouseForm(forms.ModelForm):
                 for n in BACNOTAN_BARANGAYS
             ]
         current = self.instance.barangay if self.instance and self.instance.pk else ''
-        if current and current not in [c[0] for c in choices]:
+        # Case-insensitive: if the admin table says "poblacion" and this house
+        # was stored as "Poblacion", offer the admin's spelling only — showing
+        # both made one barangay look like two. An option the admin list does
+        # not know at all is still kept so an old row can be edited and saved
+        # without silently reassigning it.
+        current_key = current.strip().casefold()
+        match = next((c[0] for c in choices if c[0].strip().casefold() == current_key), None)
+        if match and not self.is_bound:
+            self.initial['barangay'] = match
+        elif current and match is None:
             choices.append((current, current))
         self.fields['barangay'] = forms.ChoiceField(
             label='Barangay',
             choices=choices,
             widget=forms.Select(attrs={'class': 'form-select'}),
         )
+
+    def clean_barangay(self):
+        """Store the admin's spelling, not a case variant of it."""
+        value = (self.cleaned_data.get('barangay') or '').strip()
+        return canonical_barangay_name(value)
 
     def clean_price(self):
         price = self.cleaned_data.get('price')
@@ -394,6 +408,12 @@ class SystemSettingsForm(forms.Form):
             SiteSetting.objects.update_or_create(key=key, defaults={'value': self.cleaned_data.get(key, '')})
         enabled = '1' if self.cleaned_data.get('student_registration_enabled') else '0'
         SiteSetting.objects.update_or_create(key='student_registration_enabled', defaults={'value': enabled})
+        # The public listing pages are cached, and that HTML carries the site
+        # name/tagline and the "Create an Account" invitation whose state this
+        # form just changed. Without this, the new setting did not reach
+        # logged-out visitors until the 30-second cache expired.
+        from .views import invalidate_listing_caches
+        invalidate_listing_caches()
 
 
 class UserReportForm(forms.ModelForm):

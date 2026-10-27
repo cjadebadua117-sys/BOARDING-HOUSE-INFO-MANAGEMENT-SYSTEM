@@ -65,8 +65,12 @@
     </div>
     {% endif %}
 </div>
+{% endblock %}
 
-<!-- Right slide-in modal -->
+{% block modals %}
+<!-- Right slide-in modal. Outside the app shell on purpose: the shell creates
+     a stacking context, which made the backdrop cover the modal and eat every
+     click on Save/Edit. -->
 <div class="modal fade modal-slide" id="bhimsBarangayModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable" style="margin: 0 0 0 auto; max-width: 480px;">
         <div class="modal-content">
@@ -111,7 +115,6 @@
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
@@ -141,8 +144,10 @@
     window.bhimsOpenEdit = function (id, name, distance) {
         switchForm(true);
         editForm.action = EDIT_URL.replace('999999', id);
-        editForm.querySelector('#edit_id_name').value = name;
-        editForm.querySelector('#edit_id_distance_from_campus').value = distance;
+        // Look fields up by name: Django's auto_id prefix renames their ids
+        // (auto_id='edit_%s' renders id="edit_name", not "edit_id_name").
+        editForm.elements['name'].value = name;
+        editForm.elements['distance_from_campus'].value = distance;
         document.getElementById('bhimsModalTitle').textContent = 'Edit Barangay';
         modal().show();
     };

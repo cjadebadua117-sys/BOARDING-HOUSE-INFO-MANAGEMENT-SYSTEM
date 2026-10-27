@@ -59,8 +59,8 @@
                 </div>
                 <div>
                     <p class="eyebrow" style="margin-bottom: 0.25rem;">Status</p>
-                    <span class="badge {% if house.is_active %}bg-success{% else %}bg-secondary{% endif %}" style="font-size: var(--fs-sm);">
-                        {% if house.is_active %}Active{% else %}Inactive{% endif %}
+                    <span class="badge {% if house.status == 'approved' %}bg-success{% elif house.status == 'pending' %}bg-warning text-dark{% else %}bg-danger{% endif %}" style="font-size: var(--fs-sm);">
+                        {{ house.get_status_display }}
                     </span>
                 </div>
             </div>
@@ -69,6 +69,30 @@
             {% endif %}
         </div>
     </div>
+
+    {% if house.status == 'pending' %}
+    <div class="listing-status-banner is-pending" role="status">
+        <i class="bi bi-hourglass-split"></i>
+        <div>
+            <strong>Waiting for admin approval</strong>
+            <span>Students cannot see this property or its rooms until the admin approves it.</span>
+        </div>
+    </div>
+    {% elif house.status == 'rejected' %}
+    <div class="listing-status-banner is-rejected" role="status">
+        <i class="bi bi-exclamation-octagon"></i>
+        <div>
+            <strong>This listing was rejected</strong>
+            <span>Students cannot see this property. Update the details if needed, then resubmit it for admin review.</span>
+        </div>
+        {% if request.user.role == 'landlord' %}
+        <form method="post" action="{% url 'resubmit_listing' house.pk %}" class="listing-status-action">
+            {% csrf_token %}
+            <button type="submit" class="btn-primary">Resubmit for approval</button>
+        </form>
+        {% endif %}
+    </div>
+    {% endif %}
 
     <!-- Stats Row -->
     <div class="stats-row">

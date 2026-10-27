@@ -93,5 +93,54 @@
         </div>
     </div>
     {% endif %}
+
+    {% if rejected %}
+    <div class="page-header" style="margin-top: 2.25rem;">
+        <div>
+            <div class="eyebrow">Admin</div>
+            <h2 class="h4" style="margin:0;">Rejected Listings</h2>
+            <p>These are hidden from students. Approve one if it was rejected by mistake, or leave it so the landlord can resubmit after fixing it.</p>
+        </div>
+        <span class="pill">{{ rejected|length }} rejected</span>
+    </div>
+    <div class="admin-table-wrap">
+        <div class="table-responsive">
+            <table class="table admin-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Boarding House</th>
+                        <th>Landlord</th>
+                        <th>Barangay</th>
+                        <th>Rooms</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for house in rejected %}
+                    <tr>
+                        <td>
+                            <div class="fw-semibold" style="color: var(--bhims-text);">{{ house.name }}</div>
+                            <small class="text-muted">{{ house.address }}</small>
+                        </td>
+                        <td>
+                            <a href="{% url 'admin_landlord_detail' house.owner.id %}" class="text-decoration-none fw-medium">{{ house.owner.full_name|default:house.owner.email }}</a>
+                        </td>
+                        <td>{{ house.barangay_display }}</td>
+                        <td>{{ house.total_rooms }}</td>
+                        <td><span class="pill" style="background:#fdecea;color:#b3261e;">Rejected</span></td>
+                        <td class="text-end">
+                            <form method="post" action="{% url 'admin_approve_listing' house.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-uppercase btn-success">Approve</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

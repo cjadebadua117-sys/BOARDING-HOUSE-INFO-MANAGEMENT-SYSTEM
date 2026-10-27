@@ -13,6 +13,7 @@ import pathlib
 from datetime import timedelta
 
 from django.conf import settings
+from django.core.cache import cache
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -26,6 +27,7 @@ from .models import (
     InquiryMessage,
     LandlordRating,
     Room,
+    SiteSetting,
     User,
 )
 
@@ -424,6 +426,103 @@ class BarangayDropdownTests(TestCase):
         self.assertIn('New Ward', choices)
 
 
+class StudentBarangayFilterTests(TestCase):
+    """The student's barangay filters come from Admin -> Edit Barangays only.
+
+    A house's `barangay` is free text, so building the dropdown from the
+    houses' own values (as the browse and search views used to, alongside the
+    admin list) offered students barangays the admin had never added and could
+    not manage — old demo rows still carried names such as "Poblacion".
+    """
+
+    ALLOWED = {'Arosip', 'Cabaroan', 'Casiaman', 'Salincob', 'Sapilang', 'Say-oan'}
+
+    def setUp(self):
+        self.landlord = make_user('student-filter-landlord@gmail.com', User.Role.LANDLORD)
+        make_room(make_house(self.landlord, 'Official Home', barangay='Sapilang'))
+        # A row left over from before this barangay was removed from the table.
+        make_room(make_house(self.landlord, 'Legacy Home', barangay='Legacy Ward'))
+
+    def test_browse_filter_offers_only_admin_barangays(self):
+        response = self.client.get('/listings/?sort=newest')
+        self.assertContains(response, 'value="Sapilang"')
+        self.assertNotContains(response, 'value="Legacy Ward"')
+        self.assertEqual(
+            {v for v, _label in response.context['form'].fields['barangay'].choices} - {''},
+            self.ALLOWED,
+        )
+
+    def test_search_filter_offers_only_admin_barangays(self):
+        response = self.client.get('/search/')
+        self.assertContains(response, 'value="Sapilang"')
+        self.assertNotContains(response, 'value="Legacy Ward"')
+        self.assertEqual(
+            {v for v, _label in response.context['form'].fields['barangay'].choices} - {''},
+            self.ALLOWED,
+        )
+
+    def test_admin_added_barangay_appears_in_both_filters(self):
+        Barangay.objects.create(name='New Ward', distance_from_campus='1 km')
+        for url in ('/listings/?sort=newest', '/search/'):
+            response = self.client.get(url)
+            self.assertContains(response, 'value="New Ward"', msg_prefix=url)
+
+    def test_filters_fall_back_to_the_six_when_the_table_is_empty(self):
+        Barangay.objects.all().delete()
+        for url in ('/listings/?sort=newest', '/search/'):
+            response = self.client.get(url)
+            for name in self.ALLOWED:
+                self.assertContains(response, f'value="{name}"', msg_prefix=url)
+
+
+class BarangayActiveListingCountTests(TestCase):
+    """Admin -> Edit Barangays showed 0 active listings for "poblacion" while
+    the student's Poblacion filter returned a house.
+
+    The count grouped by the listing's exact string, but a listing may hold
+    "Poblacion" while the admin typed "poblacion" — the database compares
+    those as equal, so the student filter found the house while the admin
+    table's exact dict lookup missed it. The count also included approved
+    houses that students never see (no bookable room), so Casiaman/Sapilang
+    read higher than the browse page. Both roles must answer the same question.
+    """
+
+    def setUp(self):
+        self.admin = make_user('barangay-count-admin@gmail.com', User.Role.ADMIN)
+        self.landlord = make_user('barangay-count-landlord@gmail.com', User.Role.LANDLORD)
+        self.poblacion = Barangay.objects.create(
+            name='poblacion', distance_from_campus='3.5 km',
+        )
+        self.house = make_house(self.landlord, 'Poblacion Home', barangay='Poblacion')
+        make_room(self.house)
+
+    def _admin_counts(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse('admin_barangay_list'))
+        self.assertEqual(response.status_code, 200)
+        return {barangay.name: count for barangay, count in response.context['barangay_data']}
+
+    def _student_result_ids(self, **params):
+        self.client.logout()
+        response = self.client.get('/listings/', params)
+        self.assertEqual(response.status_code, 200)
+        return {house.pk for house in response.context['houses']}
+
+    def test_count_matches_the_student_filter_when_only_the_case_differs(self):
+        self.assertEqual(
+            self._student_result_ids(barangay='poblacion'), {self.house.pk},
+        )
+        self.assertEqual(self._admin_counts()['poblacion'], 1)
+
+    def test_house_students_cannot_see_is_not_counted(self):
+        self.house.rooms.update(is_available=False)
+        self.assertEqual(self._student_result_ids(barangay='poblacion'), set())
+        self.assertEqual(self._admin_counts()['poblacion'], 0)
+
+    def test_listing_shows_the_admin_distance_label_despite_its_casing(self):
+        self.assertEqual(self.house.barangay_display, 'poblacion (3.5 km)')
+
+
 class InquiryNewBadgeTests(TestCase):
     """The 'NEW' chip must appear for BOTH sides when there is activity they
     have not opened yet, and clear once the thread is read."""
@@ -537,3 +636,184 @@ class ProfileSaveEndpointTests(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertFalse(response.json()['success'])
         self.assertIn('bio', response.json()['errors'])
+
+
+class StudentRegistrationToggleTests(TestCase):
+    """Admin -> System Settings -> Allow student registration.
+
+    The switch is inside a form whose Save button writes it, so flipping it
+    and reloading without Save looked like it had turned itself back on. And
+    the stored value only guarded the POST: the browse and login pages kept
+    inviting students to "Create account", then refused them after the whole
+    form was filled in.
+    """
+
+    PAYLOAD = {
+        'username': 'toggle-new', 'full_name': 'Toggle New',
+        'email': 'toggle-new@example.com', 'student_id': '241-1111-1',
+        'program': 'CIS', 'password1': 'StrongPass123',
+        'password2': 'StrongPass123',
+    }
+    CHECKED = (
+        'name="student_registration_enabled" class="form-check-input" '
+        'id="id_student_registration_enabled" checked'
+    )
+
+    def setUp(self):
+        # The default browse page is cached; a stale copy from another test
+        # must not decide what this one sees.
+        cache.clear()
+        self.admin = make_user('toggle-admin@gmail.com', User.Role.ADMIN)
+
+    def _set(self, enabled):
+        SiteSetting.objects.update_or_create(
+            key='student_registration_enabled',
+            defaults={'value': '1' if enabled else '0'},
+        )
+
+    def _admin_post(self, enabled):
+        self.client.force_login(self.admin)
+        data = {
+            'site_name': 'BHIMS',
+            'tagline': 'Your Home Away From Home, Near NLUC',
+            'support_email': '',
+        }
+        if enabled:
+            data['student_registration_enabled'] = 'on'
+        response = self.client.post(reverse('admin_settings'), data)
+        self.assertEqual(response.status_code, 302)
+
+    def test_open_by_default_and_creates_an_account(self):
+        page = self.client.get(reverse('student_register'))
+        self.assertEqual(page.status_code, 200)
+        self.assertContains(page, 'data-sheet="signup"')
+
+        response = self.client.post(reverse('student_register'), self.PAYLOAD)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(User.objects.filter(username='toggle-new').exists())
+
+    def test_off_blocks_the_signup_route_and_post(self):
+        self._set(False)
+        page = self.client.get(reverse('student_register'))
+        self.assertRedirects(
+            page, reverse('home'), fetch_redirect_response=False,
+        )
+        response = self.client.post(reverse('student_register'), self.PAYLOAD)
+        self.assertRedirects(
+            response, reverse('home'), fetch_redirect_response=False,
+        )
+        self.assertFalse(
+            User.objects.filter(username='toggle-new').exists(),
+            'A disabled registration page still created an account.',
+        )
+
+    def test_off_removes_every_signup_invitation(self):
+        self._set(False)
+        login_page = self.client.get(reverse('student_login'))
+        self.assertEqual(login_page.status_code, 200)
+        self.assertContains(login_page, 'Student access closed')
+        self.assertNotContains(login_page, 'data-sheet="signup"')
+        self.assertNotContains(login_page, 'action="/students/register/"')
+        # The sign-in form is closed as well, not just the signup sheet.
+        self.assertNotContains(login_page, 'name="password"')
+
+        # A stale ?mode=signup link must not leave both sheets hidden.
+        stale = self.client.get(reverse('student_login') + '?mode=signup')
+        self.assertContains(stale, 'data-mode="signin"')
+        self.assertNotContains(stale, 'data-sheet="signup"')
+
+        browse = self.client.get('/listings/')
+        self.assertNotContains(browse, '/students/register/')
+
+    def test_on_shows_the_signup_invitation(self):
+        self._set(True)
+        login_page = self.client.get(reverse('student_login'))
+        self.assertContains(login_page, 'Create account')
+        self.assertContains(login_page, 'data-sheet="signup"')
+        self.assertContains(login_page, 'name="password"')
+        browse = self.client.get('/listings/')
+        self.assertContains(browse, '/students/register/')
+
+    def test_off_blocks_a_correct_student_password(self):
+        student = make_user('toggle-student@example.com', User.Role.STUDENT)
+        self._set(False)
+        for url in (reverse('login'), reverse('student_login')):
+            client = self.client_class()
+            response = client.post(
+                url, {'username': student.username, 'password': 'StrongPass123'},
+            )
+            self.assertEqual(response.status_code, 200, url)
+            self.assertIsNone(
+                client.session.get('_auth_user_id'),
+                f'{url} opened a student session while access was off.',
+            )
+            self.assertContains(
+                response, 'Student sign-in is currently disabled', msg_prefix=url,
+            )
+
+    def test_on_allows_student_sign_in(self):
+        student = make_user('toggle-open@example.com', User.Role.STUDENT)
+        self._set(True)
+        response = self.client.post(
+            reverse('login'),
+            {'username': student.username, 'password': 'StrongPass123'},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.client.session.get('_auth_user_id'), str(student.pk))
+
+    def test_off_ends_an_existing_student_session(self):
+        student = make_user('toggle-session@example.com', User.Role.STUDENT)
+        self.client.force_login(student)
+        self._set(False)
+        response = self.client.get(reverse('student_dashboard'))
+        self.assertRedirects(
+            response, reverse('student_login'), fetch_redirect_response=False,
+        )
+        self.assertIsNone(self.client.session.get('_auth_user_id'))
+
+    def test_admin_sign_in_keeps_working_when_student_access_is_off(self):
+        self._set(False)
+        response = self.client.post(
+            reverse('admin_login'),
+            {'username': self.admin.username, 'password': 'StrongPass123'},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.client.session.get('_auth_user_id'), str(self.admin.pk))
+
+    def test_saving_the_toggle_refreshes_the_cached_browse_page(self):
+        self._set(True)
+        warm = self.client.get('/listings/')
+        self.assertContains(warm, '/students/register/')
+
+        self._admin_post(False)
+        self.client.logout()
+        after = self.client.get('/listings/')
+        self.assertNotContains(
+            after, '/students/register/',
+            msg_prefix='The cached browse page still invited students to register.',
+        )
+
+    def test_admin_save_persists_off_and_on(self):
+        self.client.force_login(self.admin)
+        page = self.client.get(reverse('admin_settings'))
+        self.assertContains(page, self.CHECKED)
+
+        self._admin_post(False)
+        self.assertEqual(
+            SiteSetting.objects.get(key='student_registration_enabled').value,
+            '0',
+        )
+        page = self.client.get(reverse('admin_settings'))
+        self.assertNotContains(page, self.CHECKED)
+        self.client.logout()
+        self.assertEqual(self.client.get(reverse('student_register')).status_code, 302)
+
+        self._admin_post(True)
+        self.assertEqual(
+            SiteSetting.objects.get(key='student_registration_enabled').value,
+            '1',
+        )
+        page = self.client.get(reverse('admin_settings'))
+        self.assertContains(page, self.CHECKED)
+        self.client.logout()
+        self.assertEqual(self.client.get(reverse('student_register')).status_code, 200)

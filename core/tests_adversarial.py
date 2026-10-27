@@ -636,6 +636,34 @@ class HighVolumeCacheTests(AdversarialTestBase):
         self.assertIn(b'Freshly Approved House', landing.content,
                       'The cached landing page kept showing the old listings.')
 
+    def test_adding_a_barangay_shows_up_immediately(self):
+        """ATTACK: warm the cached browse page, then add a barangay.
+
+        The student filter is rendered inside that cached HTML, so an admin's
+        new barangay stayed invisible to logged-out students until the cache
+        expired — the page looked broken right after saving.
+        """
+        admin = User.objects.create_user(
+            email='barangay-admin@example.com', password=PASSWORD,
+            role=User.Role.ADMIN, username='barangay-admin@example.com',
+        )
+        warm = self.client.get('/listings/')
+        self.assertNotIn(b'New Cache Ward', warm.content)
+
+        self.client.force_login(admin)
+        response = self.client.post(
+            '/admin/barangays/',
+            {'name': 'New Cache Ward', 'distance_from_campus': '1.5 km'},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.client.logout()
+
+        after = self.client.get('/listings/')
+        self.assertIn(
+            b'New Cache Ward', after.content,
+            'A new barangay is still missing from the cached student filter.',
+        )
+
 
 class AcceptRaceTests(TransactionTestCase):
     """ATTACK: two landlords (or double click) claim the last bed at once.

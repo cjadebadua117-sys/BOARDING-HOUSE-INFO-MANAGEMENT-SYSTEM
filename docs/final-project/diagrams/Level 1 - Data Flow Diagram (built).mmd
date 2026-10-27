@@ -1,6 +1,6 @@
 %% BHIMS - Level 1 Data Flow Diagram (built system)
 %% Process numbering matches the midterm IPO table 1:1, so the four final modules
-%% map onto it directly: A = 2.0, B = 3.0 + 4.0 + 5.0, C = 6.0 + 7.0, D = 1.0 + 8.0.
+%% map onto it directly: A = 2.0, B = 3.0 + 4.0, C = 5.0 + 6.0, D = 1.0 + 7.0 + 8.0.
 %% Render: venv\Scripts\python.exe tools\render_diagrams.py docs\final-project\diagrams
 flowchart LR
     STU["<b>STUDENT</b>"]
@@ -50,24 +50,26 @@ flowchart LR
     P3 -- "matching listings, bookable-only<br/>room count and lowest price" --> STU
 
     %% --- 4.0 inquiry ---
-    STU <-- "inquiry &amp; messages" --> P4
-    LAN <-- "replies" --> P4
+    STU -- "inquiry &amp; chat messages" --> P4
+    LAN -- "replies" --> P4
+    P4 -- "thread with replies,<br/>NEW badge" --> STU
+    P4 -- "inquiry list with NEW badge" --> LAN
     P4 -- "inquiry &amp; message records" --> D4
     D4 -- "thread history,<br/>timestamps" --> P4
 
     %% --- 5.0 booking ---
-    STU -- "booking request for a room" --> P5
-    D5 -- "existing bookings<br/>(capacity check)" --> P5
+    D4 -- "open inquiry<br/>(from 4.0)" --> P5
+    D5 -- "confirmed bookings<br/>(capacity check)" --> P5
     LAN -- "accept / decline" --> P5
-    P5 -- "booking with status<br/>(pending / confirmed /<br/>declined / cancelled)" --> D5
-    P5 -- "room availability update" --> D2
-    P5 -- "confirmed or declined<br/>booking status" --> STU
-    P5 -. "accepted inquiry" .-> P4
+    P5 -- "confirmed booking<br/>(row-locked accept)" --> D5
+    P5 -- "inquiry closed / rejected" --> D4
+    P5 -- "acceptance or decline<br/>result" --> STU
 
     %% --- 6.0 rating ---
-    D5 -- "confirmed booking<br/>(eligibility key)" --> P6
+    D5 -- "confirmed booking<br/>(after an accept)" --> P6
+    D4 -- "rejected inquiry<br/>(after a decline)" --> P6
     STU -- "1-5 star rating<br/>+ comment" --> P6
-    P6 -- "rating record<br/>(one per booking)" --> D6
+    P6 -- "rating record (once per<br/>student + landlord)" --> D6
     P6 -- "updated average rating" --> STU
     P6 -- "average rating received" --> LAN
 
@@ -80,7 +82,7 @@ flowchart LR
     P7 -- "action taken" --> STU
 
     %% --- 8.0 administration & analytics ---
-    ADM <-- "dashboard &amp; analytics,<br/>audit trail" --> P8
+    P8 -- "dashboard &amp; analytics,<br/>audit trail" --> ADM
     D2 -- "listing counts" --> P8
     D5 -- "booking &amp; occupancy stats" --> P8
     D6 -- "rating stats" --> P8

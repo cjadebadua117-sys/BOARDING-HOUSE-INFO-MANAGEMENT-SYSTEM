@@ -563,6 +563,7 @@ main a.view-all-btn:hover, main a.manage-btn:hover, main a.edit-btn:hover,
 [data-theme="dark"] .btn-register-bhims,
 [data-theme="dark"] .btn-accept-bhims,
 [data-theme="dark"] .bhims-login-btn,
+[data-theme="dark"] .inquiry-rate-btn,
 html[data-theme="dark"] .btn-save,
 html[data-theme="dark"] .view-thread-btn,
 html[data-theme="dark"] .btn-action-premium,
@@ -580,7 +581,8 @@ html[data-theme="dark"] .manage-btn,
 html[data-theme="dark"] .edit-btn,
 html[data-theme="dark"] .btn-register-bhims,
 html[data-theme="dark"] .btn-accept-bhims,
-html[data-theme="dark"] .bhims-login-btn {
+html[data-theme="dark"] .bhims-login-btn,
+html[data-theme="dark"] .inquiry-rate-btn {
     color: var(--ce-on-accent) !important;
     background-color: var(--ce-accent) !important;
     background-image: none !important;
@@ -590,6 +592,7 @@ html[data-theme="dark"] .bhims-login-btn {
 [data-theme="dark"] .btn-save:hover,
 [data-theme="dark"] .btn-primary:hover,
 [data-theme="dark"] .create-btn:hover,
+[data-theme="dark"] .inquiry-rate-btn:hover,
 html[data-theme="dark"] .btn-save:hover,
 html[data-theme="dark"] .btn-primary:hover,
 html[data-theme="dark"] .create-btn:hover,
@@ -603,7 +606,8 @@ html[data-theme="dark"] .edit-btn:hover,
 html[data-theme="dark"] .btn-bhims:hover,
 html[data-theme="dark"] .btn-register-bhims:hover,
 html[data-theme="dark"] .btn-accept-bhims:hover,
-html[data-theme="dark"] .bhims-login-btn:hover {
+html[data-theme="dark"] .bhims-login-btn:hover,
+html[data-theme="dark"] .inquiry-rate-btn:hover {
     background-color: var(--ce-accent-deep) !important;
     background: var(--ce-accent-deep) !important;
     background-image: none !important;
@@ -1038,7 +1042,7 @@ html[data-theme="dark"] {
 /* Approved / open / available / verified */
 .pill-approved, .pill.pill-approved,
 .status-chip.is-open, .status-chip.is-available,
-.badge-bhims-verified, .badge.bg-success,
+.badge-bhims-verified, .badge-bhims-open, .badge.bg-success,
 .availability-badge, .ios-badge-green {
     background: var(--ce-ok-wash) !important;
     color: var(--ce-ok-ink) !important;
@@ -1056,7 +1060,7 @@ html[data-theme="dark"] {
 /* Rejected / declined / inactive */
 .pill-rejected, .pill.pill-rejected,
 .status-chip.is-declined,
-.badge-bhims-rejected, .badge.bg-danger,
+.badge-bhims-rejected, .badge-bhims-full, .badge.bg-danger,
 .ios-badge-red {
     background: var(--ce-bad-wash) !important;
     color: var(--ce-bad-ink) !important;
@@ -1176,6 +1180,7 @@ html[data-theme="dark"] {
    step with the blocks they reinforce.
    ============================================================ */
 html[data-theme="dark"] .badge-bhims-verified,
+html[data-theme="dark"] .badge-bhims-open,
 html[data-theme="dark"] .pill-approved,
 html[data-theme="dark"] .pill.pill-approved,
 html[data-theme="dark"] .status-chip.is-open,
@@ -1198,6 +1203,7 @@ html[data-theme="dark"] .ios-badge-amber {
     border-color: var(--ce-warn-line) !important;
 }
 html[data-theme="dark"] .badge-bhims-rejected,
+html[data-theme="dark"] .badge-bhims-full,
 html[data-theme="dark"] .pill-rejected,
 html[data-theme="dark"] .pill.pill-rejected,
 html[data-theme="dark"] .status-chip.is-declined,
@@ -2025,4 +2031,366 @@ html[data-theme="dark"] .app-sidebar {
         align-items: center !important;
         justify-content: center !important;
     }
+}
+
+/* ---------------------------------------------------------------------------
+   Fractional star ratings
+   Five outlined stars with a clipped coloured overlay sized to the exact
+   average, so 2.5 draws two and a half stars. Used by the landlord profile,
+   the ratings dashboards and the listing cards via includes/star_rating.html.
+   --------------------------------------------------------------------------- */
+.star-rating {
+    display: inline-block;
+    position: relative;
+    line-height: 1;
+    letter-spacing: 2px;
+    vertical-align: middle;
+    font-size: 1.02rem;
+    color: var(--bhims-badge-pending, #f0a829);
+    white-space: nowrap;
+    user-select: none;
+}
+
+.star-rating .star-rating-track {
+    opacity: 0.24;
+}
+
+.star-rating .star-rating-fill {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.star-rating.star-rating-sm {
+    font-size: 0.82rem;
+    letter-spacing: 1px;
+}
+
+.star-rating.star-rating-lg {
+    font-size: 1.5rem;
+}
+
+/* ============================================================
+   19. UI POLISH PASS — professional finish, measured not guessed
+   ------------------------------------------------------------
+   Surfaces, tables and navigation already share one palette; what
+   remained were small "unfinished" signals: a decorative dot on the
+   active nav item, alarm-red row buttons, oversized search fields,
+   empty states that read like text inputs, and stat cards whose
+   figures were louder than their labels. Each rule below is scoped
+   so it cannot reach a surface it was not meant for.
+   ============================================================ */
+
+/* --- 1. Sidebar: calm wayfinding ---------------------------- */
+.sidebar-link {
+    padding: 0.6rem 0.9rem !important;
+    border-radius: 10px !important;
+    font-weight: 500 !important;
+    letter-spacing: -0.005em;
+}
+.sidebar-link:hover { transform: none !important; }
+.sidebar-link.active {
+    background: var(--ce-accent-wash) !important;
+    border: 1px solid var(--ce-line) !important;
+    box-shadow: none !important;
+    font-weight: 600 !important;
+}
+/* Was a 6px decorative dot floating at the right edge — it read as a
+   stray bullet. The active item now carries a snug left accent bar. */
+.sidebar-link.active::before {
+    left: 0 !important;
+    right: auto !important;
+    top: 50% !important;
+    width: 3px !important;
+    height: 18px !important;
+    transform: translateY(-50%) !important;
+    border-radius: 0 2px 2px 0 !important;
+    box-shadow: none !important;
+}
+.sidebar-heading {
+    font-size: 0.66rem !important;
+    letter-spacing: 0.16em !important;
+    color: var(--ce-ink-faint) !important;
+}
+.sidebar-profile-name {
+    font-size: 0.82rem !important;
+    letter-spacing: -0.01em;
+}
+.sidebar-profile-role {
+    font-size: 0.62rem !important;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+/* --- 2. Tables: dense records, quiet actions ---------------- */
+.admin-table-wrap {
+    border: 1px solid var(--ce-line) !important;
+    border-radius: var(--ce-radius) !important;
+    overflow: hidden;
+}
+.admin-table-wrap > .table-responsive > .table { margin-bottom: 0 !important; }
+.admin-table thead th,
+.table.admin-table thead th {
+    background: var(--ce-paper) !important;
+    color: var(--ce-ink-faint) !important;
+    font-size: 0.66rem !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+    padding: 0.72rem 1rem !important;
+    border-bottom: 1px solid var(--ce-line-strong) !important;
+    white-space: nowrap;
+}
+.admin-table tbody td {
+    padding: 0.62rem 1rem !important;
+    font-size: 0.86rem !important;
+    border-bottom: 1px solid var(--ce-line) !important;
+}
+.admin-table tbody tr:last-child td { border-bottom: 0 !important; }
+.admin-table tbody tr { transition: background-color 0.15s ease; }
+.admin-table tbody tr:hover { background: var(--ce-accent-wash); }
+.admin-table .program-cell,
+.admin-table td .text-muted { color: var(--ce-ink-soft) !important; }
+
+/* Row-level destructive actions were filled danger buttons with a red
+   glow on every line — eight alarms per screen. They are quiet until
+   the pointer is on them.
+   NOTE: the button-material rule at §16 (
+   `html[data-theme] body :is(...)`) is (0,2,2) !important and also lists
+   .btn-danger, so a plain `.admin-table .btn-danger` (0,2,0) loses the
+   cascade even when it comes later. These selectors carry the same
+   element weight so the table-specific rule wins on order. */
+html[data-theme] body .table .btn-danger,
+html[data-theme] body .admin-table .btn-danger {
+    background: transparent !important;
+    background-image: none !important;
+    color: #9c2b23 !important;
+    border: 1px solid rgba(156, 43, 35, 0.32) !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    padding: 0.32rem 0.7rem !important;
+    font-size: 0.76rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0 !important;
+}
+html[data-theme] body .table .btn-danger:hover,
+html[data-theme] body .admin-table .btn-danger:hover {
+    background: rgba(156, 43, 35, 0.08) !important;
+    border-color: #9c2b23 !important;
+    color: #7d1f19 !important;
+}
+html[data-theme="dark"] body .table .btn-danger,
+html[data-theme="dark"] body .admin-table .btn-danger {
+    color: var(--bhims-badge-rejected) !important;
+    border-color: rgba(248, 113, 113, 0.34) !important;
+}
+html[data-theme="dark"] body .table .btn-danger:hover,
+html[data-theme="dark"] body .admin-table .btn-danger:hover {
+    background: rgba(248, 113, 113, 0.12) !important;
+    border-color: var(--bhims-badge-rejected) !important;
+    color: var(--bhims-badge-rejected) !important;
+}
+
+/* Booking tables use their own wrapper/header (landlord_bookings.css),
+   which kept the iOS blue-grey wash and 1rem padding: on paper it read as a
+   foreign panel. Same record treatment as the admin tables. */
+.booking-table-wrap > .table-responsive > .table { margin-bottom: 0 !important; }
+.booking-table-wrap thead th {
+    background: var(--ce-paper) !important;
+    color: var(--ce-ink-faint) !important;
+    font-size: 0.66rem !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+    padding: 0.72rem 1rem !important;
+    border-bottom: 1px solid var(--ce-line-strong) !important;
+    white-space: nowrap;
+}
+.booking-table-wrap tbody td {
+    padding: 0.66rem 1rem !important;
+    font-size: 0.86rem !important;
+    border-bottom: 1px solid var(--ce-line) !important;
+    border-top: 0 !important;
+}
+.booking-table-wrap tbody tr:last-child td { border-bottom: 0 !important; }
+.booking-table-wrap tbody tr { transition: background-color 0.15s ease; }
+.booking-table-wrap tbody tr:hover { background: var(--ce-accent-wash); }
+
+/* --- 3. Header search: a toolbar, not a billboard ----------- */
+.page-header form[role="search"] { align-items: center; gap: 0.5rem; }
+.page-header form[role="search"] .form-control {
+    min-height: 40px !important;
+    height: 40px;
+    border-radius: 10px !important;
+    font-size: 0.88rem;
+    min-width: 240px;
+}
+.page-header form[role="search"] .btn {
+    min-height: 40px;
+    height: 40px;
+    padding: 0 1rem !important;
+    border-radius: 10px !important;
+    font-size: 0.82rem !important;
+}
+
+/* --- 4. Forms: one control language ------------------------- */
+.form-control,
+.form-select {
+    min-height: 42px;
+    border-radius: 10px !important;
+    border: 1px solid var(--ce-line-strong) !important;
+    background-color: var(--ce-card) !important;
+    color: var(--ce-ink) !important;
+    font-size: 0.9rem;
+    padding: 0.5rem 0.8rem;
+}
+.form-control::placeholder { color: var(--ce-ink-faint); opacity: 1; }
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--ce-accent) !important;
+    box-shadow: 0 0 0 3px var(--ce-accent-wash) !important;
+    outline: none;
+}
+.form-label,
+.form-label-sm {
+    font-size: 0.68rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    color: var(--ce-ink-faint) !important;
+    margin-bottom: 0.4rem !important;
+}
+textarea.form-control { min-height: 96px; }
+
+/* --- 5. Empty states: an invitation, not a fillable box -----
+   The admin pages use `.empty-state` (not `.bhims-empty`), which the iOS
+   layer painted with its navy glass !important — a blue rectangle in the
+   charcoal-green theme. Both classes now share one paper treatment. */
+.empty-state,
+.bhims-empty {
+    background: transparent !important;
+    border: 1px dashed var(--ce-line-strong) !important;
+    box-shadow: none !important;
+    border-radius: var(--ce-radius) !important;
+    padding: clamp(1.75rem, 4vw, 2.75rem) 1.5rem !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+.empty-state > i,
+.bhims-empty > i,
+.empty-state > svg {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    margin-bottom: 0.85rem;
+    border-radius: 50%;
+    background: var(--ce-accent-wash);
+    border: 1px solid var(--ce-line);
+    color: var(--ce-accent) !important;
+    font-size: 1.35rem !important;
+}
+.empty-state h3,
+.bhims-empty h3 {
+    font-size: 1.12rem !important;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.3rem !important;
+}
+.empty-state p,
+.bhims-empty p {
+    max-width: 44ch;
+    margin: 0 auto 0.9rem !important;
+    font-size: 0.9rem;
+    line-height: 1.55;
+}
+.empty-state > svg {
+    width: 52px !important;
+    height: 52px !important;
+    padding: 12px;
+    border-radius: 50%;
+    background: var(--ce-accent-wash);
+    border: 1px solid var(--ce-line);
+    color: var(--ce-accent) !important;
+    opacity: 1 !important;
+    margin-bottom: 0.85rem !important;
+}
+
+/* --- 6. Stat figures: label first, number second ------------ */
+.stat-card {
+    padding: 0.9rem 1rem !important;
+    gap: 0.8rem !important;
+}
+.stat-icon {
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    border-radius: 9px !important;
+}
+.stat-number {
+    font-variant-numeric: tabular-nums;
+    font-size: clamp(1.6rem, 2.2vw, 2.05rem) !important;
+}
+.stat-label {
+    color: var(--ce-ink-faint) !important;
+    font-size: 0.66rem !important;
+    letter-spacing: 0.09em !important;
+}
+.stat-card:hover { border-color: var(--ce-line-strong) !important; }
+
+/* --- 7. Page header: same rhythm on every screen ------------ */
+.page-header {
+    align-items: flex-start;
+    padding-bottom: 1rem !important;
+    border-bottom: 1px solid var(--ce-line) !important;
+    margin-bottom: 1.75rem !important;
+}
+.page-header h1 {
+    font-size: clamp(1.8rem, 2.5vw, 2.3rem) !important;
+    letter-spacing: -0.028em !important;
+    line-height: 1.12 !important;
+}
+.page-header p {
+    color: var(--ce-ink-soft) !important;
+    max-width: 70ch;
+    font-size: 0.95rem;
+}
+.page-header .eyebrow {
+    font-size: 0.66rem !important;
+    letter-spacing: 0.16em !important;
+    margin-bottom: 0.45rem !important;
+}
+
+/* --- 8. Landing hero: white copy stays readable on any photo --
+   The photo is chosen by content editors, so the veil cannot assume a dark
+   or even-toned image. A slightly denser pool behind the copy column (and
+   a deeper bottom grade) keeps the headline at photo-text contrast without
+   dimming the building itself. */
+.landing-hero::after {
+    background:
+        radial-gradient(62% 72% at 22% 74%, rgba(16, 24, 22, 0.62), rgba(16, 24, 22, 0) 76%),
+        linear-gradient(180deg,
+            rgba(16, 24, 22, 0.18) 0%,
+            rgba(16, 24, 22, 0.20) 42%,
+            rgba(16, 24, 22, 0.72) 100%) !important;
+}
+[data-theme="dark"] .landing-hero::after {
+    background:
+        radial-gradient(62% 72% at 22% 74%, rgba(8, 12, 11, 0.66), rgba(8, 12, 11, 0) 76%),
+        linear-gradient(180deg,
+            rgba(8, 12, 11, 0.22) 0%,
+            rgba(8, 12, 11, 0.26) 42%,
+            rgba(8, 12, 11, 0.78) 100%) !important;
+}
+
+/* --- 9. Tablet/phone: keep the frame intact ----------------- */
+@media (max-width: 820px) {
+    .page-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.9rem;
+    }
+    .page-header form[role="search"] { width: 100%; }
+    .page-header form[role="search"] .form-control { min-width: 0; flex: 1 1 auto; }
+    .admin-table thead th,
+    .admin-table tbody td { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
 }

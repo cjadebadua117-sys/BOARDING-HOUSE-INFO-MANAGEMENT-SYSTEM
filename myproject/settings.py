@@ -149,6 +149,9 @@ MIDDLEWARE += [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    # Ends sessions of students while the admin has student access switched
+    # off. Needs auth and messages above it in the stack.
+    'myproject.middleware.StudentAccessMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -169,6 +172,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.student_registration',
                 'core.context_processors.inquiry_notifications',
             ],
         },
@@ -265,7 +269,10 @@ if WHITENOISE_ENABLED:
     # the site is served over HTTPS (no manual toggling to forget on launch
     # day — plain-HTTP LAN deployments keep working unchanged).
     SESSION_COOKIE_AGE = 60 * 60 * 24 * 7
-    if os.environ.get('DJANGO_HTTPS', '0') == '1':
+    # _env(), not os.environ: the hosted deployment sets this in the server's
+    # .env file (see docs/DEPLOY-FREE.md), and a bare os.environ lookup silently
+    # ignored it, leaving cookies unsecured behind the HTTPS proxy.
+    if _env('DJANGO_HTTPS', '0') == '1':
         SECURE_SSL_REDIRECT = True
         SESSION_COOKIE_SECURE = True
         CSRF_COOKIE_SECURE = True

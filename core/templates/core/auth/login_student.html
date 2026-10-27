@@ -17,7 +17,7 @@ back-end routes are unchanged, so every bookmark, POST target and ?mode=signup
 link keeps working.
 {% endcomment %}
 
-{% block auth_title %}{% if initial_mode == 'signup' %}Create your account{% else %}Sign in{% endif %}{% endblock %}
+{% block auth_title %}{% if not student_registration_enabled %}Student access closed{% elif initial_mode == 'signup' %}Create your account{% else %}Sign in{% endif %}{% endblock %}
 
 {% block auth_style %}
 <link rel="stylesheet" href="{% static 'core/css/auth-deck.css' %}?v=2">
@@ -27,7 +27,7 @@ link keeps working.
 <main class="auth-panel auth-deck" id="auth-main"
       data-mode="{% if initial_mode == 'signup' %}signup{% else %}signin{% endif %}"
       data-alt-mode="signup">
-    <h1 class="auth-deck-sr">Sign in or create your student account</h1>
+    <h1 class="auth-deck-sr">{% if student_registration_enabled %}Sign in or create your student account{% else %}Student access is closed{% endif %}</h1>
 
     <!-- ══ The curve: one circle, only its edge ever on screen ══ -->
     <span class="auth-deck-blob" aria-hidden="true"></span>
@@ -46,11 +46,17 @@ link keeps working.
         <section class="auth-deck-invite auth-deck-invite--signup" data-invite="signup"
                  {% if initial_mode == 'signup' %}aria-hidden="true" inert{% else %}aria-hidden="false"{% endif %}>
             <div>
+                {% if student_registration_enabled %}
                 <p class="auth-deck-kicker">New here?</p>
                 <h2>Your room is a short walk from campus.</h2>
                 <p>Create a student account to browse staff-verified boarding houses, message landlords, and reserve a bed for the semester.</p>
                 <a class="auth-deck-cta" href="{% url 'student_register' %}" data-goto="signup"
                    {% if initial_mode == 'signup' %}tabindex="-1"{% endif %}>Create account</a>
+                {% else %}
+                <p class="auth-deck-kicker">Student access closed</p>
+                <h2>Sign-in is temporarily off.</h2>
+                <p>The administrator has closed the student side of BHIMS. Existing students can sign in again once it is switched back on.</p>
+                {% endif %}
             </div>
         </section>
 
@@ -75,11 +81,17 @@ link keeps working.
             <div class="auth-deck-sheet-inner">
                 <header class="auth-deck-head">
                     <p class="auth-eyebrow"><i class="bi bi-mortarboard-fill" aria-hidden="true"></i> Student portal</p>
-                    <h2 id="signinHeading">Sign in</h2>
-                    <p class="auth-sub">{{ login_subtitle|default:"Use your student account to reach your inquiries, bookings and listings." }}</p>
+                    <h2 id="signinHeading">{% if student_registration_enabled %}Sign in{% else %}Student access closed{% endif %}</h2>
+                    <p class="auth-sub">
+                        {% if student_registration_enabled %}
+                        {{ login_subtitle|default:"Use your student account to reach your inquiries, bookings and listings." }}
+                        {% else %}
+                        The administrator has turned off student sign-in. Landlords and administrators can still use their own portals.
+                        {% endif %}
+                    </p>
                 </header>
 
-                {% if messages %}
+                {% if messages and student_registration_enabled %}
                     {% for message in messages %}
                         <div class="auth-alert{% if message.tags != 'error' %} auth-alert-info{% endif %}" role="alert">
                             <i class="bi {% if message.tags == 'error' %}bi-exclamation-octagon-fill{% else %}bi-info-circle-fill{% endif %}" aria-hidden="true"></i>
@@ -88,6 +100,7 @@ link keeps working.
                     {% endfor %}
                 {% endif %}
 
+                {% if student_registration_enabled %}
                 <form method="post" action="{% url 'login' %}" novalidate>
                     {% csrf_token %}
                     {% for h in form.hidden_fields %}{{ h }}{% endfor %}
@@ -120,6 +133,13 @@ link keeps working.
 
                     <button type="submit" class="auth-submit">Sign in as student</button>
                 </form>
+                {% else %}
+                <div class="auth-alert" role="alert">
+                    <i class="bi bi-lock-fill" aria-hidden="true"></i>
+                    <span>Student sign-in is currently disabled. Please contact the BHIMS administrator.</span>
+                </div>
+                <p class="auth-sub">Your account is still there — it will work again as soon as the administrator turns student access back on.</p>
+                {% endif %}
 
                 <div class="auth-deck-foot">
                     <span>Signing in as a landlord or an administrator?</span>
@@ -132,6 +152,7 @@ link keeps working.
         </section>
 
         <!-- ────────── Create account ────────── -->
+        {% if student_registration_enabled %}
         <section class="auth-deck-sheet auth-deck-sheet--signup" data-sheet="signup"
                  aria-labelledby="signupHeading"{% if initial_mode != 'signup' %} hidden{% endif %}>
             <div class="auth-deck-sheet-inner">
@@ -208,6 +229,7 @@ link keeps working.
                 </form>
             </div>
         </section>
+        {% endif %}
     </div>
 </main>
 {% endblock %}

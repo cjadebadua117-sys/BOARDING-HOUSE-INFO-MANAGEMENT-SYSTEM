@@ -1,9 +1,11 @@
-%% Module D - ERD extract: Accounts, Administration & Analytics (owner: Mac)
-%% Entities this module writes (USER, BARANGAY, SITE_SETTING, ADMIN_ACTION_LOG)
-%% and the stores it reads to produce analytics (dashed = read-only for it).
+%% Module D - ERD extract: Accounts, Administration, Analytics & Reporting (owner: cjade, Christian Jade Badua)
+%% Entities this module writes: USER, BARANGAY, SITE_SETTING, ADMIN_ACTION_LOG
+%% and USER_REPORT (the reports it resolves).
 %% Render: venv\Scripts\python.exe tools\render_diagrams.py docs\final-project\diagrams
 erDiagram
     USER ||--o{ ADMIN_ACTION_LOG : "performs"
+    USER ||--o{ USER_REPORT : "files"
+    USER ||--o{ USER_REPORT : "is reported in"
     USER ||--o{ BOARDING_HOUSE : "owns"
     BARANGAY ||--o{ BOARDING_HOUSE : "referenced by name"
 
@@ -13,10 +15,11 @@ erDiagram
         string email UK
         string role "student / landlord / admin"
         string full_name
-        string student_id UK
-        string landlord_id UK
+        string student_id UK "students"
+        string landlord_id UK "landlords"
         string program "college"
         string program_custom "grade level or course"
+        string phone_number
         boolean is_active
     }
     BARANGAY {
@@ -37,6 +40,16 @@ erDiagram
         string target_id
         string target_repr
         datetime created_at
+    }
+    USER_REPORT {
+        int id PK
+        int reporter_id FK
+        int reported_user_id FK
+        string reason "harassment / scam / fake_listing / inappropriate / other"
+        text details
+        string status "pending / resolved / dismissed"
+        datetime created_at
+        datetime resolved_at
     }
     BOARDING_HOUSE {
         int id PK

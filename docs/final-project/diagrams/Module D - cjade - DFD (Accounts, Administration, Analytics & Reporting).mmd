@@ -1,6 +1,7 @@
-%% Module D - Level 1 DFD extract: Accounts, Administration & Analytics (processes 1.0, 8.0)
-%% Owner: Mac. Owns every account the other modules act as, and reads their
-%% stores to produce the dashboard, the analytics and the audit trail.
+%% Module D - Level 1 DFD extract: Accounts, Administration, Analytics &
+%% Reporting (processes 1.0, 7.0, 8.0). Owner: cjade (Christian Jade Badua).
+%% Owns every account the other modules act as, resolves the reports users file,
+%% and reads the other stores to build the dashboard and the audit trail.
 %% Render: venv\Scripts\python.exe tools\render_diagrams.py docs\final-project\diagrams
 flowchart LR
     STU["<b>STUDENT</b>"]
@@ -8,35 +9,46 @@ flowchart LR
     ADM["<b>ADMINISTRATOR</b>"]
 
     P1("<b>1.0 User &amp;<br/>Account Management</b>")
+    P7("<b>7.0 User<br/>Reporting</b>")
     P8("<b>8.0 Administration &amp;<br/>Analytics</b>")
 
     D1[("D1 | USERS")]
-    D8[("D8 | AUDIT LOG &amp; SETTINGS")]
     D2[("D2 | HOUSES &amp; ROOMS")]
+    D3[("D3 | AMENITIES &amp; BARANGAYS")]
     D5[("D5 | BOOKINGS")]
     D6[("D6 | LANDLORD RATINGS")]
     D7[("D7 | USER REPORTS")]
+    D8[("D8 | AUDIT LOG &amp; SETTINGS")]
 
     STU -- "registration (program or<br/>K-12 grade level), login" --> P1
     LAN -- "registration, login" --> P1
-    ADM -- "create / edit / deactivate<br/>landlord &amp; student accounts" --> P1
+    ADM -- "create / edit / deactivate<br/>accounts" --> P1
     P1 -- "account &amp; role records" --> D1
     D1 -- "verified credentials, role" --> P1
-    P1 -- "active session, role-based access" --> STU
+    P1 -- "session with role-based access" --> STU
     P1 -- "landlord ID, account status" --> LAN
 
-    ADM <-- "dashboard, analytics,<br/>audit trail" --> P8
+    STU -- "report a user<br/>(reason + details)" --> P7
+    LAN -- "report a user" --> P7
+    P7 -- "report record (pending)" --> D7
+    D7 -- "pending reports" --> P7
+    ADM -- "resolve / dismiss" --> P7
+    P7 -- "outcome of the report" --> STU
+
     D2 -- "listing counts" --> P8
     D5 -- "booking &amp; occupancy stats" --> P8
     D6 -- "rating stats" --> P8
     D7 -- "report stats" --> P8
+    ADM -- "manage barangays &amp; settings" --> P8
+    P8 -- "barangay records" --> D3
     P8 -- "admin action record" --> D8
     D8 -- "site settings" --> P8
-    P8 -- "account &amp; listing updates" --> D1
+    P8 -- "dashboard, analytics, audit trail" --> ADM
+    P8 -- "account updates" --> D1
 
     classDef entity fill:#f8eae4,stroke:#8c4a2f,stroke-width:2.5px,color:#3a2a20
     classDef process fill:#ffffff,stroke:#c1592a,stroke-width:3px,color:#3a2a20
     classDef store fill:#eef2f7,stroke:#4a6785,stroke-width:2px,color:#22303f
     class STU,LAN,ADM entity
-    class P1,P8 process
-    class D1,D2,D5,D6,D7,D8 store
+    class P1,P7,P8 process
+    class D1,D2,D3,D5,D6,D7,D8 store

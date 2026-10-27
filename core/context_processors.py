@@ -2,6 +2,22 @@ from django.db.models import Q, F
 from django.utils import timezone
 
 
+def student_registration(request):
+    """Expose whether student access is open to templates.
+
+    The landing and browse pages invite visitors to create an account, and
+    the login page hosts the sign-in form; all three are closed together when
+    the admin switches student access off. Signed-in users never see the
+    invitation, so they cost no query. If the table is not ready yet (first
+    migrate), the model helper falls back to the historical default: open.
+    """
+    user = getattr(request, 'user', None)
+    if user is not None and user.is_authenticated:
+        return {}
+    from core.models import student_access_enabled
+    return {'student_registration_enabled': student_access_enabled()}
+
+
 def inquiry_notifications(request):
     """Inject the unread-inquiry count for the sidebar NEW badge.
 

@@ -187,10 +187,12 @@ fragment; outside the grid it would disappear on every filter change.
        class="btn btn-primary">
       Landlord login
     </a>
+    {% if student_registration_enabled %}
     <a href="{% url 'student_register' %}"
        class="btn btn-ghost">
       Create a student account
     </a>
+    {% endif %}
   </div>
 </div>
 {% endif %}

@@ -45,9 +45,7 @@
 
             <div class="up-rating-panel">
                 <div class="up-rating-summary">
-                    <span class="up-rating-stars" aria-label="{{ average_rating|default:0|floatformat:1 }} out of 5 stars">
-                        {% if average_rating %}★ ★ ★ ★ ★{% else %}☆ ☆ ☆ ☆ ☆{% endif %}
-                    </span>
+                    {% include 'includes/star_rating.html' with rating=average_rating star_class='up-rating-stars' %}
                     <span class="up-rating-score">{% if average_rating %}{{ average_rating|floatformat:1 }} / 5{% else %}No rating yet{% endif %}</span>
                     <span class="up-rating-count">({{ rating_count }} review{{ rating_count|pluralize }})</span>
                 </div>
